@@ -5,7 +5,7 @@
 --Tile Script Info
 -- Each tile should have a script including variables needed to represent the information on the tile. The data format is as follows:
 -- *In all examples, the "starting piece" is used*
--- *It should be noted that the "top" and "topleft" actually refers to the bottom and bottomright of the tile model. This is for two reasons. One, most of the art on the tiles is actually aligned flipped 180, and two, this is the perspective from the default player (white)
+-- *It should be noted that the "top" and "topleft" is from the perspective of the white player. All of the tiles are, in actuality, rotated ky 180 degrees, which is taken into account in code with TILE_STANDARD_ROTATION
 -- Data Format:
 --  sides - table of strings ( ie. {'City', 'Road', 'Field', 'Road'} ) Specifies the feature on each side of the tile, starting from the "top" clockwise (top is arbitrary, but must be consistent amoung pieces)
 --             features: 'City', 'Road', 'Field', 'River', 'Abbey'
@@ -30,7 +30,6 @@
 --                  'Road Intersection' = links roads to each other or other features. This is used for wagons.
 --                  Linked Features with no coordinates: 'Coat of Arms', 'Inn', 'Cathedral', 'Princess'
 --                  Unlinked Features of the tile: 'Volcano', 'Dragon', 'Hill'
---             The following special features are not yet implemented:
 --                  'Garden' - specifies the location of a garden. Links are not used for this feature.
 
 DEBUG_BUTTONS = false
@@ -56,7 +55,7 @@ NEUTRAL_ITEMS_LOCATION = {x = 15.5, y = 1.5, z = 28.0}
 NEUTRAL_COLOR = {r=0.5,g=0.5,b=0.5}
 ERROR_COLOR = {r=1,g=0,b=0}
 
-PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Yellow'}
+PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}
 
 --The following figure definitions were specified in the CAR (Carcassonne Annoted Rules).
 --Although not all figures have the same properties, their relative similarities may simpify code
@@ -70,11 +69,11 @@ GOLD_BAR_NAME = 'Gold Bar'
 
 SCORE_COUNTER_GUIDS = {
     ['Green'] = '28bdff',
-    ['Yellow'] = '7ef326',
+    ['Pink'] = '7ef326',
     ['Purple'] = 'f206e4',
     ['Blue'] = '9d1e70',
     ['Red'] = '4e3519',
-    ['White'] = '1ecf3f',
+    ['White'] = '1ecf3f'
 }
 
 FLOATING_BUTTON_HEIGHT = 40.0
@@ -86,9 +85,9 @@ FIGURE_RETURN_DELAY = 0.4 --seconds to wait while returning a figure in order to
 FIGURE_PRAISE_DELAY = 2.5 --seconds to wait while figure is spinning before it is returned
 
 STARTING_TILE_GUID = 'c107f0'
-TILE_STACK_GUID = '65e895'
+TILE_STACK_GUID = '16d9db'
 
-PLAY_AREA_SCRIPTING_ZONE_GUID = '689f5b'
+PLAY_AREA_SCRIPTING_ZONE_GUID = '799064'
 
 FIGUREPAD_GUIDs = {
     ['Green'] = 'cee9ef',
@@ -96,7 +95,7 @@ FIGUREPAD_GUIDs = {
     ['White'] = 'b013fc',
     ['Blue'] = '37df2f',
     ['Red'] = '4a5985',
-    ['Yellow'] = '7ed1bb'
+    ['Pink'] = '7ed1bb'
 }
 
 figurePositions = {}
@@ -107,7 +106,7 @@ PLAYER_POSSESSION_AREAS = {
     ['White'] = {x=12.07, z=-25.0, rotation=2},
     ['Blue'] = {x=-12.1, z=-25.0, rotation=2},
     ['Red'] = {x=-24.96, z=-12.08, rotation=1},
-    ['Yellow'] = {x=-24.96, z=12.12, rotation=1}
+    ['Pink'] = {x=-24.96, z=12.12, rotation=1}
 }
 playerPossessionScriptingZones = {}
 
@@ -342,7 +341,8 @@ figureSettings = {
     ['AnMMayor'] = {name = 'Mayor', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
     ['AnMWagon'] = {name = 'Wagon', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
     ['AnMBarn'] = {name = 'Barn', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = false},
-    ['HnSShepherd'] = {name = 'Shepherd', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}
+    ['HnSShepherd'] = {name = 'Shepherd', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
+    ['CIIAbbot'] = {name = 'Abbot', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}
 }
 
 --[<steam_id>] = {['Intro'] = <intro string>, [<figure name>] = {<custom figure settings>}}
@@ -473,11 +473,18 @@ stateMachine = {
     },
     ['awaiting figure decision'] = {
         ['skip figure'] = 'post figure events',
+        ['retrieve abbot'] = 'retrieve abbot',
         ['placed figure'] = 'post figure events',
         ['placed shepherd'] = 'initialize shepherd',
         ['placed flier'] = 'wait for flier roll',
         ['placed fairy'] = 'post figure events',
         ['seduce knight'] = 'seduce knight'
+    },
+    ['retrieve abbot'] = {
+        ['figures returned'] = 'retrieve abbot - delay'
+    },
+    ['retrieve abbot - delay'] = {
+        ['next'] = 'post figure events'
     },
     ['wait for flier roll'] = {
         ['die rolled'] = 'check flier destination'
@@ -584,6 +591,7 @@ function stateHandler()
         tileHasVolcano = false
         tileHasMagicPortal = false
         seducedKnights = {}
+        currentPlayerAbbot = nil
         shepherdAwaitingAction = nil
         hasBuilderAwaitingAction = false
         return nextState('next')
@@ -610,6 +618,10 @@ function stateHandler()
     elseif turnState == 'awaiting figure decision' then
         gameNotification("Place a figure if desired.", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return displayFigureButtons()
+    elseif turnState == 'retrieve abbot' then
+        return
+    elseif turnState == 'retrieve abbot - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'wait for flier roll' then
         getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
         gameNotification("Roll the flier die to determine your flier's distance.", NEUTRAL_COLOR, activePlayers[currentPlayer])
@@ -639,10 +651,14 @@ function stateHandler()
         Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'post figure events' then
         getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
+        if currentPlayerAbbot ~= nil then
+            getObjectFromGUID(currentPlayerAbbot).clearButtons()
+        end
         for _, knight in ipairs(seducedKnights) do
             getObjectFromGUID(knight).clearButtons()
         end
         seducedKnights = {}
+        currentPlayerAbbot = nil
         return nextState('next')
     elseif turnState == 'post figure event - prompt shepherd' then
         return promptShepherd()
@@ -1110,7 +1126,7 @@ function initializeScoreSummary()
 end
 
 function scorePoints(player, feature, points)
-    if feature == 'Abbey' or feature == 'Shrine' or feature == "Baba Yaga's Hut" then feature = 'Cloister' end --these don't really need a seperate category
+    if feature == 'Abbey' or feature == 'Shrine' or feature == 'Garden' or feature == "Baba Yaga's Hut" then feature = 'Cloister' end --these don't really need a seperate category
     scoreSummary[player][feature] = scoreSummary[player][feature] + points
     local scoreCounter = getObjectFromGUID(SCORE_COUNTER_GUIDS[player])
     if scoreCounter ~= nil then
@@ -1555,6 +1571,9 @@ function onObjectPickedUp(player, pickedUpObject)
         if tileGridOccupied(xIndex, zIndex) and tileGrid[xIndex][zIndex].tile_guid == pickedUpObject.getGUID() then
             if lastPlacedTileX ~= nil then
                 getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
+                if currentPlayerAbbot ~= nil then
+                    getObjectFromGUID(currentPlayerAbbot).clearButtons()
+                end
                 for _, knight in ipairs(seducedKnights) do
                     getObjectFromGUID(knight).clearButtons()
                 end
@@ -2445,6 +2464,21 @@ function displayFigureButtons()
         }
         createNormalizedButton(getObjectFromGUID(knight), seduceKnightButtonParam, true)
     end
+    for _, obj in ipairs(getAllObjects()) do
+        if obj.getName() == 'Abbot' and obj.getDescription() == activePlayers[currentPlayer] then
+            local xIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+            local zIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            if tileGridOccupied(xIndex, zIndex) then
+                local retrieveAbbotButtonParam = {
+                   index = 1, label = 'Retrieve\nabbot', click_function = 'retrieveAbbotButton',
+                   position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+                }
+                createNormalizedButton(obj, retrieveAbbotButtonParam, true)
+                currentPlayerAbbot = obj.getGUID()
+                return --there shouldn't be multiple abbots for each player, but stop just in case
+            end
+        end
+    end
 end
 
 --creates a button, which is rotated according to the object's current rotation, so that the buttons always face the active player
@@ -2490,6 +2524,9 @@ function seduceKnightButton(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
         --although we later remove these buttons, there is a slight delay during the figure removal, so we remove them now
         getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
+        if currentPlayerAbbot ~= nil then
+            getObjectFromGUID(currentPlayerAbbot).clearButtons()
+        end
         for _, knight in ipairs(seducedKnights) do
             getObjectFromGUID(knight).clearButtons()
         end
@@ -2498,12 +2535,50 @@ function seduceKnightButton(object, sPlayer)
         if object.getName() ~= 'Wagon' then
             allGameMessage(object.getDescription() .. " " .. object.getName() .. " has been seduced by the princess! bow chicka wow wow~", stringColorToRGB(object.getDescription()))
         else
-
             allGameMessage(object.getDescription() .. " " .. object.getName() .. " has been seduced by the princess! Well not the wagon but the wagon crew... all of them... wow. Let's move on and forget this.", stringColorToRGB(object.getDescription()))
         end
         removeDependentFigures(object)
         return nextState('seduce knight')
     end
+end
+
+function retrieveAbbotButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        local xIndex = math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+        local zIndex = math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+        if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
+            local xPosition = (object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+            local zPosition = (object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+            xPosition = xPosition - xIndex
+            zPosition = zPosition - zIndex
+            local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+            local rotation = tileGrid[xIndex][zIndex].rotation
+            local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
+            local nameOfFeature = getFeatureName(tile, closestFeature)
+            getFeatureComponents(xIndex, zIndex, closestFeature, 2, true)
+            if nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbot' then
+                score = #transversedTileCoords
+                allGameMessage(object.getDescription() .. " retrieves their abbot back for " .. score .. " points on " .. nameOfFeature, stringColorToRGB(object.getDescription())) -- .. " with a strength of " .. value .. " followers", stringColorToRGB(player))
+                scorePoints(object.getDescription(), nameOfFeature, score)
+                table.insert(removedFigures, {guid=object.getGUID(), winner=true})
+                object.unlock()
+                object.use_gravity = false
+                object.interactable = false
+                --raise the follower in the air
+                object.setPositionSmooth({object.getPosition().x, object.getPosition().y + 2.5, object.getPosition().z}, false, false)
+                Timer.create({identifier=os.clock(), function_name='praiseFigures', function_owner=nil, parameters=nil, delay=0.9})
+                getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
+                if currentPlayerAbbot ~= nil then
+                    getObjectFromGUID(currentPlayerAbbot).clearButtons()
+                end
+                for _, knight in ipairs(seducedKnights) do
+                    getObjectFromGUID(knight).clearButtons()
+                end
+                return nextState('retrieve abbot')
+            end
+        end
+    end
+    allErrorMessage("Error: The abbot is currently on an invalid feature. Abbots can only be placed on gardens and cloisters.", activePlayers[currentPlayer])
 end
 
 --adds any special figures that were dependent on this figure to the removed figure list
@@ -2615,6 +2690,14 @@ function checkFigure(params)
                     end
                     if newFigure.getName() == 'Shepherd' and nameOfFeature ~= 'Field' then
                         allErrorMessage("Invalid Location: Shepherd can only be placed on fields.", activePlayers[currentPlayer])
+                        return
+                    end
+                    if newFigure.getName() == 'Abbot' and not (nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey') then
+                        allErrorMessage("Invalid Location: An abbot can only be placed on a garden or cloister.", activePlayers[currentPlayer])
+                        return
+                    end
+                    if newFigure.getName() ~= 'Abbot' and nameOfFeature == 'Garden' then
+                        allErrorMessage("Invalid Location: Only an abbot can be placed on a garden.", activePlayers[currentPlayer])
                         return
                     end
                     if newFigure.getName() == 'Builder' and nameOfFeature ~= 'Road' and nameOfFeature ~= 'City' then
@@ -2989,12 +3072,16 @@ function checkFlier(params)
                     local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
                     local nameOfFeature = getFeatureName(tile, closestFeature)
 
-                    if nameOfFeature ~= 'City' and nameOfFeature ~= 'Road' and nameOfFeature ~= 'Cloister' then
-                        allErrorMessage("Invalid Location: A flier can only be placed on a city, road, or cloister.", activePlayers[currentPlayer])
+                    if newFigure.getName() == 'Abbot' and nameOfFeature ~= 'Garden' and nameOfFeature ~= 'Cloister' and nameOfFeature ~= 'Abbey' then
+                        allErrorMessage("Invalid Location: An abbot can only be placed on a garden or cloister.", activePlayers[currentPlayer])
                         return
                     end
                     if newFigure.getName() == 'Mayor' and nameOfFeature ~= 'City' then
                         allErrorMessage("Invalid Location: A mayor can only occupy a city.", activePlayers[currentPlayer])
+                        return
+                    end
+                    if nameOfFeature ~= 'City' and nameOfFeature ~= 'Road' and nameOfFeature ~= 'Cloister' then
+                        allErrorMessage("Invalid Location: A flier can only be placed on a city, road, or cloister.", activePlayers[currentPlayer])
                         return
                     end
                     --local finished
@@ -3529,7 +3616,12 @@ function checkFlierDestination()
         end
         local features = destinationTile.getTable("specialFeatures")
         for j, feature in pairs(features) do
-            if feature[1] == 'Cloister' then
+            if (feature[1] == 'Cloister' or feature[1] == 'Abbey') and getObjectFromGUID(flier).getName() ~= 'Mayor' then
+                if not getFeatureComponents(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z, j + 12, 1, false) then
+                    hasIncompleteFeature = true
+                end
+            end
+            if feature[1] == 'Garden' and getObjectFromGUID(flier).getName() == 'Abbot' then
                 if not getFeatureComponents(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z, j + 12, 1, false) then
                     hasIncompleteFeature = true
                 end
@@ -3582,7 +3674,7 @@ function scoreFeatures()
                         --find the relative weights for the followers on this feature
                         for _, follower in ipairs(transversedFollowers) do
                             local weight = 0
-                            if follower.getName() == 'Follower' or follower.getName() == 'Wagon' then weight = 1
+                            if follower.getName() == 'Follower' or follower.getName() == 'Wagon' or follower.getName() == 'Abbot' then weight = 1
                             elseif follower.getName() == 'Big Follower' then weight = 2
                             elseif follower.getName() == 'Mayor' then
                                 for _, specialFeature in ipairs(transversedSpecialFeatures) do
@@ -3763,6 +3855,8 @@ function scoreFeatures()
                         elseif nameOfFeature == "Baba Yaga's Hut" then
                             score = 10 - #transversedTileCoords
                             --unclear if vineyards should be counted. Leaving out for now
+                        elseif nameOfFeature == "Garden" then
+                            score = #transversedTileCoords
                         end
                         for player, value in pairs(followerCounts) do
                             if nameOfFeature ~= 'Carcassonne' then --FIXME: need a better permanent solution
@@ -4400,6 +4494,25 @@ function returnFiguresCoroutine()
                         end
                     end
                 end
+                if figure_obj.getName() == 'Abbot' then --FIXME: this is a temporary solution until abbots can be added to the control panel
+                    local i = 1
+                    local figurePad = getObjectFromGUID(FIGUREPAD_GUIDs[figure_obj.getDescription()])
+                    local figureSetting = nil
+                    for _, temp_figureSetting in pairs(figureSettings) do
+                        if figure_obj.getName() == temp_figureSetting.name then
+                            figureSetting = temp_figureSetting
+                            break
+                        end
+                    end
+                    if figureSetting ~= nil then
+                        local x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                        figure_obj.setPositionSmooth({x = figurePad.getPosition().x + x, y = figurePad.getPosition().y + 1, z = figurePad.getPosition().z + z}, false, false)
+                        figure_obj.setRotationSmooth({x=0, y=figurePad.getRotation().y, z=0})
+                        found_home = true
+                    else
+                        allErrorMessage("Warning: " .. figure_obj.getName() .. " missing from figure settings", activePlayers[currentPlayer])
+                    end
+                end
             end
             if found_home == false then
                 allErrorMessage("Warning: " .. figure_obj.getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
@@ -4796,7 +4909,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
                 temporaryFeaturePositions[xIndex][zIndex][position] = transversalNum
             end
             local feature = features[position - 12]
-            if (feature[1] == 'Cloister' or feature[1] == 'Abbey' or feature[1] == 'Shrine' or feature[1] == "Baba Yaga's Hut") and transversalNum == 1 then
+            if (feature[1] == 'Cloister' or feature[1] == 'Abbey' or feature[1] == 'Shrine' or feature[1] == "Baba Yaga's Hut" or feature[1] == 'Garden') and transversalNum == 1 then
                 table.insert(transversedSpecialFeatures, feature[1])
                 debugMessage(1, feature[1] .. " added to transversedSpecialFeatures")
                 local tileNum = 1
