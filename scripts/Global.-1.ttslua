@@ -327,7 +327,6 @@ controlPanelSettings = {
     ['HnSTiles'] = false,
     ['HnSShepherd'] = false,
     ['HnSHills'] = false,
-    ['HnSDoNotBuryHills'] = false,
     ['HnSVineyards'] = false,
 --Mini expansions
     ['FlierTiles'] = false,
@@ -1439,6 +1438,46 @@ function scorePoints(player, feature, points)
     else
         allErrorMessage("Error adding score to " .. figure.getDescription() .. "'s counter")
     end
+    printScoreToNotes()
+end
+
+function printScoreToNotes()
+    local scoreBoard = ""
+    printedPlayers = {}
+    local playerNum = 1
+    local rank = 1
+    local lastHighscore = 0
+    while true do
+        local highscore = -999
+        local color = nil
+        for _, player in pairs(activePlayers) do
+            local scoreCounter = getObjectFromGUID(score_counter_guids[player])
+            if not table.contains(printedPlayers, player) and scoreCounter ~= nil then
+                if scoreCounter.Counter.getValue() > highscore then
+                    highscore = scoreCounter.Counter.getValue()
+                    color = player
+                end
+            end
+        end
+        if highscore >= 0 then
+            if highscore < lastHighscore then rank = playerNum end
+            local steam_name = ""
+            if getPlayerOwner(color):sub(1,2) == 'AI' then
+                steam_name = getPlayerOwner(color)
+            elseif controlPanelSettings[color .. 'Control'] ~= nil then
+                if Player[controlPanelSettings[color .. 'Control']].steam_name ~= nil then steam_name = Player[controlPanelSettings[color .. 'Control']].steam_name end
+            else
+                if Player[color].steam_name ~= nil then steam_name = Player[color].steam_name end
+            end
+            scoreBoard = scoreBoard .. stringToBracketedHex(color) .. highscore .. " points - " .. steam_name .. "\n"
+        else
+            break
+        end
+        table.insert(printedPlayers, color)
+        playerNum = playerNum + 1
+        lastHighscore = highscore
+    end
+    setNotes(scoreBoard)
 end
 
 function printScoreSummary(object, sPlayer)
@@ -1468,7 +1507,7 @@ function printScoreSummary(object, sPlayer)
             else
                 if Player[color].steam_name ~= nil then steam_name = Player[color].steam_name end
             end
-            allGameMessage("#" .. rank .. " - " .. highscore .. " points - ".. color .. " - " .. steam_name, player_color_tints[color])
+            printToColor("#" .. rank .. " - " .. highscore .. " points - ".. color .. " - " .. steam_name, sPlayer, player_color_tints[color])
             local accountedPoints = 0
             for key, score in pairs(scoreSummary[color]) do
                 local featureName = key
@@ -1574,6 +1613,7 @@ function prepareTileStack()
     end
     gameover = false
     turnState = 'begin turn'
+    printScoreToNotes()
     stateHandler()
     return 1
 end
@@ -3311,13 +3351,14 @@ function checkTileForHill()
     local specialFeatures = newTile.getTable('specialFeatures')
     if specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
-            if not controlPanelSettings['HnSDoNotBuryHills'] and specialFeature[1] == "Hill" then
+            if controlPanelSettings['HnSHills'] and specialFeature[1] == "Hill" then
                 local buriedTile_obj = nil
                 if buriedTile == nil then
                     local drawPile = getObjectFromGUID(tileStack_GUID)
                     if drawPile ~= nil then
                         local params = {}
                         params.position = {newTile.getPosition().x, newTile.getPosition().y + 1, newTile.getPosition().z}
+                        params.rotation = {0, 180, 180}
                         buriedTile_obj = drawPile.takeObject(params)
                         buriedTile = buriedTile_obj.getGUID()
                     elseif finalTile_GUID ~= nil then
@@ -6782,7 +6823,7 @@ SCORE_THREAT_THRESHOLD = 50 --players that are more than this many points behind
 FOLLOWER_SCORE_THRESHOLD = 0.75 --player won't use a figure to take a feature unless it is worth at least this much
 USED_FOLLOWER_PENALTY = 0.45 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
 OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
-FIELD_PENALTY = 2.0 --score penalty to apply to the field, to prevent it being used too early in the game
+FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being used too early in the game
 AI_DRAW_TILE_TIME = 1.5 --time delay to allow the drawn tile to travel to the AI player's hand
 UNFINISHED_TRADE_TOKEN_VALUE = 1.0
 
@@ -7248,7 +7289,6 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
                         highestScorePos = i
-                        print(featureNum)
                         if baselineFigures[activePlayers[currentPlayer]]['Big Follower'] and (baselineFollowerCounts[activePlayers[currentPlayer]] == 0 or nameOfFeature == 'City') then
                             highestScoreFigure = 'Big Follower'
                         else
@@ -7662,7 +7702,10 @@ function AICalculateFeatureScore(featureNum, figures)
         else
             scoreMultiplier = scoreMultiplier - (tilesRemaining / END_GAME_TRANSITION)
         end
-        score = (numCities * scoreMultiplier) - FIELD_PENALTY
+        score = (numCities * scoreMultiplier)
+        if tilesRemaining > END_GAME_TRANSITION then
+            score = score - FIELD_PENALTY
+        end
     elseif nameOfFeature == 'Road' and not controlPanelSettings['BaseDisableRoads'] then
         score = numTiles
         local containsInn = false
