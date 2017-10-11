@@ -1,7 +1,7 @@
 # Carcassonne
 ![Carcassonne](https://github.com/DinnerBuffet/TTSCarcassonne/blob/master/workshop%20splash.jpg)
 
-Script and Files for the Tabletop Simulator mod:
+Scripts, tile data, and files for the Tabletop Simulator mod:
 
 http://steamcommunity.com/sharedfiles/filedetails/?id=779900330
 
