@@ -90,8 +90,12 @@ FIGURE_PRAISE_DELAY = 2.5 --seconds to wait while figure is spinning before it i
 
 FRAME_TIME = 0.01667 --time that coroutine can run before it should yield to the main thread. Approx 60FPS
 
-TILE_STACK_GUID = '16d9db'
+tileStack_GUID = '16d9db'
 startingTile_GUID = 'c107f0'
+forkTile_GUID = nil
+springTile_GUID = nil
+lakeTile_GUID = nil
+riverBodyTiles_GUID = nil
 finalTile_GUID = nil
 
 PLAY_AREA_SCRIPTING_ZONE_GUID = '799064'
@@ -133,7 +137,7 @@ PLAYER_POSSESSION_ZONE_WIDTH = 18.4
 -- Guid for object we will put button on
 BUTTON_BOARD_GUID = '2b44bf'
 
-showMarkers = 'Scoring'
+showMarkers = 'Both'
 showMarkersButtonParam = {
     index = 0, label = 'Show\nMarkers:\n' .. showMarkers, click_function = 'showMarkersToggleButton',
     position = {-0.8,0.1,0.0}, width = 750, height=600, font_size = 150, function_owner = nil
@@ -221,6 +225,11 @@ expansionBags = {
         ['FlierTiles'] = {guid = 'f006d5'},
         ['FlierDie'] = {guid = 'dc7bf3'}
     }},
+    ['GamesQuarterly'] = {guid = 'c97cee', contents = {
+        ['GamesQuarterlyTiles'] = {guid = '235648'},
+        ['RiverSpringTile'] = {guid = '873113'},
+        ['RiverBodyTiles'] = {guid = '2d5d36'}
+    }},
     ['Goldmines'] = {guid = '080d67', contents = {
         ['GoldminesTiles'] = {guid = 'bc8fac'},
         ['GoldminesGold'] = {guid = 'd013b9'}
@@ -230,18 +239,26 @@ expansionBags = {
         ['HnSSheepBag'] = {guid = '12bf5b'}
     }},
     ['River'] = {guid = '51fd29', contents = {
-        ['EndTiles'] = {guid = 'aab569'},
-        ['BodyTiles'] = {guid = 'd5e587'},
+        ['RiverSpringTile'] = {guid = 'bec44f'},
+        ['RiverLakeTile'] = {guid = 'f85830'},
+        ['RiverBodyTiles'] = {guid = 'd5e587'},
     }},
     ['RiverII'] = {guid = '5a29f0', contents = {
-        ['EndTiles'] = {guid = '71858f', contents = {
-            ['Volcano Lake'] = {guid = 'a423e8'}
-        }},
-        ['BodyTiles'] = {guid = 'c6344e'},
+        ['RiverForkTile'] = {guid = '5a8213'},
+        ['RiverSpringTile'] = {guid = '0e6627'},
+        ['RiverLakeTile'] = {guid = 'a423e8'},
+        ['RiverBodyTiles'] = {guid = 'c6344e'},
     }},
     ['RiverBB5'] = {guid = '592f3a', contents = {
-        ['EndTiles'] = {guid = '7d1715'},
-        ['BodyTiles'] = {guid = 'e9d3b0'},
+        ['RiverSpringTile'] = {guid = '553392'},
+        ['RiverLakeTile'] = {guid = 'b9de5a'},
+        ['RiverBodyTiles'] = {guid = 'e9d3b0'},
+    }},
+    ['SpielPromo'] = {guid = '1e48bf', contents = {
+        ['SpielPromoTiles'] = {guid = '9129b0'}
+    }},
+    ['RussianPromo'] = {guid = 'bdeb95', contents = {
+        ['RussianPromoTiles'] = {guid = 'd47ccc'}
     }}
 }
 
@@ -259,6 +276,10 @@ controlPanelSettings = {
     ['BaseTiles'] = true,
     ['BaseFollower'] = true,
     ['BaseNumFollowers'] = 7,
+    ['BaseDisableRoads'] = false,
+    ['BaseDisableCities'] = false,
+    ['BaseDisableCloisters'] = false,
+    ['BaseDisableFarms'] = false,
     ['BaseNerfSmallCity'] = false,
     ['InCTiles'] = false,
     ['InCBigFollower'] = false,
@@ -287,7 +308,7 @@ controlPanelSettings = {
     ['HnSTiles'] = false,
     ['HnSShepherd'] = false,
     ['HnSHills'] = false,
-    ['HnSBuryHills'] = true,
+    ['HnSDoNotBuryHills'] = false,
     ['HnSVineyards'] = false,
 --Mini expansions
     ['FlierTiles'] = false,
@@ -311,22 +332,34 @@ tileSettings = {
     },
     ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}},
     ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}},
-    ['GoldminesTiles'] = {['Goldmines'] = {['GoldminesTiles'] = {}}}
+    ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {['GamesQuarterlyTiles'] = {}}},
+    ['GoldminesTiles'] = {['Goldmines'] = {['GoldminesTiles'] = {}}},
+    ['SpielPromoTiles'] = {['SpielPromo'] = {['SpielPromoTiles'] = {}}},
+    ['RussianPromoTiles'] = {['RussianPromo'] = {['RussianPromoTiles'] = {}}}
 }
 
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {position={<position on table>}, rotation={<rotation>}, shuffle=<should shuffle>, lock=<should lock>}}}
+--will only use the first ForkTile, SpringTile, and LakeTile, prioritizing GamesQuarterly over RiverII over BB5 River over the original River (CAR ref 237)
 startingTileSettings = {
+    ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {
+        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+    }},
     ['StartingTileRiverII'] = {['RiverII'] = {
-        ['EndTiles'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['BodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverForkTile'] = {position = {x=-3.975, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
     }},
     ['StartingTileRiverBB5'] = {['RiverBB5'] = {
-        ['EndTiles'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['BodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
     }},
     ['StartingTileRiver'] = {['River'] = {
-        ['EndTiles'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['BodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
     }},
     ['StartingTileCoC'] = {
         ['CoC'] = {
@@ -392,7 +425,7 @@ neutralFigureSettings = {
     ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {width = 1.5}}}
 }
 
-tileGrid = {}
+tileGrid = {[25]={[25]={tile_guid=startingTile_GUID, rotation=2}}}
 lastPlacedTileX = nil
 lastPlacedTileZ = nil
 
@@ -789,6 +822,10 @@ function onload(save_state)
         end
         if saved_data.tileGrid ~= nil then tileGrid = saved_data.tileGrid end
         if saved_data.startingTile_GUID ~= nil then startingTile_GUID = saved_data.startingTile_GUID end
+        if saved_data.forkTile_GUID ~= nil then forkTile_GUID = saved_data.forkTile_GUID end
+        if saved_data.springTile_GUID ~= nil then springTile_GUID = saved_data.springTile_GUID end
+        if saved_data.lakeTile_GUID ~= nil then lakeTile_GUID = saved_data.lakeTile_GUID end
+        if saved_data.riverBodyTiles_GUID ~= nil then riverBodyTiles_GUID = saved_data.riverBodyTiles_GUID end
         if saved_data.finalTile_GUID ~= nil then finalTile_GUID = saved_data.finalTile_GUID end
         if saved_data.lastPlacedTileX ~= nil then lastPlacedTileX = saved_data.lastPlacedTileX end
         if saved_data.lastPlacedTileZ ~= nil then lastPlacedTileZ = saved_data.lastPlacedTileZ end
@@ -841,13 +878,6 @@ function onload(save_state)
                 getObjectFromGUID(featureMarker_GUID).destruct()
             end
         end
-    else
-        local startingTile = getObjectFromGUID(startingTile_GUID)
-        tileGrid[25] = {}
-        tileGrid[25][25] = {}
-        tileGrid[25][25].tile_guid = startingTile_GUID
-        tileGrid[25][25].rotation = 2
-        clearCounters()
     end
 
     local notes = getNotebookTabs()
@@ -903,6 +933,10 @@ function onSave()
         showMarkers = showMarkers,
         tileGrid = tileGrid,
         startingTile_GUID = startingTile_GUID,
+        forkTile_GUID = forkTile_GUID,
+        springTile_GUID = springTile_GUID,
+        lakeTile_GUID = lakeTile_GUID,
+        riverBodyTiles_GUID = riverBodyTiles_GUID,
         finalTile_GUID = finalTile_GUID,
         lastPlacedTileX = lastPlacedTileX,
         lastPlacedTileZ = lastPlacedTileZ,
@@ -1062,7 +1096,10 @@ function onObjectDestroyed(dying_object)
     --this causes an issue when a script needs to draw the last card and doesn't know where it is
     --this code is meant to work around that problem
     local rad = 0.01
-    if dying_object.getGUID() == TILE_STACK_GUID then
+    if dying_object.getGUID() == tileStack_GUID or dying_object.getGUID() == riverBodyTiles_GUID then
+        if dying_object.getGUID() == riverBodyTiles_GUID then
+            riverBodyTiles_GUID = nil
+        end
         local allObjects = getAllObjects()
         for _, obj in ipairs(allObjects) do
             if tostring(obj) == 'Card(Clone) (LuaGameObjectScript)' then
@@ -1108,11 +1145,11 @@ end
 function endTurn()
     if not gameover then
         --the following will detect that the game has finished and will not go to the next turn
-        --local tileStack = getObjectFromGUID(TILE_STACK_GUID)
+        --local tileStack = getObjectFromGUID(tileStack_GUID)
         --if tileStack == nil and finalTile_GUID == nil then
         --    allGameMessage("The game is over. Calculate the final score by pressing the End Game button. (If this was unexpected, it could be because the tile stack was taken apart or manually stacked wrong)", NEUTRAL_COLOR)
         --else
-            if lastPlacedTileX == nil or not (controlPanelSettings['PnDDragon'] and tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid == expansionBags['RiverII'].contents['EndTiles'].contents['Volcano Lake'].guid) then
+            if lastPlacedTileX == nil or not (controlPanelSettings['PnDDragon'] and tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid == expansionBags['RiverII'].contents['LakeTile'].guid) then
                 currentPlayer = currentPlayer + 1
                 if currentPlayer > #activePlayers then
                     currentPlayer = 1
@@ -1192,6 +1229,17 @@ end
 function gameToggleButton(object, sPlayer)
     if checkAdminPrivileges(sPlayer) then
         if gameover then
+            for _, player in ipairs(PLAYER_COLORS) do
+                if controlPanelSettings[player .. 'Control'] ~= nil and controlPanelSettings[player .. 'Control']:sub(1,2) == 'AI' then
+                    for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
+                        if settingOn and table.contains({'PnDDragon', 'AnMAbbey', 'AnMWagon', 'FlierFlier', 'GoldminesGold'}, controlPanelSetting) then
+                            allErrorMessage("Cannot start an AI game with incompatible expansion: " .. controlPanelSetting .. ".", sPlayer)
+                            return
+                        end
+                    end
+                    break
+                end
+            end
             endGameButtonParam.label = 'End game\n(score\npoints)'
             startLuaCoroutine(self, 'startGame')
             --startGame()
@@ -1205,6 +1253,7 @@ function gameToggleButton(object, sPlayer)
 end
 
 function startGame()
+    clearCounters()
     local hasPlayer = false
     for _, player in ipairs(PLAYER_COLORS) do
         if Player[player].seated or controlPanelSettings[player .. 'Control'] ~= nil then
@@ -1388,7 +1437,7 @@ function printScoreSummary(object, sPlayer)
 end
 
 function prepareTileStack()
-    local tileStack = getObjectFromGUID(TILE_STACK_GUID)
+    local tileStack = getObjectFromGUID(tileStack_GUID)
     if tileStack ~= nil then
         local tileStackPosition = tileStack.getPosition()
         local tileStackAddPosition = tileStackPosition
@@ -1446,7 +1495,7 @@ function prepareTileStack()
         end
         tileStack.shuffle()
         if controlPanelSettings['StartingTileRiverII'] then
-            allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the fork should be the first tile placed, followed by the facedown tiles until they are gone, and then the spring and lake piece.", NEUTRAL_COLOR)
+            allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the fork should be the first tile placed, followed by the facedown tiles until they are gone, then the spring, and lastly the lake piece.", NEUTRAL_COLOR)
         elseif controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
             allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the spring should be the first tile placed, followed by the facedown tiles until they are gone, and then the lake.", NEUTRAL_COLOR)
         end
@@ -1477,21 +1526,34 @@ function prepareStartingTiles()
             tileGrid[25][25] = nil
         end
     end
-    local hasRiverEndTiles = false
     for rule_id, rule in pairs(startingTileSettings) do
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
                 for item_id, item_settings in pairs(expansion) do
-                    if item_id ~= "EndTiles" or not hasRiverEndTiles then
-                        prepareStartingTileLock = true
-                        if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = item_settings.position, rotation = item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
-                            prepareStartingTileLock = false
+                    if (item_id ~= "RiverSpringTile" or springTile_GUID == nil) and (item_id ~= "RiverLakeTile" or lakeTile_GUID == nil) then
+                        --HACK: only use GamesQuarterly river tiles if one of the rivers is enabled
+                        if not (rule_id == 'GamesQuarterlyTiles' and (item_id == "RiverSpringTile" or item_id == "RiverBodyTiles") and not controlPanelSettings['StartingTileRiverII'] and not controlPanelSettings['StartingTileRiver'] and not controlPanelSettings['StartingTileRiverBB5']) then
+                            prepareStartingTileLock = true
+                            if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = item_settings.position, rotation = item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
+                                prepareStartingTileLock = false
+                            end
+                            while prepareStartingTileLock do
+                                coroutine.yield(0)
+                            end
+                            if item_id == "RiverForkTile" and forkTile_GUID == nil then
+                                forkTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                            end
+                            if item_id == "RiverSpringTile" then
+                                springTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                            end
+                            if item_id == "RiverLakeTile" then
+                                lakeTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                            end
+                            if item_id == "RiverBodyTiles" and rule_id ~= 'GamesQuarterlyTiles' and riverBodyTiles_GUID == nil then --HACK: gamesquarterly has a single body tile, so it won't be used as the bodyTileStack
+                                riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
+                            end
+                            wait(1.0)
                         end
-                        while prepareStartingTileLock do
-                            coroutine.yield(0)
-                        end
-                        if item_id == "EndTiles" then hasRiverEndTiles = true end
-                        wait(1.0)
                     end
                     if item_settings.contents ~= nil then
                         for sub_item_id, sub_item_settings in pairs(item_settings.contents) do
@@ -2406,6 +2468,22 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, nameOfFeatur
         if verbose then allErrorMessage("Invalid Location: A wagon cannot occupy a field.", activePlayers[currentPlayer]) end
         return false
     end
+    if nameOfFeature == 'Road' and controlPanelSettings['BaseDisableRoads'] then
+        if verbose then allErrorMessage("Invalid Location: Roads are disabled via the house rules.", activePlayers[currentPlayer]) end
+        return false
+    end
+    if nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities'] then
+        if verbose then allErrorMessage("Invalid Location: Cities are disabled via the house rules.", activePlayers[currentPlayer]) end
+        return false
+    end
+    if nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters'] then
+        if verbose then allErrorMessage("Invalid Location: Cloisters are disabled via the house rules.", activePlayers[currentPlayer]) end
+        return false
+    end
+    if nameOfFeature == 'Field' and newFigure.getName() ~= 'Shepherd' and controlPanelSettings['BaseDisableFarms'] then
+        if verbose then allErrorMessage("Invalid Location: Farms are disabled via the house rules.", activePlayers[currentPlayer]) end
+        return false
+    end
     if newFigure.getName() == 'Barn' then
         if nameOfFeature ~= 'Field' or not checkBarn(position, xIndex, zIndex) then
             if verbose then allErrorMessage("Invalid Location: A barn can only be placed on a corner of fields.", activePlayers[currentPlayer]) end
@@ -2484,6 +2562,18 @@ function isValidWagonLocation(newFigure, xIndex, zIndex, position, nameOfFeature
     end
     if nameOfFeature == 'Field' then
         if verbose then allErrorMessage("Invalid Location: A wagon cannot occupy a field.", activePlayers[currentPlayer]) end
+        return false
+    end
+    if nameOfFeature == 'Road' and controlPanelSettings['BaseDisableRoads'] then
+        if verbose then allErrorMessage("Invalid Location: Roads are disabled via the house rules.", activePlayers[currentPlayer]) end
+        return false
+    end
+    if nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities'] then
+        if verbose then allErrorMessage("Invalid Location: Cities are disabled via the house rules.", activePlayers[currentPlayer]) end
+        return false
+    end
+    if nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters'] then
+        if verbose then allErrorMessage("Invalid Location: Cloisters are disabled via the house rules.", activePlayers[currentPlayer]) end
         return false
     end
     if featureOpenings > 0 then
@@ -2605,6 +2695,15 @@ function checkTile(params)
                     if newTile.getGUID() == finalTile_GUID then
                         finalTile_GUID = nil
                     end
+                    if newTile.getGUID() == forkTile_GUID then
+                        forkTile_GUID = nil
+                    end
+                    if newTile.getGUID() == springTile_GUID then
+                        springTile_GUID = nil
+                    end
+                    if newTile.getGUID() == lakeTile_GUID then
+                        lakeTile_GUID = nil
+                    end
 
                     if AUTOLOCK then
                         newTile.setLock(true)
@@ -2629,10 +2728,10 @@ function checkTileForHill()
     local features = newTile.getTable("specialFeatures")
     if features ~= nil then
         for _, specialFeature in ipairs(features) do
-            if controlPanelSettings['HnSBuryHills'] and specialFeature[1] == "Hill" then
+            if not controlPanelSettings['HnSDoNotBuryHills'] and specialFeature[1] == "Hill" then
                 local buriedTile_obj = nil
                 if buriedTile == nil then
-                    local drawPile = getObjectFromGUID(TILE_STACK_GUID)
+                    local drawPile = getObjectFromGUID(tileStack_GUID)
                     if drawPile ~= nil then
                         local params = {}
                         params.position = {newTile.getPosition().x, newTile.getPosition().y + 1, newTile.getPosition().z}
@@ -3154,7 +3253,7 @@ function checkAddedTileFeatureExtensions()
     end
     for _, figure in ipairs(transversedSpecialFigures) do
         if activePlayers[currentPlayer] ~= nil and figure.getDescription() == activePlayers[currentPlayer] and
-           newTile.getTable("sides")[1] ~= 'Abbey' then --do not give give sheep/extra builder tile (CAR 149)
+           newTile.getTable("sides")[1] ~= 'Abbey' then --do not give give sheep/extra builder tile (CAR ref 149)
             if figure.getName() == 'Shepherd' then
                 shepherdAwaitingAction = figure.getGUID()
             elseif figure.getName() == 'Builder' and not hasAlreadyTakenBuilderTile then
@@ -4742,7 +4841,7 @@ end
 function rewardFairy()
     local closestFollower = fairyClosestFollower()
     if closestFollower ~= nil and closestFollower.getDescription() == activePlayers[currentPlayer] then
-        local tileStack = getObjectFromGUID(TILE_STACK_GUID)
+        local tileStack = getObjectFromGUID(tileStack_GUID)
         if tileStack == nil and finalTile_GUID == nil then
             allGameMessage("WARNING: No tile stack found. No points awarded for fairy. If you just placed the last tile, you can ignore this message.", NEUTRAL_COLOR)
         else
@@ -4800,17 +4899,12 @@ function rewardGold()
             local eligiblePlayers = {}
             eligibleGold = {}
             for gold_guid, players in pairs(scoringRewards['Gold']) do
-                --print("checking gold: " .. gold_guid)
                 for _, player in ipairs(players) do
-                    --print("eligible player for this gold: " .. player)
                     if not table.contains(eligiblePlayers, player) then
-                        --print("adding player: " .. player)
                         table.insert(eligiblePlayers, player)
                     end
                 end
-                --print("current player: " .. activePlayers[currentMiniTurn])
                 if table.contains(players, activePlayers[currentMiniTurn]) then
-                    --print("current player is eligible for this gold")
                     table.insert(eligibleGold, gold_guid)
                 end
             end
@@ -5251,8 +5345,8 @@ function getFeatureComponents(xIndex, zIndex, position, tranversalLevels, reset)
     local nameOfFeature = getFeatureName(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), position)
     local finished = 0
     if position < 5 then
-        if nameOfFeature == 'River' then return false
-        elseif nameOfFeature == 'Road' then
+        --if nameOfFeature == 'River' then return 0
+        if nameOfFeature == 'Road' or nameOfFeature == 'River' then
             finished = getTileComponents(xIndex, zIndex, position, tranversalLevels, 1)
         else
             --in theory this shouldn't happen unless a player allows a figure to stay somewhere they're not supposed to
@@ -5321,7 +5415,6 @@ function hasSecondaryFigureComponents()
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
     for _, obj in ipairs(objs) do
         if table.contains(FOLLOWER_TYPES, obj.getName()) then
-            --print("checking " .. obj.getDescription() .. " " .. obj.getName())
             local xIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
             debugMessage(2, "Object on tile: x: " .. xIndex .. " z: " .. zIndex)
@@ -5338,7 +5431,6 @@ function hasSecondaryFigureComponents()
             end
         end
     end
-    --print("no followers in secondary feature")
     return false
 end
 
@@ -5826,8 +5918,8 @@ end
 END_GAME_TRANSITION = 35 --when there are less than this number of tiles, the AI will begin abandoning difficult to complete roads with inns and cities with cathedrals
 SCORE_THREAT_THRESHOLD = 50 --players that are more than this many points behind are no longer considered a threat and won't be factored into the decisions
 FOLLOWER_SCORE_THRESHOLD = 0.75 --player won't use a figure to take a feature unless it is worth at least this much
-USED_FOLLOWER_PENALTY = 0.40 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
-OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide insentive for easier features to complete
+USED_FOLLOWER_PENALTY = 0.45 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
+OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
 FIELD_PENALTY = 1.0 --score penalty to apply to the field, to prevent it being used too early in the game
 
 function AIStateHandler()
@@ -5976,13 +6068,13 @@ function AICalculateBaselineScores()
     numIdenticalScore = 1
 
     AICalculateActiveScores()
-    print("baseline scores:")
+    debugMessage(1, "baseline scores:")
     baselineScores = {}
     baselineFollowers = {}
     for _, player in pairs(activePlayers) do
         baselineScores[player] = activeScores[player]
         baselineFollowers[player] = spareFollowerCounts[player]
-        print(" " .. player .. ": " .. baselineScores[player])
+        debugMessage(1, " " .. player .. ": " .. baselineScores[player])
     end
 end
 
@@ -5990,49 +6082,82 @@ function AIChooseTileLocation()
     debugMessage(2, "AI choosing tile location...")
     lastFrameTime = os.clock()
     AICalculateBaselineScores()
-    local newTile
-    local tileStack = getObjectFromGUID(TILE_STACK_GUID)
-    if tileStack ~= nil then
-        newTile = tileStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
-        --getObjectFromGUID(TILE_STACK_GUID).dealToColor(1, getCurrentPlayerOwner())
-    elseif finalTile_GUID ~= nil then
-        newTile = getObjectFromGUID(finalTile_GUID)
-        local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
-        newTile.setPositionSmooth(handPosition)
-    else
-        allGameMessage("AI could not find the tile stack. The game is assumed to be over.", NEUTRAL_COLOR, nil)
-        return 1
+    local newTile = nil
+    local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
+    if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
+        if forkTile_GUID ~= nil then
+            newTile = getObjectFromGUID(forkTile_GUID)
+            newTile.setPositionSmooth(handPosition)
+        elseif riverBodyTiles_GUID ~= nil then
+            local riverStack = getObjectFromGUID(riverBodyTiles_GUID)
+            if riverStack ~= nil then
+                newTile = riverStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+            end
+        elseif getObjectFromGUID(tileStack_GUID) ~= nil and finalTile_GUID ~= nil then
+            newTile = getObjectFromGUID(finalTile_GUID)
+            newTile.setPositionSmooth(handPosition)
+        elseif springTile_GUID ~= nil then
+            newTile = getObjectFromGUID(springTile_GUID)
+            newTile.setPositionSmooth(handPosition)
+        elseif lakeTile_GUID ~= nil then
+            newTile = getObjectFromGUID(lakeTile_GUID)
+            newTile.setPositionSmooth(handPosition)
+        end
+        if newTile ~= nil then
+            alreadyFound = true
+        end
+    end
+    local tileStack = nil
+    if newTile == nil then
+        tileStack = getObjectFromGUID(tileStack_GUID)
+        if tileStack ~= nil then
+            newTile = tileStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+            --getObjectFromGUID(tileStack_GUID).dealToColor(1, getCurrentPlayerOwner())
+        elseif finalTile_GUID ~= nil then
+            newTile = getObjectFromGUID(finalTile_GUID)
+            local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
+            newTile.setPositionSmooth(handPosition)
+        else
+            allGameMessage("AI could not find the tile stack. The game is assumed to be over.", NEUTRAL_COLOR, nil)
+            return 1
+        end
     end
 
     lastDrawnTile_GUID = newTile.getGUID()
     calculationStart = os.clock()
     coroutine.yield(0)
 
-    local tileConfigurations = {}
-    for x, tileColumn in pairs(tileGrid) do
-        for z, tileLocation in pairs(tileColumn) do
-            for side, sideDelta in pairs(SIDE_DELTA) do
-                if not tileGridOccupied(x + sideDelta.x, z + sideDelta.z) then
-                    if tileConfigurations[x + sideDelta.x] == nil then
-                        tileConfigurations[x + sideDelta.x] = {}
-                    end
-                    if tileConfigurations[x + sideDelta.x][z + sideDelta.z] == nil then
-                        tileConfigurations[x + sideDelta.x][z + sideDelta.z] = true
-                        for tileRotation=1, 4 do
-                            if isValidTileLocation(newTile, tileRotation, x + sideDelta.x, z + sideDelta.z, false) then
-                                AICalculateLocationScore(newTile, tileRotation, x + sideDelta.x, z + sideDelta.z)
+    if startingTile_GUID ~= nil then
+        local tileConfigurations = {}
+        for x, tileColumn in pairs(tileGrid) do
+            for z, tileLocation in pairs(tileColumn) do
+                for side, sideDelta in pairs(SIDE_DELTA) do
+                    if not tileGridOccupied(x + sideDelta.x, z + sideDelta.z) then
+                        if tileConfigurations[x + sideDelta.x] == nil then
+                            tileConfigurations[x + sideDelta.x] = {}
+                        end
+                        if tileConfigurations[x + sideDelta.x][z + sideDelta.z] == nil then
+                            tileConfigurations[x + sideDelta.x][z + sideDelta.z] = true
+                            for tileRotation=1, 4 do
+                                if isValidTileLocation(newTile, tileRotation, x + sideDelta.x, z + sideDelta.z, false) then
+                                    AICalculateLocationScore(newTile, tileRotation, x + sideDelta.x, z + sideDelta.z)
+                                end
                             end
                         end
                     end
                 end
             end
         end
+    else
+        highestScoreX = 25
+        highestScoreZ = 25
+        highestScoreRot = 4
     end
 
     local posText = highestScorePos
     if highestScorePos == nil then posText = "nil" end
     if highestScoreX ~= nil then
-        print("highest score: " .. highestScore .. " at x:" .. highestScoreX .. " z:" .. highestScoreZ .. " rot:" .. highestScoreRot .. " pos:" .. posText)
+        debugMessage(1, "highest score: " .. highestScore .. " at x:" .. highestScoreX .. " z:" .. highestScoreZ .. " rot:" .. highestScoreRot .. " pos:" .. posText)
         AIMoveTileToLocation(newTile, highestScoreX, highestScoreZ, highestScoreRot)
     else
         allGameMessage("AI could not find a location for the tile. It will be reshuffled into the tile stack, and a new tile drawn. If you encountered this message, but there is a legal spot to put the tile, it might be a bug.", NEUTRAL_COLOR, nil)
@@ -6065,6 +6190,15 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     tileGrid[xIndex][zIndex].rotation = tileRotation
     if newTile.getGUID() == finalTile_GUID then
         finalTile_GUID = nil
+    end
+    if newTile.getGUID() == forkTile_GUID then
+        forkTile_GUID = nil
+    end
+    if newTile.getGUID() == springTile_GUID then
+        springTile_GUID = nil
+    end
+    if newTile.getGUID() == lakeTile_GUID then
+        lakeTile_GUID = nil
     end
     lastPlacedTileX = xIndex
     lastPlacedTileZ = zIndex
@@ -6243,10 +6377,13 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
     end
     local nameOfFeature = getFeatureName(tile, closestFeature)
     local featureOpenings = getFeatureComponents(xIndex, zIndex, closestFeature, 2, true)
+    if nameOfFeature == 'River' or nameOfFeature == 'Carcassonne' then
+        return -1000, featureOpenings, nameOfFeature
+    end
 
     local tilesReminaing = 0
-    if getObjectFromGUID(TILE_STACK_GUID) ~= nil then
-        tilesRemaining = getObjectFromGUID(TILE_STACK_GUID).getQuantity()
+    if getObjectFromGUID(tileStack_GUID) ~= nil then
+        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
     elseif finalTile_GUID ~= nil then
         tilesRemaining = 1
     end
@@ -6282,7 +6419,7 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
     end
     local score = 0
     local containsPigHerd = false
-    if nameOfFeature == 'City' then
+    if nameOfFeature == 'City' and not controlPanelSettings['BaseDisableCities'] then
         score = #transversedTileCoords
         local containsCathedral = false
         for _, feature in ipairs(transversedSpecialFeatures) do
@@ -6336,7 +6473,7 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
         --do not nerf cities that were completed by an abbey, or incomplete cities
         if lastPlacedTileX ~= nil and getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).getTable("sides")[1] ~= 'Abbey' and
            featureComplete and controlPanelSettings['BaseNerfSmallCity'] and score == 4 then score = 2 end
-    elseif nameOfFeature == 'Field' then
+    elseif nameOfFeature == 'Field' and not controlPanelSettings['BaseDisableFarms'] then
         local numCities = 0
         for _, feature in ipairs(transversedSpecialFeatures) do
             if feature == 'Completed City' then
@@ -6369,7 +6506,7 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
             scoreMultiplier = scoreMultiplier - (tilesRemaining / END_GAME_TRANSITION)
         end
         score = numCities * scoreMultiplier
-    elseif nameOfFeature == 'Road' then
+    elseif nameOfFeature == 'Road' and not controlPanelSettings['BaseDisableRoads'] then
         score = #transversedTileCoords
         local containsInn = false
         for _, feature in ipairs(transversedSpecialFeatures) do
@@ -6392,7 +6529,7 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
                 end
             end
         end
-    elseif nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' or nameOfFeature == 'Shrine' then
+    elseif (nameOfFeature == 'Cloister' and not controlPanelSettings['BaseDisableCloisters']) or nameOfFeature == 'Abbey' or nameOfFeature == 'Shrine' then
         score = #transversedTileCoords
         if controlPanelSettings['HnSVineyards'] then
             for _, feature in ipairs(transversedSpecialFeatures) do
@@ -6503,8 +6640,8 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
     end
 
     local tilesReminaing = 0
-    if getObjectFromGUID(TILE_STACK_GUID) ~= nil then
-        tilesRemaining = getObjectFromGUID(TILE_STACK_GUID).getQuantity()
+    if getObjectFromGUID(tileStack_GUID) ~= nil then
+        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
     elseif finalTile_GUID ~= nil then
         tilesRemaining = 1
     end
