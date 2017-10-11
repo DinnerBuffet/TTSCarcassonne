@@ -236,11 +236,11 @@ startingTileSettings = {
 }
 
 figureSettings = {
-    ['BaseFollower'] = {name = 'Follower', mesh = 'http://pastebin.com/raw/xm0yEcbQ', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, num = 'BaseNumFollowers'},
-    ['InCBigFollower'] = {name = 'Big Follower', mesh = 'http://pastebin.com/raw/xm0yEcbQ', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = -0.8, z = 0.5}, scale = {0.65, 0.65, 0.5}},
-    ['TnBBuilder'] = {name = 'Builder', mesh = 'http://pastebin.com/raw.php?i=Y04xXaE9', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -0.8, z = -0.5}, scale = {0.5, 0.5, 0.5}},
-    ['TnBPig'] = {name = 'Pig', mesh = 'http://pastebin.com/raw.php?i=EKzr3gDp', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = 0.5}, scale = {0.5, 0.5, 0.5}},
-    ['AnMMayor'] = {name = 'Mayor', mesh = 'http://pastebin.com/raw.php?i=eqfca2g7', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.385}}, --model too wide. scale down width
+    ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTFM0S0hTckFrWUk', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, num = 'BaseNumFollowers'}, --should probably be closer to  {0.5, 0.45, 0.5}
+    ['InCBigFollower'] = {name = 'Big Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTFM0S0hTckFrWUk', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = -0.8, z = 0.5}, scale = {0.6, 0.6, 0.5}}, --should probably be closer to {0.60, 0.55, 0.5}
+    ['TnBBuilder'] = {name = 'Builder', mesh = 'http://pastebin.com/raw.php?i=Y04xXaE9', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -0.8, z = -0.5}, scale = {0.5, 0.5, 0.5}}, --should probably be closer to {0.5, 0.42, 0.5}
+    ['TnBPig'] = {name = 'Pig', mesh = 'http://pastebin.com/raw.php?i=EKzr3gDp', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = 0.5}, scale = {0.5, 0.5, 0.5}}, --should probably be closer to {0.45, 0.5, 0.5}
+    ['AnMMayor'] = {name = 'Mayor', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTnZMT0lCZjZybU0', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.5}}, --model too wide. scale down width
     ['AnMWagon'] = {name = 'Wagon', mesh = 'http://pastebin.com/raw.php?i=K0Xv6CsA', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = 0.5}, scale = {0.5, 0.5, 0.5}},
     ['AnMBarn'] = {name = 'Barn', mesh = 'http://pastebin.com/raw.php?i=eRH8u5wG', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = -0.5}, scale = {0.5, 0.5, 0.5}},
     ['HnSShepherd'] = {name = 'Shepherd', mesh = 'http://pastebin.com/raw.php?i=PgB5jLC1', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = 0.5}, scale = {0.5, 0.5, 0.5}}
@@ -262,8 +262,10 @@ scoring = false
 gameover = true
 
 wagonLocations = {}
+hasAvailableWagonFeature = {}
 --used when the player order must be transversed within someone's turn
 currentMiniTurn = nil
+hasIncompleteSecondaryFeature = false
 
 transversedGrid = {}
 transversedFeaturePositions = {}
@@ -321,7 +323,6 @@ function onload(save_state)
     playAreaScriptingZone = getObjectFromGUID(playAreaScriptingZone_GUID)
 
     if save_state ~= nil then
-        local scores = {}
         local saved_data = JSON.decode(save_state)
         if saved_data.showMarkers ~= nil then showMarkers = saved_data.showMarkers end
         if saved_data.tileGrid ~= nil then tileGrid = saved_data.tileGrid end
@@ -330,7 +331,14 @@ function onload(save_state)
         if saved_data.controlPanelSettings ~= nil then
             controlPanelSettings = saved_data.controlPanelSettings
         end
-        if saved_data.scores ~= nil then scores = saved_data.scores end
+        if saved_data.scores ~= nil then
+            for player, score in pairs(saved_data.scores) do
+                local scoreCounter = getObjectFromGUID(scoreCounters_GUID[player])
+                if scoreCounter ~= nil then
+                    scoreCounter.Counter.setValue(score)
+                end
+            end
+        end
         if saved_data.figurePositions ~= nil then figurePositions = saved_data.figurePositions end
         if saved_data.gameover ~= nil then
             gameover = saved_data.gameover
@@ -343,14 +351,9 @@ function onload(save_state)
         if saved_data.largestCity ~= nil then largestCity = saved_data.largestCity end
         if saved_data.longestRoad ~= nil then longestRoad = saved_data.longestRoad end
         if saved_data.playerPossessionScriptingZones ~= nil then playerPossessionScriptingZones = saved_data.playerPossessionScriptingZones end
-
-        --set scores
-        if scores ~= nil then
-            for player, score in pairs(scores) do
-                local scoreCounter = getObjectFromGUID(scoreCounters_GUID[player])
-                if scoreCounter ~= nil then
-                    scoreCounter.Counter.setValue(scores[player])
-                end
+        if saved_data.featureMarker_GUIDs ~= nil then
+            for _, featureMarker_GUID in ipairs(saved_data.featureMarker_GUIDs) do
+                getObjectFromGUID(featureMarker).destruct()
             end
         end
     else
@@ -401,6 +404,12 @@ function onSave()
             scores[player] = scoreCounter.Counter.getValue()
         end
     end
+    local featureMarker_GUIDs = {}
+    if featureMarkers ~= nil then
+        for i, featureMarker in ipairs(featureMarkers) do
+            featureMarker_GUIDs[i] = featureMarker.getGUID()
+        end
+    end
     local toSave = {
         showMarkers = showMarkers,
         tileGrid = tileGrid,
@@ -414,9 +423,35 @@ function onSave()
         currentPlayer = currentPlayer,
         largestCity = largestCity,
         longestRoad = longestRoad,
-        playerPossessionScriptingZones = playerPossessionScriptingZones
+        playerPossessionScriptingZones = playerPossessionScriptingZones,
+        featureMarker_GUIDs = featureMarker_GUIDs --if script was in the middle of making feature markers, delete them after loading
     }
     return JSON.encode(toSave)
+end
+
+m_Routines = {}
+
+--[[ The Update function. This is called once per frame. --]]
+function update()
+    --this replaces the built-in coroutine functions, since the built-in ones have the unfortunate side-effect that they continue to run after loading a game. These will not.
+    local iNumRoutines = #m_Routines
+
+    for i = iNumRoutines, 1, -1 do
+        local sStatus = coroutine.status(m_Routines[i].Co)
+        --resume all coroutines with yield 0
+        if sStatus == 'suspended' and m_Routines[i].iYield == 0 then
+            local bRes = false
+            local iYield = 0
+
+            bRes, iYield = coroutine.resume(m_Routines[i].Co) --resume the coroutine and save the value from yield (to allow to use e.g. yield(1) to not have it resumed automatically)
+
+            iYield = iYield or 0 --default to 0 (-> both .yield() and .yield(0) works)
+            m_Routines[i].iYield = iYield
+        --clear finished routines
+        elseif sStatus == 'dead' then
+            table.remove(m_Routines, i)
+        end
+    end
 end
 
 function checkControlPanelPrivileges(player)
@@ -946,8 +981,16 @@ end
 function checkTile(params)
     if params.time == lastDroppedTime then
         dropLock = false
-        startLuaCoroutine(self, 'checkTileCoroutine')
+        --startLuaCoroutine(self, 'checkTileCoroutine')
+
+        local CoNew = coroutine.create(checkTileCoroutine)
+        --add it to the list of active coroutines
+        table.insert(m_Routines, {Co = CoNew, iYield = 0})
+        --run it...
+        local iIdx = #m_Routines
+        coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
     end
+
 end
 
 function checkTileCoroutine()
@@ -957,7 +1000,7 @@ function checkTileCoroutine()
         local newTile = lastDroppedObject
         if newTile.held_by_color == nil then
             if newTile.getTable("sides") == nil then
-                allErrorMessage("Error: This tile has no script data.")
+                allErrorMessage("Error: This tile has no script data. Most likely this expansion hasn't yet been implemented.")
                 return 1
             end
             local xPosition = (newTile.getPosition().x - MIDDLELOCATION.x + MIDDLEOFFSET.x) / TILE_SPACING
@@ -1411,7 +1454,14 @@ end
 function checkFigure(params)
     if params.time == lastDroppedTime then
         dropLock = false
-        startLuaCoroutine(self, 'checkFigureCoroutine')
+        --startLuaCoroutine(self, 'checkFigureCoroutine')
+
+        local CoNew = coroutine.create(checkFigureCoroutine)
+        --add it to the list of active coroutines
+        table.insert(m_Routines, {Co = CoNew, iYield = 0})
+        --run it...
+        local iIdx = #m_Routines
+        coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
     end
 end
 
@@ -1825,7 +1875,14 @@ end
 
 function scoreFlock(params)
     shepherd = params.shepherd
-    startLuaCoroutine(self, 'scoreFlockCoroutine')
+    --startLuaCoroutine(self, 'scoreFlockCoroutine')
+
+    local CoNew = coroutine.create(scoreFlockCoroutine)
+    --add it to the list of active coroutines
+    table.insert(m_Routines, {Co = CoNew, iYield = 0})
+    --run it...
+    local iIdx = #m_Routines
+    coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
 end
 
 function scoreFlockCoroutine()
@@ -1850,7 +1907,7 @@ function scoreFlockCoroutine()
                 hasWolf = true
             end
             token.setPositionSmooth({sheepTileBag.getPosition().x, sheepTileBag.getPosition().y + 1.5, sheepTileBag.getPosition().z})
-            coroutine.yield(0)
+            --coroutine.yield(0)
         end
         for _, feature in ipairs(transversedSpecialFeatures) do
             if feature == 'Sheep' then
@@ -1951,7 +2008,14 @@ function findClosestFeature(xPosition, zPosition, tile, rotation)
 end
 
 function scoreFeatures()
-    startLuaCoroutine(self, 'scoreFeaturesCoroutine')
+    --startLuaCoroutine(self, 'scoreFeaturesCoroutine')
+
+    local CoNew = coroutine.create(scoreFeaturesCoroutine)
+    --add it to the list of active coroutines
+    table.insert(m_Routines, {Co = CoNew, iYield = 0})
+    --run it...
+    local iIdx = #m_Routines
+    coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
 end
 
 function scoreFeaturesCoroutine()
@@ -1978,6 +2042,8 @@ function scoreFeaturesCoroutine()
                         local rotation = tileGrid[xIndex][zIndex].rotation
                         local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
                         local nameOfFeature = getFeatureName(tile, closestFeature)
+                        --this hack will tell if there is a place to put the wagon if the feature had been completed
+                        hasIncompleteSecondaryFeature = false
                         debugMessage(2, "figure closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " position: " .. closestFeature .. " name: " .. nameOfFeature)
                         local featureComplete = getFeatureComponents(xIndex, zIndex, closestFeature, 2, true)
 
@@ -2156,6 +2222,7 @@ function scoreFeaturesCoroutine()
                                     wagonLocations[follower.getDescription()] = {}
                                     wagonLocations[follower.getDescription()][1] = follower.getPosition().x
                                     wagonLocations[follower.getDescription()][2] = follower.getPosition().z
+                                    hasAvailableWagonFeature[follower.getDescription()] = hasIncompleteSecondaryFeature
                                 end
                                 local winner = false
                                 if topWeight > 0 and followerCounts[follower.getDescription()] >= topWeight and score > 0 then winner = true end
@@ -2339,6 +2406,7 @@ function scoreFeaturesCoroutine()
             rank = rank + 1
         end
         allGameMessage("Game over.", NEUTRAL_COLOR)
+        allGameMessage("If you enjoyed the mod, please give it a like on the workshop. If you encountered any bugs, please upload a save file and describe it in the workshop comments.", NEUTRAL_COLOR)
     else
         postScoringEvents()
     end
@@ -2347,25 +2415,31 @@ end
 
 function postScoringEvents()
     debugMessage(1, "Executing post-scoring events")
-    if hasBuilderAwaitingAction then
-        tileDroplock = false
-        hasAlreadyTakenBuilderTile = true
-        allGameMessage(activePlayers[currentPlayer] .."'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", stringColorToRGB(activePlayers[currentPlayer]))
-        return
-    end
     currentMiniTurn = currentPlayer
     while true do
         if wagonLocations[activePlayers[currentMiniTurn]] ~= nil then
-            allGameMessage(activePlayers[currentMiniTurn] .. "'s wagon has finished and may now be placed back on a connected feature", stringColorToRGB(activePlayers[currentMiniTurn]))
-            replaceWagon()
-            return
+            if hasAvailableWagonFeature[activePlayers[currentMiniTurn]] then
+                allGameMessage(activePlayers[currentMiniTurn] .. "'s wagon has finished and may now be placed back on a connected feature.", stringColorToRGB(activePlayers[currentMiniTurn]), activePlayers[currentMiniTurn])
+                replaceWagon()
+                return
+            else
+                wagonLocations[activePlayers[currentMiniTurn]] = nil
+                allGameMessage(activePlayers[currentMiniTurn] .. "'s wagon has finished, but there were no available features connected.", stringColorToRGB(activePlayers[currentMiniTurn]), activePlayers[currentMiniTurn])
+            end
         end
         currentMiniTurn = currentMiniTurn + 1
         if currentMiniTurn > #activePlayers then currentMiniTurn = 1 end
         if currentMiniTurn == currentPlayer then break end
     end
     currentMiniTurn = nil
+    if hasBuilderAwaitingAction then
+        tileDroplock = false
+        hasAlreadyTakenBuilderTile = true
+        allGameMessage(activePlayers[currentPlayer] .."'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentMiniTurn])
+        return
+    end
     wagonLocations = {}
+    hasAvailableWagonFeature = {}
     newBarn = nil
     endTurn()
 end
@@ -2395,12 +2469,26 @@ end
 
 function praiseShepherd()
     markSecondary = false
-    startLuaCoroutine(self, 'praiseFiguresCoroutine')
+    --startLuaCoroutine(self, 'praiseFiguresCoroutine')
+
+    local CoNew = coroutine.create(praiseFiguresCoroutine)
+    --add it to the list of active coroutines
+    table.insert(m_Routines, {Co = CoNew, iYield = 0})
+    --run it...
+    local iIdx = #m_Routines
+    coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
 end
 
 function praiseFigures()
     markSecondary = true
-    startLuaCoroutine(self, 'praiseFiguresCoroutine')
+    --startLuaCoroutine(self, 'praiseFiguresCoroutine')
+
+    local CoNew = coroutine.create(praiseFiguresCoroutine)
+    --add it to the list of active coroutines
+    table.insert(m_Routines, {Co = CoNew, iYield = 0})
+    --run it...
+    local iIdx = #m_Routines
+    coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
 end
 
 --focus the camera on the currently praised figures
@@ -2498,7 +2586,14 @@ function identifyFeature(obj)
 end
 
 function returnFigures()
-    startLuaCoroutine(self, 'returnFiguresCoroutine')
+    --startLuaCoroutine(self, 'returnFiguresCoroutine')
+
+    local CoNew = coroutine.create(returnFiguresCoroutine)
+    --add it to the list of active coroutines
+    table.insert(m_Routines, {Co = CoNew, iYield = 0})
+    --run it...
+    local iIdx = #m_Routines
+    coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
 end
 
 --send figures back to the player supply area (assuming that's where they were when the game started)
@@ -2508,7 +2603,6 @@ function returnFiguresCoroutine()
     end
     featureMarkers = {}
     for _, figure in ipairs(removedFigures) do
-        coroutine.yield(0)
         figure[1].use_gravity = true
         figure[1].interactable = true
 
@@ -2562,6 +2656,7 @@ function returnFiguresCoroutine()
                 allErrorMessage("Warning: " .. figure[1].getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
             end
         end
+        coroutine.yield(0)
     end
     removedFigures = {}
 
@@ -2760,6 +2855,34 @@ function getFigureComponents()
     debugMessage(1, "Transversed " .. #transversedTileCoords .. " tiles, " .. #transversedFollowers .. " followers, " .. #transversedSpecialFigures .. " special figures, " .. #transversedSpecialFeatures .. " special features, and " .. #transversedTokens .. " tokens")
 end
 
+--getSecondaryFigureComponents
+--
+-- Transverses the all followers in the play area, returns true if any of them are in the temporaryFeaturePositions
+function hasSecondaryFigureComponents()
+    local objs = playAreaScriptingZone.getObjects()
+    for _, obj in ipairs(objs) do
+        if table.contains(FOLLOWERTYPES, obj.getName()) then
+            --print("checking " .. obj.getDescription() .. " " .. obj.getName())
+            local xIndex = math.floor((obj.getPosition().x - MIDDLELOCATION.x + MIDDLEOFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+            local zIndex = math.floor((obj.getPosition().z - MIDDLELOCATION.z + MIDDLEOFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            debugMessage(2, "Object on tile: x: " .. xIndex .. " z: " .. zIndex)
+            if temporaryFeaturePositions[xIndex] ~= nil and temporaryFeaturePositions[xIndex][zIndex] ~= nil then
+                local xPosition = (obj.getPosition().x - MIDDLELOCATION.x + MIDDLEOFFSET.x) / TILE_SPACING
+                local zPosition = (obj.getPosition().z - MIDDLELOCATION.z + MIDDLEOFFSET.z) / TILE_SPACING
+                xPosition = xPosition - xIndex
+                zPosition = zPosition - zIndex
+                local closestFeature = findClosestFeature(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation)
+                debugMessage(2, "Object closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " feature: " .. closestFeature)
+                if temporaryFeaturePositions[xIndex][zIndex][closestFeature] ~= nil then
+                    return true
+                end
+            end
+        end
+    end
+    --print("no followers in secondary feature")
+    return false
+end
+
 --getTileComponents
 --
 -- Transverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
@@ -2771,9 +2894,10 @@ end
 --  int: how many transversal levels to check
 --       2 levels would be used for checking secondary features such as completed cities and road intersections
 --  int: current transversal level
+--  bool: if this value is true, add feature positions to a temporary table. This is used to check secondary positions for followers for the wagon
 -- returns:
 --  bool: true if the feature is complete, false if not complete
-function getTileComponents(xIndex, zIndex, position, tranversalLevels, transversalNum)
+function getTileComponents(xIndex, zIndex, position, tranversalLevels, transversalNum, addToTempPositions)
     if transversalNum > tranversalLevels then return true end
     debugMessage(1, "checking tile at x: " .. xIndex .. " z: " .. zIndex .. " position: " .. position .. " trans num: " .. transversalNum)
     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
@@ -2794,6 +2918,14 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
         table.insert(transversedTileCoords, {xIndex, zIndex})
         debugMessage(2, "adding tile to transversedTileCoords: x: " .. xIndex .. " z: " .. zIndex)
     end
+    if addToTempPositions then
+        if temporaryFeaturePositions[xIndex] == nil then
+            temporaryFeaturePositions[xIndex] = {}
+        end
+        if temporaryFeaturePositions[xIndex][zIndex] == nil then
+            temporaryFeaturePositions[xIndex][zIndex] = {}
+        end
+    end
     if transversedGrid[xIndex][zIndex][position] ~= nil and transversedGrid[xIndex][zIndex][position] <= transversalNum then return true end
     local finished = true
     local features = tile.getTable("specialFeatures")
@@ -2808,6 +2940,8 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
                                 transversedGrid[xIndex][zIndex][quadrant] = transversalNum
                                 if transversalNum == 1 then
                                     transversedFeaturePositions[xIndex][zIndex][quadrant] = 1
+                                elseif addToTempPositions then
+                                    temporaryFeaturePositions[xIndex][zIndex][quadrant] = transversalNum
                                 end
                                 local direction = (3 + quadrant + rotation) % 4 + 1
                                 local newX = xIndex + SIDEDELTA[direction][1]
@@ -2859,6 +2993,8 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
                                 transversedGrid[xIndex][zIndex][octant] = transversalNum
                                 if transversalNum == 1 then
                                     transversedFeaturePositions[xIndex][zIndex][octant] = 1
+                                elseif addToTempPositions then
+                                    temporaryFeaturePositions[xIndex][zIndex][octant] = transversalNum
                                 end
                                 local direction = (3 + octant + (rotation * 2)) % 8 + 5
                                 local newX = xIndex + SIDEDELTA[math.floor((direction - 3) / 2)][1]
@@ -2904,6 +3040,8 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
             transversedGrid[xIndex][zIndex][position] = transversalNum
             if transversalNum == 1 then
                 transversedFeaturePositions[xIndex][zIndex][position] = 1
+            elseif addToTempPositions then
+                temporaryFeaturePositions[xIndex][zIndex][position] = transversalNum
             end
             local feature = features[position - 12]
             if (feature[1] == 'Cloister' or feature[1] == 'Abbey') and transversalNum == 1 then
@@ -2953,6 +3091,8 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
                         if transversedGrid[xIndex][zIndex][location] == nil or transversedGrid[xIndex][zIndex][location] > transversalNum then
                             if transversalNum == 1 then
                                 transversedFeaturePositions[xIndex][zIndex][location] = 1
+                            elseif addToTempPositions then
+                                temporaryFeaturePositions[xIndex][zIndex][location] = transversalNum
                             end
                             if not getTileComponents(xIndex, zIndex, location, tranversalLevels, transversalNum) then finished = false end
                         end
@@ -2988,7 +3128,14 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
                                     end
                                 elseif feature[1] == 'Road Intersection' then
                                     for _, location in ipairs(feature[2]) do
-                                        getTileComponents(xIndex, zIndex, location, tranversalLevels, transversalNum + 1)
+                                        temporaryFeaturePositions = {}
+                                        if not getTileComponents(xIndex, zIndex, location, tranversalLevels, transversalNum + 1, true) then
+                                            --print("found incomplete feature at: " .. xIndex .. ", " .. zIndex .. ", " .. location)
+                                            if not hasSecondaryFigureComponents() then
+                                                --print("and it is not occupied")
+                                                hasIncompleteSecondaryFeature = true
+                                            end
+                                        end
                                     end
                                 elseif feature[1] == 'Coat of Arms' or feature[1] == 'Inn' or feature[1] == 'Cathedral' or
                                     feature[1] == 'Cloth Token' or feature[1] == 'Wine Token' or feature[1] == 'Wheat Token' or
@@ -3005,17 +3152,30 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
     end
     for i=1, 4 do
         --this one is necessary for followers placed on center positions for quadrant features to be processed correctly
-        if getFeatureName(tile, i) ~= 'Road' and getFeatureName(tile, i) ~= 'River' and transversedFeaturePositions[xIndex][zIndex][i] ~= nil then
-            if transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == nil or transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] > transversedFeaturePositions[xIndex][zIndex][i] then
-                transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] = transversedFeaturePositions[xIndex][zIndex][i]
+        if getFeatureName(tile, i) ~= 'Road' and getFeatureName(tile, i) ~= 'River' then
+            if transversedFeaturePositions[xIndex][zIndex][i] ~= nil then
+                if transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == nil or transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] > transversedFeaturePositions[xIndex][zIndex][i] then
+                    transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] = transversedFeaturePositions[xIndex][zIndex][i]
+                end
+                if transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] == nil or transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] > transversedFeaturePositions[xIndex][zIndex][i] then
+                    transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] = transversedFeaturePositions[xIndex][zIndex][i]
+                end
             end
-            if transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] == nil or transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] > transversedFeaturePositions[xIndex][zIndex][i] then
-                transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] = transversedFeaturePositions[xIndex][zIndex][i]
+            if addToTempPositions and temporaryFeaturePositions[xIndex][zIndex][i] ~= nil then
+                if temporaryFeaturePositions[xIndex][zIndex][i * 2 + 3] == nil or temporaryFeaturePositions[xIndex][zIndex][i * 2 + 3] > temporaryFeaturePositions[xIndex][zIndex][i] then
+                    temporaryFeaturePositions[xIndex][zIndex][i * 2 + 3] = temporaryFeaturePositions[xIndex][zIndex][i]
+                end
+                if temporaryFeaturePositions[xIndex][zIndex][i * 2 + 4] == nil or temporaryFeaturePositions[xIndex][zIndex][i * 2 + 4] > temporaryFeaturePositions[xIndex][zIndex][i] then
+                    temporaryFeaturePositions[xIndex][zIndex][i * 2 + 4] = temporaryFeaturePositions[xIndex][zIndex][i]
+                end
             end
-        end
-        --this is just used for graphical effect
-        if getFeatureName(tile, i) ~= 'Road' and getFeatureName(tile, i) ~= 'River' and transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] then
-            transversedFeaturePositions[xIndex][zIndex][i] = transversedFeaturePositions[xIndex][zIndex][i * 2 + 3]
+            --this is just used for graphical effect
+            if transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] then
+                transversedFeaturePositions[xIndex][zIndex][i] = transversedFeaturePositions[xIndex][zIndex][i * 2 + 3]
+            end
+            if addToTempPositions and temporaryFeaturePositions[xIndex][zIndex][i * 2 + 3] ~= nil and temporaryFeaturePositions[xIndex][zIndex][i * 2 + 4] ~= nil and temporaryFeaturePositions[xIndex][zIndex][i * 2 + 3] == temporaryFeaturePositions[xIndex][zIndex][i * 2 + 4] then
+                temporaryFeaturePositions[xIndex][zIndex][i] = temporaryFeaturePositions[xIndex][zIndex][i * 2 + 3]
+            end
         end
     end
     return finished
@@ -3026,6 +3186,7 @@ end
 function resetTransversal()
     debugMessage(2, "Clearing transversal tables")
     transversedGrid = {}
+    temporaryFeaturePositions = {}
     transversedFeaturePositions = {}
     transversedTileCoords = {}
     transversedSpecialFeatures = {}
