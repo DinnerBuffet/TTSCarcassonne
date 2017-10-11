@@ -137,6 +137,8 @@ player_color_tints = {}
 
 figurePositions = {}
 
+activeFigures = {}
+
 player_possession_areas = {
     ['Green'] = {x=25, z=12.04, rotation=3},
     ['Purple'] = {x=25, z=-12.1, rotation=3},
@@ -2223,6 +2225,7 @@ function showFeatureMarkers()
     end
     featureMarkers = {}
     if showMarkers == 'Hints' or showMarkers == 'Both' then
+        getActiveFigures()
         alreadyVisitedPositions = {}
         figureMarkers = {}
         figureMarkers[lastPlacedTileX] = {}
@@ -2681,6 +2684,55 @@ function isValidTileLocation(newTile, tileRotation, xIndex, zIndex, verbose)
     return false
 end
 
+function getActiveFigures()
+    baselineFollowerCounts = {}
+    baselineFigures = {}
+    activeFigures = {}
+
+    for _, player in pairs(activePlayers) do
+        baselineFollowerCounts[player] = 0
+        baselineFigures[player] = {}
+    end
+    local objs = getAllObjects()
+    for _, obj in ipairs(objs) do
+        if table.contains(FOLLOWER_TYPES, obj.getName()) or table.contains(SPECIAL_FIGURE_TYPES, obj.getName()) then
+            local xIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+            local zIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
+                local xPosition = (obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+                local zPosition = (obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+                xPosition = xPosition - xIndex
+                zPosition = zPosition - zIndex
+                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                local rotation = tileGrid[xIndex][zIndex].rotation
+                local closestPosition = findClosestFeatureMap(xPosition, zPosition, tile, rotation)
+                local featureNum = featureMap[xIndex][zIndex][closestPosition]
+
+                if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
+                    if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
+                        featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
+                    end
+                end
+                --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
+                if activeFigures[featureNum] == nil then
+                    activeFigures[featureNum] = {}
+                    activeFigures[featureNum].specialFigures = {}
+                    activeFigures[featureNum].followers = {}
+                end
+                if table.contains(FOLLOWER_TYPES, obj.getName()) then
+                    table.insert(activeFigures[featureNum].followers, obj)
+                else
+                    table.insert(activeFigures[featureNum].specialFigures, obj)
+                end
+            elseif obj.getName() ~= 'Follower' then
+                baselineFigures[obj.getDescription()][obj.getName()] = true
+            else
+                baselineFollowerCounts[obj.getDescription()] = baselineFollowerCounts[obj.getDescription()] + 1
+            end
+        end
+    end
+end
+
 function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, newFigureInTranversal, verbose)
     local nameOfFeature = featureList[featureNum].nameOfFeature
     local featureOpenings = featureList[featureNum].openings
@@ -2818,37 +2870,23 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
     local numShepherds = 0
     local numBarns = 0
 
-    local objs = getAllObjects()
-    for _, obj in ipairs(objs) do
-        if obj ~= newFigure then
-            local xIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-            if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                local xPosition = (obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
-                local zPosition = (obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
-                xPosition = xPosition - xIndex
-                zPosition = zPosition - zIndex
-                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
-                local rotation = tileGrid[xIndex][zIndex].rotation
-                local closestPosition = findClosestFeatureMap(xPosition, zPosition, tile, rotation)
-                local followerFeatureNum = featureMap[xIndex][zIndex][closestPosition]
-
-                if followerFeatureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
-                    if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
-                        followerFeatureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
+    if activeFigures[featureNum] ~= nil then
+        for _, obj in ipairs(activeFigures[featureNum].followers) do
+            if obj ~= newFigure then
+                if table.contains(FOLLOWER_TYPES, obj.getName()) then
+                    numFollowers = numFollowers + 1
+                    if obj.getDescription() == activePlayers[currentPlayer] then
+                        numCurrentPlayerFollowers = numCurrentPlayerFollowers + 1
                     end
                 end
-                if followerFeatureNum == featureNum then
-                    if table.contains(FOLLOWER_TYPES, obj.getName()) then
-                        numFollowers = numFollowers + 1
-                        if obj.getDescription() == activePlayers[currentPlayer] then
-                            numCurrentPlayerFollowers = numCurrentPlayerFollowers + 1
-                        end
-                    elseif obj.getName() == 'Shepherd' then
-                        numShepherds = numShepherds + 1
-                    elseif obj.getName() == 'Barn' then
-                        numBarns = numBarns + 1
-                    end
+            end
+        end
+        for _, obj in ipairs(activeFigures[featureNum].specialFigures) do
+            if obj ~= newFigure then
+                if obj.getName() == 'Shepherd' then
+                    numShepherds = numShepherds + 1
+                elseif obj.getName() == 'Barn' then
+                    numBarns = numBarns + 1
                 end
             end
         end
@@ -4588,6 +4626,7 @@ function checkFigure(params)
                     if featureNum == nil and closestFeature < 5 and featureMap[xIndex][zIndex][(direction * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(direction * 2) + 3] == featureMap[xIndex][zIndex][(direction * 2) + 4] then
                        featureNum = featureMap[xIndex][zIndex][(direction * 2) + 3]
                     end
+                    getActiveFigures()
                     if isValidFigureLocation(newFigure, xIndex, zIndex, closestFeature, featureNum, true, true) then
                         if string.sub(nameOfFeature,1,6) == 'Flier-' then
                             flier = newFigure.getGUID()
@@ -7446,7 +7485,6 @@ function AIChooseTileLocation()
 end
 
 --initialize this so it will compile correctly
-activeFigures = {}
 
 function AICalculateBaselineScores()
     highestScore = -999
@@ -7457,54 +7495,7 @@ function AICalculateBaselineScores()
     highestScoreFigure = nil
     numIdenticalScore = 1
 
-    baselineScores = {}
-    baselineFollowerCounts = {}
-    baselineFigures = {}
-    activeFigures = {}
-
-    for _, player in pairs(activePlayers) do
-        baselineFollowerCounts[player] = 0
-        baselineFigures[player] = {}
-    end
-
-    local objs = getAllObjects()
-    for _, obj in ipairs(objs) do
-        if table.contains(FOLLOWER_TYPES, obj.getName()) or table.contains(SPECIAL_FIGURE_TYPES, obj.getName()) then
-            local xIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-            if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                local xPosition = (obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
-                local zPosition = (obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
-                xPosition = xPosition - xIndex
-                zPosition = zPosition - zIndex
-                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
-                local rotation = tileGrid[xIndex][zIndex].rotation
-                local closestPosition = findClosestFeatureMap(xPosition, zPosition, tile, rotation)
-                local featureNum = featureMap[xIndex][zIndex][closestPosition]
-
-                if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
-                    if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
-                        featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
-                    end
-                end
-                --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
-                if activeFigures[featureNum] == nil then
-                    activeFigures[featureNum] = {}
-                    activeFigures[featureNum].specialFigures = {}
-                    activeFigures[featureNum].followers = {}
-                end
-                if table.contains(FOLLOWER_TYPES, obj.getName()) then
-                    table.insert(activeFigures[featureNum].followers, obj)
-                else
-                    table.insert(activeFigures[featureNum].specialFigures, obj)
-                end
-            elseif obj.getName() ~= 'Follower' then
-                baselineFigures[obj.getDescription()][obj.getName()] = true
-            else
-                baselineFollowerCounts[obj.getDescription()] = baselineFollowerCounts[obj.getDescription()] + 1
-            end
-        end
-    end
+    getActiveFigures()
 
     -- for featureNum, figures in pairs(activeFigures) do
     --     local numFollowers = 0
@@ -7524,6 +7515,8 @@ function AICalculateBaselineScores()
     tempLinkedFeatures = linkedFeatures
 
     AICalculateActiveScores()
+
+    baselineScores = {}
     --debugMessage(1, "baseline scores:")
     for _, player in pairs(activePlayers) do
         baselineScores[player] = activeScores[player]
