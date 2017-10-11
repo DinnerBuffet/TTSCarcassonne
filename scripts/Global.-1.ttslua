@@ -345,10 +345,10 @@ controlPanelSettings = {
     ['KnRBRobber'] = false,
     ['CultTiles'] = false,
     ['CatapultTiles'] = false,
-	['BCnBTiles'] = false,
-	['BCnBBazaars'] = false,
-	['BCnBBridges'] = false,
-	['BCnBCastles'] = false,
+    ['BCnBTiles'] = false,
+    ['BCnBBazaars'] = false,
+    ['BCnBBridges'] = false,
+    ['BCnBCastles'] = false,
     ['HnSTiles'] = false,
     ['HnSShepherd'] = false,
     ['HnSHills'] = false,
@@ -429,15 +429,15 @@ startingTileSettings = {
 
 --[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, offset = {x=<x offset>, z=<z offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, num=<setting with number to spawn>}
 figureSettings = {
-    ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BaseNumFollowers'},
-    ['InCBigFollower'] = {name = 'Big Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = -0.8, z = 0.5}, scale = {0.6, 0.6, 0.5}, use_snap_points = true},
-    ['TnBBuilder'] = {name = 'Builder', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -0.8, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}, --should probably be closer to {0.5, 0.42, 0.5}
-    ['TnBPig'] = {name = 'Pig', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}, --should probably be closer to {0.45, 0.5, 0.5}
-    ['AnMMayor'] = {name = 'Mayor', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
-    ['AnMWagon'] = {name = 'Wagon', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
-    ['AnMBarn'] = {name = 'Barn', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = false},
-    ['HnSShepherd'] = {name = 'Shepherd', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
-    ['CIIAbbot'] = {name = 'Abbot', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}
+    ['BaseFollower'] = {name = 'Follower', offset = {x = 5.15, z = -0.5}, use_snap_points = true, num = 'BaseNumFollowers', model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['InCBigFollower'] = {name = 'Big Follower', offset = {x = -0.8, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.6, 0.6, 0.5} }},
+    ['TnBBuilder'] = {name = 'Builder', offset = {x = -0.8, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}, --should probably be closer to {0.5, 0.42, 0.5}
+    ['TnBPig'] = {name = 'Pig', offset = {x = -2.25, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}, --should probably be closer to {0.45, 0.5, 0.5}
+    ['AnMMayor'] = {name = 'Mayor', offset = {x = -2.25, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['AnMWagon'] = {name = 'Wagon', offset = {x = -3.7, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['AnMBarn'] = {name = 'Barn', offset = {x = -3.7, z = -0.5}, use_snap_points = false, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['HnSShepherd'] = {name = 'Shepherd', offset = {x = -5.15, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['CIIAbbot'] = {name = 'Abbot', offset = {x = -5.15, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}
 }
 
 playerNeutralFigureSettings = {
@@ -448,14 +448,16 @@ playerNeutralFigureSettings = {
 --[<steam_id>] = {['Intro'] = <intro string>, [<figure name>] = {<custom figure settings>}}
 vipFigureSettings = {
     -- ['76561197962338210'] = {
-    --     ['Intro'] = "You are being joined by %s, the creator of Scripted Carcassonne."
+    --     ['Intro'] = "You are being joined by %s, the creator of Scripted Carcassonne.",
+    --     ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXd0RzVC1ndlBDanM', scale = {0.15, 0.15, 0.15} }
     -- },
     -- ['76561197972020303'] = {
-    --     ['Intro'] = "You are being joined by %s, contributor to the Carcassonne mod."
+    --     ['Intro'] = "You are being joined by %s, contributor to the Carcassonne mod.",
+    --    ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXd0RzVC1ndlBDanM', scale = {0.15, 0.15, 0.15} }
     -- },
     ['9999999999999999999'] = {
         ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
-        ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BaseNumFollowers'},
+        ['BaseFollower'] = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} },
     }
 }
 
@@ -531,6 +533,25 @@ flierOffset = nil
 seducedKnights = {}
 
 turnState = nil
+
+currentLanguage = 'en'
+--currentLanguage = 'zh-tw'
+
+LOCALIZED_STRINGS = {
+  ['zh-tw'] = {
+    ['Start\nGame'] = '開始遊戲',
+    ['Skip\nTurn'] = '跳過',
+    ['Show\nMarkers:\n'] = '標記:\n',
+    ['Both'] = '全部',
+    ['None'] = '無',
+    ['Scoring'] = '得分',
+    ['Hints'] = '可放位置',
+    ['There is already a player sitting at this seat. Cannot create a hotseat player here.'] = 'test1',
+    ['%s has been set to a hotseat player of %s'] = 'test2',
+    ['%s is no longer a hotseat player'] = 'test3',
+    ['Warning: Tower count has changed to %d due to a hotseat/AI player being added/removed.'] = "WOAH NOW THERE'S LIKE %d TOWERS DUDE",
+  },
+}
 
 stateMachine = {
     ['begin turn'] = {
@@ -1198,6 +1219,17 @@ function checkGameButtonPrivileges(player)
     return false
 end
 
+function translate(input)
+  local msg
+  if type(input) == 'table' then
+    msg = input.msg
+  else
+    msg = input
+  end
+  if currentLanguage == 'en' or LOCALIZED_STRINGS[currentLanguage] == nil or LOCALIZED_STRINGS[currentLanguage][msg] == nil then return msg end
+  return LOCALIZED_STRINGS[currentLanguage][msg]
+end
+
 function getControlPanelState(p)
     return controlPanelSettings[p.key]
 end
@@ -1292,7 +1324,7 @@ function onFlierDiceRolled(params)
             (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
             if turnState == 'wait for flier roll' then
                 local dieValue = getObjectFromGUID(expansionBags['Flier'].contents['FlierDie'].guid).getValue()
-                if dieValue > 3 then dieValue = 7 - dieValue end
+                --if dieValue > 3 then dieValue = 7 - dieValue end
                 flierOffset = {x=FLIER_OFFSET[flierDirection].x * dieValue, z=FLIER_OFFSET[flierDirection].z * dieValue}
                 --debugMessage(1, "Flier direction: " .. flierDirection .. " Flier destination offset: x: " .. flierOffset.x .. " z: " .. flierOffset.z)
                 allGameMessage(activePlayers[currentPlayer] .. " rolled a " .. dieValue, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
@@ -1866,81 +1898,80 @@ function preparePlayerPossessionArea()
         local figurePad = getObjectFromGUID(figurepad_GUIDs[player])
         figurePositions[player] = {}
 
-        for figureSetting, figure in pairs(figureSettings) do
-            figurePositions[player][figure.name] = {}
-            if controlPanelSettings[figureSetting] then
-                if getPlayerOwner(player):sub(1,2) ~= 'AI' and Player[getPlayerOwner(player)].seated and vipFigureSettings[Player[getPlayerOwner(player)].steam_id] ~= nil and vipFigureSettings[Player[getPlayerOwner(player)].steam_id][figureSetting] ~= nil then
-                    figure = vipFigureSettings[Player[getPlayerOwner(player)].steam_id][figureSetting]
+        for figure, figureSetting in pairs(figureSettings) do
+            local figureSettingCopy = table.shallow_copy(figureSetting)
+            figurePositions[player][figureSettingCopy.name] = {}
+            if controlPanelSettings[figure] then
+                if getPlayerOwner(player) == player and Player[player].seated and vipFigureSettings[Player[player].steam_id] ~= nil and vipFigureSettings[Player[player].steam_id][figure] ~= nil then
+                    figureSettingCopy.model_settings = vipFigureSettings[Player[player].steam_id][figure]
                 end
                 local num
-                if figure.num ~= nil then num = controlPanelSettings[figure.num] else num = 1 end
+                if figureSettingCopy.num ~= nil then num = controlPanelSettings[figureSettingCopy.num] else num = 1 end
                 for i=1, num do
-                    local x, z = rotateCoordinatesDegrees(figure.offset.x + (((i - 1) % 4) * -1.45), figure.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                    local x, z = rotateCoordinatesDegrees(figureSettingCopy.offset.x + (((i - 1) % 4) * -1.45), figureSettingCopy.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
                     local params = {}
-                    params.type = 'Custom_Model'
+                    params.type = figureSettingCopy.model_settings.type
                     params.position = {figurePad.getPosition().x + x, 2, figurePad.getPosition().z + z}
                     params.rotation = {0, figurePad.getRotation().y, 0}
-                    params.scale = figure.scale
+                    params.scale = figureSettingCopy.model_settings.scale
                     params.callback_owner = Global
                     params.callback = "cbSpawnUnlock"
                     gSpawnLock = true
                     local obj = spawnObject(params)
 
                     local custom_params = {}
-                    custom_params.mesh = figure.mesh
-                    custom_params.diffuse = figure.diffuse
+                    custom_params.assetbundle = figureSettingCopy.model_settings.assetbundle
+                    custom_params.mesh = figureSettingCopy.model_settings.mesh
+                    custom_params.diffuse = figureSettingCopy.model_settings.diffuse
                     custom_params.type = 1
                     custom_params.material = 1
                     custom_params.specular_intensity = 0.05
                     obj.setCustomObject(custom_params)
-                    obj.setName(figure.name)
+                    obj.setName(figureSettingCopy.name)
                     obj.setDescription(player)
                     obj.setColorTint(player_color_tints[player])
                     obj.use_grid = false
-                    obj.use_snap_points = figure.use_snap_points
+                    obj.use_snap_points = figureSettingCopy.use_snap_points
                     while gSpawnLock do
                         coroutine.yield(0)
                     end
-                    figurePositions[player][figure.name][i] = obj.getGUID()
+                    figurePositions[player][figureSettingCopy.name][i] = obj.getGUID()
                 end
             end
         end
-        for figureSetting, figure in pairs(playerNeutralFigureSettings) do
-            if controlPanelSettings[figureSetting] then
-                if getPlayerOwner(player):sub(1,2) ~= 'AI' and Player[getPlayerOwner(player)].seated and vipFigureSettings[Player[getPlayerOwner(player)].steam_id] ~= nil and vipFigureSettings[Player[getPlayerOwner(player)].steam_id][figureSetting] ~= nil then
-                    figure = vipFigureSettings[Player[getPlayerOwner(player)].steam_id][figureSetting]
-                end
+        for figure, figureSetting in pairs(playerNeutralFigureSettings) do
+            if controlPanelSettings[figure] then
                 local num
-                if figure.num ~= nil then num = controlPanelSettings[figure.num] else num = 1 end
+                if figureSetting.num ~= nil then num = controlPanelSettings[figureSetting.num] else num = 1 end
                 for i=1, num do
-                    local x, z = rotateCoordinatesDegrees(figure.offset.x, figure.offset.z, -figurePad.getRotation().y)
+                    local x, z = rotateCoordinatesDegrees(figureSetting.offset.x, figureSetting.offset.z, -figurePad.getRotation().y)
                     local y = 0
-                    if figureSetting == 'TowerTowers' then
+                    if figure == 'TowerTowers' then
                         y = -1 + (i - 1) * 0.5
-                    elseif figureSetting == 'BCnBBridges' then
-                        x, z = rotateCoordinatesDegrees(figure.offset.x + (((i - 1) % 4) * -1.45), figure.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                    elseif figure == 'BCnBBridges' then
+                        x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
                     end
                     local params = {}
                     params.type = 'Custom_Model'
                     params.position = {figurePad.getPosition().x + x, 2 + y, figurePad.getPosition().z + z}
                     params.rotation = {0, figurePad.getRotation().y, 0}
-                    params.scale = figure.scale
+                    params.scale = figureSetting.scale
                     params.callback_owner = Global
                     params.callback = "cbSpawnUnlock"
                     gSpawnLock = true
                     local obj = spawnObject(params)
 
                     local custom_params = {}
-                    custom_params.mesh = figure.mesh
-                    custom_params.diffuse = figure.diffuse
-                    custom_params.type = figure.type
+                    custom_params.mesh = figureSetting.mesh
+                    custom_params.diffuse = figureSetting.diffuse
+                    custom_params.type = figureSetting.type
                     custom_params.material = 1
                     custom_params.specular_intensity = 0.05
                     obj.setCustomObject(custom_params)
-                    obj.setName(figure.name)
+                    obj.setName(figureSetting.name)
                     obj.setColorTint({r=141/255, g=75/255, b=0})
                     obj.use_grid = false
-                    obj.use_snap_points = figure.use_snap_points
+                    obj.use_snap_points = figureSetting.use_snap_points
                     while gSpawnLock do
                         coroutine.yield(0)
                     end
@@ -2351,6 +2382,7 @@ function showFeatureMarkers()
                     if transversedFeaturePosition == true then
                         local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                         local rotation = TILE_STANDARD_ROTATION
+                        if position > 12 then rotation = tileGrid[xIndex][zIndex].rotation end
                         if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
                             local x = nil
                             local z = nil
@@ -2359,7 +2391,7 @@ function showFeatureMarkers()
                             else --put the marker on the corner instead of the feature position
                                 if position % 2 == 1 then --pick one arbitrary position (assuming both were valid), then get the corner closest to it
                                     local side = math.floor((position - 3) / 2)
-                                    x, z = rotateCoordinates(-0.5, 0.5, ((8 + TILE_STANDARD_ROTATION - side - rotation) % 4) + 1)
+                                    x, z = rotateCoordinates(-0.5, 0.5, ((8 - side) % 4) + 1)
                                 end
                             end
                             if x ~= nil and z ~= nil then
@@ -4266,11 +4298,7 @@ function createNormalizedButton(obj, params, rotateToPlayer)
     pos.z = pos.z + params.position.z
     pos = obj.positionToLocal(pos)
     params.position = {x=-pos.x, y=pos.y, z=pos.z}
-    --if objRotation == 1 or objRotation == 3 then
-    --    params.scale = {x=10/7, y=1, z=1}
-    --else
-    --    params.scale = {x=7/10, y=1, z=1}
-    --end
+    params.scale = {x=1/obj.getScale().x / 2, y=1/obj.getScale().y, z=1/obj.getScale().z / 2}
 
     local rotation = -obj.getRotation().y - (playerRotation * 90)
     --this method is currently bugged(?)
@@ -7362,7 +7390,7 @@ FOLLOWER_SCORE_THRESHOLD = 0.75 --player won't use a figure to take a feature un
 USED_FOLLOWER_PENALTY = 0.45 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
 OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
 FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being used too early in the game
-AI_DRAW_TILE_TIME = 1.5 --time delay to allow the drawn tile to travel to the AI player's hand
+AI_DRAW_TILE_TIME = 1.0 --time delay to allow the drawn tile to travel to the AI player's hand
 UNFINISHED_TRADE_TOKEN_VALUE = 1.0
 
 function AIStateHandler()
@@ -7422,21 +7450,31 @@ function AIChooseTileLocation()
     if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
         if forkTile_GUID ~= nil then
             newTile = getObjectFromGUID(forkTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            --newTile.setPositionSmooth(handPosition)
+            --TEMP WORK-AROUND
+            dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
         elseif riverBodyTiles_GUID ~= nil then
             local riverStack = getObjectFromGUID(riverBodyTiles_GUID)
             if riverStack ~= nil then
-                newTile = riverStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+                --newTile = riverStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+                --TEMP WORK-AROUND
+                newTile = dealInFrontOfHand(tileStack, handColor[activePlayers[currentPlayer]], true)
             end
         elseif getObjectFromGUID(tileStack_GUID) ~= nil and finalTile_GUID ~= nil then
             newTile = getObjectFromGUID(finalTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            --newTile.setPositionSmooth(handPosition)
+            --TEMP WORK-AROUND
+            dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
         elseif springTile_GUID ~= nil then
             newTile = getObjectFromGUID(springTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            --newTile.setPositionSmooth(handPosition)
+            --TEMP WORK-AROUND
+            dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
         elseif lakeTile_GUID ~= nil then
             newTile = getObjectFromGUID(lakeTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            --newTile.setPositionSmooth(handPosition)
+            --TEMP WORK-AROUND
+            dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
         end
         if newTile ~= nil then
             alreadyFound = true
@@ -7446,12 +7484,16 @@ function AIChooseTileLocation()
     if newTile == nil then
         tileStack = getObjectFromGUID(tileStack_GUID)
         if tileStack ~= nil then
-            newTile = tileStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+            --newTile = tileStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+            --TEMP WORK-AROUND
+            newTile = dealInFrontOfHand(tileStack, handColor[activePlayers[currentPlayer]], true)
             --getObjectFromGUID(tileStack_GUID).dealToColor(1, getCurrentPlayerOwner())
         elseif finalTile_GUID ~= nil then
             newTile = getObjectFromGUID(finalTile_GUID)
-            local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
-            newTile.setPositionSmooth(handPosition)
+            --local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
+            --newTile.setPositionSmooth(handPosition)
+            --TEMP WORK-AROUND
+            dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
         else
             allGameMessage("AI could not find the tile stack. The game is assumed to be over.", NEUTRAL_COLOR, nil)
             return 1
@@ -8236,8 +8278,27 @@ function setPositionFromHandSmooth(obj, player_color, position)
   local tempPosition = obj.getPosition()
   tempPosition.x = tempPosition.x + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.x
   tempPosition.z = tempPosition.z + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.z
+  obj.setRotation({obj.getRotation().x, handTransform.rotation.y, obj.getRotation().z})
   obj.setPosition(tempPosition)
-  obj.setPositionSmooth(position)
+  --obj.setPositionSmooth(position)
+end
+
+--temporary function to get around the bug of not being able to setPosition from a hand
+function dealInFrontOfHand(obj, player_color, is_a_deck)
+  local handTransform = Player[player_color].getHandTransform()
+  local tempPosition = handTransform.position
+  tempPosition.y = tempPosition.y - 1
+  tempPosition.x = tempPosition.x + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.x
+  tempPosition.z = tempPosition.z + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.z
+  if is_a_deck then
+    local params = {}
+    params.position = tempPosition
+    params.rotation = {obj.getRotation().x, handTransform.rotation.y, obj.getRotation().z}
+    return obj.takeObject(params)
+  else
+    obj.setPositionSmooth(tempPosition)
+    obj.setRotationSmooth({obj.getRotation().x, handTransform.rotation.y, obj.getRotation().z})
+  end
 end
 
 function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
@@ -8276,7 +8337,9 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     end
 
     newTile.interactable = false
-    setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z})
+    --setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z})
+    --TEMP WORK-AROUND
+    newTile.setPositionSmooth({xIndex * TILE_SPACING + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z})
     newTile.setRotationSmooth({0, tileRotation * 90, 0})
     Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={tile=newTile}, delay=2.0})
 end
