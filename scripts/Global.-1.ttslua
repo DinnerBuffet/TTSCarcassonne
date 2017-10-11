@@ -83,9 +83,6 @@ arbitraryButtonAnchors = {}
 FLOATING_BUTTON_HEIGHT = 2.0
 FLOATING_BUTTON_HEIGHT_LOW = 1.0
 
-FLOATING_BUTTON_Y_SCALE = 20
-FLOATING_BUTTON_Z_SCALE = 2
-
 FIGURE_DISTANCE_FROM_EDGE = 0.1 --percentage distance from the edge that each quadrant/octant exists
 
 FIGURE_RETURN_DELAY = 0.5 --seconds to wait while returning a figure in order to prevent double-scoring
@@ -95,6 +92,7 @@ FIGURE_CAPTURE_DELAY = 2.0 --seconds to wait after capturing a figure before it 
 FRAME_TIME = 0.01667 --time that coroutine can run before it should yield to the main thread. Approx 60FPS
 
 PLAY_AREA_SCRIPTING_ZONE_GUID = '799064'
+BUTTON_ANCHOR_GUID = '07fd9a'
 
 tileStack_GUID = '16d9db'
 startingTile_GUID = 'c107f0'
@@ -1322,6 +1320,7 @@ function endTurn()
             object.clearButtons()
         end
     end
+    printScoreToNotes()
     if not gameover then
         --the following will detect that the game has finished and will not go to the next turn
         --local tileStack = getObjectFromGUID(tileStack_GUID)
@@ -2199,7 +2198,7 @@ function showTileMarkers(newTile)
                     table.insert(featureMarkers, newObject)
 
                     local custom_params = {}
-                    custom_params.assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUlrMWdlTjZxU2M'
+                    custom_params.assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXWVhReFIybUtvMjQ'
                     custom_params.type = 0
                     custom_params.material = 0
                     newObject.setCustomObject(custom_params)
@@ -2405,7 +2404,23 @@ function showWagonFeatureMarkers()
 
         --trim the features that are already complete
         for linkedFeatureNum, _ in pairs(linkedRoadFeatures) do
-            if featureList[linkedFeatureNum] == nil or featureList[linkedFeatureNum].openings == 0 then
+            if featureList[linkedFeatureNum] ~= nil then
+                if featureList[linkedFeatureNum].nameOfFeature == 'Cloister' or featureList[linkedFeatureNum].nameOfFeature == 'Shrine' or featureList[linkedFeatureNum].nameOfFeature == 'Abbey' then
+                    local numOpenings = 8
+                    for x=-1, 1 do
+                        for z=-1, 1 do
+                            if not (x == 0 and z == 0) and tileGridOccupied(featureList[linkedFeatureNum].featureLocation.x + x, featureList[linkedFeatureNum].featureLocation.z + z) then
+                                numOpenings = numOpenings - 1
+                            end
+                        end
+                    end
+                    if numOpenings <= 0 then
+                        linkedRoadFeatures[linkedFeatureNum] = nil
+                    end
+                elseif featureList[linkedFeatureNum].openings == 0 then
+                    linkedRoadFeatures[linkedFeatureNum] = nil
+                end
+            else
                 linkedRoadFeatures[linkedFeatureNum] = nil
             end
         end
@@ -2942,6 +2957,17 @@ function isValidWagonLocation(newFigure, featureNum, verbose)
     if linkedFeatures['Road Intersection'][wagonFeatureNum] == nil or linkedFeatures['Road Intersection'][wagonFeatureNum][featureNum] ~= true then
         if verbose then allErrorMessage("Invalid Location: Not connected to the previous feature by road.", activePlayers[currentMiniTurn]) end
         return false
+    end
+
+    if nameOfFeature == 'Cloister' or nameOfFeature == 'Shrine' or nameOfFeature == 'Abbey' then
+        featureOpenings = 8
+        for x=-1, 1 do
+            for z=-1, 1 do
+                if not (x == 0 and z == 0) and tileGridOccupied(featureList[featureNum].featureLocation.x + x, featureList[featureNum].featureLocation.z + z) then
+                    featureOpenings = featureOpenings - 1
+                end
+            end
+        end
     end
 
     if featureOpenings > 0 then
@@ -3797,9 +3823,9 @@ function createDragonButtons()
             end
             local moveDragonButtonParam = {
                index = i, label = label, click_function = 'moveDragonButton',
-               position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW * FLOATING_BUTTON_Y_SCALE, z=0}, width = 800, height=600, font_size = font_size, function_owner = nil
+               position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=0}, width = 800, height=600, font_size = font_size, function_owner = nil
             }
-            --createNormalizedArbitraryButton(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), moveDragonButtonParam, false)
+            --createNormalizedArbitraryButton({x=-newX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=newZ * TILE_SPACING - MIDDLE_OFFSET.z}, moveDragonButtonParam, false)
             createNormalizedButton(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), moveDragonButtonParam, false)
         end
     end
@@ -3928,7 +3954,7 @@ function displayGoldButtons()
                 if tileGridOccupied(newX, newZ) then
                     local placeGoldButtonParam = {
                        index = i, label = "Place\nGold", click_function = 'placeGoldButton',
-                       position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW * FLOATING_BUTTON_Y_SCALE, z=0}, width = 800, height=600, font_size = 200, function_owner = nil
+                       position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=0}, width = 800, height=600, font_size = 200, function_owner = nil
                     }
                     --createNormalizedArbitraryButton(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), placeGoldButtonParam, false)
                     createNormalizedButton(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), placeGoldButtonParam, false)
@@ -4183,20 +4209,20 @@ end
 function displayFigureButtons()
     local labelButtonParam = {
        index = 1, label = 'Place a figure\nOR', click_function = 'doNothing',
-       position = {x=0, y=FLOATING_BUTTON_HEIGHT * FLOATING_BUTTON_Y_SCALE, z=1.8 * FLOATING_BUTTON_Z_SCALE}, width = 0, height=0, font_size = 200, function_owner = nil
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.8}, width = 0, height=0, font_size = 200, function_owner = nil
     }
-    --createNormalizedArbitraryButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), labelButtonParam, true)
-    createNormalizedButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), labelButtonParam, true)
+    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, labelButtonParam, true)
+    --createNormalizedButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), labelButtonParam, true)
     local skipFigureButtonParam = {
        index = 2, label = 'Skip placing\nfigure', click_function = 'skipFigureButton',
-       position = {x=0, y=FLOATING_BUTTON_HEIGHT * FLOATING_BUTTON_Y_SCALE, z=2.5 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=600, font_size = 200, function_owner = nil
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.5}, width = 1400, height=600, font_size = 200, function_owner = nil
     }
-    --createNormalizedArbitraryButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), skipFigureButtonParam, true)
-    createNormalizedButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), skipFigureButtonParam, true)
+    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipFigureButtonParam, true)
+    --createNormalizedButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), skipFigureButtonParam, true)
     for _, knight in ipairs(seducedKnights) do
         local seduceKnightButtonParam = {
            index = 1, label = 'Seduce\nknight', click_function = 'seduceKnightButton',
-           position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+           position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0}, width = 1700, height=600, font_size = 200, function_owner = nil
         }
         createNormalizedButton(getObjectFromGUID(knight), seduceKnightButtonParam, true)
     end
@@ -4207,7 +4233,7 @@ function displayFigureButtons()
             if tileGridOccupied(xIndex, zIndex) then
                 local retrieveAbbotButtonParam = {
                    index = 1, label = 'Retrieve\nabbot', click_function = 'retrieveAbbotButton',
-                   position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=600, font_size = 200, function_owner = nil
+                   position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0}, width = 1400, height=600, font_size = 200, function_owner = nil
                 }
                 --createNormalizedArbitraryButton(obj, retrieveAbbotButtonParam, true)
                 createNormalizedButton(obj, retrieveAbbotButtonParam, true)
@@ -4218,8 +4244,8 @@ function displayFigureButtons()
     end
 end
 
---creates a button, which is rotated according to the object's current rotation, so that the buttons always face the active player
-function createNormalizedButton(obj, param, rotateToPlayer)
+--creates a button, which is rotated according to the object's current rotation, so that the buttons always face up and towards the active player
+function createNormalizedButton(obj, params, rotateToPlayer)
     local player = activePlayers[currentPlayer]
     if currentMiniTurn ~= nil then
         player = activePlayers[currentMiniTurn]
@@ -4232,24 +4258,29 @@ function createNormalizedButton(obj, param, rotateToPlayer)
     if rotateToPlayer then
         playerRotation = player_possession_areas[player].rotation
     end
-    local objRotation = math.floor((obj.getRotation().y + (TILE_ROTATION_MARGIN * 90)) / 90)
-    local x, z = rotateCoordinates(param.position.x, param.position.z, ((-playerRotation - objRotation + 7) % 4) + 1)
-    param.position = {x, param.position.y, z}
+    local x, z = rotateCoordinates(params.position.x, params.position.z, ((-playerRotation + 7) % 4) + 1)
+    params.position = {x=x, y=params.position.y, z=z}
+    local pos = obj.getPosition()
+    pos.x = pos.x + params.position.x
+    pos.y = pos.y + params.position.y
+    pos.z = pos.z + params.position.z
+    pos = obj.positionToLocal(pos)
+    params.position = {x=-pos.x, y=pos.y, z=pos.z}
     --if objRotation == 1 or objRotation == 3 then
-    --    param.scale = {x=10/7, y=1, z=1}
+    --    params.scale = {x=10/7, y=1, z=1}
     --else
-    --    param.scale = {x=7/10, y=1, z=1}
+    --    params.scale = {x=7/10, y=1, z=1}
     --end
 
-    local rotation = (obj.getRotation().y * -1) - (playerRotation * 90)
+    local rotation = -obj.getRotation().y - (playerRotation * 90)
     --this method is currently bugged(?)
     --local rotation = (obj.getRotation().y * -1) + (Player[player].getPointerRotation())
-    if rotation < 0 then rotation = rotation + 360 end
-    param.rotation = {0,  rotation, 0}
-    obj.createButton(param)
+    while rotation < 0 do rotation = rotation + 360 end
+    params.rotation = {x=obj.getRotation().x, y=rotation, z=-obj.getRotation().z}
+    obj.createButton(params)
 end
 
-function createNormalizedArbitraryButton(obj, params, rotateToPlayer)
+function createNormalizedArbitraryButton(pivot_point, params, rotateToPlayer)
     local player = activePlayers[currentPlayer]
     if currentMiniTurn ~= nil then
         player = activePlayers[currentMiniTurn]
@@ -4262,44 +4293,22 @@ function createNormalizedArbitraryButton(obj, params, rotateToPlayer)
     if rotateToPlayer then
         playerRotation = player_possession_areas[player].rotation
     end
+    local x, z = rotateCoordinates(params.position.x, params.position.z, ((-playerRotation + 7) % 4) + 1)
+    --params.position = {x=x, y=params.position.y, z=z}
+    params.position = {x=x + pivot_point.x, y=params.position.y + pivot_point.y, z=z + pivot_point.z}
 
-    local objRotation = math.floor((obj.getRotation().y + (TILE_ROTATION_MARGIN * 90)) / 90)
-    local x, z = rotateCoordinates(params.position.x, params.position.z, ((playerRotation + 7) % 4) + 1)
-    params.position = {x + obj.getPosition().x, params.position.y + obj.getPosition().y, z + obj.getPosition().z}
-
-    local rotation =  -(playerRotation * 90)
+    local rotation = -(playerRotation * 90)
     --this method is currently bugged(?)
     --local rotation = (obj.getRotation().y * -1) + (Player[player].getPointerRotation())
-    if rotation < 0 then rotation = rotation + 360 end
-    params.rotation = {0,  rotation, 0}
-    params.scale = {0.5, 0.5, 0.5}
-    createArbitraryButton(params)
-end
+    while rotation < 0 do rotation = rotation + 360 end
+    params.rotation = {x=0, y=rotation, z=0}
+    params.scale = {x=0.5, y=1.0, z=0.5}
 
---creates a button at the given position, dimensions, scale, and rotation
-function createArbitraryButton(params)
-    local objectParams = {}
-    objectParams.type = "ScriptingTrigger"
-    objectParams.position = params.position
-    objectParams.scale = params.scale
-    local zoneObj = spawnObject(objectParams)
-
-    buttonParams = {}
-    buttonParams.position = {0, 0, 0}
-    buttonParams.rotation = params.rotation
-    buttonParams.width = params.width
-    buttonParams.height = params.height
-    buttonParams.index = 1
-    buttonParams.label = params.label
-    buttonParams.font_size = params.font_size
-    buttonParams.click_function = params.click_function
-    zoneObj.createButton(buttonParams)
-    table.insert(arbitraryButtonAnchors, zoneObj)
+    getObjectFromGUID(BUTTON_ANCHOR_GUID).createButton(params)
 end
 
 --dummy function for dummy button
 function doNothing()
-
 end
 
 function skipFigureButton(object, sPlayer)
@@ -4390,7 +4399,7 @@ function promptTowerCapture()
                 if (xIndex == towerX and zIndex <= towerZ + towerRange and zIndex >= towerZ - towerRange) or (zIndex == towerZ and xIndex <= towerX + towerRange and xIndex >= towerX - towerRange) then
                     local captureFollowerButtonParam = {
                        index = 1, label = 'Capture\n' .. obj.getName(), click_function = 'captureFollowerButton',
-                       position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+                       position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0}, width = 1700, height=600, font_size = 200, function_owner = nil
                     }
                     table.insert(capturableFollowers, obj.getGUID())
                     createNormalizedButton(obj, captureFollowerButtonParam, true)
@@ -4402,9 +4411,10 @@ function promptTowerCapture()
     if hasFollower then
         local skipCaptureButtonParam = {
            index = 2, label = 'Skip capturing\nfollower', click_function = 'skipCaptureButton',
-           position = {x=0, y=FLOATING_BUTTON_HEIGHT * FLOATING_BUTTON_Y_SCALE, z=2.5 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=600, font_size = 200, function_owner = nil
+           position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.5}, width = 1400, height=600, font_size = 200, function_owner = nil
         }
-        createNormalizedButton(getObjectFromGUID(tileGrid[towerX][towerZ].tile_guid), skipCaptureButtonParam, true)
+        createNormalizedArbitraryButton({x=-towerX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=towerZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipCaptureButtonParam, true)
+        --createNormalizedButton(getObjectFromGUID(tileGrid[towerX][towerZ].tile_guid), skipCaptureButtonParam, true)
     else
         return nextState('skip capture')
     end
@@ -4446,7 +4456,7 @@ function createRansomButtons()
             if prisoner.getDescription() == activePlayers[currentPlayer] then
                 local ransomFollowerButtonParam = {
                    index = 1, label = 'Ransom\n' .. prisoner.getName(), click_function = 'ransomFollowerButton',
-                   position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+                   position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0}, width = 1700, height=600, font_size = 200, function_owner = nil
                 }
                 createNormalizedButton(prisoner, ransomFollowerButtonParam, true)
             end
@@ -4520,7 +4530,7 @@ function exchangePrisoners()
             prisoner.clearButtons()
             local returnFollowerButtonParam = {
                index = 1, label = 'Return\n' .. prisoner.getName(), click_function = 'returnFollowerButton',
-               position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+               position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0}, width = 1700, height=600, font_size = 200, function_owner = nil
             }
             createNormalizedButton(prisoner, returnFollowerButtonParam, true)
         end
@@ -4549,6 +4559,10 @@ function removeDependentFigures(object)
     local zPosition = (object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
     xPosition = xPosition - xIndex
     zPosition = zPosition - zIndex
+    if(tileGrid[xIndex] == nil or tileGrid[xIndex][zIndex] == nil) then
+      allErrorMessage("ERROR: No tile detected at this figure. Was it moved? You may need to manually recover from this.", activePlayers[currentPlayer])
+      return
+    end
     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
     local rotation = tileGrid[xIndex][zIndex].rotation
     local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
@@ -5036,6 +5050,7 @@ function clearArbitraryButtons()
         local shepherd = getObjectFromGUID(shepherdAwaitingAction)
         shepherd.clearButtons()
     end
+    getObjectFromGUID(BUTTON_ANCHOR_GUID).clearButtons()
     for _, buttonAnchor in ipairs(arbitraryButtonAnchors) do
         buttonAnchor.destruct()
     end
@@ -5287,11 +5302,11 @@ function promptShepherd()
     -- }
     local shepherdExpandButtonParam = {
        index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
-       position = {x=0, y=3, z=1.5 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=700, font_size = 200, function_owner = nil
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.5}, width = 1400, height=700, font_size = 200, function_owner = nil
     }
     local shepherdHerdButtonParam = {
        index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
-       position = {x=0, y=3, z=2.3 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=700, font_size = 200, function_owner = nil
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.3}, width = 1400, height=700, font_size = 200, function_owner = nil
     }
     local shepherd = getObjectFromGUID(shepherdAwaitingAction)
     --createNormalizedArbitraryButton(shepherd, shepherdExpandButtonParam, true)
@@ -6213,7 +6228,7 @@ function promptGoldChoice()
     for _, gold in ipairs(eligibleGold) do
         local goldButtonParam = {
            index = 1, label = 'Take\ngold', click_function = 'takeGoldButton',
-           position = {x=0, y=3, z=2.0 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=600, font_size = 200, function_owner = nil
+           position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0}, width = 1400, height=600, font_size = 200, function_owner = nil
         }
         createNormalizedButton(getObjectFromGUID(gold), goldButtonParam, true)
     end
@@ -6261,12 +6276,27 @@ end
 
 function hasAvailableWagonFeature(wagonFeatureNum)
     if linkedFeatures['Road Intersection'][wagonFeatureNum] == nil then return false end
-
     local linkedRoadFeatures = table.shallow_copy(linkedFeatures['Road Intersection'][wagonFeatureNum])
 
     --trim the features that are already complete
     for linkedFeatureNum, _ in pairs(linkedRoadFeatures) do
-        if featureList[linkedFeatureNum] == nil or featureList[linkedFeatureNum].openings == 0 then
+        if featureList[linkedFeatureNum] ~= nil then
+            if featureList[linkedFeatureNum].nameOfFeature == 'Cloister' or featureList[linkedFeatureNum].nameOfFeature == 'Shrine' or featureList[linkedFeatureNum].nameOfFeature == 'Abbey' then
+                local numOpenings = 8
+                for x=-1, 1 do
+                    for z=-1, 1 do
+                        if not (x == 0 and z == 0) and tileGridOccupied(featureList[linkedFeatureNum].featureLocation.x + x, featureList[linkedFeatureNum].featureLocation.z + z) then
+                            numOpenings = numOpenings - 1
+                        end
+                    end
+                end
+                if numOpenings <= 0 then
+                    linkedRoadFeatures[linkedFeatureNum] = nil
+                end
+            elseif featureList[linkedFeatureNum].openings == 0 then
+                linkedRoadFeatures[linkedFeatureNum] = nil
+            end
+        else
             linkedRoadFeatures[linkedFeatureNum] = nil
         end
     end
@@ -6321,11 +6351,11 @@ function promptWagon()
     -- }
     local labelButtonParam = {
        index = 1, label = 'Replace your wagon\nOR', click_function = 'doNothing',
-       position = {x=0, y=FLOATING_BUTTON_HEIGHT * FLOATING_BUTTON_Y_SCALE, z=1.8 * FLOATING_BUTTON_Z_SCALE}, width = 0, height=0, font_size = 200, function_owner = nil
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.8}, width = 0, height=0, font_size = 200, function_owner = nil
     }
     local skipFigureButtonParam = {
        index = 2, label = 'Skip placing\nwagon', click_function = 'skipWagonButton',
-       position = {x=0, y=FLOATING_BUTTON_HEIGHT * FLOATING_BUTTON_Y_SCALE, z=2.5 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=600, font_size = 200, function_owner = nil
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.5}, width = 1400, height=600, font_size = 200, function_owner = nil
     }
     --createNormalizedArbitraryButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), labelButtonParam, true)
     --createNormalizedArbitraryButton(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid), skipFigureButtonParam, true)
@@ -8198,15 +8228,22 @@ function AICalculateFeatureScore(featureNum, figures)
     return score, featureOpenings, nameOfFeature
 end
 
+HAND_SCALE_CONSTANT = 1.2 -- for some reason, a hand with {1,1,1} scale is not 1 unit wide in each dimension, but instead around 1.2.
+-- Move a card from the specified player's hand to the position smoothly
+-- This works by first setting the position directly in front of the hand to prevent rubber-banding, then immediately moving to the intended position
+function setPositionFromHandSmooth(obj, player_color, position)
+  local handTransform = Player[player_color].getHandTransform()
+  local tempPosition = obj.getPosition()
+  tempPosition.x = tempPosition.x + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.x
+  tempPosition.z = tempPosition.z + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.z
+  obj.setPosition(tempPosition)
+  obj.setPositionSmooth(position)
+end
+
 function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     if os.clock() - calculationStart < AI_DRAW_TILE_TIME then -- wait a minimum of this many seconds to make it flow nicer
         wait(AI_DRAW_TILE_TIME - (os.clock() - calculationStart))
     end
-
-    local x, z = rotateCoordinates(0, -3, player_possession_areas[activePlayers[currentPlayer]].rotation)
-
-    newTile.setPosition({newTile.getPosition().x + x, newTile.getPosition().y, newTile.getPosition().z + z})
-    newTile.setPositionSmooth({xIndex * TILE_SPACING + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z})
 
     if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
     tileGrid[xIndex][zIndex] = {}
@@ -8239,7 +8276,7 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     end
 
     newTile.interactable = false
-    newTile.setPositionSmooth({xIndex * TILE_SPACING + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z}, false, false)
+    setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z})
     newTile.setRotationSmooth({0, tileRotation * 90, 0})
     Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={tile=newTile}, delay=2.0})
 end
