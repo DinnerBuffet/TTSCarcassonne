@@ -1,0 +1,5 @@
+isStartingPiece = true
+sides = {'City', 'River', 'City', 'River'}
+linkedQuadrants = {{2, 4}}
+linkedOctants = {{5, 6}, {7, 12}, {9, 10}, {8, 11}}
+specialFeatures = {{'City-Field', {5, 6, 7, 12}, nil}, {'City-Field', {8, 9, 10, 11}, nil}}

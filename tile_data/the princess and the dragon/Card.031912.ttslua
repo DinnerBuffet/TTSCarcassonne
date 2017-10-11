@@ -1,0 +1,3 @@
+sides = {'City', 'City', 'Field', 'City'}
+linkedOctants = {{5, 6, 7, 8, 11, 12}, {9, 10}}
+specialFeatures = {{'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Coat of Arms', {5, 6, 7, 8, 11, 12}, nil}, {'Magic Portal', nil, nil}, {'City', {5, 6, 7, 8, 11, 12}, {0.0,0.0}}}

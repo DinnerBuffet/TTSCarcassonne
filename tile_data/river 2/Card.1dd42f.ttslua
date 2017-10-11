@@ -1,0 +1,4 @@
+isStartingPiece = true
+sides = {'River', 'Road', 'River', 'City'}
+linkedOctants = {{6, 7}, {8, 9}, {11, 12}}
+specialFeatures = {{'City-Field', {5, 10, 11, 12}, nil}, {'Road Intersection', {2, 11, 12}, nil}}

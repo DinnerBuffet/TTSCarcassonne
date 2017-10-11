@@ -1,0 +1,560 @@
+--contains scripts and data related to setuping up the game
+
+--[<setting name>] = {[<expansion bag>] = {[<item name>] = {}}}
+tileSettings = {
+    ['InCTiles'] = {['InC'] = {['InCTiles'] = {}}},
+    ['TnBTiles'] = {['TnB'] = {['TnBTiles'] = {}}},
+    ['PnDTiles'] = {['PnD'] = {['PnDTiles'] = {}}},
+    ['TowerTiles'] = {['Tower'] = {['TowerTiles'] = {}}},
+    ['AnMTiles'] = {['AnM'] = {['AnMTiles'] = {}}},
+    ['KnRBTiles'] = {['KnRB'] = {['KnRBTiles'] = {}}},
+    ['CultTiles'] = {['Cult'] = {
+            ['CultTiles'] = {},
+            ['CultBonusTile'] = {}
+        }
+    },
+	['CatapultTiles'] = {['Catapult'] = {['CatapultTiles'] = {}}},
+	['BCnBTiles'] = {['BCnB'] = {['BCnBTiles'] = {}}},
+    ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}},
+    ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}},
+    ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {['GamesQuarterlyTiles'] = {}}},
+    ['GoldminesTiles'] = {['Goldmines'] = {['GoldminesTiles'] = {}}},
+    ['SpielPromoTiles'] = {['SpielPromo'] = {['SpielPromoTiles'] = {}}},
+    ['RussianPromoTiles'] = {['RussianPromo'] = {['RussianPromoTiles'] = {}}}
+}
+
+--[<setting name>] = {[<expansion bag>] = {[<item name>] = {position={<position on table>}, rotation={<rotation>}, shuffle=<should shuffle>, lock=<should lock>}}}
+--will only use the first ForkTile, SpringTile, and LakeTile, prioritizing GamesQuarterly over RiverII over BB5 River over the original River (CAR ref 237)
+startingTileSettings = {
+    ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+    }},
+    ['StartingTileRiverII'] = {['RiverII'] = {
+        ['RiverForkTile'] = {position = {x=-3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+    }},
+    ['StartingTileRiverBB5'] = {['RiverBB5'] = {
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+    }},
+    ['StartingTileRiver'] = {['River'] = {
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+    }},
+    ['StartingTileCoC'] = {
+        ['CoC'] = {
+            ['CoCCarcassonneTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
+                [1] = {position = {x=-3.18, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [2] = {position = {x=-1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [3] = {position = {x=0.0, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [4] = {position = {x=1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [5] = {position = {x=-3.18, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [6] = {position = {x=-1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [7] = {position = {x=0.0, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [8] = {position = {x=1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [9] = {position = {x=-3.18, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [10] = {position = {x=-1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [11] = {position = {x=0.0, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [12] = {position = {x=1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            }},
+            ['CoCCount'] = {position = {x=-0.30, y=2.0, z=1.44}, rotation = {x=0,y=0,z=0}, shuffle = false, lock = true}
+        }
+    }
+}
+
+--[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, offset = {x=<x offset>, z=<z offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, num=<setting with number to spawn>}
+figureSettings = {
+    ['BaseFollower'] = {name = 'Follower', offset = {x = 5.15, z = -0.5}, use_snap_points = true, num = 'BaseNumFollowers', model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['InCBigFollower'] = {name = 'Big Follower', offset = {x = -0.8, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.6, 0.6, 0.5} }},
+    ['TnBBuilder'] = {name = 'Builder', offset = {x = -0.8, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}, --should probably be closer to {0.5, 0.42, 0.5}
+    ['TnBPig'] = {name = 'Pig', offset = {x = -2.25, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}, --should probably be closer to {0.45, 0.5, 0.5}
+    ['AnMMayor'] = {name = 'Mayor', offset = {x = -2.25, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['AnMWagon'] = {name = 'Wagon', offset = {x = -3.7, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['AnMBarn'] = {name = 'Barn', offset = {x = -3.7, z = -0.5}, use_snap_points = false, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['HnSShepherd'] = {name = 'Shepherd', offset = {x = -5.15, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
+    ['CIIAbbot'] = {name = 'Abbot', offset = {x = -5.15, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}
+}
+
+playerNeutralFigureSettings = {
+    ['TowerTowers'] = {name = 'Tower', type=5, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTUR2R1doUW5NOGc', collider='https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdUtJZ3dSdkppa1E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -9.15, z = 0.0}, scale = {0.39, 0.48, 0.5}, use_snap_points = true, num = 'TowerNumTowers'},
+    ['BCnBBridges'] = {name = 'Bridge', type=1, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -11.15, z = 0.0}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BCnBNumBridges'}
+}
+
+--[<steam_id>] = {['Intro'] = <intro string>, [<figure name>] = {<custom figure settings>}}
+vipFigureSettings = {
+    -- ['76561197962338210'] = {
+    --     ['Intro'] = "You are being joined by %s, the creator of Scripted Carcassonne.",
+    --     ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXd0RzVC1ndlBDanM', scale = {0.15, 0.15, 0.15} }
+    -- },
+    -- ['76561197972020303'] = {
+    --     ['Intro'] = "You are being joined by %s, contributor to the Carcassonne mod.",
+    --    ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXd0RzVC1ndlBDanM', scale = {0.15, 0.15, 0.15} }
+    -- },
+    ['9999999999999999999'] = {
+        ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
+        ['BaseFollower'] = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} },
+    }
+}
+
+--[<setting name>] = {[<expansion bag>] = {[<item name>] = {width = <width of object>}}}
+neutralFigureSettings = {
+    ['TnBTradeGoods'] = {['TnB'] = {
+            ['TnBClothTokenStack'] = {width = 1.0},
+            ['TnBWineTokenStack'] = {width = 1.0},
+            ['TnBWheatTokenStack'] = {width = 1.0}
+        }
+    },
+    ['KnRBKing'] = {['KnRB'] = {['KnRBKing'] = {width = 2.0}}},
+    ['KnRBRobber'] = {['KnRB'] = {['KnRBRobber'] = {width = 2.0}}},
+    ['HnSShepherd'] = {['HnS'] = {['HnSSheepBag'] = {width = 1.5}}},
+    ['PnDFairy'] = {['PnD'] = {['PnDFairy'] = {width = 1.0}}},
+    ['PnDDragon'] = {['PnD'] = {['PnDDragon'] = {width = 2.0}}},
+    ['FlierFlier'] = {['Flier'] = {['FlierDie'] = {width = 1.0}}},
+    ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {width = 1.5}}}
+}
+
+
+
+--setup the game
+--4 independent coroutines will be started that each setup a different aspect of the game
+--setup will finish when all 4 of these have completed
+function startGame()
+    clearCounters()
+    local hasPlayer = false
+    for _, player_color in ipairs(PLAYER_COLORS) do
+        if Player[player_color].seated or controlPanelSettings[player_color .. 'Control'] ~= nil then
+            hasPlayer = true
+        end
+    end
+    if not hasPlayer then return 1 end
+    for _, player_color in ipairs(PLAYER_COLORS) do
+        --player_color_tints[player_color] = stringColorToRGB(player_color)
+        --HACK: The above won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
+        player_color_tints[translate({player_color})] = {}
+        player_color_tints[translate({player_color})]['r'] = stringColorToRGB(player_color)['r']
+        player_color_tints[translate({player_color})]['g'] = stringColorToRGB(player_color)['g']
+        player_color_tints[translate({player_color})]['b'] = stringColorToRGB(player_color)['b']
+        if Player[player_color].seated or controlPanelSettings[player_color .. 'Control'] ~= nil then
+            local playerPossessionArea = player_possession_areas[player_color]
+            local params = {}
+            params.rotation = {0.1,180,0.1}
+            params.callback = "spawnStartingItemUnlock"  -- all the callback does is set spawnStartingItemLock to false
+            params.callback_owner = Global
+            params.type = "ScriptingTrigger"
+            params.position = {playerPossessionArea.x, TABLE_SURFACE_Y - 0.5 + PLAYER_POSSESSION_ZONE_HEIGHT / 2, playerPossessionArea.z}
+            local x_scale, z_scale
+            if playerPossessionArea.rotation % 2 == 0 then
+                x_scale = PLAYER_POSSESSION_ZONE_WIDTH
+                z_scale = PLAYER_POSSESSION_ZONE_DEPTH
+            else
+                x_scale = PLAYER_POSSESSION_ZONE_DEPTH
+                z_scale = PLAYER_POSSESSION_ZONE_WIDTH
+            end
+            spawnStartingItemLock = true
+            local zoneObj = spawnObject(params)
+            while spawnStartingItemLock do
+                coroutine.yield(0)
+            end
+            zoneObj.setName(player_color .. " possession zone")
+            zoneObj.setScale({x_scale, PLAYER_POSSESSION_ZONE_HEIGHT, z_scale})
+            local newColor = player_color
+            coroutine.yield(0)
+            local objs = zoneObj.getObjects()
+            for _, obj in pairs(objs) do
+                if obj.getName() == translate({'Follower'}) then
+                    newColor = obj.getDescription()
+                    --player_color_tints[newColor] = obj.getColorTint()
+                    --HACK: The above won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
+                    player_color_tints[newColor] = {}
+                    player_color_tints[newColor]['r'] = obj.getColorTint()['r']
+                    player_color_tints[newColor]['g'] = obj.getColorTint()['g']
+                    player_color_tints[newColor]['b'] = obj.getColorTint()['b']
+                    allGameMessage({"{c1} has substituted their color for {c2}", {'{c1}', player_color}, {'{c2}', RGBToBracketedHex(player_color_tints[newColor]) .. newColor, player_color_tints[player_color]}})
+                    break
+                end
+            end
+            playerPossessionScriptingZones[player_color] = zoneObj.getGUID()
+            newColor = translate({newColor})
+            if newColor ~= player_color then
+                controllingPlayer = player_color
+                if controlPanelSettings[controllingPlayer .. 'Control'] ~= nil then
+                    controllingPlayer = controlPanelSettings[controllingPlayer .. 'Control']
+                end
+                controlPanelSettings[newColor .. 'Control'] = controllingPlayer
+                score_counter_guids[newColor] = score_counter_guids[player_color]
+                getObjectFromGUID(score_counter_guids[newColor]).setColorTint(player_color_tints[newColor])
+                figurepad_GUIDs[newColor] = figurepad_GUIDs[player_color]
+                player_possession_areas[newColor] = player_possession_areas[player_color]
+                playerPossessionScriptingZones[newColor] = playerPossessionScriptingZones[player_color]
+                handColor[newColor] = handColor[player_color]
+            end
+            table.insert(activePlayers, newColor)
+            if Player[player_color].seated then
+              playerName[player_color] = Player[player_color].steam_name
+            else
+              if(controlPanelSettings[player_color .. 'Control']:sub(1,2) == 'AI') then
+                playerName[player_color] = 'AI (beta)'
+              else
+                playerName[player_color] = Player[controlPanelSettings[player_color .. 'Control']].steam_name .. ' (Hotseat)'
+              end
+            end
+            if Player[player_color].seated and vipFigureSettings[Player[player_color].steam_id] ~= nil and vipFigureSettings[Player[player_color].steam_id]['Intro'] ~= nil then
+                allGameMessage(string.format(vipFigureSettings[Player[player_color].steam_id]['Intro'], Player[player_color].steam_name), NEUTRAL_COLOR)
+            end
+        else
+            getObjectFromGUID(figurepad_GUIDs[player_color]).destruct()
+            figurepad_GUIDs[player_color] = nil
+        end
+    end
+    for _, obj in ipairs(getAllObjects()) do
+        if obj.getName() == translate({'Follower'}) or obj.getName() == 'Substitute Colors' then
+            obj.destruct()
+        end
+    end
+    currentPlayer = math.random(#activePlayers)
+    prepareTileStackFinished = false
+    preparePlayerStartingItemsFinished = false
+    prepareNeutralItemsFinished = false
+    prepareStartingTilesFinished = false
+    initializeScoreSummary()
+    if not controlPanelSettings['StartingTileBase'] then
+        local baseStartingTile = getObjectFromGUID(startingTile_GUID)
+        if baseStartingTile ~= nil then
+            baseStartingTile.destruct()
+            startingTile_GUID = nil
+            tileGrid[MIDDLE_X_OFFSET][MIDDLE_Z_OFFSET] = nil
+        end
+    else
+        local newTile = startingTile_GUID
+        startingTile_GUID = nil
+        addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(newTile), 2, false)
+    end
+    startLuaCoroutine(self, 'prepareTileStack')
+    startLuaCoroutine(self, 'prepareStartingTiles')
+    startLuaCoroutine(self, 'preparePlayerStartingItems')
+    startLuaCoroutine(self, 'prepareNeutralItems')
+
+    while not prepareTileStackFinished or not preparePlayerStartingItemsFinished or not prepareNeutralItemsFinished or not prepareStartingTilesFinished do
+        coroutine.yield(0)
+    end
+    wait(1.0) --I don't remember what this wait is for but I recall a problem if you don't use it
+    --shuffle and lock starting tiles
+    for rule_id, rule in pairs(startingTileSettings) do
+        if controlPanelSettings[rule_id] then
+            for expansion_id, expansion in pairs(rule) do
+                for item_id, item_settings in pairs(expansion) do
+                    local stackObject = getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid)
+                    if stackObject ~= nil then
+                        if item_settings.shuffle then stackObject.shuffle() end
+                        if item_settings.lock then stackObject.setLock(true) end
+                    end
+                    if item_settings.contents ~= nil then
+                        for sub_item_id, sub_item_settings in pairs(item_settings.contents) do
+                            local sub_tile = getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid)
+                            if sub_tile ~= nil then
+                                if sub_item_settings.lock then sub_tile.setLock(true) end
+                                if sub_item_settings.addToGrid then
+                                    local xIndex = math.floor((sub_item_settings.position.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                                    local zIndex = math.floor((sub_item_settings.position.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                                    if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
+                                    tileGrid[xIndex][zIndex] = {}
+                                    tileGrid[xIndex][zIndex].tile_guid = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid
+                                    local tileRotation = math.floor(sub_item_settings.rotation.y / 90 + 0.5)
+                                    if tileRotation == 0 then tileRotation = 4 end
+                                    tileGrid[xIndex][zIndex].rotation = tileRotation
+                                    addTile(xIndex, zIndex, getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid), tileRotation, false)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local tileStack = getObjectFromGUID(tileStack_GUID)
+    tileStack.shuffle()
+    if controlPanelSettings['StartingTileRiverII'] then
+        allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the fork should be the first tile placed, followed by the facedown tiles until they are gone, then the spring, and lastly the lake piece.", NEUTRAL_COLOR)
+        tileStack.setLock(true)
+        tileStack.interactable = false
+    elseif controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
+        allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the spring should be the first tile placed, followed by the facedown tiles until they are gone, and then the lake.", NEUTRAL_COLOR)
+        tileStack.setLock(true)
+        tileStack.interactable = false
+    end
+    allGameMessage("Game started. Good luck!", NEUTRAL_COLOR)
+    allGameMessage(activePlayers[currentPlayer] .. " was randomly chosen as the first player.", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+
+    if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] == nil then
+        allGameMessage("-----------It is now " .. getPlayerOwnerName(activePlayers[currentPlayer]) .. "'s turn-----------", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+    else
+        allGameMessage("-----------It is now " .. activePlayers[currentPlayer] .. "'s turn-----------", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+        allGameMessage("-------" .. activePlayers[currentPlayer] .. " is controlled by " .. stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Control']) .. getPlayerOwnerName(activePlayers[currentPlayer]) .. stringToBracketedHex(activePlayers[currentPlayer]) .. "------", player_color_tints[activePlayers[currentPlayer]], nil)
+    end
+
+    gameover = false
+    turnState = 'begin turn'
+    if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+        AIStateHandler()
+    else
+        stateHandler()
+    end
+    return 1
+end
+
+--sets up player starting possessions
+function preparePlayerStartingItems()
+    if controlPanelSettings['AnMAbbey'] then
+        spawnStartingItemLock = true
+        if takeObjectSafe(getObjectFromGUID(expansionBags['AnM'].guid), {guid = expansionBags['AnM'].contents['AnMAbbey'].guid, position = {x = 0.0, y = 3.0, z = -10.0}, rotation = {0,180,0}, callback_owner = Global, callback = "spawnStartingItemUnlock"}) == nil then
+            spawnStartingItemLock = false
+        end
+        while spawnStartingItemLock do
+            coroutine.yield(0)
+        end
+        wait(0.1) --need to wait before taking objects from this stack. Wait time is arbitrary, but seems to work.
+    end
+    for _, player in ipairs(activePlayers) do
+        local figurePad = getObjectFromGUID(figurepad_GUIDs[player])
+        if controlPanelSettings['AnMAbbey'] then
+            local params = {}
+            local x, z = rotateCoordinatesDegrees(-7.15, 0.0, -figurePad.getRotation().y)
+            params.position = {figurePad.getPosition().x + x, 2, figurePad.getPosition().z + z}
+            params.rotation = {0, figurePad.getRotation().y, 0}
+            params.callback_owner = Global
+            params.callback = "spawnStartingItemUnlock"
+            getObjectFromGUID(expansionBags['AnM'].contents['AnMAbbey'].guid).takeObject(params)
+        end
+        figurePositions[player] = {}
+
+        for figure, figureSetting in pairs(figureSettings) do
+            local figureSettingCopy = table.shallow_copy(figureSetting)
+            if controlPanelSettings[figure] then
+                if getPlayerOwner(player) == player and Player[player].seated and vipFigureSettings[Player[player].steam_id] ~= nil and vipFigureSettings[Player[player].steam_id][figure] ~= nil then
+                    figureSettingCopy.model_settings = vipFigureSettings[Player[player].steam_id][figure]
+                end
+                local num
+                if figureSettingCopy.num ~= nil then num = controlPanelSettings[figureSettingCopy.num] else num = 1 end
+                for i=1, num do
+                    local x, z = rotateCoordinatesDegrees(figureSettingCopy.offset.x + (((i - 1) % 4) * -1.45), figureSettingCopy.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                    local params = {}
+                    params.type = figureSettingCopy.model_settings.type
+                    params.position = {figurePad.getPosition().x + x, 2, figurePad.getPosition().z + z}
+                    params.rotation = {0, figurePad.getRotation().y, 0}
+                    params.scale = figureSettingCopy.model_settings.scale
+                    params.callback_owner = Global
+                    params.callback = "spawnStartingItemUnlock"
+                    spawnStartingItemLock = true
+                    local obj = spawnObject(params)
+
+                    local custom_params = {}
+                    custom_params.assetbundle = figureSettingCopy.model_settings.assetbundle
+                    custom_params.mesh = figureSettingCopy.model_settings.mesh
+                    custom_params.diffuse = figureSettingCopy.model_settings.diffuse
+                    custom_params.type = 1
+                    custom_params.material = 1
+                    custom_params.specular_intensity = 0.05
+                    obj.setCustomObject(custom_params)
+                    obj.setName(translate({figureSettingCopy.name}))
+                    obj.setDescription(translate({player}))
+                    obj.setColorTint(player_color_tints[player])
+                    obj.use_grid = false
+                    obj.use_snap_points = figureSettingCopy.use_snap_points
+                    while spawnStartingItemLock do
+                        coroutine.yield(0)
+                    end
+                    figurePositions[player][obj.getGUID()] = {x=figureSettingCopy.offset.x + (((i - 1) % 4) * -1.45), z=figureSettingCopy.offset.z + (math.floor((i - 1) / 4) * 1.0)}
+                end
+            end
+        end
+        for figure, figureSetting in pairs(playerNeutralFigureSettings) do
+            if controlPanelSettings[figure] then
+                local num
+                if figureSetting.num ~= nil then num = controlPanelSettings[figureSetting.num] else num = 1 end
+                for i=1, num do
+                    local x, z = rotateCoordinatesDegrees(figureSetting.offset.x, figureSetting.offset.z, -figurePad.getRotation().y)
+                    local y = 0
+                    if figure == 'TowerTowers' then
+                        y = -1 + (i - 1) * 0.5
+                    elseif figure == 'BCnBBridges' then
+                        x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                    end
+                    local params = {}
+                    params.type = 'Custom_Model'
+                    params.position = {figurePad.getPosition().x + x, 2 + y, figurePad.getPosition().z + z}
+                    params.rotation = {0, figurePad.getRotation().y, 0}
+                    params.scale = figureSetting.scale
+                    params.callback_owner = Global
+                    params.callback = "spawnStartingItemUnlock"
+                    spawnStartingItemLock = true
+                    local obj = spawnObject(params)
+
+                    local custom_params = {}
+                    custom_params.mesh = figureSetting.mesh
+                    custom_params.diffuse = figureSetting.diffuse
+                    if figureSetting.collider ~= nil then
+                        custom_params.collider = figureSetting.collider
+                    end
+                    custom_params.type = figureSetting.type
+                    custom_params.material = 1
+                    custom_params.specular_intensity = 0.05
+                    obj.setCustomObject(custom_params)
+                    obj.setName(figureSetting.name)
+                    obj.setColorTint({r=141/255, g=75/255, b=0})
+                    obj.use_grid = false
+                    obj.use_snap_points = figureSetting.use_snap_points
+                    while spawnStartingItemLock do
+                        coroutine.yield(0)
+                    end
+                end
+            end
+        end
+    end
+    if controlPanelSettings['AnMAbbey'] then
+        getObjectFromGUID(expansionBags['AnM'].guid).putObject(getObjectFromGUID(expansionBags['AnM'].contents['AnMAbbey'].guid))
+    end
+    wait(2)
+    preparePlayerStartingItemsFinished = true
+    return 1
+end
+
+--Will allow the startGame and preparePlayerStartingItems coroutines to continue running
+--(both functions are not run at the same time so I re-use the lock)
+function spawnStartingItemUnlock()
+    spawnStartingItemLock = false
+end
+
+--pulls tiles from expansion bags into the main tile stack
+function prepareTileStack()
+    local tileStack = getObjectFromGUID(tileStack_GUID)
+    if tileStack ~= nil then
+        local tileStackPosition = tileStack.getPosition()
+        local tileStackAddPosition = tileStackPosition
+        local stackY = tileStackPosition.y
+        for rule_id, rule in pairs(tileSettings) do
+            if controlPanelSettings[rule_id] then
+                for expansion_id, expansion in pairs(rule) do
+                    for item_id, item_settings in pairs(expansion) do
+                        tileStackAddPosition.y = stackY + 1 + tileStack.getQuantity() * TILE_THICKNESS
+                        local newStack = takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = tileStackAddPosition, rotation = {0,180,180}})
+                        if newStack == nil then
+                        else
+                            tileStack.putObject(newStack)
+                        end
+                        coroutine.yield(0)
+                    end
+                end
+            end
+        end
+    else
+        allErrorMessage("Error: Tile stack not found. Scripting will be partially broken unless the game is reloaded.")
+    end
+    prepareTileStackFinished = true
+    return 1
+end
+
+--setup the starting tiles of the game
+function prepareStartingTiles()
+    for rule_id, rule in pairs(startingTileSettings) do
+        if controlPanelSettings[rule_id] then
+            for expansion_id, expansion in pairs(rule) do
+                for item_id, item_settings in pairs(expansion) do
+                    --HACK: only use the count if it isn't disabled
+                    if item_id ~= 'CoCCount' or not controlPanelSettings['CoCNoCount'] then
+                        if (item_id ~= "RiverSpringTile" or springTile_GUID == nil) and (item_id ~= "RiverLakeTile" or lakeTile_GUID == nil) then
+                            --HACK: only use GamesQuarterly river tiles if one of the rivers is enabled
+                            if not (rule_id == 'GamesQuarterlyTiles' and (item_id == "RiverSpringTile" or item_id == "RiverBodyTiles") and not controlPanelSettings['StartingTileRiverII'] and not controlPanelSettings['StartingTileRiver'] and not controlPanelSettings['StartingTileRiverBB5']) then
+                                prepareStartingTileLock = true
+                                if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = item_settings.position, rotation = item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
+                                    prepareStartingTileLock = false
+                                end
+                                while prepareStartingTileLock do
+                                    coroutine.yield(0)
+                                end
+                                if item_id == "RiverForkTile" and forkTile_GUID == nil then
+                                    forkTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                end
+                                if item_id == "RiverSpringTile" then
+                                    springTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                end
+                                if item_id == "RiverLakeTile" then
+                                    lakeTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                end
+                                if item_id == "RiverBodyTiles" and rule_id ~= 'GamesQuarterlyTiles' and riverBodyTiles_GUID == nil then --HACK: gamesquarterly has a single body tile, so it won't be used as the bodyTileStack
+                                    riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                end
+                                wait(1.0)
+                            end
+                        end
+                        if item_settings.contents ~= nil then
+                            for sub_item_id, sub_item_settings in pairs(item_settings.contents) do
+                                prepareStartingTileLock = true
+                                if getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid) ~= nil then
+                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).takeObject({guid = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid, position = sub_item_settings.position, rotation = sub_item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"})
+                                else
+                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid).setPositionSmooth(sub_item_settings.position)
+                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid).setRotationSmooth(sub_item_settings.rotation)
+                                    prepareStartingTileLock = false
+                                    wait(2)
+                                end
+                                --don't need the following anymore because it is set when addTile is called (?)
+                                --if startingTile_GUID == nil then
+                                --    startingTile_GUID = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid
+                                --end
+                                while prepareStartingTileLock do
+                                   coroutine.yield(0)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    --HACK: if there is no fork, assign the spring to fork so that it is placed first
+    if forkTile_GUID == nil and springTile_GUID ~= nil then
+        forkTile_GUID = springTile_GUID
+        springTile_GUID = nil
+    end
+    prepareStartingTilesFinished = true
+    return 1
+end
+
+--unlocks the preparePlayerStartingItems coroutine
+function prepareStartingTileUnlock()
+    prepareStartingTileLock = false
+end
+
+--sets up items that do not belong to any specific player in the neutral area
+function prepareNeutralItems()
+    local offset = 0
+    for rule_id, rule in pairs(neutralFigureSettings) do
+        if controlPanelSettings[rule_id] then
+            for expansion_id, expansion in pairs(rule) do
+                for item_id, item_settings in pairs(expansion) do
+                    neutralItemsLock = true
+                    offset = offset + item_settings.width / 2
+                    if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = {x = NEUTRAL_ITEMS_LOCATION.x + offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}, rotation = {0,180,0}, callback_owner = Global, callback = "neutralItemsUnlock"}) == nil then
+                        neutralItemsLock = false
+                    end
+                    offset = offset + item_settings.width / 2
+                    --while neutralItemsLock do
+                    --    coroutine.yield(0)
+                    --end
+                end
+            end
+        end
+    end
+    prepareNeutralItemsFinished = true
+    return 1
+end
+
+--unlocks the prepareNeutralItems coroutine
+function neutralItemsUnlock()
+    neutralItemsLock = false
+end

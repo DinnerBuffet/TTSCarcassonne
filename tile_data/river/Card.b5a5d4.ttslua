@@ -1,0 +1,5 @@
+isStartingPiece = true
+sides = {'Road', 'Road', 'River', 'River'}
+linkedQuadrants = {{1, 2}, {3, 4}}
+linkedOctants = {{5, 8, 9, 12}, {6, 7}, {10, 11}}
+specialFeatures = {{'Field', {5, 8, 9, 12}, {0.1, 0.1}}}

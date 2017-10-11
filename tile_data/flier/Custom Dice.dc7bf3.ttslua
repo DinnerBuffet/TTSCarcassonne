@@ -1,0 +1,30 @@
+m_sLastPlayer = nil     --Remember last player who picked up the die
+loaded = false
+
+-- function onCollisionEnter(collision_info)
+--     if m_bInQueue == false then
+--         if m_bActive then
+--             print("test")
+--             m_bInQueue = Global.call('queueDieCheck', {DieObj = self}) --returns false if a map is still loading -> simply disable collision check and the die will be enabled again once the map is loaded
+--             Global.call('registerNumberDie', {DieObj = self, iDie = 2}) --re-register the die to make the script more robust (allow copying/deleting/putting in bags of dice)
+--         end
+--     end
+-- end
+
+function onLoad()
+    loaded = true
+end
+
+function onCollisionStay(collision_info)
+    if loaded and self.resting then
+        Global.call('onFlierDiceRolled', {sPlayer = m_sLastPlayer})
+    end
+end
+
+function onPickedUp(player_color)
+    m_sLastPlayer = player_color
+end
+
+function getLastPlayerColor()
+    return m_sLastPlayer
+end

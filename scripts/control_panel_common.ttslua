@@ -1,0 +1,152 @@
+-- Button IDs:
+btnIDs = {}
+index = 0
+
+BUTTON_HEIGHT = 0.1
+LABEL_SEPARATION = 1.1
+
+PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}
+
+NEUTRAL_COLOR = {r=0.5,g=0.5,b=0.5}
+ERROR_COLOR = {r=1,g=0,b=0}
+
+button_parameters = {}
+button_parameters.function_owner = self
+button_parameters.rotation = {0.0, 180.0, 0.0}
+button_parameters.width = 480
+button_parameters.height = 480
+button_parameters.font_size = 300
+
+button_label_parameters = {}
+button_label_parameters.function_owner = self
+button_label_parameters.rotation = {0.0, 180.0, 0.0}
+button_label_parameters.width = 0
+button_label_parameters.height = 0
+button_label_parameters.font_size = 300
+button_label_parameters.click_function = 'fakeButton'
+button_label_parameters.alignment = 2
+
+expansion_label_parameters = {}
+expansion_label_parameters.function_owner = self
+expansion_label_parameters.rotation = {0.0, 180.0, 0.0}
+expansion_label_parameters.width = 0
+expansion_label_parameters.height = 0
+expansion_label_parameters.font_size = 400
+expansion_label_parameters.click_function = 'fakeButton'
+
+category_label_parameters = {}
+category_label_parameters.function_owner = self
+category_label_parameters.rotation = {0.0, 180.0, 0.0}
+category_label_parameters.width = 0
+category_label_parameters.height = 0
+category_label_parameters.font_size = 500
+category_label_parameters.click_function = 'fakeButton'
+
+function onCheckboxToggle(sPlayer, data_key, button_key)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = data_key}) then
+        Global.call('setControlPanelState', {key = data_key, value = false})
+        self.editButton({index = btnIDs[button_key], label = ''})
+    else
+        Global.call('setControlPanelState', {key = data_key, value = true})
+        self.editButton({index = btnIDs[button_key], label = 'X'})
+    end
+    checkAllCheckboxes()
+end
+
+function createExpansionLabel(z, label)
+    expansion_label_parameters.position = {0, BUTTON_HEIGHT, z + EXPANSION_LABEL_SEPARATION}
+    expansion_label_parameters.label = label
+    self.createButton( expansion_label_parameters )
+    index = index + 1
+end
+
+function initializeCheckbox(x, z, key, tooltip)
+    if Global.call('getControlPanelState', {key = key}) then
+        button_parameters.label = 'X'
+    else
+        button_parameters.label = ''
+    end
+    button_parameters.tooltip = tooltip
+    button_parameters.click_function = 'on' .. key .. 'Toggle'
+    button_parameters.position = {x, BUTTON_HEIGHT, z}
+    self.createButton( button_parameters )
+    btnIDs['btn' .. key .. 'Toggle'] = index
+    index = index + 1
+end
+
+function initializeLabeledCheckbox(x, z, buttonEnabled, key, label, labelOffset, alignment, tooltip)
+    button_label_parameters.position = {x + labelOffset.x, BUTTON_HEIGHT, z + labelOffset.z}
+    button_label_parameters.label = label
+    button_label_parameters.alignment = alignment
+    self.createButton( button_label_parameters )
+    index = index + 1
+
+    if buttonEnabled then
+        if Global.call('getControlPanelState', {key = key}) then
+            button_parameters.label = 'X'
+        else
+            button_parameters.label = ''
+        end
+        button_parameters.tooltip = tooltip
+        button_parameters.click_function = 'on' .. key .. 'Toggle'
+        button_parameters.position = {x, BUTTON_HEIGHT, z}
+        self.createButton( button_parameters )
+        btnIDs['btn' .. key .. 'Toggle'] = index
+        index = index + 1
+    end
+end
+
+--will print a message to all players and to the log
+function allGameMessage(msg, rgb, target_player)
+    if type(msg) == 'table' then
+      msg = translate(msg)
+    end
+    if target_player == nil then
+        printToAll(msg, rgb)
+    else
+        for _, player in ipairs(getSeatedPlayers()) do
+            if player == target_player then
+                broadcastToColor(msg, player, rgb)
+            else
+                printToColor(msg, player, rgb)
+            end
+        end
+    end
+end
+
+--true if element is one of the elements of the table, otherwise false
+--if element is a table, then checks if an identical table is in the table
+function table.contains(table, element)
+    if type(element) == 'table' then
+        for _, subtable in pairs(table) do
+            local allMatch = true
+            for key, value in pairs(subtable) do
+                if value ~= element[key] then
+                    allMatch = false
+                end
+            end
+            if allMatch then return true end
+        end
+    else
+        for _, value in pairs(table) do
+            if value == element then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function translate(params)
+    return Global.call('translate', params)
+end
+
+function stringToBracketedHex(color)
+    local rgb = stringColorToRGB(color)
+    if rgb ~= nil then
+        return "[" .. string.format("%x%x%x", rgb.r*255,rgb.g*255,rgb.b*255) .. "]"
+    else
+        return ""
+    end
+end

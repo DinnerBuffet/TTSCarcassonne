@@ -1,0 +1,155 @@
+function translate(params)
+  local msg
+  if currentLanguage == 'en-us' or LOCALIZED_STRINGS[currentLanguage] == nil or LOCALIZED_STRINGS[currentLanguage][params[1]] == nil or LOCALIZED_STRINGS[currentLanguage][params[1]] == "" then
+    msg = params[1]
+  else
+    msg = LOCALIZED_STRINGS[currentLanguage][params[1]]
+  end
+  for i = 2, #params do
+    msg = string.gsub(msg, params[i][1], params[i][2])
+  end
+  return msg
+end
+
+function setLocalizedObjectNames()
+  FOLLOWER_TYPES = {translate({'Follower'}), translate({'Big Follower'}), translate({'Phantom'}), translate({'Abbot'}), translate({'Mayor'}), translate({'Wagon'})}
+  SPECIAL_FIGURE_TYPES = {translate({'Shepherd'}), translate({'Builder'}), translate({'Pig'}), translate({'Barn'})}
+  NEUTRAL_FIGURE_TYPES = {translate({'Count'}), translate({'Dragon'}), translate({'Fairy'}), translate({'Tower'})}
+  GOLD_BAR_NAME = translate({'Gold Bar'})
+  SHEEP_TOKEN_TYPES = {translate({'Sheep'}), translate({'Wolf'})}
+  TRADE_TOKEN_TYPES = {translate({'Wine Token'}), translate({'Wheat Token'}), translate({'Cloth Token'})}
+end
+
+LOCALIZED_STRINGS = {
+  ['zh-tw'] = {
+    --Player Colors
+    ["Green"] = "綠色",
+    ["Purple"] = "紫色",
+    ["White"] = "白色",
+    ["Blue"] = "藍色",
+    ["Red"] = "紅色",
+    ["Pink"] = "粉紅色",
+    ["Magenta"] = "洋紅色",
+    ["Yellow"] = "黃色",
+    ["Orange"] = "橘色",
+    ["Cyan"] = "青色",
+    ["Teal"] = "藍綠色",
+    ["Grey"] = "灰色",
+    ["Black"] = "黑色",
+    ["Brown"] = "棕色",
+    ["Amber"] = "琥珀色",
+    ["Rose"] = "玫紅色",
+    ["Vermilion"] = "朱紅色",
+    ["Chartreuse"] = "黃綠色",
+    --Figure Names
+    ["Follower"] = "隨從",
+    ["Big Follower"] = "大隨從",
+    ["Builder"] = "工程師",
+    ["Pig"] = "小豬",
+    ["Mayor"] = "市長",
+    ["Wagon"] = "馬車",
+    ["Barn"] = "穀倉",
+    ["Shepherd"] = "牧羊人",
+    ["Tower"] = "塔",
+    --Situational Figure Names
+    ["Meeple"] = "米寶", --one of the 7 basic followers
+    ["Farmer"] = "農夫", --follower in a field
+    ["Knight"] = "騎士", --follower in a city
+    ["Robber"] = "強盜", --follower on a road
+    ["Monk"] = "僧侶", --follower in a cloister
+    --Neutral Figure Names
+    ["Dragon"] = "火龍",
+    ["Fairy"] = "仙女",
+    ["Count"] = "伯爵",
+    --Feature Names
+    ["Field"] = "草原",
+    ["City"] = "城市",
+    ["Road"] = "道路",
+    ["Cloister"] = "修道院",
+    --Special Feature Names
+    ["Cathedral"] = "主教教堂",
+    ["Inn"] = "湖泊小旅館",
+    ["Trade Goods"] = "貨物", --will use?
+    ["Wine Token"] = "酒桶",
+    ["Cloth Token"] = "布匹",
+    ["Wheat Token"] = "麥子",
+    ["Princess"] = "公主", --will use?
+    ["Volcano"] = "火山",
+    ["Tower Foundation"] = "塔的基座",
+    ["Abbey"] = "大修道院",
+    ["Castle Quarter"] = "城堡區",
+    ["Blacksmith Quarter"] = "鐵匠區",
+    ["Cathedral Quarter"] = "教堂區",
+    ["Market Quarter"] = "市場區",
+    --["Dragon"] = "火龍", --share with figure name?
+    --Game Buttons
+    ["Start\nGame"] = "開始遊戲",
+    ["End game\n(score\npoints)"] = "結束遊戲\n(計算成績\n成績)",
+    ["Score\nSummary"] = "計算成績\n總分",
+    ["Skip\nTurn"] = "跳過",
+    ["Show\nMarkers:\n"] = "標記:\n",
+    ["Both"] = "全部",
+    ["None"] = "無",
+    ["Scoring"] = "得分",
+    ["Hints"] = "可放位置",
+    --Expansion Names
+    ["Inns & Cathedrals"] = "主教擴充",
+    ["Traders & Builders"] = "小豬擴充",
+    ["The Princess & The Dragon"] = "火龍與公主",
+    ["The Tower"] = "高塔陰影",
+    ["Abbey & Mayor"] = "大修道院與市長",
+    ["The Catapult"] = "投石器",
+    ["Bridges, Castles & Bazaars"] = "橋樑與市集",
+    ["Hills & Sheep"] = "羊咩擴充",
+    ["The River"] = "河流一擴充",
+    ["The River II"] = "河流二擴充",
+    ["King & Robber Baron"] = "國王與斥侯擴充", --aka King & Scout, both unused. Jenny suggests "國王與斥侯（強盜）擴充"
+    ["The Cathars"] = "異教徒擴充(圍城擴充)",
+    ["The Count of Carcassonne"] = "伯爵擴充",
+    ["The Cult, The Siege"] = "祭壇戰亂擴充", --??
+    ["The Phantom"] = "鬼魂擴充",
+    ["The Festival"] = "節慶擴充",
+    ["Mini Expansions"] = "迷你擴充",
+    ["The Flier"] = "飛人",
+    ["The Messages"] = "傳令使",
+    ["The Ferries"] = "渡輪",
+    ["The Goldmines"] = "金礦",
+    ["Mage & Witch"] = "法師和女巫",
+    ["The Robbers"] = "強盜",
+    ["The Wheel of Fortune"] = "命運之輪",
+    ["Crop Circles I"] = "麥田園一",
+    ["Crop Circles II"] = "麥田園二",
+    ["The Plague"] = "鼠疫",
+    ["The Tunnel"] = "隧道擴充",
+    --Control Panel
+    ["There is already a player sitting at this seat. Cannot create a hotseat player here."] = "已有玩家，無法設定熱座",
+    ["{c1} has been set to a hotseat player of {p1}"] = "{c1}已被設置為{p1}熱座玩家",
+    ["{c1} is no longer a hotseat player"] = "{c1}不再是熱座完家",
+    ["Warning: Tower count has changed to {n1} due to a hotseat/AI player being added/removed."] = "警告：因為新增或移除熱座/人工智慧玩家，塔數已改變成{n1}",
+    --Game Messages
+    ["Choose a location to place the gold bar"] = "請選擇一個金條放置地點",
+    ["Place a figure if desired."] = "您可以放置人物",
+    ["Roll the flier die to determine your flier's distance."] = "擲飛人骰字以決定步",
+    ["Place the flier on the destination tile."] = "請把飛人移到骰出的目的地",
+    ["{p1}'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn."] = "{p1}玩家的建築師讓他可以再抽一張牌，請再抽一張，並且在換玩家前執行如往常的選擇與動作",
+    ["Error: action - {s1} does not exist for current state - {s2}"] = "就{s2}狀況{s1}並不存在",
+    ["Error: current state does not exist - {s1}"] = "目前{s1}階段不存在",
+    ["Loaded game was in the middle of scoring. Game pieces may need to be removed manually. Skipping to post scoring events. Some unscored pieces may remain."] = "過去載入的遊戲正在計分，可能需要手動移除米寶，還沒計分的米寶可能會留在原位",
+    ["Game loaded. It is now {p1}'s turn on state: {s1}."] = "遊戲已載入，現在換{p1}, {s1}",
+    ["{p1} is controlled by {c1}"] = "{p1}被{c1}控制",
+    ["Please note that rewinds are not supported. You may need to clean some things up if the state was saved while the script was running."] = "請注意，並不支持返回功能，假如遊戲狀態儲存時遊戲程式正在運作，你可能需要手動清理桌面",
+    ["{c1}'s hotseat, {c2}, has been taken."] = "{c1}的熱座,{c2}已經有人",
+    ["{c1}'s hotseat owner, {c2}, has left the table or moved."] = "{c1}的熱座擁有者，{c2}已經離桌或換位置",
+    ["Warning: Tower count has changed to {c1} due to a player joining or leaving the table."] = "警告：每人有的塔數已經改變，因為{c1}玩家加入或退出遊戲",
+    ["{p1} rolled a {n1}"] = "{p1}骰了{n1}",
+    ["ERROR: It is not currently your turn OR you rolled the die without picking it up."] = "錯誤：現在還沒換到您，或是您沒有把骰子撿起就骰了骰子",
+    ["-----------It is now {c1}'s turn-----------"] = "-----------現在換{c1}-----------",
+    ["-------{c1} is controlled by {c2}------"] = "-------{c1}被{c2}控制------",
+    ["{c1} gets another turn for laying down the volcano lake tile."] = "因為放了火山河牌{c1}可以再行駛一次動作",
+    ["Cannot start a game without a starting tileset."] = "沒有任何版本牌組，遊戲無法開始",
+    ["Cannot start an AI game with incompatible expansion: {s1}."] = "人工智慧玩家還沒學會{s1}版本，遊戲無法開始",
+    ["{c1} has substituted their color for {c2}"] = "{c1}把顏色換成{c2}",
+    ["{n1} points - {p1}"] = "{n1}分 - {p1}", --this is displayed as a line for each player on the scoreboard
+    ["#{n1} - {n2} points - {c1} - {p1}"] = "#{n1} - {n2}分 - {c1} - {p1}", --this is displayed as a line for each player when printing the scores at the end of the game
+  },
+}

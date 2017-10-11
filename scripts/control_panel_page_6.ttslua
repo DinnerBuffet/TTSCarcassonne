@@ -1,0 +1,78 @@
+#include !\TTSCarcassonne\scripts\control_panel_common
+
+EXPANSION_LABEL_SEPARATION = LABEL_SEPARATION + 1.3
+CATEGORY = 8.6
+ROW_1 = 5.0
+ROW_SPACING = 3.8
+COLUMN_1 = 6.75
+COLUMN_SPACING = 3.4
+
+function onLoad()
+    category_label_parameters.position = {0, BUTTON_HEIGHT, CATEGORY}
+    category_label_parameters.label = 'House Rules'
+    self.createButton( category_label_parameters )
+    index = index + 1
+
+--Base game
+    createExpansionLabel(ROW_1, 'Base Game')
+    initializeLabeledCheckbox(COLUMN_1, ROW_1, true, 'BaseDisableRoads', 'Disable\nRoads', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a Road")
+    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1, true, 'BaseDisableCities', 'Disable\nCities', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a City")
+    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1, true, 'BaseDisableCloisters', 'Disable\nCloisters', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a Cloister")
+    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1, true, 'BaseDisableFarms', 'Disable\nFarms', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a Field")
+    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1, true, 'BaseNerfSmallCity', 'Nerf Small\nCities', {x=0, z=LABEL_SEPARATION}, 1, "Changes scoring so that completed cities containing only 2 tiles are worth only 2 points. This is the same as the original Carcassonne release.")
+
+--The Tower
+    createExpansionLabel(ROW_1 - ROW_SPACING, 'The Tower')
+    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, true, 'TowerNerfTowers', "Reduce tower\ncapture range", {x=0, z=LABEL_SEPARATION}, 1, "If checked, the tower range will start with just the tile it is placed on, and increase from there.")
+
+--Hills & Sheep
+    -- createExpansionLabel(ROW_1 - ROW_SPACING, 'Hills & Sheep')
+    -- initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, 'HnSDoNotBuryHills', "Don't bury\nhills", "If checked, this will not 'bury' a tile underneath a hill.")
+
+--River II
+    createExpansionLabel(ROW_1 - ROW_SPACING * 2, 'The River II')
+    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, true, 'RIIDisablePigherd', "Disable\npig-herd", {x=0, z=LABEL_SEPARATION}, 1, "If checked, this will disable the pig-herd, which gives an extra point per city to farmers.")
+
+--City of Carcassonne
+    createExpansionLabel(ROW_1 - ROW_SPACING * 3, 'City of Carcassonne')
+    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, true, 'CoCNoCount', "Disable\nThe Count", {x=0, z=LABEL_SEPARATION}, 1, "If checked, this will disable the Count.")
+end
+
+function checkAllCheckboxes()
+end
+
+function onBaseDisableRoadsToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'BaseDisableRoads', 'btnBaseDisableRoadsToggle')
+end
+
+function onBaseDisableCitiesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'BaseDisableCities', 'btnBaseDisableCitiesToggle')
+end
+
+function onBaseDisableCloistersToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'BaseDisableCloisters', 'btnBaseDisableCloistersToggle')
+end
+
+function onBaseDisableFarmsToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'BaseDisableFarms', 'btnBaseDisableFarmsToggle')
+end
+
+function onBaseNerfSmallCityToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'BaseNerfSmallCity', 'btnBaseNerfSmallCityToggle')
+end
+
+function onTowerNerfTowersToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'TowerNerfTowers', 'btnTowerNerfTowersToggle')
+end
+
+function onHnSDoNotBuryHillsToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'HnSDoNotBuryHills', 'btnHnSDoNotBuryHillsToggle')
+end
+
+function onRIIDisablePigherdToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'RIIDisablePigherd', 'btnRIIDisablePigherdToggle')
+end
+
+function onCoCNoCountToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'CoCNoCount', 'btnCoCNoCountToggle')
+end

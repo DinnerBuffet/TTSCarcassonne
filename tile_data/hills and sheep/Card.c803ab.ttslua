@@ -1,0 +1,4 @@
+sides = {'Field', 'Road', 'Road', 'Road'}
+linkedQuadrants = {{2, 4}}
+linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}}
+specialFeatures = {{'Road', {2, 4}, {0.0,0.0}}, {'Vineyard', nil, nil}}

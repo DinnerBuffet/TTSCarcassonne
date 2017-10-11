@@ -1,0 +1,228 @@
+--manages save games by restoring script data
+--in general, it is best to minimize the amount of data stored
+--the game is not considered 100% save compatible due to issues with the TTS API
+--for example, an object in the middle of a setPositionSmooth will not continue moving when loaded
+--though whenever the game is awaiting user interaction, it should be 99% save compatible
+
+function onload(save_state)
+    if save_state ~= nil then
+        local saved_data = JSON.decode(save_state)
+        if saved_data.showMarkers ~= nil then showMarkers = saved_data.showMarkers end
+        if saved_data.tileGrid ~= nil then tileGrid = saved_data.tileGrid end
+        if saved_data.startingTile_GUID ~= nil then startingTile_GUID = saved_data.startingTile_GUID end
+        if saved_data.startingRiverTile_GUID ~= nil then startingRiverTile_GUID = saved_data.startingRiverTile_GUID end
+        if saved_data.forkTile_GUID ~= nil then forkTile_GUID = saved_data.forkTile_GUID end
+        if saved_data.springTile_GUID ~= nil then springTile_GUID = saved_data.springTile_GUID end
+        if saved_data.lakeTile_GUID ~= nil then lakeTile_GUID = saved_data.lakeTile_GUID end
+        if saved_data.riverBodyTiles_GUID ~= nil then riverBodyTiles_GUID = saved_data.riverBodyTiles_GUID end
+        if saved_data.finalTile_GUID ~= nil then finalTile_GUID = saved_data.finalTile_GUID end
+        if saved_data.lastPlacedTileX ~= nil then lastPlacedTileX = saved_data.lastPlacedTileX end
+        if saved_data.lastPlacedTileZ ~= nil then lastPlacedTileZ = saved_data.lastPlacedTileZ end
+        if saved_data.controlPanelSettings ~= nil then
+            controlPanelSettings = saved_data.controlPanelSettings
+        end
+        if saved_data.scores ~= nil then
+            for player, score in pairs(saved_data.scores) do
+                local scoreCounter = getObjectFromGUID(score_counter_guids[player])
+                if scoreCounter ~= nil then
+                    scoreCounter.Counter.setValue(score)
+                end
+            end
+        end
+        if saved_data.figurePositions ~= nil then figurePositions = saved_data.figurePositions end
+        if saved_data.gameover ~= nil then gameover = saved_data.gameover end
+        if saved_data.activePlayers ~= nil then activePlayers = saved_data.activePlayers end
+        if saved_data.currentPlayer ~= nil then currentPlayer = saved_data.currentPlayer end
+        if saved_data.scoreSummary ~= nil then scoreSummary = saved_data.scoreSummary end
+        if saved_data.largestCity ~= nil then largestCity = saved_data.largestCity end
+        if saved_data.longestRoad ~= nil then longestRoad = saved_data.longestRoad end
+        if saved_data.playerPossessionScriptingZones ~= nil then playerPossessionScriptingZones = saved_data.playerPossessionScriptingZones end
+        if saved_data.player_color_tints ~= nil then player_color_tints = saved_data.player_color_tints end
+        if saved_data.score_counter_guids ~= nil then score_counter_guids = saved_data.score_counter_guids end
+        if saved_data.figurepad_GUIDs ~= nil then figurepad_GUIDs = saved_data.figurepad_GUIDs end
+        if saved_data.handColor ~= nil then handColor = saved_data.handColor end
+        if saved_data.playerName ~= nil then playerName = saved_data.playerName end
+        if saved_data.player_possession_areas ~= nil then player_possession_areas = saved_data.player_possession_areas end
+        if saved_data.turnState ~= nil then turnState = saved_data.turnState end
+        if saved_data.wagonFeatures ~= nil then wagonFeatures = saved_data.wagonFeatures end
+        if saved_data.seducedKnights ~= nil then seducedKnights = saved_data.seducedKnights end
+        if saved_data.carcassonneFigures ~= nil then carcassonneFigures = saved_data.carcassonneFigures end
+        if saved_data.numberActiveTowers ~= nil then numberActiveTowers = saved_data.numberActiveTowers end
+        if saved_data.towerX ~= nil then towerX = saved_data.towerX end
+        if saved_data.towerZ ~= nil then towerZ = saved_data.towerZ end
+        if saved_data.currentMiniTurn ~= nil then currentMiniTurn = saved_data.currentMiniTurn end
+        if saved_data.shepherdAwaitingAction ~= nil then shepherdAwaitingAction = saved_data.shepherdAwaitingAction end
+        if saved_data.newBarn ~= nil then newBarn = saved_data.newBarn end
+        if saved_data.hasBuilderAwaitingAction ~= nil then hasBuilderAwaitingAction = saved_data.hasBuilderAwaitingAction end
+        if saved_data.hasAlreadyTakenBuilderTile ~= nil then hasAlreadyTakenBuilderTile = saved_data.hasAlreadyTakenBuilderTile end
+        if saved_data.hasRansomedPrisoner ~= nil then hasRansomedPrisoner = saved_data.hasRansomedPrisoner end
+        if saved_data.buriedTile ~= nil then buriedTile = saved_data.buriedTile end
+        if saved_data.dragonHasAwaken ~= nil then dragonHasAwaken = saved_data.dragonHasAwaken end
+        if saved_data.dragonMoveNumber ~= nil then dragonMoveNumber = saved_data.dragonMoveNumber end
+        if saved_data.dragonIllegalTiles ~= nil then dragonIllegalTiles = saved_data.dragonIllegalTiles end
+        if saved_data.tileHasVolcano ~= nil then tileHasVolcano = saved_data.tileHasVolcano end
+        if saved_data.tileHasMagicPortal ~= nil then tileHasMagicPortal = saved_data.tileHasMagicPortal end
+        if saved_data.earnedPointsThisTile ~= nil then earnedPointsThisTile = saved_data.earnedPointsThisTile end
+        if saved_data.removedFigures ~= nil then removedFigures = saved_data.removedFigures end
+        if saved_data.featureMarker_GUIDs ~= nil then
+            for _, featureMarker_GUID in ipairs(saved_data.featureMarker_GUIDs) do
+                getObjectFromGUID(featureMarker_GUID).destruct()
+            end
+        end
+        --featureMap data
+        featureMap = saved_data.featureMap
+        featureList = saved_data.featureList
+        linkedFeatures = saved_data.linkedFeatures
+        featureIndex = saved_data.featureIndex
+    end
+
+    local notes = getNotebookTabs()
+    for _, note in ipairs(notes) do
+        if note.title == "Debug Log" then
+            debugLogTabIndex = note.index
+            return
+        end
+    end
+    -- params = {}
+    -- params.title = "Debug Log"
+    -- params.body = "LOG START"
+    -- params.color = "Grey"
+    -- debugLogTabIndex = addNotebookTab(params)
+    buttonBoard = getObjectFromGUID(BUTTON_BOARD_GUID)
+    showMarkersButtonParam.label = translate({'Show\nMarkers:\n'}) .. translate({showMarkers})
+    buttonBoard.createButton(showMarkersButtonParam)
+    if gameover then
+      endGameButtonParam.label = translate({'Start\nGame'})
+    else
+      endGameButtonParam.label = translate({'End game\n(score\npoints)'})
+    end
+    buttonBoard.createButton(endGameButtonParam)
+    skipTurnButtonParam.label = translate({'Skip\nTurn'})
+    buttonBoard.createButton(skipTurnButtonParam)
+    if DEBUG_BUTTONS then
+        buttonBoard.createButton(debugButtonParam)
+        buttonBoard.createButton(showTraversalParam)
+        buttonBoard.createButton(showFeatureMapParam)
+    end
+    setLocalizedObjectNames()
+
+    if activePlayers ~= nil and currentPlayer ~= nil then
+        if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] == nil then
+            allGameMessage({"Game loaded. It is now {p1}'s turn on state: {s1}.", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}, {'{s1}', turnState}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+        else
+            allGameMessage({"Game loaded. It is now {p1}'s turn on state: {s1}.", {'{p1}', activePlayers[currentPlayer]}, {'{s1}', turnState}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+            allGameMessage({"{p1} is controlled by {c1}", {'{p1}', activePlayers[currentPlayer]}, {'{c1}', stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Control']) .. getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], nil)
+        end
+        allGameMessage({"Please note that rewinds are not supported. You may need to clean some things up if the state was saved while the script was running."}, NEUTRAL_COLOR)
+    else
+      -- for i, player in ipairs(getSeatedPlayers()) do
+      --   local button_parameters = {}
+      --     button_parameters.input_function = 'test_function'
+      --     button_parameters.function_owner = Global
+      --     button_parameters.label = '(Optional) Player Name - Will use steam name if left empty'
+      --     button_parameters.position = {0.0, 0.0, 1.5}
+      --     button_parameters.width = 1500
+      --     button_parameters.height = 500
+      --     button_parameters.font_size = 150
+      --     button_parameters.font_color = {1, 0, 0}
+      --     button_parameters.alignment = 2
+      --     button_parameters.value = ''
+      --     getObjectFromGUID(figurepad_GUIDs[player]).createInput(button_parameters)
+      -- end
+    end
+    progressPartiallyCompleteStates()
+    if turnState ~= nil then
+		if turnState ~= 'game over - scoring' then
+			createRansomButtons()
+		end
+        if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+            return AIStateHandler()
+        else
+            return stateHandler()
+        end
+    end
+end
+
+-- function test_function()
+--   print("test")
+-- end
+
+function onSave()
+    --retrieve scores
+    local scores = {}
+    for player, scoreCounter_GUID in pairs(score_counter_guids) do
+        local scoreCounter = getObjectFromGUID(scoreCounter_GUID)
+        if scoreCounter ~= nil then
+            scores[player] = scoreCounter.Counter.getValue()
+        end
+    end
+    local featureMarker_GUIDs = {}
+    if featureMarkers ~= nil then
+        for i, featureMarker in ipairs(featureMarkers) do
+            featureMarker_GUIDs[i] = featureMarker.getGUID()
+        end
+    end
+    local toSave = {
+        showMarkers = showMarkers,
+        tileGrid = tileGrid,
+        startingTile_GUID = startingTile_GUID,
+        startingRiverTile_GUID = startingRiverTile_GUID,
+        forkTile_GUID = forkTile_GUID,
+        springTile_GUID = springTile_GUID,
+        lakeTile_GUID = lakeTile_GUID,
+        riverBodyTiles_GUID = riverBodyTiles_GUID,
+        finalTile_GUID = finalTile_GUID,
+        lastPlacedTileX = lastPlacedTileX,
+        lastPlacedTileZ = lastPlacedTileZ,
+        controlPanelSettings = controlPanelSettings,
+        scores = scores,
+        figurePositions = figurePositions,
+        gameover = gameover,
+        activePlayers = activePlayers,
+        currentPlayer = currentPlayer,
+        scoreSummary = scoreSummary,
+        largestCity = largestCity,
+        longestRoad = longestRoad,
+        playerPossessionScriptingZones = playerPossessionScriptingZones,
+        --the following is only changed when using substitute colors
+        player_color_tints = player_color_tints,
+        score_counter_guids = score_counter_guids,
+        figurepad_GUIDs = figurepad_GUIDs,
+        handColor = handColor,
+        playerName = playerName,
+        player_possession_areas = player_possession_areas,
+        --the following is partial turn data
+        turnState = turnState,
+        --wagonLocations = wagonLocations,
+        wagonFeatures = wagonFeatures,
+        seducedKnights = seducedKnights,
+        carcassonneFigures = carcassonneFigures,
+        numberActiveTowers = numberActiveTowers,
+        towerX = towerX,
+        towerZ = towerZ,
+        --hasAvailableWagonFeature = hasAvailableWagonFeature,
+        currentMiniTurn = currentMiniTurn,
+        shepherdAwaitingAction = shepherdAwaitingAction,
+        newBarn = newBarn,
+        hasBuilderAwaitingAction = hasBuilderAwaitingAction,
+        hasAlreadyTakenBuilderTile = hasAlreadyTakenBuilderTile,
+        hasRansomedPrisoner = hasRansomedPrisoner,
+        --the following is partial state data (for when a state doesn't completely finish)
+        buriedTile = buriedTile,
+        dragonHasAwaken = dragonHasAwaken,
+        dragonIllegalTiles = dragonIllegalTiles,
+        dragonMoveNumber = dragonMoveNumber,
+        tileHasVolcano = tileHasVolcano,
+        tileHasMagicPortal = tileHasMagicPortal,
+        earnedPointsThisTile = earnedPointsThisTile,
+        removedFigures = removedFigures,
+        --if script was in the middle of making feature markers or deleting, delete them after loading
+        featureMarker_GUIDs = featureMarker_GUIDs,
+        --featureMap data
+        featureMap = featureMap,
+        featureList = featureList,
+        linkedFeatures = linkedFeatures,
+        featureIndex = featureIndex
+    }
+    return JSON.encode(toSave)
+end

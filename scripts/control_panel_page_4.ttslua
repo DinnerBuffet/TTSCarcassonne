@@ -1,0 +1,270 @@
+#include !\TTSCarcassonne\scripts\control_panel_common
+
+ROW_1 = 5.3
+ROW_2 = 2.4
+ROW_3 = -2.75
+ROW_4 = -6.85
+ROW_5 = -11.0
+COLUMN_1_1 = 7.9
+COLUMN_1_2 = 6.25
+COLUMN_1_3 = 2.95
+COLUMN_1_4 = -0.45
+COLUMN_1_5 = -3.8
+COLUMN_1_6 = -7.1
+COLUMN_2_1 = 7.60
+COLUMN_2_2 = 6.1
+COLUMN_2_3 = 3.8
+COLUMN_2_4 = 1.55
+COLUMN_2_5 = -0.85
+COLUMN_2_6 = -3.025
+COLUMN_2_7 = -6.6
+
+function onLoad()
+--Wheel of Fortune
+    -- initializeAllCheckbox(COLUMN_1_1, ROW_1, 'WoFAll')
+    -- initializeCheckbox(COLUMN_1_2, ROW_1, 'WoFTiles')
+    -- initializeCheckbox(COLUMN_1_3, ROW_1, 'WoFWheel')
+    -- initializeCheckbox(COLUMN_1_4, ROW_1, 'WoFCrowns')
+    -- initializeCheckbox(COLUMN_1_5, ROW_1, 'WoFFortune')
+    -- initializeCheckbox(COLUMN_1_6, ROW_1, 'WoFTaxes')
+    -- initializeCheckbox(COLUMN_1_3, ROW_2, 'WoFFamine')
+    -- initializeCheckbox(COLUMN_1_4, ROW_2, 'WoFStorm')
+    -- initializeCheckbox(COLUMN_1_5, ROW_2, 'WoFInquisition')
+    -- initializeCheckbox(COLUMN_1_6, ROW_2, 'WoFPest')
+
+--The Flier
+    initializeAllCheckbox(COLUMN_2_1, ROW_3, 'FlierAll', "")
+    initializeCheckbox(COLUMN_2_2, ROW_3, 'FlierTiles', "")
+    initializeCheckbox(COLUMN_2_3, ROW_3, 'FlierFlier', "The Flier may have a follower placed on it. When done so, a die is rolled to see how far the follower will fly. The player must then place the follower on this tile, if possible, and can even place on a feature that is already occupied (even a cloister). Fields are not allowed.")
+
+--The Messages
+    -- initializeAllCheckbox(COLUMN_2_5, ROW_3, 'MessagesAll', button_parameters)
+    -- initializeCheckbox(COLUMN_2_6, ROW_3, 'MessagesMessages', button_parameters)
+    -- initializeCheckbox(COLUMN_2_7, ROW_3, 'MessagesMessenger', button_parameters)
+
+--The Ferries
+    -- initializeAllCheckbox(COLUMN_2_1, ROW_4, 'FerriesAll', button_parameters)
+    -- initializeCheckbox(COLUMN_2_2, ROW_4, 'FerriesTiles', button_parameters)
+    -- initializeCheckbox(COLUMN_2_3, ROW_4, 'FerriesFerries', button_parameters)
+
+--The Goldmines
+    initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', "")
+    initializeCheckbox(COLUMN_2_6, ROW_4, 'GoldminesTiles', "")
+    initializeCheckbox(COLUMN_2_7, ROW_4, 'GoldminesGold', "A tile placed with a gold icon will receive a gold bar, along with a neighboring tile. Any player that completes a feature on these tiles will be rewarded the gold, which is worth points at the end of the game.")
+
+--Mage & Witch
+    -- initializeAllCheckbox(COLUMN_2_1, ROW_5, 'MnWAll', button_parameters)
+    -- initializeCheckbox(COLUMN_2_2, ROW_5, 'MnWTiles', button_parameters)
+    -- initializeCheckbox(COLUMN_2_3, ROW_5, 'MnWMage', button_parameters)
+    -- initializeCheckbox(COLUMN_2_4, ROW_5, 'MnWWitch', button_parameters)
+
+--The Robbers
+    -- initializeAllCheckbox(COLUMN_2_5, ROW_5, 'RobbersAll', button_parameters)
+    -- initializeCheckbox(COLUMN_2_6, ROW_5, 'RobbersTiles', button_parameters)
+    -- initializeCheckbox(COLUMN_2_7, ROW_5, 'RobbersRobbers', button_parameters)
+end
+
+function initializeAllCheckbox(x, z, key, description)
+    local buttonGroup
+    if key == 'WoFAll' then buttonGroup = {'WoFTiles', 'WoFWheel', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPest'}
+    elseif key == 'FlierAll' then buttonGroup = {'FlierTiles', 'FlierFlier'}
+    elseif key == 'MessagesAll' then buttonGroup = {'MessagesMessages', 'MessagesMessenger'}
+    elseif key == 'FerriesAll' then buttonGroup = {'FerriesTiles', 'FerriesFerries'}
+    elseif key == 'GoldminesAll' then buttonGroup = {'GoldminesTiles', 'GoldminesGold'}
+    elseif key == 'MnWAll' then buttonGroup = {'MnWTiles', 'MnWMage', 'MnWWitch'}
+    elseif key == 'RobbersAll' then buttonGroup = {'RobbersTiles', 'RobbersRobbers'}
+    else return end
+    local allChecked = true
+    for _, setting_key in ipairs(buttonGroup) do
+        if not Global.call('getControlPanelState', {key = setting_key}) then
+            allChecked = false
+        end
+    end
+
+    if allChecked then
+        button_parameters.label = 'X'
+    else
+        button_parameters.label = ''
+    end
+    button_parameters.click_function = 'on' .. key .. 'Toggle'
+    button_parameters.position = {x, BUTTON_HEIGHT, z}
+    self.createButton( button_parameters )
+    btnIDs['btn' .. key .. 'Toggle'] = index
+    index = index + 1
+end
+
+function checkAllCheckboxes()
+    for _, button_key in ipairs({'btnWoFAllToggle', 'btnFlierAllToggle', 'btnMessagesAllToggle', 'btnFerriesAllToggle', 'btnGoldminesAllToggle', 'btnMnWAllToggle', 'btnRobbersAllToggle'}) do
+        local buttonGroup
+        if button_key == 'btnWoFAllToggle' then buttonGroup = {'WoFTiles', 'WoFWheel', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPest'}
+        elseif button_key == 'btnFlierAllToggle' then buttonGroup = {'FlierTiles', 'FlierFlier'}
+        elseif button_key == 'btnMessagesAllToggle' then buttonGroup = {'MessagesMessages', 'MessagesMessenger'}
+        elseif button_key == 'btnFerriesAllToggle' then buttonGroup = {'FerriesTiles', 'FerriesFerries'}
+        elseif button_key == 'btnGoldminesAllToggle' then buttonGroup = {'GoldminesTiles', 'GoldminesGold'}
+        elseif button_key == 'btnMnWAllToggle' then buttonGroup = {'MnWTiles', 'MnWMage', 'MnWWitch'}
+        elseif button_key == 'btnRobbersAllToggle' then buttonGroup = {'RobbersTiles', 'RobbersRobbers'}
+        else return end
+        local allChecked = true
+        for _, key in ipairs(buttonGroup) do
+            if not Global.call('getControlPanelState', {key = key}) then
+                allChecked = false
+            end
+        end
+
+        if allChecked then
+            self.editButton({index = btnIDs[button_key], label = 'X'})
+        else
+            self.editButton({index = btnIDs[button_key], label = ''})
+        end
+    end
+end
+
+function onAllButtonToggle(sPlayer, button_key)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    local buttonGroup
+    if button_key == 'btnWoFAllToggle' then buttonGroup = {'WoFTiles', 'WoFWheel', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPest'}
+    elseif button_key == 'btnFlierAllToggle' then buttonGroup = {'FlierTiles', 'FlierFlier'}
+    elseif button_key == 'btnMessagesAllToggle' then buttonGroup = {'MessagesMessages', 'MessagesMessenger'}
+    elseif button_key == 'btnFerriesAllToggle' then buttonGroup = {'FerriesTiles', 'FerriesFerries'}
+    elseif button_key == 'btnGoldminesAllToggle' then buttonGroup = {'GoldminesTiles', 'GoldminesGold'}
+    elseif button_key == 'btnMnWAllToggle' then buttonGroup = {'MnWTiles', 'MnWMage', 'MnWWitch'}
+    elseif button_key == 'btnRobbersAllToggle' then buttonGroup = {'RobbersTiles', 'RobbersRobbers'}
+    else return end
+    local allChecked = true
+    for _, key in ipairs(buttonGroup) do
+        if not Global.call('getControlPanelState', {key = key}) then
+            allChecked = false
+        end
+    end
+    local label
+    local value
+    if allChecked then
+        label = ''
+        value = false
+    else
+        label = 'X'
+        value = true
+    end
+    self.editButton({index = btnIDs[button_key], label = label})
+    for _, key in ipairs(buttonGroup) do
+        self.editButton({index = btnIDs['btn' .. key .. 'Toggle'], label = label})
+        Global.call('setControlPanelState', {key = key, value = value})
+    end
+
+end
+
+function onWoFAllToggle(Object, sPlayer)
+    onAllButtonToggle(sPlayer, 'btnWoFAllToggle')
+end
+
+function onWoFTilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFTiles', 'btnWoFTilesToggle')
+end
+
+function onWoFWheelToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFWheel', 'btnWoFWheelToggle')
+end
+
+function onWoFCrownsToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFCrowns', 'btnWoFCrownsToggle')
+end
+
+function onWoFFortuneToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFFortune', 'btnWoFFortuneToggle')
+end
+
+function onWoFTaxesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFTaxes', 'btnWoFTaxesToggle')
+end
+
+function onWoFFamineToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFFamine', 'btnWoFFamineToggle')
+end
+
+function onWoFStormToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFStorm', 'btnWoFStormToggle')
+end
+
+function onWoFInquisitionToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFInquisition', 'btnWoFInquisitionToggle')
+end
+
+function onWoFPestToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFPest', 'btnWoFPestToggle')
+end
+
+function onFlierAllToggle(Object, sPlayer)
+    onAllButtonToggle(sPlayer, 'btnFlierAllToggle')
+end
+
+function onFlierTilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'FlierTiles', 'btnFlierTilesToggle')
+end
+
+function onFlierFlierToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'FlierFlier', 'btnFlierFlierToggle')
+end
+
+function onMessagesAllToggle(Object, sPlayer)
+    onAllButtonToggle(sPlayer, 'btnMessagesAllToggle')
+end
+
+function onMessagesMessagesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'MessagesMessages', 'btnMessagesMessagesToggle')
+end
+
+function onMessagesMessengerToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'MessagesMessenger', 'btnMessagesMessengerToggle')
+end
+
+function onFerriesAllToggle(Object, sPlayer)
+    onAllButtonToggle(sPlayer, 'btnFerriesAllToggle')
+end
+
+function onFerriesTilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'FerriesTiles', 'btnFerriesTilesToggle')
+end
+
+function onFerriesFerriesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'FerriesFerries', 'btnFerriesFerriesToggle')
+end
+
+function onGoldminesAllToggle(Object, sPlayer)
+    onAllButtonToggle(sPlayer, 'btnGoldminesAllToggle')
+end
+
+function onGoldminesTilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'GoldminesTiles', 'btnGoldminesTilesToggle')
+end
+
+function onGoldminesGoldToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'GoldminesGold', 'btnGoldminesGoldToggle')
+end
+
+function onMnWAllToggle(Object, sPlayer)
+    onAllButtonToggle(sPlayer, 'btnMnWAllToggle')
+end
+
+function onMnWTilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'MnWTiles', 'btnMnWTilesToggle')
+end
+
+function onMnWMageToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'MnWMage', 'btnMnWMageToggle')
+end
+
+function onMnWWitchToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'MnWWitch', 'btnMnWWitchToggle')
+end
+
+function onRobbersAllToggle(Object, sPlayer)
+    onAllButtonToggle(sPlayer, 'btnRobbersAllToggle')
+end
+
+function onRobbersTilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'RobbersTiles', 'btnRobbersTilesToggle')
+end
+
+function onRobbersRobbersToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'RobbersRobbers', 'btnRobbersRobbersToggle')
+end

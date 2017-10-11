@@ -1,0 +1,3 @@
+isStartingPiece = true
+sides = {'Road', 'Field', 'River', 'Field'}
+linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}}

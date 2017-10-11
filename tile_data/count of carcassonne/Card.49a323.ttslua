@@ -1,0 +1,4 @@
+isStartingPiece = true
+sides = {'Carcassonne', 'Carcassonne', 'City', 'Field'}
+linkedOctants = {{5, 8, 11, 12}, {6, 7}, {9, 10}}
+specialFeatures = {{'City-Field', {5, 6, 7, 8, 11, 12}, nil}, {'City-Field', {5, 8, 9, 10, 11, 12}, nil}}

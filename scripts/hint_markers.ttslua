@@ -1,0 +1,860 @@
+
+
+function showTileMarkers(newTile)
+    local tileMarkers = {}
+    for x, tileColumn in pairs(tileGrid) do
+        for z, tileLocation in pairs(tileColumn) do
+            for side, sideDelta in pairs(SIDE_DELTA) do
+                if tileMarkers[x + sideDelta.x] == nil then
+                    tileMarkers[x + sideDelta.x] = {}
+                end
+                if tileMarkers[x + sideDelta.x][z + sideDelta.z] == nil then
+                    tileMarkers[x + sideDelta.x][z + sideDelta.z] = false
+                    for tileRotation=1, 4 do
+                        if isValidTileLocation(newTile, tileRotation, x + sideDelta.x, z + sideDelta.z, false) then
+                            tileMarkers[x + sideDelta.x][z + sideDelta.z] = true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local hasTileLocation = false
+    for x, tileColumn in pairs(tileMarkers) do
+        for z, tileLocation in pairs(tileColumn) do
+            if tileLocation == true then
+                local params = {}
+                params.type = 'Custom_AssetBundle'
+
+                params.position = {(x * TILE_SPACING) - MIDDLE_OFFSET.x, 1.0, (z * TILE_SPACING) - MIDDLE_OFFSET.z}
+                params.scale = {0.75, 1.2, 0.75}
+                params.callback_owner = Global
+                params.callback = "identifyFeature"
+                local newObject = spawnObject(params)
+                table.insert(featureMarkers, newObject)
+
+                local custom_params = {}
+                custom_params.assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXWVhReFIybUtvMjQ'
+                custom_params.type = 0
+                custom_params.material = 0
+                newObject.setCustomObject(custom_params)
+                hasTileLocation = true
+            end
+        end
+    end
+    if not hasTileLocation then
+        if not newTile.getVar('isStartingPiece') then
+            allGameMessage("There is no valid location to put this tile. If the tile was drawn from the stack, put it back in and shuffle, then draw another.", NEUTRAL_COLOR)
+        elseif startingTile_GUID == nil then
+            allGameMessage("You may place this starting tile anywhere. It is recommended to place it near the center of the table.", NEUTRAL_COLOR)
+        end
+    end
+    return 1
+end
+
+--show all possible locations where a figure can be put
+--featuresToMark - features that have not yet been checked for marking
+--positionsToVisit - list of positions for each tile (can be pruned as we search to save time)
+function showFeatureMarkers()
+    local newFigure = gPickedUpObject
+    getActiveFigures()
+    alreadyVisitedPositions = {}
+    figureMarkers = {}
+    figureMarkers[lastPlacedTileX] = {}
+    figureMarkers[lastPlacedTileX][lastPlacedTileZ] = {}
+    local featuresToMark = table.shallow_copy(featureList)
+    local positionsToVisit = {}
+
+    local tile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+    local tileRotation = tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation
+    local specialFeatures = tile.getTable('specialFeatures')
+    if specialFeatures ~= nil then
+        for i, feature in ipairs(specialFeatures) do
+            if feature[3] ~= nil and feature[1] ~= 'Tower Foundation' then
+                table.insert(positionsToVisit, i+12)
+            end
+        end
+    end
+    for i=1, 12 do
+        if newFigure.getName() ~= translate({'Barn'}) or i > 4 and i % 2 == 1 then
+            table.insert(positionsToVisit, i)
+        end
+    end
+
+    local x = lastPlacedTileX
+    local z = lastPlacedTileZ
+
+    for _, i in ipairs(positionsToVisit) do
+        local direction
+        if i < 5 then
+            direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+        elseif i < 13 then
+            direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+        else
+            direction = i
+        end
+        local featureNum = featureMap[x][z][direction]
+        if featureNum == nil and i < 5 and featureMap[x][z][(direction * 2) + 3] ~= nil and featureMap[x][z][(direction * 2) + 3] == featureMap[x][z][(direction * 2) + 4] then
+           featureNum = featureMap[x][z][(direction * 2) + 3]
+        end
+
+        if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
+            if isValidFigureLocation(newFigure, lastPlacedTileX, lastPlacedTileZ, i, featureNum, false, false) then
+                if figureMarkers[x] == nil then
+                    figureMarkers[x] = {}
+                end
+                if figureMarkers[x][z] == nil then
+                    figureMarkers[x][z] = {}
+                end
+                figureMarkers[lastPlacedTileX][lastPlacedTileZ][direction] = 0
+                featuresToMark[featureNum] = nil
+            end
+        end
+    end
+    if tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getName()) then
+        lastFrameTime = os.clock()
+        allGameMessage("Calculating all possible magic portal locations. Hints may be delayed...", NEUTRAL_COLOR)
+
+        --prune features that don't have openings
+        for featureNum, feature in pairs(featuresToMark) do
+            if feature.openings == 0 then
+                featuresToMark[featureNum] = nil
+            end
+        end
+
+        for x, tileColumn in pairs(tileGrid) do
+            for z, tileLocation in pairs(tileColumn) do
+                local positionsToVisit = {}
+                local tile = getObjectFromGUID(tileLocation.tile_guid)
+                local tileRotation = tileLocation.rotation
+                local specialFeatures = tile.getTable('specialFeatures')
+                if specialFeatures ~= nil then
+                    for i, feature in ipairs(specialFeatures) do
+                        if feature[3] ~= nil then
+                            table.insert(positionsToVisit, i+12)
+                        end
+                    end
+                end
+                for i=1, 12 do
+                    table.insert(positionsToVisit, i)
+                end
+
+                for _, i in ipairs(positionsToVisit) do
+                    local direction
+                    if i < 5 then
+                        direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+                    elseif i < 13 then
+                        direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+                    else
+                        direction = i
+                    end
+                    local featureNum = featureMap[x][z][direction]
+                    if featureNum == nil and i < 5 and featureMap[x][z][(direction * 2) + 3] ~= nil and featureMap[x][z][(direction * 2) + 3] == featureMap[x][z][(direction * 2) + 4] then
+                       featureNum = featureMap[x][z][(direction * 2) + 3]
+                    end
+
+                    if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
+                        if isValidFigureLocation(newFigure, x, z, i, featureNum, false, false) then
+                            if figureMarkers[x] == nil then
+                                figureMarkers[x] = {}
+                            end
+                            if figureMarkers[x][z] == nil then
+                                figureMarkers[x][z] = {}
+                            end
+                            figureMarkers[x][z][direction] = 0
+                            featuresToMark[featureNum] = nil
+                        end
+                    end
+                    if os.clock() - lastFrameTime > FRAME_TIME then
+                        lastFrameTime = lastFrameTime + FRAME_TIME
+                        coroutine.yield(0)
+                    end
+                    if turnState ~= 'awaiting figure decision' or newFigure.held_by_color == nil then
+                        return 1
+                    end
+                end
+            end
+        end
+    end
+    if table.contains(FOLLOWER_TYPES, newFigure.getName()) then
+        --all tower foundation locations are candidates for placing followers if they have a tower
+        for _, obj in ipairs(getAllObjects()) do
+            if obj.getName() == translate({'Tower'}) then
+                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                if tileGridOccupied(xIndex, zIndex) then
+                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                    local tileRotation = tileGrid[xIndex][zIndex].rotation
+                    local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+                    local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+                    xPosition = xPosition - xIndex
+                    zPosition = zPosition - zIndex
+                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                    local nameOfFeature = getFeatureName(tile, closestPosition)
+                    if nameOfFeature == 'Tower Foundation' then
+                        if figureMarkers[xIndex] == nil then
+                            figureMarkers[xIndex] = {}
+                        end
+                        if figureMarkers[xIndex][zIndex] == nil then
+                            figureMarkers[xIndex][zIndex] = {}
+                        end
+                        if figureMarkers[xIndex][zIndex][closestPosition] == nil then
+                            figureMarkers[xIndex][zIndex][closestPosition] = 0
+                        end
+                        figureMarkers[xIndex][zIndex][closestPosition] = figureMarkers[xIndex][zIndex][closestPosition] + 1
+                    end
+                end
+            end
+        end
+        --however, if they already have a follower then we remove them
+        for _, obj in ipairs(getAllObjects()) do
+            if table.contains(FOLLOWER_TYPES, obj.getName()) then
+                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                if figureMarkers[xIndex] ~= nil and figureMarkers[xIndex][zIndex] ~= nil then
+                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                    local tileRotation = tileGrid[xIndex][zIndex].rotation
+                    local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+                    local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+                    xPosition = xPosition - xIndex
+                    zPosition = zPosition - zIndex
+                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                    local nameOfFeature = getFeatureName(tile, closestPosition)
+                    if nameOfFeature == 'Tower Foundation' and figureMarkers[xIndex][zIndex][closestPosition] ~= nil then
+                        figureMarkers[xIndex][zIndex][closestPosition] = nil
+                    end
+                end
+            end
+        end
+    end
+
+    local hasFigureLocation = false
+    for xIndex, tileColumn in pairs(figureMarkers) do
+        for zIndex, tileLocation in pairs(tileColumn) do
+            for position, markerHeight in pairs(tileLocation) do
+                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                local rotation = TILE_STANDARD_ROTATION
+                if position > 12 then rotation = tileGrid[xIndex][zIndex].rotation end
+                if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
+                    local x = nil
+                    local z = nil
+                    if newFigure.getName() ~= translate({'Barn'}) then
+                        x, z = getFeatureLocation(position, tile, rotation)
+                    else --put the marker on the corner instead of the feature position
+                        if position % 2 == 1 then --pick one arbitrary position (assuming both were valid), then get the corner closest to it
+                            local side = math.floor((position - 3) / 2)
+                            x, z = rotateCoordinates(-0.5, 0.5, ((8 - side) % 4) + 1)
+                        end
+                    end
+                    if x ~= nil and z ~= nil then
+                        local params = {}
+                        params.type = "BlockSquare"
+                        params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5 + markerHeight * TOWER_HEIGHT, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                        params.scale = {0.25, 0.25, 0.25}
+                        params.callback_owner = Global
+                        params.callback = "identifyFeature"
+                        local newObject = spawnObject(params)
+                        table.insert(featureMarkers, newObject)
+                        hasFigureLocation = true
+                    end
+                end
+            end
+        end
+    end
+    if not hasFigureLocation then
+        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+    end
+    return 1
+end
+
+function showTowerMarkers()
+    local newFigure = gPickedUpObject
+    getActiveFigures()
+    alreadyVisitedPositions = {}
+    figureMarkers = {}
+    figureMarkers[lastPlacedTileX] = {}
+    figureMarkers[lastPlacedTileX][lastPlacedTileZ] = {}
+    local featuresToMark = table.shallow_copy(featureList)
+    local positionsToVisit = {}
+
+    lastFrameTime = os.clock()
+    allGameMessage("Calculating all possible tower locations. Hints may be delayed...", NEUTRAL_COLOR)
+
+    for x, tileColumn in pairs(tileGrid) do
+        for z, tileLocation in pairs(tileColumn) do
+            local positionsToVisit = {}
+            local tile = getObjectFromGUID(tileLocation.tile_guid)
+            local tileRotation = tileLocation.rotation
+            local specialFeatures = tile.getTable('specialFeatures')
+            if specialFeatures ~= nil then
+                for i, feature in ipairs(specialFeatures) do
+                    if feature[1] == 'Tower Foundation' then
+                        table.insert(positionsToVisit, i+12)
+                    end
+                end
+            end
+
+            for _, i in ipairs(positionsToVisit) do
+                local direction = i
+                local featureNum = featureMap[x][z][direction]
+
+                if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
+                    if isValidFigureLocation(newFigure, x, z, i, featureNum, false, false) then
+                        if figureMarkers[x] == nil then
+                            figureMarkers[x] = {}
+                        end
+                        if figureMarkers[x][z] == nil then
+                            figureMarkers[x][z] = {}
+                        end
+
+                        figureMarkers[x][z][direction] = 0
+                        featuresToMark[featureNum] = nil
+                    end
+                end
+                if os.clock() - lastFrameTime > FRAME_TIME then
+                    lastFrameTime = lastFrameTime + FRAME_TIME
+                    coroutine.yield(0)
+                end
+                if turnState ~= 'awaiting figure decision' or newFigure.held_by_color == nil then
+                    return 1
+                end
+            end
+        end
+    end
+
+    for _, obj in ipairs(getAllObjects()) do
+        if obj.getName() == translate({'Tower'}) then
+            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            if figureMarkers[xIndex] ~= nil and figureMarkers[xIndex][zIndex] ~= nil then
+                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                local tileRotation = tileGrid[xIndex][zIndex].rotation
+                local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+                local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+                xPosition = xPosition - xIndex
+                zPosition = zPosition - zIndex
+                local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                if figureMarkers[xIndex][zIndex][closestPosition] ~= nil then
+                    figureMarkers[xIndex][zIndex][closestPosition] = figureMarkers[xIndex][zIndex][closestPosition] + 1
+                end
+            end
+        end
+    end
+
+    local hasFigureLocation = false
+    for xIndex, tileColumn in pairs(figureMarkers) do
+        for zIndex, tileLocation in pairs(tileColumn) do
+            for position, markerHeight in pairs(tileLocation) do
+                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                local rotation = TILE_STANDARD_ROTATION
+                if position > 12 then rotation = tileGrid[xIndex][zIndex].rotation end
+                if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
+                    local x = nil
+                    local z = nil
+                    if newFigure.getName() ~= translate({'Barn'}) then
+                        x, z = getFeatureLocation(position, tile, rotation)
+                    else --put the marker on the corner instead of the feature position
+                        if position % 2 == 1 then --pick one arbitrary position (assuming both were valid), then get the corner closest to it
+                            local side = math.floor((position - 3) / 2)
+                            x, z = rotateCoordinates(-0.5, 0.5, ((8 - side) % 4) + 1)
+                        end
+                    end
+                    if x ~= nil and z ~= nil then
+                        local params = {}
+                        params.type = "BlockSquare"
+                        params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5 + markerHeight * TOWER_HEIGHT, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                        params.scale = {0.25, 0.25, 0.25}
+                        params.callback_owner = Global
+                        params.callback = "identifyFeature"
+                        local newObject = spawnObject(params)
+                        table.insert(featureMarkers, newObject)
+                        hasFigureLocation = true
+                    end
+                end
+            end
+        end
+    end
+    if not hasFigureLocation then
+        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+    end
+    return 1
+end
+
+function showFairyHighlights(newFigure)
+    highlightedTiles = {}
+    hasFairyLocation = false
+    local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
+    for _, obj in ipairs(objs) do
+        if obj.getDescription() == activePlayers[currentPlayer] and table.contains(FOLLOWER_TYPES, obj.getName()) then
+            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            if tileGridOccupied(xIndex, zIndex) then
+                if highlightedTiles[xIndex] == nil then highlightedTiles[xIndex] = {} end
+                highlightedTiles[xIndex][zIndex] = true
+                getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).highlightOn(player_color_tints[activePlayers[currentPlayer]])
+                hasFairyLocation = true
+            end
+        end
+    end
+    if not hasFairyLocation then
+        allGameMessage("There is no valid location to put the fairy. The fairy can only be placed next to your own followers.", NEUTRAL_COLOR)
+    end
+    return 1
+end
+
+function showWagonFeatureMarkers(newFigure)
+    figureMarkers = {}
+    local wagonFeatureNum = wagonFeatures[activePlayers[currentMiniTurn]]
+    if linkedFeatures['Road Intersection'][wagonFeatureNum] == nil then
+        allGameMessage("There is no valid location to put this figure. Something went horribly wrong. Tell the dev.", NEUTRAL_COLOR)
+        return
+    end
+
+    local linkedRoadFeatures = table.shallow_copy(linkedFeatures['Road Intersection'][wagonFeatureNum])
+
+    --trim the features that are already complete
+    for linkedFeatureNum, _ in pairs(linkedRoadFeatures) do
+        if featureList[linkedFeatureNum] ~= nil then
+            if table.contains(CLOISTER_FEATURES, featureList[linkedFeatureNum].nameOfFeature) then
+                local numOpenings = 8
+                for x=-1, 1 do
+                    for z=-1, 1 do
+                        if not (x == 0 and z == 0) and tileGridOccupied(featureList[linkedFeatureNum].featureLocation.x + x, featureList[linkedFeatureNum].featureLocation.z + z) then
+                            numOpenings = numOpenings - 1
+                        end
+                    end
+                end
+                if numOpenings <= 0 then
+                    linkedRoadFeatures[linkedFeatureNum] = nil
+                end
+            elseif featureList[linkedFeatureNum].openings == 0 then
+                linkedRoadFeatures[linkedFeatureNum] = nil
+            end
+        else
+            linkedRoadFeatures[linkedFeatureNum] = nil
+        end
+    end
+
+    for x, tileColumn in pairs(tileGrid) do
+        for z, tileLocation in pairs(tileColumn) do
+            local positionsToVisit = {}
+            local tile = getObjectFromGUID(tileLocation.tile_guid)
+            local tileRotation = tileLocation.rotation
+            local specialFeatures = tile.getTable('specialFeatures')
+            if specialFeatures ~= nil then
+                for i, feature in ipairs(specialFeatures) do
+                    if feature[3] ~= nil then
+                        table.insert(positionsToVisit, i+12)
+                    end
+                end
+            end
+            for i=1, 12 do
+                table.insert(positionsToVisit, i)
+            end
+
+            for _, i in ipairs(positionsToVisit) do
+                local direction
+                if i < 5 then
+                    direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+                elseif i < 13 then
+                    direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+                else
+                    direction = i
+                end
+                local featureNum = featureMap[x][z][direction]
+                if featureNum == nil and i < 5 and featureMap[x][z][(direction * 2) + 3] ~= nil and featureMap[x][z][(direction * 2) + 3] == featureMap[x][z][(direction * 2) + 4] then
+                   featureNum = featureMap[x][z][(direction * 2) + 3]
+                end
+                if linkedRoadFeatures[featureNum] ~= nil then
+                    if isValidWagonLocation(newFigure, featureNum, false) then
+                        if figureMarkers[x] == nil then
+                            figureMarkers[x] = {}
+                        end
+                        if figureMarkers[x][z] == nil then
+                            figureMarkers[x][z] = {}
+                        end
+                        figureMarkers[x][z][direction] = true
+                        linkedRoadFeatures[featureNum] = nil
+                    end
+                end
+            end
+        end
+    end
+    local hasFigureLocation = false
+    for xIndex, tileColumn in pairs(figureMarkers) do
+        for zIndex, tileLocation in pairs(tileColumn) do
+            for position, traversedFeaturePosition in pairs(tileLocation) do
+                if traversedFeaturePosition == true then
+                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                    --local rotation = tileGrid[xIndex][zIndex].rotation
+                    local rotation = TILE_STANDARD_ROTATION
+                    if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
+                        local x, z = getFeatureLocation(position, tile, rotation)
+                        local params = {}
+                        params.type = "BlockSquare"
+                        params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                        params.scale = {0.25, 0.25, 0.25}
+                        params.callback_owner = Global
+                        params.callback = "identifyFeature"
+                        local newObject = spawnObject(params)
+                        table.insert(featureMarkers, newObject)
+                        hasFigureLocation = true
+                    end
+                end
+            end
+        end
+    end
+    if not hasFigureLocation then
+        allGameMessage("There is no valid location to put this figure. Something went horribly wrong. Tell the dev.", NEUTRAL_COLOR)
+    end
+    return 1
+end
+
+function showFlierFeatureMarkers(newFigure)
+    local xIndex = lastPlacedTileX + flierOffset.x
+    local zIndex = lastPlacedTileZ + flierOffset.z
+    alreadyVisitedPositions = {}
+    figureMarkers = {}
+    figureMarkers[xIndex] = {}
+    figureMarkers[xIndex][zIndex] = {}
+
+    local positionsToVisit = { }
+
+    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+    local specialFeatures = tile.getTable('specialFeatures')
+    if specialFeatures ~= nil then
+        for i, feature in ipairs(specialFeatures) do
+            if feature[3] ~= nil then
+                table.insert(positionsToVisit, i+12)
+            end
+        end
+    end
+    for i=1, 12 do
+        table.insert(positionsToVisit, i)
+    end
+
+    for _, i in ipairs(positionsToVisit) do
+        if alreadyVisitedPositions[xIndex] == nil or alreadyVisitedPositions[xIndex][zIndex] == nil or alreadyVisitedPositions[xIndex][zIndex][i] ~= true then
+            local nameOfFeature = getFeatureName(tile, i)
+            local featureOpenings = getFeatureComponents(xIndex, zIndex, i, 1, true)
+            if isValidFlierLocation(newFigure, xIndex, zIndex, i, nameOfFeature, featureOpenings, false) then
+                figureMarkers[xIndex][zIndex][i] = true
+            end
+            for xIndex, gridColumn in pairs(traversedFeaturePositions) do
+                for zIndex, tileLocation in pairs(gridColumn) do
+                    for traversedPosition, traversalLevel in pairs(tileLocation) do
+                        if traversalLevel == 1 then
+                            if alreadyVisitedPositions[xIndex] == nil then
+                                alreadyVisitedPositions[xIndex] = {}
+                            end
+                            if alreadyVisitedPositions[xIndex][zIndex] == nil then
+                                alreadyVisitedPositions[xIndex][zIndex] = {}
+                            end
+                            alreadyVisitedPositions[xIndex][zIndex][traversedPosition] = true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    local hasFigureLocation = false
+    for xIndex, tileColumn in pairs(figureMarkers) do
+        for zIndex, tileLocation in pairs(tileColumn) do
+            for position, traversedFeaturePosition in pairs(tileLocation) do
+                if traversedFeaturePosition == true then
+                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                    local rotation = tileGrid[xIndex][zIndex].rotation
+                    if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
+                        local x, z = getFeatureLocation(position, tile, rotation)
+                        local params = {}
+                        params.type = "BlockSquare"
+                        params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                        params.scale = {0.25, 0.25, 0.25}
+                        params.callback_owner = Global
+                        params.callback = "identifyFeature"
+                        local newObject = spawnObject(params)
+                        table.insert(featureMarkers, newObject)
+                        hasFigureLocation = true
+                    end
+                end
+            end
+        end
+    end
+    if not hasFigureLocation then
+        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+    end
+    return 1
+end
+
+function showToCoCFeatureMarkers(newFigure)
+    figureMarkers = {}
+    for _, cocTileSetting in ipairs(expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents) do
+        local cocTile = getObjectFromGUID(cocTileSetting.guid)
+        local xIndex = math.floor((cocTile.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+        local zIndex = math.floor((cocTile.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+        local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+        local tileRotation = tileGrid[xIndex][zIndex].rotation
+        local xPosition = (cocTile.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+        local zPosition = (cocTile.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+        xPosition = xPosition - xIndex
+        zPosition = zPosition - zIndex
+        local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+
+        local positionsToVisit = {}
+        local specialFeatures = tile.getTable('specialFeatures')
+        if specialFeatures ~= nil then
+            for i, feature in ipairs(specialFeatures) do
+                if feature[3] ~= nil then
+                    table.insert(positionsToVisit, i+12)
+                end
+            end
+        end
+        for i=1, 12 do
+            table.insert(positionsToVisit, i)
+        end
+
+        for _, i in ipairs(positionsToVisit) do
+            local direction
+            if i < 5 then
+                direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+            elseif i < 13 then
+                direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+            else
+                direction = i
+            end
+            local featureNum = featureMap[xIndex][zIndex][direction]
+            if featureNum == nil and i < 5 and featureMap[xIndex][zIndex][(direction * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(direction * 2) + 3] == featureMap[xIndex][zIndex][(direction * 2) + 4] then
+               featureNum = featureMap[xIndex][zIndex][(direction * 2) + 3]
+            end
+
+            if featureNum ~= nil then
+                if isValidCoCLocation(newFigure, xIndex, zIndex, i, featureNum, false, false) then
+                    if figureMarkers[xIndex] == nil then
+                        figureMarkers[xIndex] = {}
+                    end
+                    if figureMarkers[xIndex][zIndex] == nil then
+                        figureMarkers[xIndex][zIndex] = {}
+                    end
+                    figureMarkers[xIndex][zIndex][direction] = 0
+                end
+            end
+        end
+    end
+
+    local hasFigureLocation = false
+    for xIndex, tileColumn in pairs(figureMarkers) do
+        for zIndex, tileLocation in pairs(tileColumn) do
+            for position, markerHeight in pairs(tileLocation) do
+                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                local rotation = TILE_STANDARD_ROTATION
+                if position > 12 then rotation = tileGrid[xIndex][zIndex].rotation end
+                if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
+                    local x, z = getFeatureLocation(position, tile, rotation)
+                    local params = {}
+                    params.type = "BlockSquare"
+                    params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5 + markerHeight * TOWER_HEIGHT, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                    params.scale = {0.25, 0.25, 0.25}
+                    params.callback_owner = Global
+                    params.callback = "identifyFeature"
+                    local newObject = spawnObject(params)
+                    table.insert(featureMarkers, newObject)
+                    hasFigureLocation = true
+                end
+            end
+        end
+    end
+    if not hasFigureLocation then
+        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+    end
+    return 1
+end
+
+--show legal positions where figures from CoC can be placed
+--most of the function is copy-pasted from showFeatureMarkers
+function showFromCoCFeatureMarkers()
+    local newFigure = gPickedUpObject
+    alreadyVisitedPositions = {}
+    figureMarkers = {}
+    local featuresToMark = table.shallow_copy(featureList)
+    local positionsToVisit = {}
+
+    if turnState == 'prompt moving from carcassonne' then
+        --check the last placed tile for completed features
+        local x = lastPlacedTileX
+        local z = lastPlacedTileZ
+        figureMarkers[x] = {}
+        figureMarkers[x][z] = {}
+
+        local tile = getObjectFromGUID(tileGrid[x][z].tile_guid)
+        local tileRotation = tileGrid[x][z].rotation
+        local specialFeatures = tile.getTable('specialFeatures')
+        if specialFeatures ~= nil then
+            for i, feature in ipairs(specialFeatures) do
+                if feature[3] ~= nil and feature[1] ~= 'Tower Foundation' then
+                    table.insert(positionsToVisit, i+12)
+                end
+            end
+        end
+        for i=1, 12 do
+            table.insert(positionsToVisit, i)
+        end
+        for _, i in ipairs(positionsToVisit) do
+            local direction
+            if i < 5 then
+                direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+            elseif i < 13 then
+                direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+            else
+                direction = i
+            end
+            local featureNum = featureMap[x][z][direction]
+            if featureNum == nil and i < 5 and featureMap[x][z][(direction * 2) + 3] ~= nil and featureMap[x][z][(direction * 2) + 3] == featureMap[x][z][(direction * 2) + 4] then
+               featureNum = featureMap[x][z][(direction * 2) + 3]
+            end
+
+            if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
+                if isValidLocationFromCoC(newFigure, featureNum, false, false) then
+                    if figureMarkers[x] == nil then
+                        figureMarkers[x] = {}
+                    end
+                    if figureMarkers[x][z] == nil then
+                        figureMarkers[x][z] = {}
+                    end
+                    figureMarkers[x][z][direction] = 0
+                    featuresToMark[featureNum] = nil
+                end
+            end
+        end
+        --also check neighbors for cloisters that were completed
+        for _, offset in ipairs(DIAGONAL_DELTA) do
+            local neighborX = lastPlacedTileX + offset.x
+            local neighborZ = lastPlacedTileZ + offset.z
+            if tileGridOccupied(neighborX, neighborZ) then
+                local x = neighborX
+                local z = neighborZ
+
+                local tile = getObjectFromGUID(tileGrid[x][z].tile_guid)
+                local specialFeatures = tile.getTable('specialFeatures')
+                if specialFeatures ~= nil then
+                    for i, feature in ipairs(specialFeatures) do
+                        if feature[3] ~= nil and feature[1] ~= 'Tower Foundation' then
+                            local direction = i+12
+                            local featureNum = featureMap[x][z][direction]
+                            if featureNum == nil and i < 5 and featureMap[x][z][(direction * 2) + 3] ~= nil and featureMap[x][z][(direction * 2) + 3] == featureMap[x][z][(direction * 2) + 4] then
+                               featureNum = featureMap[x][z][(direction * 2) + 3]
+                            end
+
+                            if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
+                                if isValidLocationFromCoC(newFigure, featureNum, false, false) then
+                                    if figureMarkers[x] == nil then
+                                        figureMarkers[x] = {}
+                                    end
+                                    if figureMarkers[x][z] == nil then
+                                        figureMarkers[x][z] = {}
+                                    end
+                                    figureMarkers[x][z][direction] = 0
+                                    featuresToMark[featureNum] = nil
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    elseif turnState == 'game over - prompt moving from carcassonne' then
+        lastFrameTime = os.clock()
+        allGameMessage("Calculating all possible locations. Hints may be delayed...", NEUTRAL_COLOR)
+
+        for x, tileColumn in pairs(tileGrid) do
+            for z, tileLocation in pairs(tileColumn) do
+                local positionsToVisit = {}
+                local tile = getObjectFromGUID(tileLocation.tile_guid)
+                local tileRotation = tileLocation.rotation
+                local specialFeatures = tile.getTable('specialFeatures')
+                if specialFeatures ~= nil then
+                    for i, feature in ipairs(specialFeatures) do
+                        if feature[3] ~= nil then
+                            table.insert(positionsToVisit, i+12)
+                        end
+                    end
+                end
+                for i=1, 12 do
+                    table.insert(positionsToVisit, i)
+                end
+
+                for _, i in ipairs(positionsToVisit) do
+                    local direction
+                    if i < 5 then
+                        direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+                    elseif i < 13 then
+                        direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+                    else
+                        direction = i
+                    end
+                    local featureNum = featureMap[x][z][direction]
+                    if featureNum == nil and i < 5 and featureMap[x][z][(direction * 2) + 3] ~= nil and featureMap[x][z][(direction * 2) + 3] == featureMap[x][z][(direction * 2) + 4] then
+                       featureNum = featureMap[x][z][(direction * 2) + 3]
+                    end
+
+                    if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
+                        if isValidLocationFromCoC(newFigure, featureNum, false, false) then
+                            if figureMarkers[x] == nil then
+                                figureMarkers[x] = {}
+                            end
+                            if figureMarkers[x][z] == nil then
+                                figureMarkers[x][z] = {}
+                            end
+                            figureMarkers[x][z][direction] = 0
+                            featuresToMark[featureNum] = nil
+                        end
+                    end
+                    if os.clock() - lastFrameTime > FRAME_TIME then
+                        lastFrameTime = lastFrameTime + FRAME_TIME
+                        coroutine.yield(0)
+                    end
+                    if turnState ~= 'game over - prompt moving from carcassonne' or newFigure.held_by_color == nil then
+                        return 1
+                    end
+                end
+            end
+        end
+    end
+
+    local hasFigureLocation = false
+    for xIndex, tileColumn in pairs(figureMarkers) do
+        for zIndex, tileLocation in pairs(tileColumn) do
+            for position, markerHeight in pairs(tileLocation) do
+                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                local rotation = TILE_STANDARD_ROTATION
+                if position > 12 then rotation = tileGrid[xIndex][zIndex].rotation end
+                if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
+                    local x = nil
+                    local z = nil
+                    if newFigure.getName() ~= translate({'Barn'}) then
+                        x, z = getFeatureLocation(position, tile, rotation)
+                    else --put the marker on the corner instead of the feature position
+                        if position % 2 == 1 then --pick one arbitrary position (assuming both were valid), then get the corner closest to it
+                            local side = math.floor((position - 3) / 2)
+                            x, z = rotateCoordinates(-0.5, 0.5, ((8 - side) % 4) + 1)
+                        end
+                    end
+                    if x ~= nil and z ~= nil then
+                        local params = {}
+                        params.type = "BlockSquare"
+                        params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5 + markerHeight * TOWER_HEIGHT, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                        params.scale = {0.25, 0.25, 0.25}
+                        params.callback_owner = Global
+                        params.callback = "identifyFeature"
+                        local newObject = spawnObject(params)
+                        table.insert(featureMarkers, newObject)
+                        hasFigureLocation = true
+                    end
+                end
+            end
+        end
+    end
+    if not hasFigureLocation then
+        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+    end
+    return 1
+end

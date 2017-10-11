@@ -1,0 +1,215 @@
+#include !\TTSCarcassonne\scripts\control_panel_common
+
+NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
+
+HOTSEAT_ROW = 7.3
+ROW_1 = 3.7
+ROW_2 = 1.65
+ROW_3 = -0.35
+ROW_4 = -2.4
+ROW_5 = -4.45
+ROW_6 = -6.5
+ROW_7 = -8.55
+ROW_8 = -10.6
+STARTING_TILE_COLUMN = 8.0
+COLUMN_1 = 6.4
+COLUMN_2 = 3.8
+COLUMN_3 = 1.2
+COLUMN_4 = -1.4
+COLUMN_5 = -4.0
+COLUMN_6 = -6.6
+
+function onLoad()
+    --Hot seats
+    initializeHotseatButton(COLUMN_1, HOTSEAT_ROW, 'Green')
+    initializeHotseatButton(COLUMN_2, HOTSEAT_ROW, 'Purple')
+    initializeHotseatButton(COLUMN_3, HOTSEAT_ROW, 'White')
+    initializeHotseatButton(COLUMN_4, HOTSEAT_ROW, 'Blue')
+    initializeHotseatButton(COLUMN_5, HOTSEAT_ROW, 'Red')
+    initializeHotseatButton(COLUMN_6, HOTSEAT_ROW, 'Pink')
+    --Starting tiles
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', "Basic starting tile.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', "12 river tiles that create a winding river before adding normal tiles.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', "12 river tiles that feature a fork, dividing the river into 3 parts.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', "12 river tiles that feature permanent extra sheep for shepherds and a pig-herd for extra points to farmers.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', "A city where players can store followers whenever they score points for other players (without getting any points themselves). These followers can be snuck into features after they are finished, but before they are scored.")
+    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', 'Base Starting Tile', {x=-LABEL_SEPARATION, z=0}, 2)
+    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', 'The River', {x=-LABEL_SEPARATION, z=0}, 2)
+    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', 'The River II', {x=-LABEL_SEPARATION, z=0}, 2)
+    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', 'The River (Big Box 5)', {x=-LABEL_SEPARATION, z=0}, 2)
+    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', 'City of Carcassonne', {x=-LABEL_SEPARATION, z=0}, 2)
+end
+
+function initializeHotseatButton(x, z, color)
+    if Global.getVar('gameover') then
+        if Player[color].seated then
+            button_parameters.label = 'X'
+        elseif Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
+            if Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,2) == 'AI' then
+                button_parameters.label = 'AI'
+            else
+                button_parameters.label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)
+            end
+        else
+            button_parameters.label = ''
+        end
+    else --if the game has already started, then display the saved player information
+        if table.contains(Global.getTable('activePlayers'), color) then
+            if Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
+                button_parameters.label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)
+            else
+                button_parameters.label = 'X'
+            end
+        else
+            button_parameters.label = ''
+        end
+    end
+    button_parameters.click_function = 'on' .. color .. 'HotseatPressed'
+    button_parameters.position = {x, BUTTON_HEIGHT, z}
+    self.createButton( button_parameters )
+    btnIDs['btn' .. color .. 'HotseatButton'] = index
+    index = index + 1
+end
+
+function onHotseatButtonPressed(sPlayer, color, data_key, button_key)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    local numPlayersChanged = false
+    if Player[color].seated then
+        printToColor(translate({"There is already a player sitting at this seat. Cannot create a hotseat player here."}), sPlayer, ERROR_COLOR)
+        return
+    end
+    local currentPlayerControl = Global.call('getControlPanelState', {key = data_key})
+    local passedcurrentPlayerControl = false
+    if currentPlayerControl == nil then --and i == #bots then
+        Global.call('setControlPanelState', {key = data_key, value = 'AIBeta'})--player})
+        allGameMessage(color .. " has been set to an AI player of difficulty: " .. "Beta", stringColorToRGB(color), nil)
+        self.editButton({index = btnIDs[button_key], label = 'AI'})
+        numPlayersChanged = true
+    else
+        if 'AIBeta' == currentPlayerControl then
+            passedcurrentPlayerControl = true
+        end
+        for i, player in ipairs(PLAYER_COLORS) do
+            if player == currentPlayerControl then
+                passedcurrentPlayerControl = true
+            elseif passedcurrentPlayerControl and (Player[player].seated or i == #PLAYER_COLORS) then
+                if Player[player].seated then
+                    Global.call('setControlPanelState', {key = data_key, value = player})
+                    allGameMessage({"{c1} has been set to a hotseat player of {p1}", {'{c1}', color}, {'{p1}', stringToBracketedHex(player) .. player}}, stringColorToRGB(color), player)
+                    self.editButton({index = btnIDs[button_key], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)})
+                else
+                    Global.call('setControlPanelState', {key = data_key, value = nil})
+                    allGameMessage({"{c1} is no longer a hotseat player", {'{c1}', color}}, NEUTRAL_COLOR)
+                    self.editButton({index = btnIDs[button_key], label = ''})
+                    numPlayersChanged = true
+                end
+                break
+            end
+        end
+    end
+
+    if numPlayersChanged then
+        local numPlayers = 0
+        for _, color in ipairs(PLAYER_COLORS) do
+            if Player[color].seated or Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
+                numPlayers = numPlayers + 1
+            end
+        end
+        Global.call('setControlPanelState', {key = 'TowerNumTowers', value = NUM_TOWERS_PER_PLAYER[numPlayers]})
+        if Global.call('getControlPanelState', {key = 'TowerTowers'}) then
+            allGameMessage({"Warning: Tower count has changed to {n1} due to a hotseat/AI player being added/removed.", {'{n1}', NUM_TOWERS_PER_PLAYER[numPlayers]}}, NEUTRAL_COLOR, nil)
+        end
+    end
+end
+
+-- This should be called after the global onPlayerChangedColor is called, and it appears to do so when tested. Otherwise, the incorrect data will be displayed
+function onPlayerChangedColor(player)
+    if not Global.getVar('gameover') then return end
+    for _, color in ipairs(PLAYER_COLORS) do
+        if Player[color].seated then
+            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'X'})
+        elseif Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
+            if Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,2) == 'AI' then
+                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(3,3)})
+            else
+                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)})
+            end
+        else
+            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = ''})
+        end
+    end
+end
+
+function onStartingCheckboxToggle(sPlayer, data_key, button_key)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = data_key}) then
+        Global.call('setControlPanelState', {key = data_key, value = false})
+        self.editButton({index = btnIDs[button_key], label = ''})
+    else
+        if data_key == 'StartingTileBase' and hasIncompatibleStartingTiles() then
+            printToColor("You cannot enable the base starting tile while other starting tiles are enabled.", sPlayer, ERROR_COLOR)
+            return
+        end
+        Global.call('setControlPanelState', {key = data_key, value = true})
+        self.editButton({index = btnIDs[button_key], label = 'X'})
+        if Global.call('getControlPanelState', {key = 'StartingTileBase'}) and hasIncompatibleStartingTiles() then
+            Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
+            self.editButton({index = btnIDs['btnStartingTileBaseToggle'], label = ''})
+            printToColor("The base starting tile cannot be combined with this starting tile set. Removing base tile.", sPlayer, ERROR_COLOR)
+        end
+    end
+end
+
+function onGreenHotseatPressed(object, sPlayer)
+    onHotseatButtonPressed(sPlayer, 'Green', 'GreenControl', 'btnGreenHotseatButton')
+end
+
+function onPurpleHotseatPressed(object, sPlayer)
+    onHotseatButtonPressed(sPlayer, 'Purple', 'PurpleControl', 'btnPurpleHotseatButton')
+end
+
+function onWhiteHotseatPressed(object, sPlayer)
+    onHotseatButtonPressed(sPlayer, 'White', 'WhiteControl', 'btnWhiteHotseatButton')
+end
+
+function onBlueHotseatPressed(object, sPlayer)
+    onHotseatButtonPressed(sPlayer, 'Blue', 'BlueControl', 'btnBlueHotseatButton')
+end
+
+function onRedHotseatPressed(object, sPlayer)
+    onHotseatButtonPressed(sPlayer, 'Red', 'RedControl', 'btnRedHotseatButton')
+end
+
+function onPinkHotseatPressed(object, sPlayer)
+    onHotseatButtonPressed(sPlayer, 'Pink', 'PinkControl', 'btnPinkHotseatButton')
+end
+
+function onStartingTileBaseToggle(Object, sPlayer)
+    onStartingCheckboxToggle(sPlayer, 'StartingTileBase', 'btnStartingTileBaseToggle')
+end
+
+function onStartingTileRiverToggle(Object, sPlayer)
+    onStartingCheckboxToggle(sPlayer, 'StartingTileRiver', 'btnStartingTileRiverToggle')
+end
+
+function onStartingTileRiverIIToggle(Object, sPlayer)
+    onStartingCheckboxToggle(sPlayer, 'StartingTileRiverII', 'btnStartingTileRiverIIToggle')
+end
+
+function onStartingTileRiverBB5Toggle(Object, sPlayer)
+    onStartingCheckboxToggle(sPlayer, 'StartingTileRiverBB5', 'btnStartingTileRiverBB5Toggle')
+end
+
+function onStartingTileCoCToggle(Object, sPlayer)
+    onStartingCheckboxToggle(sPlayer, 'StartingTileCoC', 'btnStartingTileCoCToggle')
+end
+
+function hasIncompatibleStartingTiles(data_key)
+    local startingGroup = {'StartingTileRiver', 'StartingTileRiverII', 'StartingTileRiverBB5', 'StartingTileCoC', 'StartingTileWoF', 'StartingTileWindRoses'}
+    for _, setting_key in ipairs(startingGroup) do
+        if Global.call('getControlPanelState', {key = setting_key}) then
+            return true
+        end
+    end
+    return false
+end

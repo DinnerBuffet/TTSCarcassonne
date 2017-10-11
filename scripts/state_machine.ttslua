@@ -1,0 +1,472 @@
+--controls and organizes the flow of the game by managing different states
+--this has the added bonus of being a "save point" that the script can safely return to when loaded
+--the 'actions' defined in each state are different options that the user might choose
+--a generic 'next' can be used to go to the implied next state
+
+stateMachine = {
+    ['begin turn'] = {
+        ['next'] = 'reward fairy'
+    },
+    ['reward fairy'] = {
+        ['next'] = 'eliminate oldest flea'
+    },
+    ['eliminate oldest flea'] = {
+        ['next'] = 'awaiting tile placement'
+    },
+    ['awaiting tile placement'] = {
+        ['tile placed'] = 'check added tile features'
+    },
+    ['check added tile features'] = {
+        ['next'] = 'check added tile special figure extension'
+    },
+    ['check added tile special figure extension'] = {
+        ['next'] = 'check added tile feature - hill'
+    },
+    ['check added tile feature - hill'] = {
+        ['next'] = 'check added tile feature - volcano'
+    },
+    ['check added tile feature - volcano'] = {
+        ['next'] = 'check added tile feature - princess',
+        ['dragon moved'] = 'check added tile feature - volcano - delay'
+    },
+    ['check added tile feature - volcano - delay'] = {
+        ['next'] = 'check added tile feature - volcano - lock'
+    },
+    ['check added tile feature - volcano - lock'] = {
+        ['next'] = 'check added tile feature - princess'
+    },
+    ['check added tile feature - princess'] = {
+        ['next'] = 'check added tile feature - magic portal'
+    },
+    ['check added tile feature - magic portal'] = {
+        ['next'] = 'check added tile feature - gold'
+    },
+    ['check added tile feature - gold'] = {
+        ['next'] = 'awaiting figure decision',
+        ['has gold'] = 'place gold on tile'
+    },
+    ['place gold on tile'] = {
+        ['next'] = 'awaiting gold placement'
+    },
+    ['awaiting gold placement'] = {
+        ['next'] = 'awaiting figure decision'
+    },
+    ['awaiting figure decision'] = {
+        ['skip figure'] = 'post figure events',
+        ['retrieve abbot'] = 'retrieve abbot',
+        ['placed figure'] = 'post figure events',
+        ['placed shepherd'] = 'initialize shepherd',
+        ['placed flier'] = 'wait for flier roll',
+        ['placed tower'] = 'prompt tower capture',
+        ['placed fairy'] = 'post figure events',
+        ['seduce knight'] = 'seduce knight'
+    },
+    ['retrieve abbot'] = {
+        ['figures returned'] = 'retrieve abbot - delay'
+    },
+    ['retrieve abbot - delay'] = {
+        ['next'] = 'post figure events'
+    },
+    ['wait for flier roll'] = {
+        ['die rolled'] = 'check flier destination'
+    },
+    ['check flier destination'] = {
+        ['feature available'] = 'awaiting flier decision',
+        ['feature unavailable'] = 'return flier'
+    },
+    ['awaiting flier decision'] = {
+        ['placed flier'] = 'post figure events'
+    },
+    ['prompt tower capture'] = {
+        ['skip capture'] = 'post figure events',
+        ['return follower'] = 'tower - return follower',
+        ['capture follower'] = 'tower capture - delay'
+    },
+    ['tower - return follower'] = {
+        ['figures returned'] = 'post figure events'
+    },
+    ['tower capture - delay'] = {
+        ['next'] = 'tower capture - exchange prisoners'
+    },
+    ['tower capture - exchange prisoners'] = {
+        ['next'] = 'post figure events',
+        ['return followers'] = 'tower capture - return exchanged prisoners'
+    },
+    ['tower capture - return exchanged prisoners'] = {
+        ['figures returned'] = 'tower capture - return exchanged prisoners - delay'
+    },
+    ['tower capture - return exchanged prisoners - delay'] = {
+        ['next'] = 'tower capture - recreate buttons'
+    },
+    ['tower capture - recreate buttons'] = {
+        ['next'] = 'post figure events'
+    },
+    ['return flier'] = {
+        ['figures returned'] = 'return flier - delay'
+    },
+    ['return flier - delay'] = {
+        ['next'] = 'post figure events'
+    },
+    ['seduce knight'] = {
+        ['figures returned'] = 'seduce knight - delay'
+    },
+    ['seduce knight - delay'] = {
+        ['next'] = 'post figure events'
+    },
+    ['post figure events'] = {
+        ['next'] = 'post figure event - prompt shepherd'
+    },
+    ['post figure event - prompt shepherd'] = {
+        ['next'] = 'check added tile feature - dragon'
+    },
+    ['initialize shepherd'] = {
+        ['next'] = 'initialize shepherd - finish'
+    },
+    ['initialize shepherd - finish'] = {
+        ['next'] = 'post figure events'
+    },
+    ['check added tile feature - dragon'] = {
+        ['has dragon'] = 'post figure event - dragon movement',
+        ['no dragon'] = 'check added tile feature extensions'
+    },
+    ['post figure event - dragon movement'] = {
+        ['next'] = 'check added tile feature extensions',
+        ['figures returned'] = 'post figure event - dragon movement - delay',
+        ['dragon moved'] = 'post figure event - dragon movement - delay'
+    },
+    ['post figure event - dragon movement - delay'] = {
+        ['next'] = 'post figure event - dragon movement - lock'
+    },
+    ['post figure event - dragon movement - lock'] = {
+        ['next'] = 'post figure event - dragon movement'
+    },
+    ['check added tile feature extensions'] = {
+        ['next'] = 'prompt moving from carcassonne'
+    },
+    ['prompt moving from carcassonne'] = {
+        ['next'] = 'score features',
+        ['skip figure'] = 'prompt moving from carcassonne',
+        ['placed figure'] = 'prompt moving from carcassonne'
+    },
+    ['score features'] = {
+        ['next'] = 'post scoring events',
+        ['figures returned'] = 'score features - delay'
+    },
+    ['score features - delay'] = {
+        ['next'] = 'score features'
+    },
+    ['post scoring events'] = {
+        ['next'] = 'reward gold'
+    },
+    ['reward gold'] = {
+        ['next'] = 'replace finished wagons'
+    },
+    ['replace finished wagons'] = {
+        ['next'] = 'prompt moving to carcassonne',
+        ['skip figure'] = 'replace finished wagons',
+        ['placed figure'] = 'replace finished wagons'
+    },
+    ['prompt moving to carcassonne'] = {
+        ['not eligible'] = 'check for extra builder turn',
+        ['skip figure'] = 'check for extra builder turn',
+        ['placed figure'] = 'prompt moving count'
+    },
+    ['prompt moving count'] = {
+        ['not eligible'] = 'check for extra builder turn',
+        ['skip figure'] = 'check for extra builder turn',
+        ['placed figure'] = 'check for extra builder turn'
+    },
+    ['check for extra builder turn'] = {
+        ['has builder'] = 'awaiting tile placement',
+        ['no builder'] = 'end turn'
+    },
+    ['end turn'] = {
+        ['next'] = 'begin turn'
+    },
+    ['game over - prompt moving from carcassonne'] = {
+        ['next'] = 'game over - scoring',
+        ['skip figure'] = 'game over - prompt moving from carcassonne',
+        ['placed figure'] = 'game over - prompt moving from carcassonne'
+    },
+    ['game over - scoring'] = {
+        ['next'] = 'game over - scoring',
+        ['figures returned'] = 'game over - scoring - delay'
+    },
+    ['game over - scoring - delay'] = {
+        ['next'] = 'game over - scoring',
+    }
+}
+
+function stateHandler()
+    if turnState == nil then
+        --game hasn't started yet. This should never happen.
+        return
+    end
+    --debugMessage(1, "stateHandler - " .. turnState)
+    if turnState == 'begin turn' then
+        hasAlreadyTakenBuilderTile = false
+        hasRansomedPrisoner = false
+        --wagonLocations = {}
+        wagonFeatures = {}
+        --hasAvailableWagonFeature = {}
+        newBarn = nil
+        lastPlacedTileX = nil
+        printScoreToNotes()
+        createRansomButtons()
+        return nextState('next')
+    elseif turnState == 'reward fairy' then
+        return rewardFairy()
+    elseif turnState == 'eliminate oldest flea' then
+        return nextState('next')
+    elseif turnState == 'awaiting tile placement' then
+        earnedPointsThisTile = {}
+        if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
+            if forkTile_GUID == nil and riverBodyTiles_GUID == nil and (getObjectFromGUID(tileStack_GUID) == nil or finalTile_GUID == nil) and springTile_GUID == nil and lakeTile_GUID == nil then
+                local tileStack = getObjectFromGUID(tileStack_GUID)
+                if tileStack ~= nil then
+                    tileStack.setLock(false)
+                    tileStack.interactable = true
+                end
+            end
+        end
+        return
+    elseif turnState == 'check added tile features' then
+        buriedTile = nil
+        tileHasVolcano = false
+        tileHasMagicPortal = false
+        seducedKnights = {}
+        currentPlayerAbbot = nil
+        shepherdAwaitingAction = nil
+        hasBuilderAwaitingAction = false
+        return nextState('next')
+    elseif turnState == 'check added tile special figure extension' then
+        return checkAddedTileSpecialFigureExtensions()
+    elseif turnState == 'check added tile feature - hill' then
+        return checkTileForHill()
+    elseif turnState == 'check added tile feature - volcano' then
+        return checkTileForVolcano()
+    elseif turnState == 'check added tile feature - volcano - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=2.00})
+    elseif turnState == 'check added tile feature - volcano - lock' then
+        getObjectFromGUID(expansionBags['PnD'].contents['PnDDragon'].guid).setLock(true)
+        return nextState('next')
+    elseif turnState == 'check added tile feature - princess' then
+        return checkTileForPrincess()
+    elseif turnState == 'check added tile feature - magic portal' then
+        return checkTileForMagicPortal()
+    elseif turnState == 'check added tile feature - gold' then
+        return checkTileForGold()
+    elseif turnState == 'place gold on tile' then
+        return addGoldToTile(lastPlacedTileX, lastPlacedTileZ)
+    elseif turnState == 'awaiting gold placement' then
+        gameNotification({"Choose a location to place the gold bar"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
+        return displayGoldButtons()
+    elseif turnState == 'awaiting figure decision' then
+        gameNotification({"Place a figure if desired."}, NEUTRAL_COLOR, activePlayers[currentPlayer])
+
+        hasFairyLocation = false
+        local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
+        for _, obj in ipairs(objs) do
+            if obj.getDescription() == activePlayers[currentPlayer] and table.contains(FOLLOWER_TYPES, obj.getName()) then
+                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                if tileGridOccupied(xIndex, zIndex) then
+                    hasFairyLocation = true
+                end
+            end
+        end
+        if hasFairyLocation then
+            local fairy = getObjectFromGUID(expansionBags['PnD'].contents['PnDFairy'].guid)
+            if controlPanelSettings['PnDFairy'] and fairy ~= nil then
+                fairy.setLock(false)
+                fairy.highlightOn({1,1,1})
+            end
+        end
+        return displayFigureButtons()
+    elseif turnState == 'retrieve abbot' then
+        return
+    elseif turnState == 'retrieve abbot - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    elseif turnState == 'wait for flier roll' then
+        clearFigureOptions()
+        for i=1, 3 do
+            local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
+            if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
+                local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
+                if possibleTile ~= nil then
+                    possibleTile.highlightOn({1,1,1})
+                end
+            end
+        end
+        clearArbitraryButtons()
+        gameNotification({"Roll the flier die to determine your flier's distance."}, NEUTRAL_COLOR, activePlayers[currentPlayer])
+        return
+    elseif turnState == 'check flier destination' then
+        return checkFlierDestination()
+    elseif turnState == 'awaiting flier decision' then
+        for i=1, 3 do
+            local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
+            if not (possibleOffset.x == flierOffset.x and possibleOffset.z == flierOffset.z) then
+                if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
+                    local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
+                    if possibleTile ~= nil then
+                        possibleTile.highlightOff()
+                    end
+                end
+            end
+        end
+        gameNotification({"Place the flier on the destination tile."}, NEUTRAL_COLOR, activePlayers[currentPlayer])
+        return
+    elseif turnState == 'prompt tower capture' then
+        clearFigureOptions()
+        capturableFollowers = {}
+        return promptTowerCapture()
+    elseif turnState == 'tower - return follower' then
+        return returnFigures()
+    elseif turnState == 'tower capture - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_CAPTURE_DELAY})
+    elseif turnState == 'tower capture - exchange prisoners' then
+        return exchangePrisoners()
+    elseif turnState == 'tower capture - return exchanged prisoners' then
+        return returnFigures()
+    elseif turnState == 'tower capture - return exchanged prisoners - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    elseif turnState == 'tower capture - recreate buttons' then
+        createRansomButtons()
+        return nextState('next')
+    elseif turnState == 'initialize shepherd' then
+        clearFigureOptions()
+        local shepherd = getObjectFromGUID(shepherdAwaitingAction)
+        if controlPanelSettings['PnDDragon'] then
+            return addSheepToTile(shepherd)
+        else
+            return addSheepToField(shepherd)
+        end
+    elseif turnState == 'initialize shepherd - finish' then
+        shepherdAwaitingAction = nil
+        return nextState('next')
+    elseif turnState == 'seduce knight' then
+        return returnFigures()
+    elseif turnState == 'seduce knight - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    elseif turnState == 'return flier' then
+        for i=1, 3 do
+            local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
+            if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
+                local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
+                if possibleTile ~= nil then
+                    possibleTile.highlightOff()
+                end
+            end
+        end
+        return returnFigures()
+    elseif turnState == 'return flier - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    elseif turnState == 'post figure events' then
+        clearFigureOptions()
+        seducedKnights = {}
+        currentPlayerAbbot = nil
+        return nextState('next')
+    elseif turnState == 'post figure event - prompt shepherd' then
+        if shepherdAwaitingAction ~= nil then
+            return promptShepherd()
+        else
+            return nextState('next')
+        end
+    elseif turnState == 'check added tile feature extensions' then
+        return checkAddedTileFeatureExtensions()
+    elseif turnState == 'prompt moving from carcassonne' then
+        return promptMovingFromCoC()
+    elseif turnState == 'check added tile feature - dragon' then
+        shepherdAwaitingAction = nil
+        return checkTileForDragon()
+    elseif turnState == 'post figure event - dragon movement' then
+        if currentMiniTurn > #activePlayers then currentMiniTurn = 1 end
+        if dragonMoveNumber <= 6 then
+            for _, tileCoords in ipairs(dragonIllegalTiles) do
+                getObjectFromGUID(tileGrid[tileCoords[1]][tileCoords[2]].tile_guid).highlightOn({1,0,0})
+            end
+            return createDragonButtons()
+        else
+            return nextState('next')
+        end
+    elseif turnState == 'post figure event - dragon movement - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=1.00})
+    elseif turnState == 'post figure event - dragon movement - lock' then
+        getObjectFromGUID(expansionBags['PnD'].contents['PnDDragon'].guid).setLock(true)
+        return nextState('next')
+    elseif turnState == 'score features' then
+        clearFigureOptions()
+        currentMiniTurn = nil
+        for _, tileCoords in ipairs(dragonIllegalTiles) do
+            getObjectFromGUID(tileGrid[tileCoords[1]][tileCoords[2]].tile_guid).highlightOff()
+        end
+        return scoreFeatures()
+    elseif turnState == 'score features - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    elseif turnState == 'post scoring events' then
+        return nextState('next')
+    elseif turnState == 'reward gold' then
+        tempGoldCounts = getGold()
+        return rewardGold()
+    elseif turnState == 'replace finished wagons' then
+        return replaceFinishedWagons()
+    elseif turnState == 'prompt moving to carcassonne' then
+        clearFigureOptions()
+        return promptMovingToCarcassonne()
+    elseif turnState == 'prompt moving count' then
+        clearFigureOptions()
+        return promptMovingCount()
+    elseif turnState == 'check for extra builder turn' then
+        local count = getObjectFromGUID(expansionBags['CoC'].contents['CoCCount'].guid)
+        if count ~= nil then
+            count.setLock(true)
+        end
+        clearArbitraryButtons(true)
+        if hasBuilderAwaitingAction then
+            hasAlreadyTakenBuilderTile = true
+            allGameMessage({"{c1}'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+            return nextState('has builder')
+        else
+            return nextState('no builder')
+        end
+    elseif turnState == 'end turn' then
+        return endTurn()
+    elseif turnState == 'game over - prompt moving from carcassonne' then
+        return promptMovingFromCoC()
+    elseif turnState == 'game over - scoring' then
+        clearFigureOptions()
+        return scoreFeatures()
+    elseif turnState == 'game over - scoring - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    end
+end
+
+function nextState(action)
+    if action == nil then action = 'next' end
+    if stateMachine[turnState] ~= nil then
+        if stateMachine[turnState][action] ~= nil then
+            turnState = stateMachine[turnState][action]
+            if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+                return AIStateHandler()
+            else
+                return stateHandler()
+            end
+        else
+            allErrorMessage({"Error: action - {s1} does not exist for current state - {s2}", {'{s1}', action}, {'{s2}', turnState}}, activePlayers[currentPlayer])
+        end
+    else
+        allErrorMessage({"Error: current state does not exist - {s1}", {'{s1}', turnState}}, activePlayers[currentPlayer])
+    end
+end
+
+function progressState()
+    return nextState('next')
+end
+
+function progressPartiallyCompleteStates()
+    if turnState == 'score features' then
+        allGameMessage({"Loaded game was in the middle of scoring. Game pieces may need to be removed manually. Skipping to post scoring events. Some unscored pieces may remain."}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+        turnState = 'post scoring events'
+    end
+end
