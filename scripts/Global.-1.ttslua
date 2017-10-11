@@ -37,13 +37,12 @@ DEBUG_BUTTONS = false
 AUTOLOCK = true
 
 debugMode = 0
-
 --debugLogTabIndex = -1
 
 TILE_POSITION_MARGIN = 0.02
 TILE_ROTATION_MARGIN = 0.015
-TILE_SPACING = 1.59
-TILE_THICKNESS = 0.005
+TILE_SPACING = 1.59 --how far apart tiles or spaced (should be the same as the tile grid setting)
+TILE_THICKNESS = 0.005 --about how much thicker each tile makes a stack when added (keep in mind this is probably not as thick as the tile actually is on its own)
 TILE_STANDARD_ROTATION = 2 --every tile is rotated this much so that the perceived rotation of the tiles matches the actual rotation in the code
 TILE_180_ROTATION = 2
 
@@ -52,7 +51,7 @@ MIDDLE_OFFSET = {x = 25 * TILE_SPACING, z = 25 * TILE_SPACING}
 
 SIDE_DELTA = {{x=0,z=-1},{x=-1,z=0},{x=0,z=1},{x=1,z=0}}
 
-NEUTRAL_ITEMS_LOCATION = {x = 16.5, y = 1.5, z = 28.0}
+NEUTRAL_ITEMS_LOCATION = {x = 15.5, y = 1.5, z = 28.0}
 
 NEUTRAL_COLOR = {r=0.5,g=0.5,b=0.5}
 ERROR_COLOR = {r=1,g=0,b=0}
@@ -64,8 +63,10 @@ PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Yellow'}
 FOLLOWER_TYPES = {'Follower', 'Big Follower', 'Phantom', 'Abbot', 'Mayor', 'Wagon'}
 SPECIAL_FIGURE_TYPES = {'Shepherd', 'Builder', 'Pig', 'Barn'}
 NEUTRAL_FIGURE_TYPES = {'Count', 'Dragon', 'Fairy', 'Tower Block'}
-TOKEN_TYPES = {'Sheep', 'Wolf'}
+
+SHEEP_TOKEN_TYPES = {'Sheep', 'Wolf'}
 TRADE_TOKEN_TYPES = {'Wheat Token', 'Wine Token', 'Cloth Token'}
+GOLD_BAR_NAME = 'Gold Bar'
 
 SCORE_COUNTER_GUIDS = {
     ['Green'] = '28bdff',
@@ -77,6 +78,7 @@ SCORE_COUNTER_GUIDS = {
 }
 
 FLOATING_BUTTON_HEIGHT = 40.0
+FLOATING_BUTTON_HEIGHT_LOW = 20.0
 
 FIGURE_DISTANCE_FROM_EDGE = 0.1 --percentage distance from the edge that each quadrant/octant exists
 
@@ -85,12 +87,6 @@ FIGURE_PRAISE_DELAY = 2.5 --seconds to wait while figure is spinning before it i
 
 STARTING_TILE_GUID = 'c107f0'
 TILE_STACK_GUID = '65e895'
-SHEEP_TILE_BAG_GUID = '12bf5b'
-CLOTH_TOKEN_STACK_GUID = 'ebd019'
-WINE_TOKEN_STACK_GUID = '55a94f'
-WHEAT_TOKEN_STACK_GUID = '7a829b'
-KING_TOKEN_GUID = 'c3021c'
-ROBBER_BARRON_TOKEN_GUID = '26c11d'
 
 PLAY_AREA_SCRIPTING_ZONE_GUID = '689f5b'
 
@@ -116,7 +112,7 @@ PLAYER_POSSESSION_AREAS = {
 playerPossessionScriptingZones = {}
 
 PLAYER_POSSESSION_ZONE_HEIGHT = 2
-PLAYER_POSSESSION_ZONE_DEPTH = 2.5
+PLAYER_POSSESSION_ZONE_DEPTH = 6.0
 PLAYER_POSSESSION_ZONE_WIDTH = 6
 
 -- Guid for object we will put button on
@@ -210,6 +206,10 @@ expansionBags = {
         ['FlierTiles'] = {guid = 'f006d5'},
         ['FlierDie'] = {guid = 'dc7bf3'}
     }},
+    ['Goldmines'] = {guid = '080d67', contents = {
+        ['GoldminesTiles'] = {guid = 'bc8fac'},
+        ['GoldminesGold'] = {guid = 'd013b9'}
+    }},
     ['HnS'] = {guid = 'a50c27', contents = {
         ['HnSTiles'] = {guid = '3fb950'},
         ['HnSSheepBag'] = {guid = '12bf5b'}
@@ -276,9 +276,12 @@ controlPanelSettings = {
     ['HnSVineyards'] = false,
 --Mini expansions
     ['FlierTiles'] = false,
-    ['FlierFlier'] = false
+    ['FlierFlier'] = false,
+    ['GoldminesTiles'] = false,
+    ['GoldminesGold'] = false
 }
 
+--[<setting name>] = {[<expansion bag>] = {[<item name>] = {}}}
 tileSettings = {
     ['InCTiles'] = {['InC'] = {['InCTiles'] = {}}},
     ['TnBTiles'] = {['TnB'] = {['TnBTiles'] = {}}},
@@ -292,9 +295,11 @@ tileSettings = {
         }
     },
     ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}},
-    ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}}
+    ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}},
+    ['GoldminesTiles'] = {['Goldmines'] = {['GoldminesTiles'] = {}}}
 }
 
+--[<setting name>] = {[<expansion bag>] = {[<item name>] = {position={<position on table>}, rotation={<rotation>}, shuffle=<should shuffle>, lock=<should lock>}}}
 startingTileSettings = {
     ['StartingTileRiverII'] = {['RiverII'] = {
         ['EndTiles'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
@@ -328,43 +333,47 @@ startingTileSettings = {
     }
 }
 
+--[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, offset = {x=<x offset>, z=<z offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, num=<setting with number to spawn>}
 figureSettings = {
-    ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BaseNumFollowers'}, --should probably be closer to  {0.5, 0.45, 0.5}
-    ['InCBigFollower'] = {name = 'Big Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = -0.8, z = 0.5}, scale = {0.6, 0.6, 0.5}, use_snap_points = true}, --should probably be closer to {0.60, 0.55, 0.5}
+    ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BaseNumFollowers'},
+    ['InCBigFollower'] = {name = 'Big Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = -0.8, z = 0.5}, scale = {0.6, 0.6, 0.5}, use_snap_points = true},
     ['TnBBuilder'] = {name = 'Builder', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -0.8, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}, --should probably be closer to {0.5, 0.42, 0.5}
     ['TnBPig'] = {name = 'Pig', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}, --should probably be closer to {0.45, 0.5, 0.5}
-    ['AnMMayor'] = {name = 'Mayor', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}, --model too wide. scale down width
+    ['AnMMayor'] = {name = 'Mayor', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
     ['AnMWagon'] = {name = 'Wagon', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true},
     ['AnMBarn'] = {name = 'Barn', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = false},
     ['HnSShepherd'] = {name = 'Shepherd', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = 0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}
 }
 
+--[<steam_id>] = {['Intro'] = <intro string>, [<figure name>] = {<custom figure settings>}}
 vipFigureSettings = {
     -- ['76561197962338210'] = {
     --     ['Intro'] = "You are being joined by %s, the creator of Scripted Carcassonne."
     -- },
     -- ['76561197972020303'] = {
     --     ['Intro'] = "You are being joined by %s, contributor to the Carcassonne mod."
-    -- }
+    -- },
     ['9999999999999999999'] = {
         ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
         ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BaseNumFollowers'},
     }
 }
 
+--[<setting name>] = {[<expansion bag>] = {[<item name>] = {width = <width of object>}}}
 neutralFigureSettings = {
     ['TnBTradeGoods'] = {['TnB'] = {
-            ['TnBClothTokenStack'] = {offset = 0},
-            ['TnBWineTokenStack'] = {offset = 1},
-            ['TnBWheatTokenStack'] = {offset = 2}
+            ['TnBClothTokenStack'] = {width = 1.0},
+            ['TnBWineTokenStack'] = {width = 1.0},
+            ['TnBWheatTokenStack'] = {width = 1.0}
         }
     },
-    ['KnRBKing'] = {['KnRB'] = {['KnRBKing'] = {offset = 3.5}}},
-    ['KnRBRobber'] = {['KnRB'] = {['KnRBRobber'] = {offset = 5.25}}},
-    ['HnSShepherd'] = {['HnS'] = {['HnSSheepBag'] = {offset = 7.0}}},
-    ['PnDFairy'] = {['PnD'] = {['PnDFairy'] = {offset = 8.25}}},
-    ['PnDDragon'] = {['PnD'] = {['PnDDragon'] = {offset = 9.75}}},
-    ['FlierFlier'] = {['Flier'] = {['FlierDie'] = {offset = 11.25}}}
+    ['KnRBKing'] = {['KnRB'] = {['KnRBKing'] = {width = 2.0}}},
+    ['KnRBRobber'] = {['KnRB'] = {['KnRBRobber'] = {width = 2.0}}},
+    ['HnSShepherd'] = {['HnS'] = {['HnSSheepBag'] = {width = 1.5}}},
+    ['PnDFairy'] = {['PnD'] = {['PnDFairy'] = {width = 1.0}}},
+    ['PnDDragon'] = {['PnD'] = {['PnDDragon'] = {width = 2.0}}},
+    ['FlierFlier'] = {['Flier'] = {['FlierDie'] = {width = 1.0}}},
+    ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {width = 1.5}}}
 }
 
 tileGrid = {}
@@ -387,11 +396,13 @@ transversedTileCoords = {}
 transversedSpecialFeatures = {}
 transversedFollowers = {}
 transversedSpecialFigures = {}
-transversedTokens = {}
+transversedSheepTokens = {}
+transversedGoldBars = {}
 
 followersScored = {}
 removedFigures = {}
 featureMarkers = {}
+scoringRewards = {}
 
 largestCity = 0
 longestRoad = 0
@@ -439,12 +450,22 @@ stateMachine = {
         ['dragon moved'] = 'check added tile feature - volcano - delay'
     },
     ['check added tile feature - volcano - delay'] = {
-        ['next'] = 'check added tile feature - volcano - lock',
+        ['next'] = 'check added tile feature - volcano - lock'
     },
     ['check added tile feature - volcano - lock'] = {
-        ['next'] = 'check added tile feature - magic portal',
+        ['next'] = 'check added tile feature - magic portal'
     },
     ['check added tile feature - magic portal'] = {
+        ['next'] = 'check added tile feature - gold'
+    },
+    ['check added tile feature - gold'] = {
+        ['next'] = 'check added tile feature extensions',
+        ['has gold'] = 'place gold on tile'
+    },
+    ['place gold on tile'] = {
+        ['next'] = 'awaiting gold placement'
+    },
+    ['awaiting gold placement'] = {
         ['next'] = 'check added tile feature extensions'
     },
     ['check added tile feature extensions'] = {
@@ -515,6 +536,9 @@ stateMachine = {
         ['next'] = 'score features',
     },
     ['post scoring events'] = {
+        ['next'] = 'reward gold'
+    },
+    ['reward gold'] = {
         ['next'] = 'replace finished wagons'
     },
     ['replace finished wagons'] = {
@@ -574,6 +598,13 @@ function stateHandler()
         return nextState('next')
     elseif turnState == 'check added tile feature - magic portal' then
         return checkTileForMagicPortal()
+    elseif turnState == 'check added tile feature - gold' then
+        return checkTileForGold()
+    elseif turnState == 'place gold on tile' then
+        return addGoldToTile(lastPlacedTileX, lastPlacedTileZ)
+    elseif turnState == 'awaiting gold placement' then
+        gameNotification("Choose a location to place the gold bar", NEUTRAL_COLOR, activePlayers[currentPlayer])
+        return displayGoldButtons()
     elseif turnState == 'check added tile feature extensions' then
         return checkAddedTileFeatureExtensions()
     elseif turnState == 'awaiting figure decision' then
@@ -637,6 +668,8 @@ function stateHandler()
         Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'post scoring events' then
         return nextState('next')
+    elseif turnState == 'reward gold' then
+        return rewardGold()
     elseif turnState == 'replace finished wagons' then
         return replaceFinishedWagons()
     elseif turnState == 'check for extra builder turn' then
@@ -943,7 +976,9 @@ end
 
 function onFlierDiceRolled(params)
     if params.sPlayer ~= nil then
-        if params.sPlayer == activePlayers[currentPlayer] then
+        player = params.sPlayer
+        if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
+            (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
             if turnState == 'wait for flier roll' then
                 local dieValue = getObjectFromGUID(expansionBags['Flier'].contents['FlierDie'].guid).getValue()
                 if dieValue > 3 then dieValue = 7 - dieValue end
@@ -975,9 +1010,9 @@ function endTurn()
                 currentPlayer = 1
             end
             if controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat'] ~= nil then
-                allGameMessage("It is now " .. activePlayers[currentPlayer] .. "'s turn. " .. activePlayers[currentPlayer] .. " is controlled by " .. stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat']) .. controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat'] .. ".", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
+                allGameMessage("----------It is now " .. activePlayers[currentPlayer] .. "'s turn. " .. activePlayers[currentPlayer] .. " is controlled by " .. stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat']) .. controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat'] .. "----------", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
             else
-                allGameMessage("It is now " .. activePlayers[currentPlayer] .. "'s turn.", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
+                allGameMessage("----------It is now " .. activePlayers[currentPlayer] .. "'s turn----------", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
             end
         else
             allGameMessage(activePlayers[currentPlayer] .. " gets another turn for laying down the volcano lake tile.", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
@@ -1068,6 +1103,9 @@ function initializeScoreSummary()
         if controlPanelSettings['KnRBKing'] or controlPanelSettings['KnRBRobber'] then
             scoreSummary[player]['King/Robber Tokens'] = 0
         end
+        if controlPanelSettings['GoldminesGold'] then
+            scoreSummary[player]['Gold'] = 0
+        end
     end
 end
 
@@ -1143,11 +1181,13 @@ function prepareTileStack()
                     for item_id, item_settings in pairs(expansion) do
                         tileStackAddPosition.y = stackY + 1 + tileStack.getQuantity() * TILE_THICKNESS
                         prepareTileLock = true
-                        getObjectFromGUID(expansionBags[expansion_id].guid).takeObject({guid = expansionBags[expansion_id].contents[item_id].guid, position = tileStackAddPosition, rotation = {0,180,180}, callback_owner = Global, callback = "prepareTileUnlock"})
+                        if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = tileStackAddPosition, rotation = {0,180,180}, callback_owner = Global, callback = "prepareTileUnlock"}) == nil then
+                            prepareTileLock = false
+                        end
                         while prepareTileLock do
                             coroutine.yield(0)
                         end
-                        wait(0.4)
+                        wait(1.0)
                     end
                 end
             end
@@ -1229,7 +1269,9 @@ function prepareStartingTiles()
                 for item_id, item_settings in pairs(expansion) do
                     if item_id ~= "EndTiles" or not hasRiverEndTiles then
                         prepareStartingTileLock = true
-                        getObjectFromGUID(expansionBags[expansion_id].guid).takeObject({guid = expansionBags[expansion_id].contents[item_id].guid, position = item_settings.position, rotation = item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"})
+                        if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = item_settings.position, rotation = item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
+                            prepareStartingTileLock = false
+                        end
                         while prepareStartingTileLock do
                             coroutine.yield(0)
                         end
@@ -1267,7 +1309,9 @@ end
 function preparePlayerPossessionArea()
     if controlPanelSettings['AnMAbbey'] then
         gSpawnLock = true
-        getObjectFromGUID(expansionBags['AnM'].guid).takeObject({guid = expansionBags['AnM'].contents['AnMAbbey'].guid, position = {x = 0.0, y = 0.0, z = 0.0}, rotation = {0,180,0}, callback_owner = Global, callback = "cbSpawnUnlock"})
+        if takeObjectSafe(getObjectFromGUID(expansionBags['AnM'].guid), {guid = expansionBags['AnM'].contents['AnMAbbey'].guid, position = {x = 0.0, y = 0.0, z = 0.0}, rotation = {0,180,0}, callback_owner = Global, callback = "cbSpawnUnlock"}) == nil then
+            gSpawnLock = false
+        end
         while gSpawnLock do
             coroutine.yield(0)
         end
@@ -1280,7 +1324,7 @@ function preparePlayerPossessionArea()
         params.callback = "cbSpawnUnlock"  -- all the callback does is set gSpawnLock to false
         params.callback_owner = Global
         params.type = "ScriptingTrigger"
-        x, z = rotateCoordinates(8.9, 0, playerPossessionArea.rotation)
+        x, z = rotateCoordinates(8.9, 1.75, playerPossessionArea.rotation)
         params.position = {playerPossessionArea.x + x, 1 + PLAYER_POSSESSION_ZONE_HEIGHT / 2, playerPossessionArea.z + z}
         gSpawnLock = true
         local zoneObj = spawnObject(params)
@@ -1361,12 +1405,17 @@ function preparePlayerPossessionArea()
 end
 
 function prepareNeutralItems()
+    local offset = 0
     for rule_id, rule in pairs(neutralFigureSettings) do
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
                 for item_id, item_settings in pairs(expansion) do
                     neutralItemsLock = true
-                    getObjectFromGUID(expansionBags[expansion_id].guid).takeObject({guid = expansionBags[expansion_id].contents[item_id].guid, position = {x = NEUTRAL_ITEMS_LOCATION.x + item_settings.offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}, rotation = {0,180,0}, callback_owner = Global, callback = "neutralItemsUnlock"})
+                    offset = offset + item_settings.width / 2
+                    if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = {x = NEUTRAL_ITEMS_LOCATION.x + offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}, rotation = {0,180,0}, callback_owner = Global, callback = "neutralItemsUnlock"}) == nil then
+                        neutralItemsLock = false
+                    end
+                    offset = offset + item_settings.width / 2
                     while neutralItemsLock do
                         coroutine.yield(0)
                     end
@@ -1663,7 +1712,7 @@ function checkTile(params)
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
         local newTile = getObjectFromGUID(lastDroppedObject_GUID)
-        if newTile.held_by_color == nil then
+        if newTile ~= nil and newTile.held_by_color == nil then
             if newTile.getTable("sides") == nil then
                 allErrorMessage("Error: This tile has no script data. Most likely this expansion hasn't yet been implemented.")
                 return
@@ -1991,7 +2040,7 @@ function createDragonButtons()
             end
             local moveDragonButtonParam = {
                index = i, label = label, click_function = 'moveDragonButton',
-               position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=0}, width = 1700, height=600, font_size = 200, function_owner = nil
+               position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=0}, width = 1700, height=600, font_size = 200, function_owner = nil
             }
             createNormalizedButton(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), moveDragonButtonParam, false)
         end
@@ -2038,11 +2087,11 @@ function moveDragonToTile(xIndex, zIndex, rotation)
     dragon.setPositionSmooth({xDestination, 1.5, zDestination})
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
     for _, object in ipairs(objs) do
-        if object.getName() ~= 'Barn' and (table.contains(FOLLOWER_TYPES, object.getName()) or table.contains(SPECIAL_FIGURE_TYPES, object.getName()) or table.contains(TOKEN_TYPES, object.getName())) then
+        if object.getName() ~= 'Barn' and (table.contains(FOLLOWER_TYPES, object.getName()) or table.contains(SPECIAL_FIGURE_TYPES, object.getName()) or table.contains(SHEEP_TOKEN_TYPES, object.getName())) then
             if xIndex == math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING) and
                zIndex == math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING) then
-               if table.contains(TOKEN_TYPES, object.getName()) then
-                   local sheepTileBag = getObjectFromGUID(SHEEP_TILE_BAG_GUID)
+               if table.contains(SHEEP_TOKEN_TYPES, object.getName()) then
+                   local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
                    if sheepTileBag ~= nil then
                    allGameMessage(object.getDescription() .. " " .. object.getName() .. " eaten by the dragon! Om nom nom!", NEUTRAL_COLOR)
                        object.setPositionSmooth({sheepTileBag.getPosition().x, sheepTileBag.getPosition().y + 1.5, sheepTileBag.getPosition().z})
@@ -2072,14 +2121,81 @@ function checkTileForMagicPortal()
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
     --put another tile underneath it
     local features = newTile.getTable("specialFeatures")
-    if features ~= nil then
+    if controlPanelSettings['PnDMagicPortal'] and features ~= nil then
         for _, specialFeature in ipairs(features) do
-            if controlPanelSettings['PnDMagicPortal'] and specialFeature[1] == "Magic Portal" then
+            if specialFeature[1] == "Magic Portal" then
                 tileHasMagicPortal = true
             end
         end
     end
     return nextState('next')
+end
+
+function checkTileForGold()
+    local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+    --put another tile underneath it
+    local features = newTile.getTable("specialFeatures")
+    if controlPanelSettings['GoldminesGold'] and features ~= nil then
+        for _, specialFeature in ipairs(features) do
+            if specialFeature[1] == "Gold" then
+                return nextState('has gold')
+            end
+        end
+    end
+    return nextState('next')
+end
+
+function addGoldToTile(xIndex, zIndex)
+    local goldbag = getObjectFromGUID(expansionBags['Goldmines'].contents['GoldminesGold'].guid)
+    if goldbag ~= nil then
+        local xDestination = (xIndex * TILE_SPACING) + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x
+        local zDestination = (zIndex * TILE_SPACING) + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z
+
+        local params = {}
+        params.position = {xDestination, 1.5, zDestination}
+        goldbag.takeObject(params)
+    else
+
+    end
+    nextState('next')
+end
+
+function displayGoldButtons()
+    for x=-1, 1 do
+        for z=-1, 1 do
+            if not (x == 0 and z == 0) then
+                local newX = lastPlacedTileX + x
+                local newZ = lastPlacedTileZ + z
+                if tileGridOccupied(newX, newZ) then
+                    local placeGoldButtonParam = {
+                       index = i, label = "Place\nGold", click_function = 'placeGoldButton',
+                       position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=0}, width = 800, height=600, font_size = 200, function_owner = nil
+                    }
+                    createNormalizedButton(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), placeGoldButtonParam, false)
+                end
+            end
+        end
+    end
+end
+
+function placeGoldButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        for x=-1, 1 do
+            for z=-1, 1 do
+                if not (x == 0 and z == 0) then
+                    local newX = lastPlacedTileX + x
+                    local newZ = lastPlacedTileZ + z
+                    if tileGridOccupied(newX, newZ) then
+                        getObjectFromGUID(tileGrid[newX][newZ].tile_guid).clearButtons()
+                    end
+                end
+            end
+        end
+
+        local xIndex = math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+        local zIndex = math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+        addGoldToTile(xIndex, zIndex)
+    end
 end
 
 --check for special actions to take when the latest tile has added to or finished a feature
@@ -2169,7 +2285,7 @@ function checkAddedTileFeatureExtensions()
     end
     if controlPanelSettings['KnRBRobber'] and longestNewRoad > longestRoad then
         longestRoad = longestNewRoad
-        local awardToken = getObjectFromGUID(ROBBER_BARRON_TOKEN_GUID)
+        local awardToken = getObjectFromGUID(expansionBags['KnRB'].contents['KnRBRobber'].guid)
         local x, z = rotateCoordinates(9.4, 0.0, PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].rotation)
         if awardToken ~= nil then
             awardToken.setPositionSmooth({PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].x + x, 2, PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].z + z})
@@ -2181,7 +2297,7 @@ function checkAddedTileFeatureExtensions()
     end
     if controlPanelSettings['KnRBKing'] and largestNewCity > largestCity then
         largestCity = largestNewCity
-        local awardToken = getObjectFromGUID(KING_TOKEN_GUID)
+        local awardToken = getObjectFromGUID(expansionBags['KnRB'].contents['KnRBKing'].guid)
         local x, z = rotateCoordinates(11.4, 0.0, PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].rotation)
         if awardToken ~= nil then
             awardToken.setPositionSmooth({PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].x + x, 2, PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].z + z})
@@ -2274,13 +2390,13 @@ function checkAddedTileFeatureExtensions()
             local x, z
 
             if specialFeature == 'Cloth Token' then
-                tradeGoodPile = getObjectFromGUID(CLOTH_TOKEN_STACK_GUID)
+                tradeGoodPile = getObjectFromGUID(expansionBags['TnB'].contents['TnBClothTokenStack'].guid)
                 x, z = rotateCoordinates(6.9, 0.5, PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].rotation)
             elseif specialFeature == 'Wine Token' then
-                tradeGoodPile = getObjectFromGUID(WINE_TOKEN_STACK_GUID)
+                tradeGoodPile = getObjectFromGUID(expansionBags['TnB'].contents['TnBWineTokenStack'].guid)
                 x, z = rotateCoordinates(6.9, -0.5, PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].rotation)
             elseif specialFeature == 'Wheat Token' then
-                tradeGoodPile = getObjectFromGUID(WHEAT_TOKEN_STACK_GUID)
+                tradeGoodPile = getObjectFromGUID(expansionBags['TnB'].contents['TnBWheatTokenStack'].guid)
                 x, z = rotateCoordinates(7.9, 0.5, PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].rotation)
             end
 
@@ -2995,7 +3111,7 @@ function addSheepToField(shepherd)
                     if location > 4 and location < 13 and transversedFeaturePosition == 1 then
                         local occupied = false
                         debugMessage(1, "checking x: " .. transversedTileCoord.x .. " z: " .. transversedTileCoord.z .. " location: " .. location .. " for empty sheep location")
-                        for _, figureSet in ipairs({transversedFollowers, transversedTokens, transversedSpecialFigures}) do
+                        for _, figureSet in ipairs({transversedFollowers, transversedSheepTokens, transversedSpecialFigures}) do
                             for _, figure in ipairs(figureSet) do
                                 local xIndex = math.floor((figure.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                                 local zIndex = math.floor((figure.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -3015,7 +3131,7 @@ function addSheepToField(shepherd)
                             end
                         end
                         if not occupied then
-                            local sheepTileBag = getObjectFromGUID(SHEEP_TILE_BAG_GUID)
+                            local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
                             if sheepTileBag ~= nil then
                                 local params = {}
                                 local x, z
@@ -3069,7 +3185,7 @@ function addSheepToTile(shepherd)
                 local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
                 for _, object in ipairs(objs) do
                     if table.contains(FOLLOWER_TYPES, object.getName()) or table.contains(SPECIAL_FIGURE_TYPES, object.getName()) or
-                    table.contains(NEUTRAL_FIGURE_TYPES, object.getName()) or table.contains(TOKEN_TYPES, object.getName()) then
+                    table.contains(NEUTRAL_FIGURE_TYPES, object.getName()) or table.contains(SHEEP_TOKEN_TYPES, object.getName()) then
                         local xIndex = math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                         local zIndex = math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                         if xIndex == shepherdTileXIndex and zIndex == shepherdTileZIndex then
@@ -3086,7 +3202,7 @@ function addSheepToTile(shepherd)
                     end
                 end
                 if not occupied then
-                    local sheepTileBag = getObjectFromGUID(SHEEP_TILE_BAG_GUID)
+                    local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
                     if sheepTileBag ~= nil then
                         local params = {}
                         params.position = {x=(x * TILE_SPACING) + (shepherdTileXIndex * TILE_SPACING) + MIDDLE_LOCATION.x - MIDDLE_OFFSET.x, y=1.5, z=(z * TILE_SPACING) + (shepherdTileZIndex * TILE_SPACING) + MIDDLE_LOCATION.z - MIDDLE_OFFSET.z}
@@ -3196,7 +3312,7 @@ function addSheepToFlockButton(object, sPlayer)
 end
 
 function addSheepToShepherd(shepherd)
-    local sheepTileBag = getObjectFromGUID(SHEEP_TILE_BAG_GUID)
+    local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
     if sheepTileBag ~= nil then
         local params = {}
         params.position = {shepherd.getPosition().x, shepherd.getPosition().y + 2, shepherd.getPosition().z}
@@ -3235,7 +3351,7 @@ function scoreFlock(params)
 end
 
 function scoreFlockCoroutine()
-    local sheepTileBag = getObjectFromGUID(SHEEP_TILE_BAG_GUID)
+    local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
     if sheepTileBag ~= nil then
         local xIndex = math.floor((shepherd.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
         local zIndex = math.floor((shepherd.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -3249,7 +3365,7 @@ function scoreFlockCoroutine()
         local score = 0
         local hasWolf = false
 
-        for _, token in ipairs(transversedTokens) do
+        for _, token in ipairs(transversedSheepTokens) do
             if token.getName() == 'Sheep' then
                 score = score + token.getDescription()
             elseif token.getName() == 'Wolf' then
@@ -3421,12 +3537,13 @@ function checkFlierDestination()
         end
         if hasIncompleteFeature then
             return nextState('feature available')
+        else
+            allGameMessage("The destination tile has no incomplete features. Returning follower.", NEUTRAL_COLOR, activePlayers[currentPlayer])
         end
     else
         allGameMessage("No tile exists at flier destination. Returning follower.", NEUTRAL_COLOR, activePlayers[currentPlayer])
     end
 
-    allGameMessage("The destination tile has no incomplete features. Returning follower.", NEUTRAL_COLOR, activePlayers[currentPlayer])
     table.insert(removedFigures, {guid=flier, winner=false})
     return nextState('feature unavailable')
 end
@@ -3648,7 +3765,7 @@ function scoreFeatures()
                             --unclear if vineyards should be counted. Leaving out for now
                         end
                         for player, value in pairs(followerCounts) do
-                            if nameOfFeature ~= 'Carcassonne' then
+                            if nameOfFeature ~= 'Carcassonne' then --FIXME: need a better permanent solution
                             if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn and #transversedFollowers > 0) or (gameover and hasBarn and #transversedFollowers == 0) then
                                 if (topWeight > 0 and value >= topWeight) then
                                     playerScore = score
@@ -3693,7 +3810,7 @@ function scoreFeatures()
                                 end
                             end
                         end
-                        if nameOfFeature ~= 'Carcassonne' then
+                        if nameOfFeature ~= 'Carcassonne' then --FIXME: need a better permanent solution
                         if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn) then
                             for _, follower in ipairs(transversedFollowers) do
                                 local closestFollower = fairyClosestFollower()
@@ -3709,6 +3826,15 @@ function scoreFeatures()
                                 end
                                 local winner = false
                                 if topWeight > 0 and followerCounts[follower.getDescription()] >= topWeight and score > 0 then winner = true end
+                                if winner and nameOfFeature ~= 'Field' and #transversedGoldBars > 0 then
+                                    if scoringRewards['Gold'] == nil then scoringRewards['Gold'] = {} end
+                                    for _, gold in ipairs(transversedGoldBars) do
+                                        if scoringRewards['Gold'][gold.getGUID()] == nil then scoringRewards['Gold'][gold.getGUID()] = {} end
+                                        if not table.contains(scoringRewards['Gold'][gold.getGUID()], follower.getDescription()) then
+                                            table.insert(scoringRewards['Gold'][gold.getGUID()], follower.getDescription())
+                                        end
+                                    end
+                                end
                                 table.insert(removedFigures, {guid=follower.getGUID(), winner=winner})
                                 follower.unlock()
                                 follower.use_gravity = false
@@ -3797,6 +3923,45 @@ function scoreFeatures()
                 end
             end
         end
+        if controlPanelSettings['GoldminesGold'] then
+            --find the highest count for this token
+            for _, player in ipairs(activePlayers) do
+                local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
+                local playerNumGold = 0
+                for _, obj in ipairs(playerPossessions) do
+                    if obj.getName() == GOLD_BAR_NAME then
+                        local quantity = obj.getQuantity()
+                        if quantity == -1 then quantity = 1 end
+                        playerNumGold = playerNumGold + quantity
+                        table.insert(removedFigures, {guid=obj.getGUID(), winner=true})
+                        obj.unlock()
+                        obj.use_gravity = false
+                        obj.interactable = false
+                        --raise the token in the air
+                        obj.setPositionSmooth({obj.getPosition().x, obj.getPosition().y + 2.5, obj.getPosition().z}, false, false)
+                    end
+                end
+                if playerNumGold > 0 then
+                    local goldPoints
+                    local goldMultiplier
+                    if playerNumGold > 9 then
+                        goldMultiplier =  4
+                    elseif playerNumGold > 6 then
+                        goldMultiplier = 3
+                    elseif playerNumGold > 3 then
+                        goldMultiplier = 2
+                    else
+                        goldMultiplier = 1
+                    end
+                    allGameMessage(player .. " scores " .. playerNumGold * goldMultiplier .. " points on " .. playerNumGold .. " gold bars (" .. goldMultiplier .. " points each).", stringColorToRGB(player))
+                    scorePoints(player, 'Gold', playerNumGold * goldMultiplier)
+                    transversedFeaturePositions = {}
+                    praiseFiguresCameraFocus(true)
+                    Timer.create({identifier=os.clock(), function_name='praiseFigures', function_owner=nil, parameters=nil, delay=0.9})
+                    return
+                end
+            end
+        end
         --count total completed cities and roads for king and robber points
         local numCities = 0
         local numRoads = 0
@@ -3825,12 +3990,12 @@ function scoreFeatures()
                 local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
                 for _, obj in ipairs(playerPossessions) do
                     local score
-                    if obj.getGUID() == KING_TOKEN_GUID then
+                    if obj.getGUID() == expansionBags['KnRB'].contents['KnRBKing'].guid then
                         score = numCities
-                    elseif obj.getGUID() == ROBBER_BARRON_TOKEN_GUID then
+                    elseif obj.getGUID() == expansionBags['KnRB'].contents['KnRBRobber'].guid then
                         score = numRoads
                     end
-                    if (obj.getGUID() == KING_TOKEN_GUID and controlPanelSettings['KnRBKing']) or (obj.getGUID() == ROBBER_BARRON_TOKEN_GUID and controlPanelSettings['KnRBRobber']) then
+                    if (obj.getGUID() == expansionBags['KnRB'].contents['KnRBKing'].guid and controlPanelSettings['KnRBKing']) or (obj.getGUID() == expansionBags['KnRB'].contents['KnRBRobber'].guid and controlPanelSettings['KnRBRobber']) then
                         allGameMessage(player .. " scores " .. score .. " points on " .. obj.getName(), stringColorToRGB(player))
                         scorePoints(player, 'King/Robber Tokens', score)
                         table.insert(removedFigures, {guid=obj.getGUID(), winner=true})
@@ -3884,8 +4049,7 @@ function scoreFeatures()
             lastHighscore = highscore
         end
         allGameMessage("Game over.", NEUTRAL_COLOR)
-        --allGameMessage("If you enjoyed the mod, please give it a like on the workshop. If you encountered any bugs, please upload a save file and describe it in the workshop comments.", NEUTRAL_COLOR)
-        allGameMessage("If you enjoyed this mod, consider signing up for the TTS Carcassonne tournament. Signups can be found on the mod's workshop page, in the discussions.", NEUTRAL_COLOR)
+        allGameMessage("If you enjoyed the mod, please give it a like on the workshop. If you encountered any bugs, please upload a save file and describe it in the workshop comments.", NEUTRAL_COLOR)
     else
         return nextState('next')
     end
@@ -3937,6 +4101,84 @@ function fairyClosestFollower()
         end
     end
     return closestFollower
+end
+
+function rewardGold()
+    if currentMiniTurn == nil then
+        currentMiniTurn = currentPlayer
+    else
+        currentMiniTurn = currentMiniTurn + 1
+    end
+    local test = 0
+    if scoringRewards['Gold'] ~= nil then
+        while true do
+            if currentMiniTurn > #activePlayers then currentMiniTurn = 1 end
+            local eligiblePlayers = {}
+            eligibleGold = {}
+            for gold_guid, players in pairs(scoringRewards['Gold']) do
+                --print("checking gold: " .. gold_guid)
+                for _, player in ipairs(players) do
+                    --print("eligible player for this gold: " .. player)
+                    if not table.contains(eligiblePlayers, player) then
+                        --print("adding player: " .. player)
+                        table.insert(eligiblePlayers, player)
+                    end
+                end
+                --print("current player: " .. activePlayers[currentMiniTurn])
+                if table.contains(players, activePlayers[currentMiniTurn]) then
+                    --print("current player is eligible for this gold")
+                    table.insert(eligibleGold, gold_guid)
+                end
+            end
+            if #eligibleGold == 1 or (#eligibleGold > 0 and #eligiblePlayers == 1) then
+                allGameMessage(activePlayers[currentMiniTurn] .. " was awarded a gold bar for having control over a finished feature.", stringColorToRGB(activePlayers[currentMiniTurn]), activePlayers[currentMiniTurn])
+                return giveGold(eligibleGold[1], activePlayers[currentMiniTurn])
+            elseif #eligibleGold > 1 then
+                allGameMessage(activePlayers[currentMiniTurn] .. " may choose a gold bar for having control over a finished feature.", stringColorToRGB(activePlayers[currentMiniTurn]), activePlayers[currentMiniTurn])
+                return promptGoldChoice(eligibleGold)
+            end
+            local count = 0
+            for _, gold in pairs(scoringRewards['Gold']) do
+                if gold ~= nil then
+                    count = count + 1
+                end
+            end
+            currentMiniTurn = currentMiniTurn + 1
+            if count == 0 then break end
+        end
+    end
+    currentMiniTurn = nil
+    scoringRewards['Gold'] = nil
+    return nextState('next')
+end
+
+function promptGoldChoice()
+    for _, gold in ipairs(eligibleGold) do
+        local goldButtonParam = {
+           index = 1, label = 'Take\ngold', click_function = 'takeGoldButton',
+           position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+        }
+        createNormalizedButton(getObjectFromGUID(gold), goldButtonParam, true)
+    end
+end
+
+function takeGoldButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        for _, gold in pairs(eligibleGold) do
+            getObjectFromGUID(gold).clearButtons()
+        end
+        return giveGold(object.getGUID(), sPlayer)
+    end
+end
+
+function giveGold(gold, player)
+    local tradeGoodPile
+    local x, z = rotateCoordinates(6.9, 1.5, PLAYER_POSSESSION_AREAS[player].rotation)
+    --params.rotation = {0,  PLAYER_POSSESSION_AREAS[activePlayers[currentPlayer]].rotation * -90, 0}
+    getObjectFromGUID(gold).setPositionSmooth({PLAYER_POSSESSION_AREAS[player].x + x, 2, PLAYER_POSSESSION_AREAS[player].z + z})
+
+    scoringRewards['Gold'][gold] = nil
+    return rewardGold()
 end
 
 function replaceFinishedWagons()
@@ -4110,21 +4352,24 @@ function returnFiguresCoroutine()
         figure_obj.use_gravity = true
         figure_obj.interactable = true
 
-        if figure_obj.getGUID() == KING_TOKEN_GUID or figure_obj.getGUID() == ROBBER_BARRON_TOKEN_GUID or table.contains(TRADE_TOKEN_TYPES, figure_obj.getName()) then
+        if figure_obj.getGUID() == expansionBags['KnRB'].contents['KnRBKing'].guid or figure_obj.getGUID() == expansionBags['KnRB'].contents['KnRBRobber'].guid or table.contains(TRADE_TOKEN_TYPES, figure_obj.getName()) or figure_obj.getName() == GOLD_BAR_NAME then
+            -- move the tokens away from the player possession area. It doesn't really matter where, as long as we move them so they aren't counted twice.
             local targetPosition = {x = NEUTRAL_ITEMS_LOCATION.x, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}
-            if figure_obj.getGUID() == KING_TOKEN_GUID then
-                targetPosition.x = targetPosition.x + 3.5
-            elseif figure_obj.getGUID() == ROBBER_BARRON_TOKEN_GUID then
-                targetPosition.x = targetPosition.x + 5.25
+            if figure_obj.getGUID() == expansionBags['KnRB'].contents['KnRBKing'].guid then
+                targetPosition.x = targetPosition.x + 1 --arbitrary location
+            elseif figure_obj.getGUID() == expansionBags['KnRB'].contents['KnRBRobber'].guid then
+                targetPosition.x = targetPosition.x + 3 --arbitrary location
             end
 
             local container = nil
             if figure_obj.getName() == 'Wheat Token' then
-                container = getObjectFromGUID(WHEAT_TOKEN_STACK_GUID)
+                container = getObjectFromGUID(expansionBags['TnB'].contents['TnBWheatTokenStack'].guid)
             elseif figure_obj.getName() == 'Wine Token' then
-                container = getObjectFromGUID(WINE_TOKEN_STACK_GUID)
+                container = getObjectFromGUID(expansionBags['TnB'].contents['TnBWineTokenStack'].guid)
             elseif figure_obj.getName() == 'Cloth Token' then
-                container = getObjectFromGUID(CLOTH_TOKEN_STACK_GUID)
+                container = getObjectFromGUID(expansionBags['TnB'].contents['TnBClothTokenStack'].guid)
+            elseif figure_obj.getName() == GOLD_BAR_NAME then
+                container = getObjectFromGUID(expansionBags['Goldmines'].contents['GoldminesGold'].guid)
             end
             if container ~= nil then
                 targetPosition = {container.getPosition().x, container.getPosition().y + 1, container.getPosition().z}
@@ -4330,11 +4575,14 @@ end
 function getFigureComponents()
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
     for _, obj in ipairs(objs) do
-        if table.contains(FOLLOWER_TYPES, obj.getName()) or table.contains(SPECIAL_FIGURE_TYPES, obj.getName()) or table.contains(TOKEN_TYPES, obj.getName()) then
+        if table.contains(FOLLOWER_TYPES, obj.getName()) or table.contains(SPECIAL_FIGURE_TYPES, obj.getName()) or table.contains(SHEEP_TOKEN_TYPES, obj.getName()) or obj.getName() == GOLD_BAR_NAME then
             local xIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
             debugMessage(2, "Object on tile: x: " .. xIndex .. " z: " .. zIndex)
-            if transversedFeaturePositions[xIndex] ~= nil and transversedFeaturePositions[xIndex][zIndex] ~= nil then
+            if obj.getName() == GOLD_BAR_NAME and table.contains(transversedTileCoords, {x=xIndex, z=zIndex}) then
+                debugMessage(2, obj.getName() .. " added to transversedGoldBars table")
+                table.insert(transversedGoldBars, obj)
+            elseif transversedFeaturePositions[xIndex] ~= nil and transversedFeaturePositions[xIndex][zIndex] ~= nil then
                 local xPosition = (obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
                 local zPosition = (obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
                 xPosition = xPosition - xIndex
@@ -4348,15 +4596,15 @@ function getFigureComponents()
                     elseif table.contains(SPECIAL_FIGURE_TYPES, obj.getName()) then
                         debugMessage(2, obj.getDescription() .. " " .. obj.getName() .. " added to transversedSpecialFigures table")
                         table.insert(transversedSpecialFigures, obj)
-                    else
-                        debugMessage(2, obj.getDescription() .. " " .. obj.getName() .. " added to transversedTokens table")
-                        table.insert(transversedTokens, obj)
+                    elseif table.contains(SHEEP_TOKEN_TYPES, obj.getName()) then
+                        debugMessage(2, obj.getName() .. " added to transversedSheepTokens table")
+                        table.insert(transversedSheepTokens, obj)
                     end
                 end
             end
         end
     end
-    debugMessage(1, "Transversed " .. #transversedTileCoords .. " tiles, " .. #transversedFollowers .. " followers, " .. #transversedSpecialFigures .. " special figures, " .. #transversedSpecialFeatures .. " special features, and " .. #transversedTokens .. " tokens")
+    debugMessage(1, "Transversed " .. #transversedTileCoords .. " tiles, " .. #transversedFollowers .. " followers, " .. #transversedSpecialFigures .. " special figures, " .. #transversedSpecialFeatures .. " special features, " .. #transversedSheepTokens .. " sheep tokens, and " .. #transversedGoldBars .. " gold bars")
 end
 
 --getSecondaryFigureComponents
@@ -4694,7 +4942,8 @@ function resetTransversal()
     transversedSpecialFeatures = {}
     transversedFollowers = {}
     transversedSpecialFigures = {}
-    transversedTokens = {}
+    transversedSheepTokens = {}
+    transversedGoldBars = {}
     return
 end
 
@@ -4798,6 +5047,20 @@ function RGBToBracketedHex(rgb)
     else
         return ""
     end
+end
+
+--perform takeObject only if the object exists in the container
+function takeObjectSafe(container, params)
+    if params.guid ~= nil then
+        for _, item in pairs(container.getObjects()) do
+            if item.guid == params.guid then
+                return container.takeObject(params)
+            end
+        end
+    else
+        return container.takeObject(params)
+    end
+    printToAll("Warning: Object " .. params.guid .. " not found in container. It may have already been removed.", ERROR_COLOR)
 end
 
 --true if element is one of the elements of the table, otherwise false
