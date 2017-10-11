@@ -47,7 +47,7 @@ TILE_180_ROTATION = 2
 
 MIDDLE_LOCATION = {x = 0.795, z = -0.795}
 --HACK: TTS cannot save table variables with negative indexes. Adding this arbitrary value to offset the middle ensures that all grid positions are positive (unless another table is used)
-MIDDLE_OFFSET = {x = 25 * TILE_SPACING, z = 25 * TILE_SPACING}
+MIDDLE_OFFSET = {x = 20 * TILE_SPACING, z = 20 * TILE_SPACING}
 TABLE_SURFACE_Y = 1.03171348571777
 
 SIDE_DELTA = {{x=0,z=-1},{x=-1,z=0},{x=0,z=1},{x=1,z=0}}
@@ -443,7 +443,7 @@ neutralFigureSettings = {
     ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {width = 1.5}}}
 }
 
-tileGrid = {[25]={[25]={tile_guid=startingTile_GUID, rotation=2}}}
+tileGrid = {[20]={[20]={tile_guid=startingTile_GUID, rotation=2}}}
 lastPlacedTileX = nil
 lastPlacedTileZ = nil
 
@@ -1393,8 +1393,20 @@ function startGame()
     prepareNeutralItemsFinished = false
     prepareStartingTilesFinished = false
     initializeScoreSummary()
-    startLuaCoroutine(self, 'prepareTileStack')
+    if not controlPanelSettings['StartingTileBase'] then
+        local baseStartingTile = getObjectFromGUID(startingTile_GUID)
+        if baseStartingTile ~= nil then
+            baseStartingTile.destruct()
+            startingTile_GUID = nil
+            tileGrid[20][20] = nil
+        end
+    else
+        local newTile = startingTile_GUID
+        startingTile_GUID = nil
+        addTile(20, 20, getObjectFromGUID(newTile), 2, false)
+    end
     startLuaCoroutine(self, 'prepareStartingTiles')
+    startLuaCoroutine(self, 'prepareTileStack')
     startLuaCoroutine(self, 'preparePlayerPossessionArea')
     startLuaCoroutine(self, 'prepareNeutralItems')
     return 1
@@ -1619,18 +1631,6 @@ function prepareTileStack()
 end
 
 function prepareStartingTiles()
-    if not controlPanelSettings['StartingTileBase'] then
-        local baseStartingTile = getObjectFromGUID(startingTile_GUID)
-        if baseStartingTile ~= nil then
-            baseStartingTile.destruct()
-            startingTile_GUID = nil
-            tileGrid[25][25] = nil
-        end
-    else
-        local newTile = startingTile_GUID
-        startingTile_GUID = nil
-        addTile(25, 25, getObjectFromGUID(newTile), 2, false)
-    end
     for rule_id, rule in pairs(startingTileSettings) do
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
@@ -1671,9 +1671,9 @@ function prepareStartingTiles()
                                 prepareStartingTileLock = false
                                 wait(2)
                             end
-                            if startingTile_GUID == nil then
-                                startingTile_GUID = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid
-                            end
+                            --if startingTile_GUID == nil then
+                            --    startingTile_GUID = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid
+                            --end
                             while prepareStartingTileLock do
                                 coroutine.yield(0)
                             end
@@ -6041,10 +6041,10 @@ end
 
 function debugShowFeatureMap()
     --this will break if the starting tile is moved
-    local minX = 25
-    local maxX = 25
-    local minZ = 25
-    local maxZ = 25
+    local minX = 20
+    local maxX = 20
+    local minZ = 20
+    local maxZ = 20
     local chatWindowMaxWidth
     if featureIndex < 100 then
         chatWindowMaxWidth = 11
@@ -7036,8 +7036,8 @@ function AIChooseTileLocation()
             end
         end
     else
-        highestScoreX = 25
-        highestScoreZ = 25
+        highestScoreX = 20
+        highestScoreZ = 20
         highestScoreRot = 4
     end
 
