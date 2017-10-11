@@ -71,7 +71,7 @@ scoreCounters_GUID = {
     ['Green'] = '28bdff',
     ['Yellow'] = '7ef326',
     ['Purple'] = 'f206e4',
-    ['Black'] = '9d1e70',
+    ['Blue'] = '9d1e70',
     ['Red'] = '4e3519',
     ['White'] = '1ecf3f',
 }
@@ -1202,7 +1202,7 @@ function checkAddedTileFeatures()
     --check if the new tile has completed the biggest city/longest road and award token
     --Note: you might think that this transversal could be combined with the below transversal, but it didn't work out
     --due to the way that i coded transversedTileCoords. It's a long story, but basically I would have to loop through the entire
-    --table for each position on every tile. Had I coded it as an indexable table, but then I think I wouldn't be able to use the # operator
+    --table for each position on every tile. Had I coded it as an indexable table, I wouldn't be able to use the # operator
     --in order to see how many elements it transversed. Perhaps there is a better solution, but I'm hoping this won't cause any huge performance hits
     local longestNewRoad = 0
     local largestNewCity = 0
@@ -1223,7 +1223,7 @@ function checkAddedTileFeatures()
         for i=1, 12 do --roads and cities
             local tile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
             local rotation = tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation
-            if i < 5 then
+            if i < 5 and controlPanelSettings['KnRBRobber'] then
                 local direction = (3 + i + rotation) % 4 + 1
                 local newX = lastPlacedTileX + SIDEDELTA[direction][1]
                 local newZ = lastPlacedTileZ + SIDEDELTA[direction][2]
@@ -1242,7 +1242,7 @@ function checkAddedTileFeatures()
                         end
                     end
                 end
-            else
+            elseif i > 5 and controlPanelSettings['KnRBKing'] then
                 local direction = (3 + i + (rotation * 2)) % 8 + 5
                 local newX = lastPlacedTileX + SIDEDELTA[math.floor((direction - 3) / 2)][1]
                 local newZ = lastPlacedTileZ + SIDEDELTA[math.floor((direction - 3) / 2)][2]
@@ -1450,6 +1450,10 @@ function checkFigureCoroutine()
                         end
                         if newFigure.getName() == 'Pig' and nameOfFeature ~= 'Field' then
                             allErrorMessage("Invalid Location: A pig can only be placed on fields", activePlayers[currentPlayer])
+                            return 1
+                        end
+                        if newFigure.getName() == 'Mayor' and nameOfFeature ~= 'City' then
+                            allErrorMessage("Invalid Location: A mayor can only occupy a city.", activePlayers[currentPlayer])
                             return 1
                         end
                         if newFigure.getName() == 'Wagon' and nameOfFeature == 'Field' then
@@ -2783,10 +2787,10 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
     end
     if transversedFeaturePositions[xIndex][zIndex] == nil then
         transversedFeaturePositions[xIndex][zIndex] = {}
-        if transversalNum == 1 then
-            table.insert(transversedTileCoords, {xIndex, zIndex})
-            debugMessage(2, "adding tile to transversedTileCoords: x: " .. xIndex .. " z: " .. zIndex)
-        end
+    end
+    if transversalNum == 1 and not table.contains(transversedTileCoords, {xIndex, zIndex}) then
+        table.insert(transversedTileCoords, {xIndex, zIndex})
+        debugMessage(2, "adding tile to transversedTileCoords: x: " .. xIndex .. " z: " .. zIndex)
     end
     if transversedGrid[xIndex][zIndex][position] ~= nil and transversedGrid[xIndex][zIndex][position] <= transversalNum then return true end
     local finished = true
@@ -3078,9 +3082,11 @@ end
 
 --will print an error message to the target player
 function playerErrorMessage(msg, target_player)
+    local target_player_owner = nil
     if controlPanelSettings[target_player .. 'Hotseat'] ~= nil then
         target_player_owner = controlPanelSettings[target_player .. 'Hotseat']
     end
+    if target_player_owner == nil then target_player_owner = target_player end
     if Player[target_player_owner].seated then
         broadcastToColor(msg, target_player_owner, ERROR_COLOR)
     else
@@ -3113,9 +3119,21 @@ end
 --table.contains
 --true if element is one of the elements of the table, otherwise false
 function table.contains(table, element)
-    for _, value in ipairs(table) do
-        if value == element then
-              return true
+    if type(element) == 'table' then
+        for _, subtable in ipairs(table) do
+            local allMatch = true
+            for i, value in ipairs(subtable) do
+                if value ~= element[i] then
+                    allMatch = false
+                end
+            end
+            if allMatch then return true end
+        end
+    else
+        for _, value in ipairs(table) do
+            if value == element then
+                return true
+            end
         end
     end
     return false
