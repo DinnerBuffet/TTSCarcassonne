@@ -78,7 +78,10 @@ SCORE_COUNTER_GUIDS = {
 
 FLOATING_BUTTON_HEIGHT = 40.0
 
-FOLLOWER_DISTANCE_FROM_EDGE = 0.1 --percentage distance from the edge that each quadrant/octant exists
+FIGURE_DISTANCE_FROM_EDGE = 0.1 --percentage distance from the edge that each quadrant/octant exists
+
+FIGURE_RETURN_DELAY = 0.4 --seconds to wait while returning a figure in order to prevent double-scoring
+FIGURE_PRAISE_DELAY = 2.5 --seconds to wait while figure is spinning before it is returned
 
 STARTING_TILE_GUID = 'c107f0'
 TILE_STACK_GUID = '65e895'
@@ -202,6 +205,10 @@ expansionBags = {
     ['Cult'] = {guid = 'da553b', contents = {
         ['CultTiles'] = {guid = '96ff26'},
         ['CultBonusTile'] = {guid = '754953'}
+    }},
+    ['Flier'] = {guid = 'a50c26', contents = {
+        ['FlierTiles'] = {guid = 'f006d5'},
+        ['FlierDie'] = {guid = 'dc7bf3'}
     }},
     ['HnS'] = {guid = 'a50c27', contents = {
         ['HnSTiles'] = {guid = '3fb950'},
@@ -331,7 +338,7 @@ vipFigureSettings = {
     --     ['Intro'] = "You are being joined by %s, the creator of Scripted Carcassonne."
     -- },
     -- ['76561197972020303'] = {
-    --     ['Intro'] = "You are being joined by %s, the original creator of the Carcassonne mod."
+    --     ['Intro'] = "You are being joined by %s, contributor to the Carcassonne mod."
     -- }
     ['9999999999999999999'] = {
         ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
@@ -395,6 +402,8 @@ dragonMoveNumber = 1
 dragonIllegalTiles = {}
 tileHasVolcano = false
 tileHasMagicPortal = false
+flier = nil
+flierOffset = nil
 seducedKnights = {}
 
 turnState = nil
@@ -438,8 +447,25 @@ stateMachine = {
         ['skip figure'] = 'post figure events',
         ['placed figure'] = 'post figure events',
         ['placed shepherd'] = 'initialize shepherd',
+        ['placed flier'] = 'wait for flier roll',
         ['placed fairy'] = 'post figure events',
         ['seduce knight'] = 'seduce knight'
+    },
+    ['wait for flier roll'] = {
+        ['die rolled'] = 'check flier destination'
+    },
+    ['check flier destination'] = {
+        ['feature available'] = 'awaiting flier decision',
+        ['feature unavailable'] = 'return flier'
+    },
+    ['awaiting flier decision'] = {
+        ['placed flier'] = 'post figure events'
+    },
+    ['return flier'] = {
+        ['figures returned'] = 'return flier - delay'
+    },
+    ['return flier - delay'] = {
+        ['next'] = 'post figure events'
     },
     ['seduce knight'] = {
         ['figures returned'] = 'seduce knight - delay'
@@ -544,8 +570,17 @@ function stateHandler()
     elseif turnState == 'check added tile feature extensions' then
         return checkAddedTileFeatureExtensions()
     elseif turnState == 'awaiting figure decision' then
-        gameNotification("Place a figure if desired", NEUTRAL_COLOR)
+        gameNotification("Place a figure if desired.", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return displayFigureButtons()
+    elseif turnState == 'wait for flier roll' then
+        getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
+        gameNotification("Roll the flier die to determine your flier's distance.", NEUTRAL_COLOR, activePlayers[currentPlayer])
+        return
+    elseif turnState == 'check flier destination' then
+        return checkFlierDestination()
+    elseif turnState == 'awaiting flier decision' then
+        gameNotification("Place the flier on the destination tile.", NEUTRAL_COLOR, activePlayers[currentPlayer])
+        return
     elseif turnState == 'initialize shepherd' then
         local shepherd = getObjectFromGUID(shepherdAwaitingAction)
         if controlPanelSettings['PnDDragon'] then
@@ -559,7 +594,11 @@ function stateHandler()
     elseif turnState == 'seduce knight' then
         return returnFigures()
     elseif turnState == 'seduce knight - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=0.25})
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    elseif turnState == 'return flier' then
+        return returnFigures()
+    elseif turnState == 'return flier - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'post figure events' then
         getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
         for _, knight in ipairs(seducedKnights) do
@@ -588,7 +627,7 @@ function stateHandler()
         currentMiniTurn = nil
         return scoreFeatures()
     elseif turnState == 'score features - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=0.25})
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'post scoring events' then
         return nextState('next')
     elseif turnState == 'replace finished wagons' then
@@ -606,7 +645,7 @@ function stateHandler()
     elseif turnState == 'game over' then
         return scoreFeatures()
     elseif turnState == 'game over - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=0.25})
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     end
 end
 
@@ -682,6 +721,7 @@ function onload(save_state)
         if saved_data.dragonIllegalTiles ~= nil then dragonIllegalTiles = saved_data.dragonIllegalTiles end
         if saved_data.tileHasVolcano ~= nil then tileHasVolcano = saved_data.tileHasVolcano end
         if saved_data.tileHasMagicPortal ~= nil then tileHasMagicPortal = saved_data.tileHasMagicPortal end
+        if saved_data.removedFigures ~= nil then removedFigures = saved_data.removedFigures end
         if saved_data.featureMarker_GUIDs ~= nil then
             for _, featureMarker_GUID in ipairs(saved_data.featureMarker_GUIDs) do
                 getObjectFromGUID(featureMarker_GUID).destruct()
@@ -775,6 +815,7 @@ function onSave()
         dragonMoveNumber = dragonMoveNumber,
         tileHasVolcano = tileHasVolcano,
         tileHasMagicPortal = tileHasMagicPortal,
+        removedFigures = removedFigures,
         --if script was in the middle of making feature markers or deleting, delete them after loading
         featureMarker_GUIDs = featureMarker_GUIDs
     }
@@ -893,6 +934,26 @@ function onPlayerTurnEnd(player_color_end, player_color_next )
 
 end
 
+function onFlierDiceRolled(params)
+    if params.sPlayer ~= nil then
+        if params.sPlayer == activePlayers[currentPlayer] then
+            if turnState == 'wait for flier roll' then
+                local dieValue = getObjectFromGUID(expansionBags['Flier'].contents['FlierDie'].guid).getValue()
+                if dieValue > 3 then dieValue = 7 - dieValue end
+                debugMessage(1, params.sPlayer .. ' rolled a ' .. dieValue)
+                local FLIER_OFFSET = {{x=-1,z=1},{x=0,z=1},{x=1,z=1},{x=1,z=0},{x=1,z=-1},{x=0,z=-1},{x=-1,z=-1},{x=-1,z=0}}
+                flierOffset = {x=FLIER_OFFSET[flierDirection].x * dieValue, z=FLIER_OFFSET[flierDirection].z * dieValue}
+                debugMessage(1, "Flier direction: " .. flierDirection .. " Flier destination offset: x: " .. flierOffset.x .. " z: " .. flierOffset.z)
+                return nextState('die rolled')
+            else
+                allErrorMessage("It is currently not allowed to roll the flier die. You are only allowed to roll the die after you've placed a follower on the flier feature. Current state: " .. turnState, params.sPlayer)
+            end
+        else
+            playerErrorMessage("ERROR: It is not currently your turn OR you rolled the die without picking it up.", params.sPlayer)
+        end
+    end
+end
+
 function skipTurnButton(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
         endTurn()
@@ -962,7 +1023,6 @@ end
 
 function startGame()
     if #getSeatedPlayers() == 0 then return end
-    gameover = false
     for _, player in ipairs(PLAYER_COLORS) do
         if Player[player].seated or controlPanelSettings[player .. 'Hotseat'] ~= nil then
             table.insert(activePlayers, player)
@@ -1136,6 +1196,7 @@ function prepareTileStack()
     else
         allErrorMessage("Error: Tile stack not found. Scripting will be partially broken unless the game is reloaded.")
     end
+    gameover = false
     turnState = 'begin turn'
     stateHandler()
     return 1
@@ -1352,7 +1413,7 @@ function onObjectDropped(player, droppedObject)
             (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
             if not dropLock then
                 dropLock = true
-                lastDroppedObject = droppedObject --global used for the coroutines
+                lastDroppedObject_GUID = droppedObject.getGUID() --global used for the coroutines
                 lastDroppedTime = os.clock()
                 -- Checks if the dropped object was a single 'card' (tile)
                 if tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' then
@@ -1375,8 +1436,10 @@ function onObjectDropped(player, droppedObject)
                         (currentMiniTurn == nil and (droppedObject.getDescription() == activePlayers[currentPlayer])) or droppedObject.getName() == "Fairy" then
                         if turnState == 'awaiting figure decision' then
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
-                        elseif turnState == 'replace finished wagons' and droppedObject.getName() == 'Wagon' then
+                        elseif turnState == 'replace finished wagons' then
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkWagon', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                        elseif turnState == 'awaiting flier decision' then
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFlier', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
                         else
                             dropLock = false
                             if not spamLock then
@@ -1424,7 +1487,7 @@ function spamUnlock()
 end
 
 function onObjectPickedUp(player, pickedUpObject)
-    if lastDroppedObject == pickedUpObject then
+    if lastDroppedObject_GUID == pickedUpObject.getGUID() then
         dropLock = false
         lastDroppedTime = 0
     end
@@ -1589,10 +1652,10 @@ end
 function checkTile(params)
     if params.time ~= lastDroppedTime then return end
     dropLock = false
-    if lastDroppedObject ~= nil then --makes sure object still exists
+    if lastDroppedObject_GUID ~= nil then --makes sure object still exists
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
-        local newTile = lastDroppedObject
+        local newTile = getObjectFromGUID(lastDroppedObject_GUID)
         if newTile.held_by_color == nil then
             if newTile.getTable("sides") == nil then
                 allErrorMessage("Error: This tile has no script data. Most likely this expansion hasn't yet been implemented.")
@@ -1843,7 +1906,6 @@ function finishHillTile(param)
     if STARTING_TILE_GUID == nil and isStartingPiece then
         STARTING_TILE_GUID = tile.getGUID()
     end
-    gameNotification("Place a figure if desired", NEUTRAL_COLOR)
     return nextState('next')
 end
 
@@ -1857,7 +1919,7 @@ function checkTileForVolcano()
                 tileHasVolcano = true
                 if not dragonHasAwaken then
                     dragonHasAwaken = true
-                    gameNotification("The dragon has awaken!", NEUTRAL_COLOR)
+                    gameNotification("The dragon has awaken!", NEUTRAL_COLOR, activePlayers[currentPlayer])
                 end
                 return moveDragonToTile(lastPlacedTileX, lastPlacedTileZ)
             end
@@ -1985,7 +2047,7 @@ function moveDragonToTile(xIndex, zIndex, rotation)
                     --an assumption is made here that there won't be more than 1 figure on the same tile that the figures are dependent on.
                     --It is possible for more than 1 figure from the same player to be on the same tile through use of the magic portal, but not on the same feature.
                     --Therefore, I think the assumption is safe unless there is interference from the players
-                    table.insert(removedFigures, {obj=object, winner=false})
+                    table.insert(removedFigures, {guid=object.getGUID(), winner=false})
                     allGameMessage(object.getDescription() .. " " .. object.getName() .. " has been eaten by the dragon! Om nom nom!", stringColorToRGB(object.getDescription()))
                     removeDependentFigures(object)
                 end
@@ -2027,7 +2089,7 @@ function checkAddedTileFeatureExtensions()
         local features = newTile.getTable("specialFeatures")
         for i=1, 12 do --roads and cities
             local hasPrincess = false
-            if features ~= nil and i > 5 and controlPanelSettings['PnDPrincess'] then
+            if features ~= nil and i >= 5 and controlPanelSettings['PnDPrincess'] then
                 for featureNum, specialFeature in ipairs(features) do
                     if controlPanelSettings['PnDPrincess'] and specialFeature[1] == "Princess" then
                         if table.contains(specialFeature[2], i) then
@@ -2037,7 +2099,7 @@ function checkAddedTileFeatureExtensions()
                     end
                 end
             end
-            if (i < 5 and controlPanelSettings['KnRBRobber'] and newTile.getTable("sides")[i] == 'Road') or (i > 5 and (controlPanelSettings['KnRBKing'] or hasPrincess) and newTile.getTable("sides")[math.floor((i - 3) / 2)] == 'City') then
+            if (i < 5 and controlPanelSettings['KnRBRobber'] and newTile.getTable("sides")[i] == 'Road') or (i >= 5 and (controlPanelSettings['KnRBKing'] or hasPrincess) and newTile.getTable("sides")[math.floor((i - 3) / 2)] == 'City') then
                 if getFeatureComponents(lastPlacedTileX, lastPlacedTileZ, i, 1, true) then
                     --since there is a chance of the player breaking the new city or road record twice, wait until afterwards to award the token
                     if newTile.getTable("sides")[i] == 'Road' and #transversedTileCoords > longestNewRoad then
@@ -2076,7 +2138,7 @@ function checkAddedTileFeatureExtensions()
                         end
                     end
                 end
-            elseif i > 5 and controlPanelSettings['KnRBKing'] then
+            elseif i >= 5 and controlPanelSettings['KnRBKing'] then
                 local direction = (3 + i + (rotation * 2)) % 8 + 5
                 local newX = lastPlacedTileX + SIDE_DELTA[math.floor((direction - 3) / 2)].x
                 local newZ = lastPlacedTileZ + SIDE_DELTA[math.floor((direction - 3) / 2)].z
@@ -2134,7 +2196,7 @@ function checkAddedTileFeatureExtensions()
     --the above is no longer true after I added transversal levels to getFeatureComponents. I'll leave the code as it is since it doesn't hurt
     for i=1, 12 do --roads and cities
         if newTile.getTable("sides")[1] ~= 'Abbey' then
-            if (i < 5 and newTile.getTable("sides")[i] == 'Road') or (i > 5 and newTile.getTable("sides")[math.floor((i - 3) / 2)] == 'City') then
+            if (i < 5 and newTile.getTable("sides")[i] == 'Road') or (i >= 5 and newTile.getTable("sides")[math.floor((i - 3) / 2)] == 'City') then
                 if getFeatureComponents(lastPlacedTileX, lastPlacedTileZ, i, 1, false) then
                     for _, transversedSpecialFeature in ipairs(transversedSpecialFeatures) do
                         table.insert(specialFeatures, transversedSpecialFeature)
@@ -2309,7 +2371,7 @@ function seduceKnightButton(object, sPlayer)
             getObjectFromGUID(knight).clearButtons()
         end
 
-        table.insert(removedFigures, {obj=object, winner=false})
+        table.insert(removedFigures, {guid=object.getGUID(), winner=false})
         if object.getName() ~= 'Wagon' then
             allGameMessage(object.getDescription() .. " " .. object.getName() .. " has been seduced by the princess! bow chicka wow wow~", stringColorToRGB(object.getDescription()))
         else
@@ -2342,7 +2404,7 @@ function removeDependentFigures(object)
     if followersCount == 0 then
         for _, figure in ipairs(transversedSpecialFigures) do
             if (figure.getName() == 'Pig' or figure.getName() == 'Builder') and figure.getDescription() == object.getDescription() then
-                table.insert(removedFigures, {obj=figure, winner=false})
+                table.insert(removedFigures, {guid=figure.getGUID(), winner=false})
                 allGameMessage(figure.getDescription() .. " no longer has a follower for their " .. figure.getName() .. " and must be removed.", stringColorToRGB(figure.getDescription()))
             end
         end
@@ -2352,10 +2414,10 @@ end
 function checkFigure(params)
     if params.time ~= lastDroppedTime then return end
     dropLock = false
-    if lastDroppedObject != nil then --makes sure object still exists
+    if lastDroppedObject_GUID != nil then --makes sure object still exists
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
-        local newFigure = lastDroppedObject
+        local newFigure = getObjectFromGUID(lastDroppedObject_GUID)
         if newFigure.held_by_color == nil then
             if not (lastPlacedTileX == nil or lastPlacedTileZ == nil) then
                 local xIndex = math.floor((newFigure.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
@@ -2409,6 +2471,19 @@ function checkFigure(params)
                     if nameOfFeature == 'Carcassonne' then
                         allErrorMessage("Invalid Location: The City of Carcassonne is not yet implemented.", activePlayers[currentPlayer])
                         return
+                    end
+                    if string.sub(nameOfFeature,1,6) == 'Flier-' then
+                        if table.contains(FOLLOWER_TYPES, newFigure.getName()) then
+                            flier = newFigure.getGUID()
+                            if string.sub(nameOfFeature,7,7) == 'W' then flierDirection = 8 else flierDirection = 1 end --assumed to be Flier-NW if it is not Flier-W
+                            flierDirection = flierDirection + ((rotation - TILE_STANDARD_ROTATION) * 2)
+                            if flierDirection > 8 then flierDirection = flierDirection - 8 end
+                            if flierDirection < 1 then flierDirection = flierDirection + 8 end
+                            return nextState('placed flier')
+                        else
+                            allErrorMessage("Invalid Location: Only a follower can be placed on a flier.", activePlayers[currentPlayer])
+                            return
+                        end
                     end
                     if newFigure.getName() == 'Shepherd' and nameOfFeature ~= 'Field' then
                         allErrorMessage("Invalid Location: Shepherd can only be placed on fields.", activePlayers[currentPlayer])
@@ -2501,37 +2576,38 @@ function checkFigure(params)
                             newFigure.lock()
                         end
                         allGameMessage(newFigure.getDescription() .. " " .. newFigure.getName() .. " placed on " .. nameOfFeature, stringColorToRGB(newFigure.getDescription()))
-
-                        local challengerTile, challengedTile
-                        if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
-                            challengerTile = 'Cloister'
-                            challengedTile = 'Shrine'
-                        else
-                            challengerTile = 'Shrine'
-                            challengedTile = 'Cloister'
-                        end
-                        for x=-1, 1 do
-                            for z=-1, 1 do
-                                if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
-                                    local features = getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid).getTable("specialFeatures")
-                                    if features ~= nil then
-                                        for i, feature in ipairs(features) do
-                                            local adjacentFeature = feature[1]
-                                            if adjacentFeature == 'Abbey' then adjacentFeature = 'Cloister' end
-                                            if adjacentFeature == challengedTile then
-                                                local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
-                                                for _, object in ipairs(objs) do
-                                                    if table.contains(FOLLOWER_TYPES, object.getName()) then
-                                                        local objectXIndex = math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                                                        local objectZIndex = math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                                                        if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
-                                                            local xPosition = (object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
-                                                            local zPosition = (object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
-                                                            xPosition = xPosition - objectXIndex
-                                                            zPosition = zPosition - objectZIndex
-                                                            local closestFeature = findClosestFeature(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), rotation)
-                                                            if closestFeature == i + 12 then
-                                                                allGameMessage(object.getDescription() .. " " .. object.getName() .. " on " .. feature[1] .. " has been challenged!", stringColorToRGB(object.getDescription()))
+                        if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' or nameOfFeature == 'Shrine' then
+                            local challengerTile, challengedTile
+                            if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
+                                challengerTile = 'Cloister'
+                                challengedTile = 'Shrine'
+                            else
+                                challengerTile = 'Shrine'
+                                challengedTile = 'Cloister'
+                            end
+                            for x=-1, 1 do
+                                for z=-1, 1 do
+                                    if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
+                                        local features = getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid).getTable("specialFeatures")
+                                        if features ~= nil then
+                                            for i, feature in ipairs(features) do
+                                                local adjacentFeature = feature[1]
+                                                if adjacentFeature == 'Abbey' then adjacentFeature = 'Cloister' end
+                                                if adjacentFeature == challengedTile then
+                                                    local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
+                                                    for _, object in ipairs(objs) do
+                                                        if table.contains(FOLLOWER_TYPES, object.getName()) then
+                                                            local objectXIndex = math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                                                            local objectZIndex = math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                                                            if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
+                                                                local xPosition = (object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+                                                                local zPosition = (object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+                                                                xPosition = xPosition - objectXIndex
+                                                                zPosition = zPosition - objectZIndex
+                                                                local closestFeature = findClosestFeature(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), rotation)
+                                                                if closestFeature == i + 12 then
+                                                                    allGameMessage(object.getDescription() .. " " .. object.getName() .. " on " .. feature[1] .. " has been challenged!", stringColorToRGB(object.getDescription()))
+                                                                end
                                                             end
                                                         end
                                                     end
@@ -2646,10 +2722,14 @@ end
 function checkWagon(params)
     if params.time ~= lastDroppedTime then return end
     dropLock = false
-    if lastDroppedObject != nil then --makes sure object still exists
+    if lastDroppedObject_GUID != nil then --makes sure object still exists
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
-        local newFigure = lastDroppedObject
+        local newFigure = getObjectFromGUID(lastDroppedObject_GUID)
+        if newFigure.getName() ~= 'Wagon' then
+            allErrorMessage("Error: You are only allowed to place the wagon at this time.", activePlayers[currentPlayer])
+            return
+        end
         if newFigure.held_by_color == nil then
             if currentMiniTurn ~= nil then
                 local xIndex = math.floor((newFigure.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
@@ -2751,6 +2831,137 @@ function checkWagon(params)
     end
 end
 
+function checkFlier(params)
+    if params.time ~= lastDroppedTime then return end
+    dropLock = false
+    if lastDroppedObject_GUID != nil then --makes sure object still exists
+        --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
+        --if lastDroppedObject.resting then
+        if flier == lastDroppedObject_GUID then
+            local newFigure = getObjectFromGUID(lastDroppedObject_GUID)
+            if newFigure.held_by_color == nil then
+                local xIndex = math.floor((newFigure.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                local zIndex = math.floor((newFigure.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+
+                local tile, rotation
+                if tileGridOccupied(xIndex, zIndex) then
+                    tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                    rotation = tileGrid[xIndex][zIndex].rotation
+                else
+                    --allErrorMessage("Invalid Location: Figure was not placed on a tile", activePlayers[currentPlayer])
+                    return
+                end
+
+                if (xIndex == lastPlacedTileX + flierOffset.x and zIndex == lastPlacedTileZ + flierOffset.z) then
+                    local xPosition = (newFigure.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+                    local zPosition = (newFigure.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+                    xPosition = xPosition - xIndex
+                    zPosition = zPosition - zIndex
+                    debugMessage(3, "piece position: x: " .. xPosition .. " z: " .. zPosition)
+                    local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
+                    local nameOfFeature = getFeatureName(tile, closestFeature)
+
+                    if nameOfFeature ~= 'City' and nameOfFeature ~= 'Road' and nameOfFeature ~= 'Cloister' then
+                        allErrorMessage("Invalid Location: A flier can only be placed on a city, road, or cloister.", activePlayers[currentPlayer])
+                        return
+                    end
+                    if newFigure.getName() == 'Mayor' and nameOfFeature ~= 'City' then
+                        allErrorMessage("Invalid Location: A mayor can only occupy a city.", activePlayers[currentPlayer])
+                        return
+                    end
+                    --local finished
+                    if closestFeature < 5 then
+                        if nameOfFeature == 'Road' then
+                            --only using transversal level of 1, since we only need to know about the direct feature we're trying to place the figure on
+                            finished = getFeatureComponents(xIndex, zIndex, closestFeature, 1, true)
+                        else
+                            --check to make sure both octants in this quadrant are linked, then choose one arbitrary octant and check
+                            local links = tile.getTable("linkedOctants")
+                            local hasLink = false
+                            for _, link in ipairs(links) do
+                                if not hasLink and table.contains(link, (closestFeature * 2) + 3) and table.contains(link, (closestFeature * 2) + 4) then
+                                    --only using transversal level of 1, since we only need to know about the direct feature we're trying to place the figure on
+                                    finished = getFeatureComponents(xIndex, zIndex, (closestFeature * 2) + 3, 1, true)
+                                    hasLink = true
+                                end
+                            end
+                            if not hasLink then
+                                allErrorMessage("Invalid Location: You must put the flier on one side of the feature or the other.", activePlayers[currentPlayer])
+                                return
+                            end
+                        end
+                    else
+                        --only using transversal level of 1, since we only need to know about the direct feature we're trying to place the figure on
+                        finished = getFeatureComponents(xIndex, zIndex, closestFeature, 1, true)
+                    end
+                    if finished then
+                        allErrorMessage("Invalid Location: You may only place the flier on an incomplete feature.", activePlayers[currentPlayer])
+                        return
+                    end
+                    if AUTOLOCK then
+                        newFigure.lock()
+                    end
+                    allGameMessage(newFigure.getDescription() .. " " .. newFigure.getName() .. " placed on " .. nameOfFeature, stringColorToRGB(newFigure.getDescription()))
+                    if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' or nameOfFeature == 'Shrine' then
+                        local challengerTile, challengedTile
+                        if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
+                            challengerTile = 'Cloister'
+                            challengedTile = 'Shrine'
+                        else
+                            challengerTile = 'Shrine'
+                            challengedTile = 'Cloister'
+                        end
+                        for x=-1, 1 do
+                            for z=-1, 1 do
+                                if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
+                                    local features = getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid).getTable("specialFeatures")
+                                    if features ~= nil then
+                                        for i, feature in ipairs(features) do
+                                            local adjacentFeature = feature[1]
+                                            if adjacentFeature == 'Abbey' then adjacentFeature = 'Cloister' end
+                                            if adjacentFeature == challengedTile then
+                                                local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
+                                                for _, object in ipairs(objs) do
+                                                    if table.contains(FOLLOWER_TYPES, object.getName()) then
+                                                        local objectXIndex = math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                                                        local objectZIndex = math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                                                        if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
+                                                            local xPosition = (object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+                                                            local zPosition = (object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+                                                            xPosition = xPosition - objectXIndex
+                                                            zPosition = zPosition - objectZIndex
+                                                            local closestFeature = findClosestFeature(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), rotation)
+                                                            if closestFeature == i + 12 then
+                                                                allGameMessage(object.getDescription() .. " " .. object.getName() .. " on " .. feature[1] .. " has been challenged!", stringColorToRGB(object.getDescription()))
+                                                            end
+                                                        end
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    local pieceRotation = 0
+                    if closestFeature < 5 then pieceRotation = (closestFeature - 1) * 90
+                    elseif closestFeature < 13 then pieceRotation = math.floor((closestFeature - 5) / 2) * 90 end
+                    --align with the tile
+                    newFigure.setRotation({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                    return nextState('placed flier')
+                else
+                    allErrorMessage("Invalid Location: You must place the figure on the tile corresponding to the flier dice roll.", activePlayers[currentPlayer])
+                end
+            else
+                allErrorMessage("Follower picked up before validation. Please replace tile.", activePlayers[currentPlayer])
+            end
+        else
+            allErrorMessage("Can only place the follower that was used on the flier.", activePlayers[currentPlayer])
+        end
+    end
+end
+
 --will go through all possible locations on the field and find an empty spot where the sheep tile can be put
 --Note: according to this forum post, this behavior actually violates the rules: https://boardgamegeek.com/thread/1434965/question-about-location-sheep-tokens
 -- At first, I thought I could get around this by making the dragon not eat the sheep, but in the event that multiple fields are joined together, there needs to be a way to separate the different sheep groups
@@ -2821,7 +3032,7 @@ function addSheepToField(shepherd)
             end
         end
     end
-    gameNotification("No more room on field! Placing sheep on shepherd", NEUTRAL_COLOR)
+    gameNotification("No more room on field! Placing sheep on shepherd", NEUTRAL_COLOR, activePlayers[currentPlayer])
     addSheepToShepherd(shepherd)
 end
 
@@ -2888,7 +3099,7 @@ function addSheepToTile(shepherd)
             end
         end
     end
-    gameNotification("No more room on field! Placing sheep on shepherd", NEUTRAL_COLOR)
+    gameNotification("No more room on field! Placing sheep on shepherd", NEUTRAL_COLOR, activePlayers[currentPlayer])
     addSheepToShepherd(shepherd)
 end
 
@@ -2912,7 +3123,7 @@ function findClosestFeature(xPosition, zPosition, tile, rotation)
     for a = 0, 1 do -- a==0 is for quadrants, a==1 is for octants
         for side = 1, 4 do
             for j = 0, a do -- should do 1 loop for quadrants, 2 loops for octants
-                x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FOLLOWER_DISTANCE_FROM_EDGE, 5 - side)
+                x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, 5 - side)
                 local distance = (xPosition - x) * (xPosition - x) + (zPosition - z) * (zPosition - z)
                 debugMessage(3, "compare to position " .. position .. ": x: " .. x .. " z: " .. z .. " distance: " .. distance)
                 if distance < closestDistance then
@@ -3033,7 +3244,7 @@ function scoreFlockCoroutine()
                 hasWolf = true
             end
             token.setPositionSmooth({sheepTileBag.getPosition().x, sheepTileBag.getPosition().y + 1.5, sheepTileBag.getPosition().z})
-            --coroutine.yield(0)
+            coroutine.yield(0)
         end
         for _, feature in ipairs(transversedSpecialFeatures) do
             if feature == 'Sheep' then
@@ -3046,7 +3257,7 @@ function scoreFlockCoroutine()
             if figure.getName() == 'Shepherd' then
                 local winner
                 if score > 0 then winner = true else winner = false end
-                table.insert(removedFigures, {obj=figure, winner=winner})
+                table.insert(removedFigures, {guid=figure.getGUID(), winner=winner})
                 if not hasWolf then
                     allGameMessage(figure.getDescription() .. "'s Shepherd scores " .. score .. " points for " .. score .. " sheep.", stringColorToRGB(figure.getDescription()))
                 else
@@ -3083,7 +3294,7 @@ end
 function praiseShepherdCoroutine()
     for _, figure in ipairs(removedFigures) do
         if figure.winner then
-            figure.obj.addTorque({0,25,0}, 4)
+            getObjectFromGUID(figure.guid).addTorque({0,25,0}, 4)
         end
     end
     if showMarkers == 'Scoring' or showMarkers == 'Both' then
@@ -3115,7 +3326,7 @@ function praiseShepherdCoroutine()
             end
         end
     end
-    Timer.create({identifier=os.clock(), function_name='returnShepherds', function_owner=nil, parameters=nil, delay=3.0})
+    Timer.create({identifier=os.clock(), function_name='returnShepherds', function_owner=nil, parameters=nil, delay=FIGURE_PRAISE_DELAY})
     return 1
 end
 
@@ -3137,33 +3348,34 @@ function returnShepherdsCoroutine()
     end
     featureMarkers = {}
     for _, figure in ipairs(removedFigures) do
-        figure.obj.use_gravity = true
-        figure.obj.interactable = true
+        local figure_obj = getObjectFromGUID(figure.guid)
+        figure_obj.use_gravity = true
+        figure_obj.interactable = true
         local found_home = false
-        if figurePositions[figure.obj.getDescription()] ~= nil and figurePositions[figure.obj.getDescription()][figure.obj.getName()] then
-            for i, figure_GUID in ipairs(figurePositions[figure.obj.getDescription()][figure.obj.getName()]) do
-                if figure_GUID == figure.obj.getGUID() then
-                    local figurePad = getObjectFromGUID(FIGUREPAD_GUIDs[figure.obj.getDescription()])
+        if figurePositions[figure_obj.getDescription()] ~= nil and figurePositions[figure_obj.getDescription()][figure_obj.getName()] then
+            for i, figure_GUID in ipairs(figurePositions[figure_obj.getDescription()][figure_obj.getName()]) do
+                if figure_GUID == figure_obj.getGUID() then
+                    local figurePad = getObjectFromGUID(FIGUREPAD_GUIDs[figure_obj.getDescription()])
                     local figureSetting = nil
                     for _, temp_figureSetting in pairs(figureSettings) do
-                        if figure.obj.getName() == temp_figureSetting.name then
+                        if figure_obj.getName() == temp_figureSetting.name then
                             figureSetting = temp_figureSetting
                             break
                         end
                     end
                     if figureSetting ~= nil then
                         local x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
-                        figure.obj.setPositionSmooth({x = figurePad.getPosition().x + x, y = figurePad.getPosition().y + 1, z = figurePad.getPosition().z + z}, false, false)
-                        figure.obj.setRotationSmooth({x=0, y=figurePad.getRotation().y, z=0})
+                        figure_obj.setPositionSmooth({x = figurePad.getPosition().x + x, y = figurePad.getPosition().y + 1, z = figurePad.getPosition().z + z}, false, false)
+                        figure_obj.setRotationSmooth({x=0, y=figurePad.getRotation().y, z=0})
                         found_home = true
                     else
-                        allErrorMessage("Warning: " .. figure.obj.getName() .. " missing from figure settings", activePlayers[currentPlayer])
+                        allErrorMessage("Warning: " .. figure_obj.getName() .. " missing from figure settings", activePlayers[currentPlayer])
                     end
                 end
             end
         end
         if found_home == false then
-            allErrorMessage("Warning: " .. figure.obj.getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
+            allErrorMessage("Warning: " .. figure_obj.getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
         end
         coroutine.yield(0)
     end
@@ -3171,6 +3383,40 @@ function returnShepherdsCoroutine()
 
     nextState('next')
     return 1
+end
+
+function checkFlierDestination()
+    if tileGridOccupied(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z) then
+        resetTransversal()
+        local destinationTile = getObjectFromGUID(tileGrid[lastPlacedTileX + flierOffset.x][lastPlacedTileZ + flierOffset.z].tile_guid)
+        local hasIncompleteFeature = false
+        for i=1, 12 do
+            if getFeatureName(destinationTile, i) == 'City' or getFeatureName(destinationTile, i) == 'Road' then --fields are not valid destinations
+                if getObjectFromGUID(flier).getName() ~= 'Mayor' or getFeatureName(destinationTile, i) == 'City' then
+                    if not getFeatureComponents(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z, i, 1, false) then
+                        hasIncompleteFeature = true
+                    end
+                end
+            end
+        end
+        local features = destinationTile.getTable("specialFeatures")
+        for j, feature in pairs(features) do
+            if feature[1] == 'Cloister' then
+                if not getFeatureComponents(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z, j + 12, 1, false) then
+                    hasIncompleteFeature = true
+                end
+            end
+        end
+        if hasIncompleteFeature then
+            return nextState('feature available')
+        end
+    else
+        allGameMessage("No tile exists at flier destination. Returning follower.", NEUTRAL_COLOR, activePlayers[currentPlayer])
+    end
+
+    allGameMessage("The destination tile has no incomplete features. Returning follower.", NEUTRAL_COLOR, activePlayers[currentPlayer])
+    table.insert(removedFigures, {guid=flier, winner=false})
+    return nextState('feature unavailable')
 end
 
 function scoreFeatures()
@@ -3371,7 +3617,7 @@ function scoreFeatures()
                                                                             object.interactable = false
                                                                             --raise the follower in the air
                                                                             object.setPositionSmooth({object.getPosition().x, object.getPosition().y + 2.5, object.getPosition().z}, false, false)
-                                                                            table.insert(removedFigures, {obj=object, winner=false})
+                                                                            table.insert(removedFigures, {guid=object.getGUID(), winner=false})
                                                                             allGameMessage(object.getDescription() .. " " .. object.getName() .. " has lost the Cloister/Shrine challenge.", stringColorToRGB(object.getDescription()))
                                                                         end
                                                                     end
@@ -3451,7 +3697,7 @@ function scoreFeatures()
                                 end
                                 local winner = false
                                 if topWeight > 0 and followerCounts[follower.getDescription()] >= topWeight and score > 0 then winner = true end
-                                table.insert(removedFigures, {obj=follower, winner=winner})
+                                table.insert(removedFigures, {guid=follower.getGUID(), winner=winner})
                                 follower.unlock()
                                 follower.use_gravity = false
                                 follower.interactable = false
@@ -3465,7 +3711,7 @@ function scoreFeatures()
                                     local winner = false
                                     --builder not involved in scoring, so shouldn't be praised
                                     if figure.getName() ~= 'Builder' and topWeight > 0 and followerCounts[figure.getDescription()] >= topWeight and score > 0 then winner = true end
-                                    table.insert(removedFigures, {obj=figure, winner=winner})
+                                    table.insert(removedFigures, {guid=figure.getGUID(), winner=winner})
                                     figure.unlock()
                                     figure.use_gravity = false
                                     figure.interactable = false
@@ -3523,7 +3769,7 @@ function scoreFeatures()
                         local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
                         for _, obj in ipairs(playerPossessions) do
                             if obj.getName() == tokenType then
-                                table.insert(removedFigures, {obj=obj, winner=winner})
+                                table.insert(removedFigures, {guid=obj.getGUID(), winner=winner})
                                 obj.unlock()
                                 obj.use_gravity = false
                                 obj.interactable = false
@@ -3553,7 +3799,7 @@ function scoreFeatures()
                                 if getFeatureComponents(x, z, i, 1, false) then
                                     numRoads = numRoads + 1
                                 end
-                            elseif controlPanelSettings['KnRBKing'] and i > 5 and (tile.getTable("sides")[math.floor((i - 3) / 2)] == 'City' or tile.getTable("sides")[math.floor((i - 3) / 2)] == 'Carcassonne') then
+                            elseif controlPanelSettings['KnRBKing'] and i >= 5 and (tile.getTable("sides")[math.floor((i - 3) / 2)] == 'City' or tile.getTable("sides")[math.floor((i - 3) / 2)] == 'Carcassonne') then
                                 if getFeatureComponents(x, z, i, 1, false) then
                                     numCities = numCities + 1
                                 end
@@ -3575,7 +3821,7 @@ function scoreFeatures()
                     if (obj.getGUID() == KING_TOKEN_GUID and controlPanelSettings['KnRBKing']) or (obj.getGUID() == ROBBER_BARRON_TOKEN_GUID and controlPanelSettings['KnRBRobber']) then
                         allGameMessage(player .. " scores " .. score .. " points on " .. obj.getName(), stringColorToRGB(player))
                         scorePoints(player, 'King/Robber Tokens', score)
-                        table.insert(removedFigures, {obj=obj, winner=true})
+                        table.insert(removedFigures, {guid=obj.getGUID(), winner=true})
                         obj.unlock()
                         obj.use_gravity = false
                         obj.interactable = false
@@ -3731,14 +3977,16 @@ function praiseFiguresCameraFocus(onlyWinners)
     local num_winners = 0
     local max_separation = 0
     for _, figure in ipairs(removedFigures) do
+        local figure_obj = getObjectFromGUID(figure.guid)
         if not onlyWinners or figure.winner then
-            camera_position.x = camera_position.x + figure.obj.getPosition().x
-            camera_position.y = camera_position.y + figure.obj.getPosition().y
-            camera_position.z = camera_position.z + figure.obj.getPosition().z
+            camera_position.x = camera_position.x + figure_obj.getPosition().x
+            camera_position.y = camera_position.y + figure_obj.getPosition().y
+            camera_position.z = camera_position.z + figure_obj.getPosition().z
             num_winners = num_winners + 1
             for _, other_figure in ipairs(removedFigures) do
-                local separation = math.sqrt((figure.obj.getPosition().x - other_figure.obj.getPosition().x) * (figure.obj.getPosition().x - other_figure.obj.getPosition().x) +
-                          (figure.obj.getPosition().z - other_figure.obj.getPosition().z) * (figure.obj.getPosition().z - other_figure.obj.getPosition().z))
+                local other_figure_obj = getObjectFromGUID(other_figure.guid)
+                local separation = math.sqrt((figure_obj.getPosition().x - other_figure_obj.getPosition().x) * (figure_obj.getPosition().x - other_figure_obj.getPosition().x) +
+                          (figure_obj.getPosition().z - other_figure_obj.getPosition().z) * (figure_obj.getPosition().z - other_figure_obj.getPosition().z))
                 if separation > max_separation then
                     max_separation = separation
                 end
@@ -3785,7 +4033,7 @@ end
 function praiseFiguresCoroutine()
     for _, figure in ipairs(removedFigures) do
         if figure.winner then
-            figure.obj.addTorque({0,25,0}, 4)
+            getObjectFromGUID(figure.guid).addTorque({0,25,0}, 4)
         end
     end
     if showMarkers == 'Scoring' or showMarkers == 'Both' then
@@ -3819,7 +4067,7 @@ function praiseFiguresCoroutine()
             end
         end
     end
-    Timer.create({identifier=os.clock(), function_name='returnFigures', function_owner=nil, parameters=nil, delay=3.0})
+    Timer.create({identifier=os.clock(), function_name='returnFigures', function_owner=nil, parameters=nil, delay=FIGURE_PRAISE_DELAY})
     return 1
 end
 
@@ -3846,57 +4094,58 @@ function returnFiguresCoroutine()
     end
     featureMarkers = {}
     for _, figure in ipairs(removedFigures) do
-        figure.obj.use_gravity = true
-        figure.obj.interactable = true
+        local figure_obj = getObjectFromGUID(figure.guid)
+        figure_obj.use_gravity = true
+        figure_obj.interactable = true
 
-        if figure.obj.getGUID() == KING_TOKEN_GUID or figure.obj.getGUID() == ROBBER_BARRON_TOKEN_GUID or table.contains(TRADE_TOKEN_TYPES, figure.obj.getName()) then
+        if figure_obj.getGUID() == KING_TOKEN_GUID or figure_obj.getGUID() == ROBBER_BARRON_TOKEN_GUID or table.contains(TRADE_TOKEN_TYPES, figure_obj.getName()) then
             local targetPosition = {x = NEUTRAL_ITEMS_LOCATION.x, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}
-            if figure.obj.getGUID() == KING_TOKEN_GUID then
+            if figure_obj.getGUID() == KING_TOKEN_GUID then
                 targetPosition.x = targetPosition.x + 3.5
-            elseif figure.obj.getGUID() == ROBBER_BARRON_TOKEN_GUID then
+            elseif figure_obj.getGUID() == ROBBER_BARRON_TOKEN_GUID then
                 targetPosition.x = targetPosition.x + 5.25
             end
 
             local container = nil
-            if figure.obj.getName() == 'Wheat Token' then
+            if figure_obj.getName() == 'Wheat Token' then
                 container = getObjectFromGUID(WHEAT_TOKEN_STACK_GUID)
-            elseif figure.obj.getName() == 'Wine Token' then
+            elseif figure_obj.getName() == 'Wine Token' then
                 container = getObjectFromGUID(WINE_TOKEN_STACK_GUID)
-            elseif figure.obj.getName() == 'Cloth Token' then
+            elseif figure_obj.getName() == 'Cloth Token' then
                 container = getObjectFromGUID(CLOTH_TOKEN_STACK_GUID)
             end
             if container ~= nil then
                 targetPosition = {container.getPosition().x, container.getPosition().y + 1, container.getPosition().z}
-            elseif table.contains(TRADE_TOKEN_TYPES, figure.obj.getName()) then
-                allErrorMessage("Warning: " .. figure.obj.getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
+            elseif table.contains(TRADE_TOKEN_TYPES, figure_obj.getName()) then
+                allErrorMessage("Warning: " .. figure_obj.getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
             end
-            figure.obj.setPositionSmooth(targetPosition, false, false)
+            figure_obj.setPositionSmooth(targetPosition, false, false)
         else
             local found_home = false
-            if figurePositions[figure.obj.getDescription()] ~= nil and figurePositions[figure.obj.getDescription()][figure.obj.getName()] then
-                for i, figure_GUID in ipairs(figurePositions[figure.obj.getDescription()][figure.obj.getName()]) do
-                    if figure_GUID == figure.obj.getGUID() then
-                        local figurePad = getObjectFromGUID(FIGUREPAD_GUIDs[figure.obj.getDescription()])
+            if figurePositions[figure_obj.getDescription()] ~= nil and figurePositions[figure_obj.getDescription()][figure_obj.getName()] then
+                for i, figure_GUID in ipairs(figurePositions[figure_obj.getDescription()][figure_obj.getName()]) do
+                    if figure_GUID == figure_obj.getGUID() then
+                        local figurePad = getObjectFromGUID(FIGUREPAD_GUIDs[figure_obj.getDescription()])
                         local figureSetting = nil
                         for _, temp_figureSetting in pairs(figureSettings) do
-                            if figure.obj.getName() == temp_figureSetting.name then
+                            if figure_obj.getName() == temp_figureSetting.name then
                                 figureSetting = temp_figureSetting
                                 break
                             end
                         end
                         if figureSetting ~= nil then
                             local x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
-                            figure.obj.setPositionSmooth({x = figurePad.getPosition().x + x, y = figurePad.getPosition().y + 1, z = figurePad.getPosition().z + z}, false, false)
-                            figure.obj.setRotationSmooth({x=0, y=figurePad.getRotation().y, z=0})
+                            figure_obj.setPositionSmooth({x = figurePad.getPosition().x + x, y = figurePad.getPosition().y + 1, z = figurePad.getPosition().z + z}, false, false)
+                            figure_obj.setRotationSmooth({x=0, y=figurePad.getRotation().y, z=0})
                             found_home = true
                         else
-                            allErrorMessage("Warning: " .. figure.obj.getName() .. " missing from figure settings", activePlayers[currentPlayer])
+                            allErrorMessage("Warning: " .. figure_obj.getName() .. " missing from figure settings", activePlayers[currentPlayer])
                         end
                     end
                 end
             end
             if found_home == false then
-                allErrorMessage("Warning: " .. figure.obj.getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
+                allErrorMessage("Warning: " .. figure_obj.getName() .. " doesn't have a home and must be returned manually", activePlayers[currentPlayer])
             end
         end
         coroutine.yield(0)
@@ -3983,7 +4232,7 @@ function getFeatureLocation(feature, tile, rotation)
             a = 1
             j = (feature - 3) % 2
         end
-        x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FOLLOWER_DISTANCE_FROM_EDGE, ((8 + TILE_STANDARD_ROTATION - side - rotation) % 4) + 1)
+        x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, ((8 + TILE_STANDARD_ROTATION - side - rotation) % 4) + 1)
     else
         local features = tile.getTable("specialFeatures")
         x, z = rotateCoordinates(features[feature - 12][3][1], features[feature - 12][3][2], (TILE_STANDARD_ROTATION - 1 - rotation) % 4 + 1)
@@ -4438,8 +4687,21 @@ function resetTransversal()
 end
 
 --will print a message to all plyaers, but not to the log
-function gameNotification(msg, rgb)
-    printToAll(msg, rgb)
+function gameNotification(msg, rgb, target_player)
+    if target_player == nil then
+        printToAll(msg, rgb)
+    else
+        if controlPanelSettings[target_player .. 'Hotseat'] ~= nil then
+            target_player = controlPanelSettings[target_player .. 'Hotseat']
+        end
+        for _, player in ipairs(getSeatedPlayers()) do
+            if player == target_player then
+                broadcastToColor(msg, player, rgb)
+            else
+                printToColor(msg, player, rgb)
+            end
+        end
+    end
 end
 
 --will print a message to all players, broadcasting to the target_player
