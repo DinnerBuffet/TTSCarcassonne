@@ -617,6 +617,11 @@ function stateHandler()
         return checkAddedTileFeatureExtensions()
     elseif turnState == 'awaiting figure decision' then
         gameNotification("Place a figure if desired.", NEUTRAL_COLOR, activePlayers[currentPlayer])
+        local fairy = getObjectFromGUID(expansionBags['PnD'].contents['PnDFairy'].guid)
+        if controlPanelSettings['PnDFairy'] and fairy ~= nil then
+            fairy.unlock()
+            fairy.highlightOn({1,1,1})
+        end
         return displayFigureButtons()
     elseif turnState == 'retrieve abbot' then
         return
@@ -657,6 +662,11 @@ function stateHandler()
         for _, knight in ipairs(seducedKnights) do
             getObjectFromGUID(knight).clearButtons()
         end
+        local fairy = getObjectFromGUID(expansionBags['PnD'].contents['PnDFairy'].guid)
+        if controlPanelSettings['PnDFairy'] and fairy ~= nil then
+            fairy.lock()
+            fairy.highlightOff()
+        end
         seducedKnights = {}
         currentPlayerAbbot = nil
         return nextState('next')
@@ -679,6 +689,9 @@ function stateHandler()
         return nextState('next')
     elseif turnState == 'score features' then
         currentMiniTurn = nil
+        for _, tileCoords in ipairs(dragonIllegalTiles) do
+            getObjectFromGUID(tileGrid[tileCoords[1]][tileCoords[2]].tile_guid).highlightOff()
+        end
         return scoreFeatures()
     elseif turnState == 'score features - delay' then
         Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
@@ -1025,10 +1038,9 @@ function endTurn()
             if currentPlayer > #activePlayers then
                 currentPlayer = 1
             end
+            allGameMessage("-----------It is now " .. activePlayers[currentPlayer] .. "'s turn-----------", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
             if controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat'] ~= nil then
-                allGameMessage("----------It is now " .. activePlayers[currentPlayer] .. "'s turn. " .. activePlayers[currentPlayer] .. " is controlled by " .. stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat']) .. controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat'] .. "----------", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
-            else
-                allGameMessage("----------It is now " .. activePlayers[currentPlayer] .. "'s turn----------", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
+                allGameMessage("-------" .. activePlayers[currentPlayer] .. " is controlled by " .. stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat']) .. controlPanelSettings[activePlayers[currentPlayer] .. 'Hotseat'] .. stringToBracketedHex(activePlayers[currentPlayer]) .. "------", stringColorToRGB(activePlayers[currentPlayer]), nil)
             end
         else
             allGameMessage(activePlayers[currentPlayer] .. " gets another turn for laying down the volcano lake tile.", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
@@ -2021,6 +2033,7 @@ function checkTileForDragon()
                         local zIndex = math.floor((fairy.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                         if tileGridOccupied(xIndex, zIndex) then
                             table.insert(dragonIllegalTiles, {xIndex, zIndex})
+                            getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).highlightOn({1,0,0})
                         end
                     end
                     if dragon ~= nil then
@@ -2028,6 +2041,7 @@ function checkTileForDragon()
                         local zIndex = math.floor((dragon.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                         if tileGridOccupied(xIndex, zIndex) then
                             table.insert(dragonIllegalTiles, {xIndex, zIndex})
+                            getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).highlightOn({1,0,0})
                         end
                     end
                     allGameMessage("The dragon is on the move!", NEUTRAL_COLOR)
@@ -2090,6 +2104,7 @@ function moveDragonButton(object, sPlayer)
         local zIndex = math.floor((object.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
         dragonMoveNumber = dragonMoveNumber + 1
         table.insert(dragonIllegalTiles, {xIndex, zIndex})
+        getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).highlightOn({1,0,0})
         currentMiniTurn = currentMiniTurn + 1
         moveDragonToTile(xIndex, zIndex, rotation)
     end
@@ -2102,6 +2117,7 @@ function moveDragonToTile(xIndex, zIndex, rotation)
 
     local dragonTravelAngle = math.deg(math.atan2(dragon.getPosition().x - xDestination, dragon.getPosition().z - zDestination)) + 90
     if dragonTravelAngle > 360 then dragonTravelAngle = dragonTravelAngle - 360 end
+    dragon.unlock()
     dragon.setRotationSmooth({0, dragonTravelAngle, 0})
     dragon.setPositionSmooth({xDestination, 1.5, zDestination})
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
@@ -2112,7 +2128,7 @@ function moveDragonToTile(xIndex, zIndex, rotation)
                if table.contains(SHEEP_TOKEN_TYPES, object.getName()) then
                    local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
                    if sheepTileBag ~= nil then
-                   allGameMessage(object.getDescription() .. " " .. object.getName() .. " eaten by the dragon! Om nom nom!", NEUTRAL_COLOR)
+                       allGameMessage(object.getDescription() .. " " .. object.getName() .. " eaten by the dragon! Om nom nom!", NEUTRAL_COLOR)
                        object.setPositionSmooth({sheepTileBag.getPosition().x, sheepTileBag.getPosition().y + 1.5, sheepTileBag.getPosition().z})
                        --coroutine.yield(0)
                    else
@@ -3580,6 +3596,7 @@ function returnShepherdsCoroutine()
                     end
                     if figureSetting ~= nil then
                         local x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                        figure_obj.unlock()
                         figure_obj.setPositionSmooth({x = figurePad.getPosition().x + x, y = figurePad.getPosition().y + 1, z = figurePad.getPosition().z + z}, false, false)
                         figure_obj.setRotationSmooth({x=0, y=figurePad.getRotation().y, z=0})
                         found_home = true
@@ -4443,6 +4460,7 @@ function returnFiguresCoroutine()
     featureMarkers = {}
     for _, figure in ipairs(removedFigures) do
         local figure_obj = getObjectFromGUID(figure.guid)
+        figure_obj.unlock()
         figure_obj.use_gravity = true
         figure_obj.interactable = true
 
@@ -4486,6 +4504,7 @@ function returnFiguresCoroutine()
                         end
                         if figureSetting ~= nil then
                             local x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                            figure_obj.unlock()
                             figure_obj.setPositionSmooth({x = figurePad.getPosition().x + x, y = figurePad.getPosition().y + 1, z = figurePad.getPosition().z + z}, false, false)
                             figure_obj.setRotationSmooth({x=0, y=figurePad.getRotation().y, z=0})
                             found_home = true
