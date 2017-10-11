@@ -7906,6 +7906,7 @@ USED_FOLLOWER_PENALTY = 0.45 --each follower that a player doesn't have in their
 OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
 FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being used too early in the game
 AI_DRAW_TILE_TIME = 1.0 --time delay to allow the drawn tile to travel to the AI player's hand
+AI_ANIMATIONS_ENABLED = false --will move pieces smoothly if true, otherwise the pieces will instantly move
 UNFINISHED_TRADE_TOKEN_VALUE = 1.0
 
 function AIStateHandler()
@@ -8853,14 +8854,22 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
         startingRiverTile_GUID = newTile.getGUID()
     end
 
-    --newTile.setPosition({xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
-    --newTile.setRotation({0, tileRotation * 90, 0})
-    setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
-    newTile.setRotationSmooth({0, tileRotation * 90, 0})
+    if AI_ANIMATIONS_ENABLED then
+        setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
+        newTile.setRotationSmooth({0, tileRotation * 90, 0})
+    else
+        newTile.setPosition({xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
+        newTile.setRotation({0, tileRotation * 90, 0})
+    end
+
     coroutine.yield(0) -- wait one frame before setting interactable to false due to a rubber-banding bug
     newTile.interactable = false
-    --AILockTile({tile=newTile})
-    Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={tile=newTile}, delay=2.0})
+
+    if AI_ANIMATIONS_ENABLED then
+        Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={tile=newTile}, delay=2.0})
+    else
+        AILockTile({tile=newTile})
+    end
 end
 
 function AILockTile(params)
@@ -8886,14 +8895,27 @@ function AIMoveFigureToLocation()
                 elseif highestScorePos < 13 then pieceRotation = math.floor((highestScorePos - 5) / 2) * 90 end
                 if (obj.getName() == translate({'Follower'}) or obj.getName() == translate({'Big Follower'})) and nameOfFeature == 'Field' then
                     --lay the Follower down
-                    obj.setRotationSmooth({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                    if AI_ANIMATIONS_ENABLED then
+                        obj.setRotationSmooth({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                    else
+                        obj.setRotation({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                    end
                 else
                     --align with the tile
-                    obj.setRotationSmooth({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                    if AI_ANIMATIONS_ENABLED then
+                        obj.setRotationSmooth({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                    else
+                        obj.setRotation({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                    end
                 end
                 obj.interactable = false
-                obj.setPositionSmooth({(x * TILE_SPACING) + (lastPlacedTileX * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (lastPlacedTileZ * TILE_SPACING) - MIDDLE_OFFSET.z})
-                Timer.create({identifier=obj.getGUID() .. os.clock(), function_name='AILockFigure', function_owner=nil, parameters={figure=obj}, delay=2.0})
+                if AI_ANIMATIONS_ENABLED then
+                    obj.setPositionSmooth({(x * TILE_SPACING) + (lastPlacedTileX * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (lastPlacedTileZ * TILE_SPACING) - MIDDLE_OFFSET.z})
+                    Timer.create({identifier=obj.getGUID() .. os.clock(), function_name='AILockFigure', function_owner=nil, parameters={figure=obj}, delay=2.0})
+                else
+                    obj.setPosition({(x * TILE_SPACING) + (lastPlacedTileX * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (lastPlacedTileZ * TILE_SPACING) - MIDDLE_OFFSET.z})
+                    Timer.create({identifier=obj.getGUID() .. os.clock(), function_name='AILockFigure', function_owner=nil, parameters={figure=obj}, delay=0.5})
+                end
                 break
             end
         end
