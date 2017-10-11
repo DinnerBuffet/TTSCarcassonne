@@ -236,14 +236,14 @@ startingTileSettings = {
 }
 
 figureSettings = {
-    ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTFM0S0hTckFrWUk', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, num = 'BaseNumFollowers'}, --should probably be closer to  {0.5, 0.45, 0.5}
-    ['InCBigFollower'] = {name = 'Big Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTFM0S0hTckFrWUk', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = -0.8, z = 0.5}, scale = {0.6, 0.6, 0.5}}, --should probably be closer to {0.60, 0.55, 0.5}
-    ['TnBBuilder'] = {name = 'Builder', mesh = 'http://pastebin.com/raw.php?i=Y04xXaE9', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -0.8, z = -0.5}, scale = {0.5, 0.5, 0.5}}, --should probably be closer to {0.5, 0.42, 0.5}
-    ['TnBPig'] = {name = 'Pig', mesh = 'http://pastebin.com/raw.php?i=EKzr3gDp', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = 0.5}, scale = {0.5, 0.5, 0.5}}, --should probably be closer to {0.45, 0.5, 0.5}
-    ['AnMMayor'] = {name = 'Mayor', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTnZMT0lCZjZybU0', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.5}}, --model too wide. scale down width
-    ['AnMWagon'] = {name = 'Wagon', mesh = 'http://pastebin.com/raw.php?i=K0Xv6CsA', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = 0.5}, scale = {0.5, 0.5, 0.5}},
-    ['AnMBarn'] = {name = 'Barn', mesh = 'http://pastebin.com/raw.php?i=eRH8u5wG', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = -0.5}, scale = {0.5, 0.5, 0.5}},
-    ['HnSShepherd'] = {name = 'Shepherd', mesh = 'http://pastebin.com/raw.php?i=PgB5jLC1', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = 0.5}, scale = {0.5, 0.5, 0.5}}
+    ['BaseFollower'] = {name = 'Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = 5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, num = 'BaseNumFollowers'}, --should probably be closer to  {0.5, 0.45, 0.5}
+    ['InCBigFollower'] = {name = 'Big Follower', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', offset = {x = -0.8, z = 0.5}, scale = {0.6, 0.6, 0.5}}, --should probably be closer to {0.60, 0.55, 0.5}
+    ['TnBBuilder'] = {name = 'Builder', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -0.8, z = -0.5}, scale = {0.5, 0.5, 0.5}}, --should probably be closer to {0.5, 0.42, 0.5}
+    ['TnBPig'] = {name = 'Pig', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = 0.5}, scale = {0.5, 0.5, 0.5}}, --should probably be closer to {0.45, 0.5, 0.5}
+    ['AnMMayor'] = {name = 'Mayor', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -2.25, z = -0.5}, scale = {0.5, 0.5, 0.5}}, --model too wide. scale down width
+    ['AnMWagon'] = {name = 'Wagon', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = 0.5}, scale = {0.5, 0.5, 0.5}},
+    ['AnMBarn'] = {name = 'Barn', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -3.7, z = -0.5}, scale = {0.5, 0.5, 0.5}},
+    ['HnSShepherd'] = {name = 'Shepherd', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = 0.5}, scale = {0.5, 0.5, 0.5}}
 }
 
 debugMode = 0
@@ -901,14 +901,24 @@ function onObjectDropped(player, droppedObject)
                         end
                     end
                 elseif table.contains(FOLLOWERTYPES, droppedObject.getName()) or table.contains(SPECIALFIGURETYPES, droppedObject.getName()) then
-                    if not followerDroplock then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                    if (currentMiniTurn ~= nil and (droppedObject.getDescription() == activePlayers[currentMiniTurn] or droppedObject.getDescription() == getCurrentPlayerOwner())) or
+                        (currentMiniTurn == nil and (droppedObject.getDescription() == activePlayers[currentPlayer] or droppedObject.getDescription() == getCurrentPlayerOwner())) then
+                        if not followerDroplock then
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                        else
+                            if not spamLock then
+                                allErrorMessage("It is currently not allowed to place a figure. You are only allowed to place a figure after a tile", player)
+                                dropLock = false
+                                spamLock = true
+                                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                            end
+                        end
                     else
                         if not spamLock then
-                            allErrorMessage("It is currently not allowed to place a figure. You are only allowed to place a figure after a tile", player)
+                            playerErrorMessage("Incorrect colored figure was dropped. Are you sure it is yours?", player)
                             dropLock = false
                             spamLock = true
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=2})
                         end
                     end
                 else
@@ -916,7 +926,7 @@ function onObjectDropped(player, droppedObject)
                 end
             else
                 if not spamLock then
-                    allErrorMessage("Multiple pieces dropped too fast, please wait", player)
+                    allErrorMessage("Multiple pieces dropped too fast, please wait.", player)
                     spamLock = true
                     Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=2})
                 end
@@ -990,7 +1000,6 @@ function checkTile(params)
         local iIdx = #m_Routines
         coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
     end
-
 end
 
 function checkTileCoroutine()
@@ -1077,7 +1086,7 @@ function checkTileCoroutine()
                             local features = newTile.getTable("specialFeatures")
                             if features ~= nil then
                                 for _, specialFeature in ipairs(features) do
-                                    if controlPanelSettings['HnSBuryHills'] and controlPanelSettings['HnSHills'] and specialFeature[1] == "Hill" then
+                                    if controlPanelSettings['HnSBuryHills'] and specialFeature[1] == "Hill" then
                                         local drawPile = getObjectFromGUID(tileStack_GUID)
                                         if drawPile ~= nil then
                                             local params = {}
@@ -1767,6 +1776,8 @@ end
 
 --this function assumes that a field is already in the transversal tables
 --it will go through all possible locations on the field and find an empty spot where the sheep tile can be put
+--Note: according to this forum post, this behavior actually violates the rules: https://boardgamegeek.com/thread/1434965/question-about-location-sheep-tokens
+-- However, I don't see it actually mattering, unless the dragon eats the sheep, which it won't. Will change it later if I need to.
 function addSheepToField(shepherd)
     --no error checking for the shepherd. Assume that it is still in a legal position
     local shepherdTileXIndex = math.floor((shepherd.getPosition().x - MIDDLELOCATION.x + MIDDLEOFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
@@ -2049,10 +2060,12 @@ function scoreFeaturesCoroutine()
 
                         local followerCounts = {}
                         local hasPig = {}
+                        local hasHill = {}
                         local hasMayor = {}
                         local hasBarn = false
                         local hasNewBarn = false
                         local topWeight = -1
+                        --find the relative weights for the followers on this feature
                         for _, follower in ipairs(transversedFollowers) do
                             local weight = 0
                             if follower.getName() == 'Follower' or follower.getName() == 'Wagon' then weight = 1
@@ -2070,8 +2083,8 @@ function scoreFeaturesCoroutine()
                                 if controlPanelSettings['HnSHills'] and specialFeatures ~= nil then
                                     for _, specialFeature in ipairs(specialFeatures) do
                                         if specialFeature[1] == "Hill" then
-                                            --if the follower is on a hill, add a small value to it to break any ties
-                                            weight = weight + 0.001
+                                            --although it would have been easier to just add 0.001 to the weight here, it would have technically violated the rules, since multiple hills are not supposed to give extra weight.
+                                            hasHill[follower.getDescription()] = true
                                         end
                                     end
                                 end
@@ -2081,8 +2094,16 @@ function scoreFeaturesCoroutine()
                             else
                                 followerCounts[follower.getDescription()] = followerCounts[follower.getDescription()] + weight
                             end
-                            if followerCounts[follower.getDescription()] > topWeight then topWeight = followerCounts[follower.getDescription()] end
                         end
+                        --add hill weight if there is a hill, find top weight for the feature
+                        for player, value in pairs(followerCounts) do
+                            if hasHill[player] then
+                                --if the follower is on a hill, add a small value to it to break any ties
+                                followerCounts[player] = followerCounts[player] + 0.001
+                            end
+                            if followerCounts[player] > topWeight then topWeight = followerCounts[player] end
+                        end
+
                         for _, figure in ipairs(transversedSpecialFigures) do
                             if figure.getName() == 'Pig' then hasPig[figure.getDescription()] = true end
                             if figure.getName() == 'Barn' then
@@ -2091,6 +2112,7 @@ function scoreFeaturesCoroutine()
                                     hasNewBarn = true
                                     newBarn = nil
                                 end
+                                --recalculate "follower count" with only barns. Technically they aren't followers but it was easier in code.
                                 if #transversedFollowers == 0 then
                                     if followerCounts[figure.getDescription()] == nil then
                                         followerCounts[figure.getDescription()] = 1
@@ -2435,7 +2457,7 @@ function postScoringEvents()
     if hasBuilderAwaitingAction then
         tileDroplock = false
         hasAlreadyTakenBuilderTile = true
-        allGameMessage(activePlayers[currentPlayer] .."'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentMiniTurn])
+        allGameMessage(activePlayers[currentPlayer] .."'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", stringColorToRGB(activePlayers[currentPlayer]), activePlayers[currentPlayer])
         return
     end
     wagonLocations = {}
