@@ -1068,7 +1068,7 @@ function stateHandler()
     elseif turnState == 'check for extra builder turn' then
         if hasBuilderAwaitingAction then
             hasAlreadyTakenBuilderTile = true
-            allGameMessage({"{p1}'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", {'p1', playerName[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+            allGameMessage({"{c1}'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
             return nextState('has builder')
         else
             return nextState('no builder')
@@ -3641,6 +3641,11 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                         if table.contains(link, position) then
                             visitedPosition = true
                             for _, nestedPosition in ipairs(link) do
+                                --HACK: It would have taken a lot of work to code the City of Carcassonne in a way that it would be handled elegantly. Instead, if any of the linked feature locations are different,
+                                -- then treat the entire feature as that type
+                                if nameOfFeature == 'Carcassonne' and getFeatureName(tile, nestedPosition) ~= 'Carcassonne' then
+                                    nameOfFeature = getFeatureName(tile, nestedPosition)
+                                end
                                 featurePositions[nestedPosition] = true
                                 if nestedPosition < 13 then
                                     local connectedTilePosition
@@ -3854,7 +3859,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                     else
                         tempFeatureList[newFeatureIndex].numTiles = 0
                     end
-                    if nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
+                    if nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' or nameOfFeature == 'Shrine' then
                         tempFeatureList[newFeatureIndex].featureLocation = {x=xIndex, z=zIndex}
                     end
                 else
@@ -3869,7 +3874,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                     else
                         featureList[newFeatureIndex].numTiles = 0
                     end
-                    if nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
+                    if nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' or nameOfFeature == 'Shrine' then
                         featureList[newFeatureIndex].featureLocation = {x=xIndex, z=zIndex}
                     end
                 end
@@ -5749,7 +5754,9 @@ end
 -- returns:
 --  int: 1-4 for quadrants, 5-12 for octants, 13.. for additional features
 function findClosestFeatureMap(xPosition, zPosition, tile, rotation)
-    --debugMessage(3, "finding closest feature for object at x:" .. xPosition .. " z:" .. zPosition .. " for rotation:" .. rotation)
+    -- if tile.getGUID() == 'fc4e85' then
+    --     debugMessage(3, "finding closest feature for object at x:" .. xPosition .. " z:" .. zPosition .. " for rotation:" .. rotation)
+    -- end
     local rotatedXPosition, rotatedZPosition = rotateCoordinates(xPosition, zPosition, ((rotation + TILE_STANDARD_ROTATION - 1) % 4) + 1)
 
     local position = 1
@@ -7183,7 +7190,7 @@ function debugShowFeatureMap()
                             local tilePositionRow = table.shallow_copy(positionRow)
                             if i >= 2 and i <= 4 then
                                 for j=2, 4 do
-                                    local closestFeature = findClosestFeatureMap((j - 3) * 0.25, (i - 3) * 0.25, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation)
+                                    local closestFeature = findClosestFeatureMap((j - 3) * 0.25, (3 - i) * 0.25, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation)
                                     if closestFeature > 12 then
                                         tilePositionRow[j] = closestFeature
                                     end
@@ -7210,7 +7217,7 @@ function debugShowFeatureMap()
                                         featureNum = featureMap[xIndex][zIndex][(position * 2) + 3]
                                     end
                                     if featureNum == nil then
-                                        print("no feature found for x:" .. xIndex .. " z:" .. zIndex .. " position:" .. position .. " on tile:" .. tileGrid[xIndex][zIndex].tile_guid)
+                                        --print("no feature found for x:" .. xIndex .. " z:" .. zIndex .. " position:" .. position .. " on tile:" .. tileGrid[xIndex][zIndex].tile_guid)
                                         if featureIndex < 100 then
                                             featureNum = 'XX'
                                         else
@@ -7624,7 +7631,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
                             if transversalNum == 1 then
                                 transversedFeaturePositions[xIndex][zIndex][i+12] = 1
                                 if feature[1] == 'City-Field' then
-                                    if getFeatureName(tile, position) == 'Field' or (reverseCityTransversal and getFeatureName(tile, position) == 'City') then
+                                    if getFeatureName(tile, position) == 'Field' or (reverseCityTransversal and (getFeatureName(tile, position) == 'City' or getFeatureName(tile, octant) == 'Carcassonne')) then
                                         for _, octant in ipairs(feature[2]) do
                                             if getFeatureName(tile, octant) == 'City' or getFeatureName(tile, octant) == 'Carcassonne' or (reverseCityTransversal and getFeatureName(tile, octant) == 'Field') then
                                                 if transversedGrid[xIndex][zIndex][octant] == nil or transversedGrid[xIndex][zIndex][octant] > transversalNum + 1 then
