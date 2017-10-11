@@ -2255,52 +2255,54 @@ function scoreFeaturesCoroutine()
         local numCities = 0
         local numRoads = 0
         resetTransversal()
-        for x, tileColumn in pairs(tileGrid) do
-            for z, tileLocation in pairs(tileColumn) do
-                local tile = getObjectFromGUID(tileLocation.tile_guid)
-                for i=1, 12 do --roads and cities
-                    if transversedGrid[x] == nil or transversedGrid[x][z] == nil or transversedGrid[x][z][i] == nil or transversedGrid[x][z][i] > 1 then
-                        if i < 5 and tile.getTable("sides")[i] == 'Road' then
-                            if getFeatureComponents(x, z, i, 1, false) then
-                                numRoads = numRoads + 1
-                            end
-                        elseif i > 5 and tile.getTable("sides")[math.floor((i - 3) / 2)] == 'City' then
-                            if getFeatureComponents(x, z, i, 1, false) then
-                                numCities = numCities + 1
+        if controlPanelSettings['KnRBKing'] or controlPanelSettings['KnRBRobber'] then
+            for x, tileColumn in pairs(tileGrid) do
+                for z, tileLocation in pairs(tileColumn) do
+                    local tile = getObjectFromGUID(tileLocation.tile_guid)
+                    for i=1, 12 do --roads and cities
+                        if transversedGrid[x] == nil or transversedGrid[x][z] == nil or transversedGrid[x][z][i] == nil or transversedGrid[x][z][i] > 1 then
+                            if controlPanelSettings['KnRBRobber'] and i < 5 and tile.getTable("sides")[i] == 'Road' then
+                                if getFeatureComponents(x, z, i, 1, false) then
+                                    numRoads = numRoads + 1
+                                end
+                            elseif controlPanelSettings['KnRBKing'] and i > 5 and tile.getTable("sides")[math.floor((i - 3) / 2)] == 'City' then
+                                if getFeatureComponents(x, z, i, 1, false) then
+                                    numCities = numCities + 1
+                                end
                             end
                         end
                     end
                 end
             end
-        end
-        --find king and robber tokens and give points
-        for _, player in ipairs(activePlayers) do
-            local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
-            for _, obj in ipairs(playerPossessions) do
-                local score
-                if obj.getGUID() == kingToken_GUID then
-                    score = numCities
-                elseif obj.getGUID() == robberToken_GUID then
-                    score = numRoads
-                end
-                if obj.getGUID() == kingToken_GUID or obj.getGUID() == robberToken_GUID then
-                    allGameMessage(player .. " scores " .. score .. " points on " .. obj.getName(), stringColorToRGB(player))
-                    local scoreCounter = getObjectFromGUID(scoreCounters_GUID[player])
-                    if scoreCounter ~= nil then
-                        scoreCounter.Counter.setValue(scoreCounter.Counter.getValue() + score)
-                    else
-                        allErrorMessage("Error adding score to " .. player .. "'s counter")
+            --find king and robber tokens and give points
+            for _, player in ipairs(activePlayers) do
+                local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
+                for _, obj in ipairs(playerPossessions) do
+                    local score
+                    if obj.getGUID() == kingToken_GUID then
+                        score = numCities
+                    elseif obj.getGUID() == robberToken_GUID then
+                        score = numRoads
                     end
-                    table.insert(removedFigures, {obj, true})
-                    obj.unlock()
-                    obj.use_gravity = false
-                    obj.interactable = false
-                    --raise the token in the air
-                    obj.setPositionSmooth({obj.getPosition().x, obj.getPosition().y + 2.5, obj.getPosition().z}, false, false)
-                    transversedFeaturePositions = {}
-                    praiseFiguresCameraFocus(false)
-                    Timer.create({identifier=os.clock(), function_name='praiseFigures', function_owner=nil, parameters=nil, delay=0.9})
-                    return 1
+                    if (obj.getGUID() == kingToken_GUID and controlPanelSettings['KnRBKing']) or (obj.getGUID() == robberToken_GUID and controlPanelSettings['KnRBRobber']) then
+                        allGameMessage(player .. " scores " .. score .. " points on " .. obj.getName(), stringColorToRGB(player))
+                        local scoreCounter = getObjectFromGUID(scoreCounters_GUID[player])
+                        if scoreCounter ~= nil then
+                            scoreCounter.Counter.setValue(scoreCounter.Counter.getValue() + score)
+                        else
+                            allErrorMessage("Error adding score to " .. player .. "'s counter")
+                        end
+                        table.insert(removedFigures, {obj, true})
+                        obj.unlock()
+                        obj.use_gravity = false
+                        obj.interactable = false
+                        --raise the token in the air
+                        obj.setPositionSmooth({obj.getPosition().x, obj.getPosition().y + 2.5, obj.getPosition().z}, false, false)
+                        transversedFeaturePositions = {}
+                        praiseFiguresCameraFocus(false)
+                        Timer.create({identifier=os.clock(), function_name='praiseFigures', function_owner=nil, parameters=nil, delay=0.9})
+                        return 1
+                    end
                 end
             end
         end
@@ -2666,7 +2668,7 @@ function getFeatureName(tile, position)
         nameOfFeature = tile.getTable("sides")[position]
     elseif position < 13 then
         nameOfFeature = tile.getTable("sides")[math.floor((position - 3) / 2)]
-        if nameOfFeature == 'Road' then nameOfFeature = 'Field' end
+        if nameOfFeature == 'Road' or nameOfFeature == 'River' then nameOfFeature = 'Field' end
     else
         local features = tile.getTable("specialFeatures")
         if features[position - 12] ~= nil then
@@ -3003,7 +3005,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
     end
     for i=1, 4 do
         --this one is necessary for followers placed on center positions for quadrant features to be processed correctly
-        if getFeatureName(tile, i) ~= 'Road' and transversedFeaturePositions[xIndex][zIndex][i] ~= nil then
+        if getFeatureName(tile, i) ~= 'Road' and getFeatureName(tile, i) ~= 'River' and transversedFeaturePositions[xIndex][zIndex][i] ~= nil then
             if transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == nil or transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] > transversedFeaturePositions[xIndex][zIndex][i] then
                 transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] = transversedFeaturePositions[xIndex][zIndex][i]
             end
@@ -3012,7 +3014,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, transvers
             end
         end
         --this is just used for graphical effect
-        if getFeatureName(tile, i) ~= 'Road' and transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] then
+        if getFeatureName(tile, i) ~= 'Road' and getFeatureName(tile, i) ~= 'River' and transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] ~= nil and transversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == transversedFeaturePositions[xIndex][zIndex][i * 2 + 4] then
             transversedFeaturePositions[xIndex][zIndex][i] = transversedFeaturePositions[xIndex][zIndex][i * 2 + 3]
         end
     end
