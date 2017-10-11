@@ -231,6 +231,7 @@ expansionBags = {
 }
 
 controlPanelSettings = {
+--Starting tiles
     ['StartingTileBase'] = true,
     ['StartingTileRiver'] = false,
     ['StartingTileRiverII'] = false,
@@ -239,6 +240,7 @@ controlPanelSettings = {
     ['StartingTileWoF'] = false,
     ['StartingTileSchool'] = false,
     ['StartingTileWindRoses'] = false,
+--Base + Major expansions
     ['BaseTiles'] = true,
     ['BaseFollower'] = true,
     ['BaseNumFollowers'] = 7,
@@ -271,7 +273,10 @@ controlPanelSettings = {
     ['HnSShepherd'] = false,
     ['HnSHills'] = false,
     ['HnSBuryHills'] = true,
-    ['HnSVineyards'] = false
+    ['HnSVineyards'] = false,
+--Mini expansions
+    ['FlierTiles'] = false,
+    ['FlierFlier'] = false
 }
 
 tileSettings = {
@@ -286,7 +291,8 @@ tileSettings = {
             ['CultBonusTile'] = {}
         }
     },
-    ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}}
+    ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}},
+    ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}}
 }
 
 startingTileSettings = {
@@ -357,7 +363,8 @@ neutralFigureSettings = {
     ['KnRBRobber'] = {['KnRB'] = {['KnRBRobber'] = {offset = 5.25}}},
     ['HnSShepherd'] = {['HnS'] = {['HnSSheepBag'] = {offset = 7.0}}},
     ['PnDFairy'] = {['PnD'] = {['PnDFairy'] = {offset = 8.25}}},
-    ['PnDDragon'] = {['PnD'] = {['PnDDragon'] = {offset = 9.75}}}
+    ['PnDDragon'] = {['PnD'] = {['PnDDragon'] = {offset = 9.75}}},
+    ['FlierFlier'] = {['Flier'] = {['FlierDie'] = {offset = 11.25}}}
 }
 
 tileGrid = {}
@@ -2473,15 +2480,20 @@ function checkFigure(params)
                         return
                     end
                     if string.sub(nameOfFeature,1,6) == 'Flier-' then
-                        if table.contains(FOLLOWER_TYPES, newFigure.getName()) then
-                            flier = newFigure.getGUID()
-                            if string.sub(nameOfFeature,7,7) == 'W' then flierDirection = 8 else flierDirection = 1 end --assumed to be Flier-NW if it is not Flier-W
-                            flierDirection = flierDirection + ((rotation - TILE_STANDARD_ROTATION) * 2)
-                            if flierDirection > 8 then flierDirection = flierDirection - 8 end
-                            if flierDirection < 1 then flierDirection = flierDirection + 8 end
-                            return nextState('placed flier')
+                        if controlPanelSettings['FlierFlier'] then
+                            if table.contains(FOLLOWER_TYPES, newFigure.getName()) then
+                                flier = newFigure.getGUID()
+                                if string.sub(nameOfFeature,7,7) == 'W' then flierDirection = 8 else flierDirection = 1 end --assumed to be Flier-NW if it is not Flier-W
+                                flierDirection = flierDirection + ((rotation - TILE_STANDARD_ROTATION) * 2)
+                                if flierDirection > 8 then flierDirection = flierDirection - 8 end
+                                if flierDirection < 1 then flierDirection = flierDirection + 8 end
+                                return nextState('placed flier')
+                            else
+                                allErrorMessage("Invalid Location: Only a follower can be placed on a flier.", activePlayers[currentPlayer])
+                                return
+                            end
                         else
-                            allErrorMessage("Invalid Location: Only a follower can be placed on a flier.", activePlayers[currentPlayer])
+                            allErrorMessage("The Flier was disabled in the control panel. You may not place anything on the flier.", activePlayers[currentPlayer])
                             return
                         end
                     end
