@@ -411,40 +411,40 @@ tileSettings = {
 --will only use the first ForkTile, SpringTile, and LakeTile, prioritizing GamesQuarterly over RiverII over BB5 River over the original River (CAR ref 237)
 startingTileSettings = {
     ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {
-        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
     }},
     ['StartingTileRiverII'] = {['RiverII'] = {
-        ['RiverForkTile'] = {position = {x=-3.975, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverForkTile'] = {position = {x=-3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
     }},
     ['StartingTileRiverBB5'] = {['RiverBB5'] = {
-        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
     }},
     ['StartingTileRiver'] = {['River'] = {
-        ['RiverSpringTile'] = {position = {x=-2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=-0.795, y=2.32, z=15.105}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=2.385, y=2.32, z=15.105}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
     }},
     ['StartingTileCoC'] = {
         ['CoC'] = {
-            ['CoCCarcassonneTiles'] = {position = {x=-0.795, y=2.32, z=11.925}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
-                [1] = {position = {x=-2.385, y=2.0, z=0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [2] = {position = {x=-0.795, y=2.0, z=0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [3] = {position = {x=0.795, y=2.0, z=0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [4] = {position = {x=2.385, y=2.0, z=0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [5] = {position = {x=-2.385, y=2.0, z=-0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [6] = {position = {x=-0.795, y=2.0, z=-0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [7] = {position = {x=0.795, y=2.0, z=-0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [8] = {position = {x=2.385, y=2.0, z=-0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [9] = {position = {x=-2.385, y=2.0, z=-2.385}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [10] = {position = {x=-0.795, y=2.0, z=-2.385}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [11] = {position = {x=0.795, y=2.0, z=-2.385}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [12] = {position = {x=2.385, y=2.0, z=-2.385}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            ['CoCCarcassonneTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
+                [1] = {position = {x=-3.18, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [2] = {position = {x=-1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [3] = {position = {x=0.0, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [4] = {position = {x=1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [5] = {position = {x=-3.18, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [6] = {position = {x=-1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [7] = {position = {x=0.0, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [8] = {position = {x=1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [9] = {position = {x=-3.18, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [10] = {position = {x=-1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [11] = {position = {x=0.0, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+                [12] = {position = {x=1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
             }}
         }
     }
@@ -3474,13 +3474,31 @@ function checkTile(params)
                         shiftPlayArea(-1, 0)
                         xIndex = xIndex - 1
                     end
-                    if zIndex == MIN_Z and (tileGrid[MAX_Z] == nil or next(tileGrid[MAX_Z]) == nil) then
-                        shiftPlayArea(0, 1)
-                        zIndex = zIndex + 1
+                    if zIndex == MIN_Z then
+                        local atEdge = false;
+                        for _, tileColumn in pairs(tileGrid) do
+                            if tileColumn[MAX_Z] ~= nil then
+                                atEdge = true;
+                                break;
+                            end
+                        end
+                        if not atEdge then
+                            shiftPlayArea(0, 1)
+                            zIndex = zIndex + 1
+                        end
                     end
-                    if zIndex == MAX_Z and (tileGrid[MIN_Z] == nil or next(tileGrid[MIN_Z]) == nil) then
-                        shiftPlayArea(0, -1)
-                        zIndex = zIndex - 1
+                    if zIndex == MAX_Z then
+                        local atEdge = false;
+                        for _, tileColumn in pairs(tileGrid) do
+                            if tileColumn[MIN_Z] ~= nil then
+                                atEdge = true;
+                                break;
+                            end
+                        end
+                        if not atEdge then
+                            shiftPlayArea(0, -1)
+                            zIndex = zIndex - 1
+                        end
                     end
                     if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
                     tileGrid[xIndex][zIndex] = {}
@@ -4225,20 +4243,22 @@ function checkTileForDragon()
                     dragonMoveNumber = 1
                     dragonIllegalTiles = {}
                     currentMiniTurn = currentPlayer
-                    local fairy = getObjectFromGUID(expansionBags['PnD'].contents['PnDFairy'].guid)
-                    local dragon = getObjectFromGUID(expansionBags['PnD'].contents['PnDDragon'].guid)
-                    if controlPanelSettings['PnDFairy'] and fairy ~= nil then
-                        local xIndex = math.floor((fairy.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                        local zIndex = math.floor((fairy.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                        if tileGridOccupied(xIndex, zIndex) then
-                            table.insert(dragonIllegalTiles, {xIndex, zIndex})
-                        end
+                    local forbiddenZones = {expansionBags['PnD'].contents['PnDDragon'].guid}
+                    if controlPanelSettings['PnDFairy'] then
+                        table.insert(forbiddenZones, expansionBags['PnD'].contents['PnDDragon'].guid)
                     end
-                    if dragon ~= nil then
-                        local xIndex = math.floor((dragon.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                        local zIndex = math.floor((dragon.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                        if tileGridOccupied(xIndex, zIndex) then
-                            table.insert(dragonIllegalTiles, {xIndex, zIndex})
+                    if controlPanelSettings['StartingTileCoC'] then
+                        table.insert(forbiddenZones, expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[6].guid)
+                        table.insert(forbiddenZones, expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[7].guid)
+                    end
+                    for _, forbiddenZone_GUID in ipairs(forbiddenZones) do
+                        forbiddenZone = getObjectFromGUID(forbiddenZone_GUID)
+                        if forbiddenZone ~= nil then
+                            local xIndex = math.floor((forbiddenZone.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                            local zIndex = math.floor((forbiddenZone.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                            if tileGridOccupied(xIndex, zIndex) then
+                                table.insert(dragonIllegalTiles, {xIndex, zIndex})
+                            end
                         end
                     end
                     allGameMessage("The dragon is on the move!", NEUTRAL_COLOR)
