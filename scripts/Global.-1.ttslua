@@ -2199,7 +2199,7 @@ function showTileMarkers(newTile)
                     table.insert(featureMarkers, newObject)
 
                     local custom_params = {}
-                    custom_params.assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZDBpTmotNmhRV00'
+                    custom_params.assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUlrMWdlTjZxU2M'
                     custom_params.type = 0
                     custom_params.material = 0
                     newObject.setCustomObject(custom_params)
@@ -3042,13 +3042,13 @@ function checkTile(params)
             local xPosition = (newTile.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
             local zPosition = (newTile.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
             local yRotation = newTile.getRotation().y / 90
-            local zRotation = newTile.getRotation().z
             --debugMessage(3, "piece rotation: " .. yRotation .. " piece position: x: " .. xPosition .. " z: " .. zPosition)
             if isWithinErrorMargin(xPosition, math.floor(xPosition + TILE_POSITION_MARGIN), TILE_POSITION_MARGIN) and
             isWithinErrorMargin(zPosition, math.floor(zPosition + TILE_POSITION_MARGIN), TILE_POSITION_MARGIN) and
             isWithinErrorMargin(yRotation, math.floor(yRotation + TILE_ROTATION_MARGIN), TILE_ROTATION_MARGIN) and
-            --is tile flipped over?
-            isWithinErrorMargin(0, math.floor(zRotation + TILE_ROTATION_MARGIN), TILE_ROTATION_MARGIN) then
+            --originally I only checked the z axis to make sure it wasn't flipped over. However, ee need to check the x axis too for the cases where the tile gets blocked by a figure
+            isWithinErrorMargin(0, math.floor(newTile.getRotation().x + TILE_ROTATION_MARGIN), TILE_ROTATION_MARGIN) and
+            isWithinErrorMargin(0, math.floor(newTile.getRotation().z + TILE_ROTATION_MARGIN), TILE_ROTATION_MARGIN) then
                 local xIndex = math.floor(xPosition + TILE_POSITION_MARGIN)
                 local zIndex = math.floor(zPosition + TILE_POSITION_MARGIN)
                 --by adding 0.5, getting the floor will round to the nearest whole number
