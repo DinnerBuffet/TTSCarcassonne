@@ -99,6 +99,7 @@ FRAME_TIME = 0.01667 --time that coroutine can run before it should yield to the
 
 tileStack_GUID = '16d9db'
 startingTile_GUID = 'c107f0'
+startingRiverTile_GUID = nil
 forkTile_GUID = nil
 springTile_GUID = nil
 lakeTile_GUID = nil
@@ -295,6 +296,8 @@ controlPanelSettings = {
     ['BaseNerfSmallCity'] = false,
     ['InCTiles'] = false,
     ['InCBigFollower'] = false,
+    ['InCInns'] = false,
+    ['InCCathedrals'] = false,
     ['TnBTiles'] = false,
     ['TnBBuilder'] = false,
     ['TnBPig'] = false,
@@ -316,6 +319,7 @@ controlPanelSettings = {
     ['KnRBKing'] = false,
     ['KnRBRobber'] = false,
     ['CultTiles'] = false,
+    ['RIIDisablePigherd'] = false,
 
     ['HnSTiles'] = false,
     ['HnSShepherd'] = false,
@@ -847,6 +851,7 @@ function onload(save_state)
         end
         if saved_data.tileGrid ~= nil then tileGrid = saved_data.tileGrid end
         if saved_data.startingTile_GUID ~= nil then startingTile_GUID = saved_data.startingTile_GUID end
+        if saved_data.startingRiverTile_GUID ~= nil then startingRiverTile_GUID = saved_data.startingRiverTile_GUID end
         if saved_data.forkTile_GUID ~= nil then forkTile_GUID = saved_data.forkTile_GUID end
         if saved_data.springTile_GUID ~= nil then springTile_GUID = saved_data.springTile_GUID end
         if saved_data.lakeTile_GUID ~= nil then lakeTile_GUID = saved_data.lakeTile_GUID end
@@ -959,6 +964,7 @@ function onSave()
         showMarkers = showMarkers,
         tileGrid = tileGrid,
         startingTile_GUID = startingTile_GUID,
+        startingRiverTile_GUID = startingRiverTile_GUID,
         forkTile_GUID = forkTile_GUID,
         springTile_GUID = springTile_GUID,
         lakeTile_GUID = lakeTile_GUID,
@@ -1268,7 +1274,7 @@ function gameToggleButton(object, sPlayer)
             for _, player in ipairs(PLAYER_COLORS) do
                 if controlPanelSettings[player .. 'Control'] ~= nil and controlPanelSettings[player .. 'Control']:sub(1,2) == 'AI' then
                     for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
-                        if settingOn and table.contains({'StartingTileCoC', 'PnDDragon', 'AnMAbbey', 'AnMWagon', 'FlierFlier', 'GoldminesGold'}, controlPanelSetting) then
+                        if settingOn and table.contains({'PnDDragon', 'AnMAbbey', 'AnMWagon', 'FlierFlier', 'GoldminesGold'}, controlPanelSetting) then
                             allErrorMessage("Cannot start an AI game with incompatible expansion: " .. controlPanelSetting .. ".", sPlayer)
                             return
                         end
@@ -1612,6 +1618,9 @@ function prepareStartingTiles()
                                 prepareStartingTileLock = false
                                 wait(2)
                             end
+                            if startingTile_GUID == nil then
+                                startingTile_GUID = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid
+                            end
                             while prepareStartingTileLock do
                                 coroutine.yield(0)
                             end
@@ -1865,6 +1874,9 @@ function onObjectPickUp(player, pickedUpObject)
             tileGrid[xIndex][zIndex] = nil
             if pickedUpObject.getGUID() == startingTile_GUID then
                 startingTile_GUID = nil
+            end
+            if pickedUpObject.getGUID() == startingRiverTile_GUID then
+                startingRiverTile_GUID = nil
             end
             lastPlacedTileX = nil
             allGameMessage("Tile removed from grid", NEUTRAL_COLOR)
@@ -2402,7 +2414,7 @@ function isValidTileLocation(newTile, tileRotation, xIndex, zIndex, verbose)
                             end
                         end
                     end
-                    if startingTile_GUID ~= nil and hasRiver and not riverHasConnection then
+                    if startingRiverTile_GUID ~= nil and hasRiver and not riverHasConnection then
                         if verbose then allErrorMessage("Invalid Location: Tile must continue the already placed river", activePlayers[currentPlayer]) end
                         return false
                     end
@@ -2721,6 +2733,9 @@ function checkTile(params)
                     --addTile(xIndex, zIndex, newTile, tileRotation)
                     if startingTile_GUID == nil and newTile.getVar('isStartingPiece') then
                         startingTile_GUID = newTile.getGUID()
+                    end
+                    if startingRiverTile_GUID == nil and newTile.getVar('isStartingPiece') then
+                        startingRiverTile_GUID = newTile.getGUID()
                     end
                     return nextState('tile placed')
                 end
@@ -4651,7 +4666,7 @@ function scoreFeatures()
                                 if feature == 'Coat of Arms' then
                                     score = score + 1
                                 end
-                                if feature == 'Cathedral' then
+                                if feature == 'Cathedral' and controlPanelSettings['InCCathedrals'] then
                                     containsCathedral = true
                                 end
                             end
@@ -4674,7 +4689,7 @@ function scoreFeatures()
                                 if feature == 'Completed City' then
                                     score = score + 1
                                 end
-                                if feature == 'Pig-herd' then
+                                if feature == 'Pig-herd' and not controlPanelSettings['RIIDisablePigherd'] then
                                     containsPigHerd = true
                                 end
                             end
@@ -4683,7 +4698,7 @@ function scoreFeatures()
                             score = #transversedTileCoords
                             local containsInn = false
                             for _, feature in ipairs(transversedSpecialFeatures) do
-                                if feature == 'Inn' then
+                                if feature == 'Inn' and controlPanelSettings['InCInns'] then
                                     containsInn = true
                                 end
                             end
@@ -6453,7 +6468,7 @@ function AIChooseTileLocation()
             wait(0.1)
             AIChooseTileLocation()
         else
-            allErrorMessage("ERROR: tile stack not found. If this tile is the last tile in the game, you should discord it and end the game. Otherwise, the AI cannot recover from this situation.", activePlayers[currentPlayer])
+            allErrorMessage("ERROR: Cannot return this tile to the tilestack. If this tile is part of a river, you will need to manually shuffle it back in and skip back to this AI player. If there is no tilestack, you will need to discard it or skip their turn. If all else fails, restart the game. If this tile is the last tile in the game, you should discard it and end the game.", activePlayers[currentPlayer])
         end
     end
     return 1
@@ -6494,6 +6509,9 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     --addTile(xIndex, zIndex, newTile, tileRotation)
     if startingTile_GUID == nil and newTile.getVar('isStartingPiece') then
         startingTile_GUID = newTile.getGUID()
+    end
+    if startingRiverTile_GUID == nil and newTile.getVar('isStartingPiece') then
+        startingRiverTile_GUID = newTile.getGUID()
     end
 
     newTile.interactable = false
@@ -6834,7 +6852,7 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
             elseif table.contains(TRADE_TOKEN_TYPES, feature) and featureOpenings > 0 then
                 score = score + UNFINISHED_TRADE_TOKEN_VALUE
             end
-            if feature == 'Cathedral' then
+            if feature == 'Cathedral' and controlPanelSettings['InCCathedrals'] then
                 containsCathedral = true
             end
         end
@@ -6887,7 +6905,7 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
             if feature == 'Completed City' then
                 numCities = numCities + 1
             end
-            if feature == 'Pig-herd' then
+            if feature == 'Pig-herd' and not controlPanelSettings['RIIDisablePigherd'] then
                 containsPigHerd = true
             end
         end
@@ -6918,7 +6936,7 @@ function AICalculateFeatureScore(tile, xIndex, zIndex, closestFeature)
         score = #transversedTileCoords
         local containsInn = false
         for _, feature in ipairs(transversedSpecialFeatures) do
-            if feature == 'Inn' then
+            if feature == 'Inn' and controlPanelSettings['InCInns'] then
                 containsInn = true
             end
         end
