@@ -573,7 +573,6 @@ function translate(params)
   end
   return msg
 end
-
 function setLocalizedObjectNames()
   FOLLOWER_TYPES = {translate({'Follower'}), translate({'Big Follower'}), translate({'Phantom'}), translate({'Abbot'}), translate({'Mayor'}), translate({'Wagon'})}
   SPECIAL_FIGURE_TYPES = {translate({'Shepherd'}), translate({'Builder'}), translate({'Pig'}), translate({'Barn'})}
@@ -582,7 +581,6 @@ function setLocalizedObjectNames()
   SHEEP_TOKEN_TYPES = {translate({'Sheep'}), translate({'Wolf'})}
   TRADE_TOKEN_TYPES = {translate({'Wine Token'}), translate({'Wheat Token'}), translate({'Cloth Token'})}
 end
-
 LOCALIZED_STRINGS = {
   ['zh-tw'] = {
     --Player Colors
@@ -1503,7 +1501,7 @@ function onFlierDiceRolled(params)
             (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
             if turnState == 'wait for flier roll' then
                 local dieValue = getObjectFromGUID(expansionBags['Flier'].contents['FlierDie'].guid).getValue()
-                --if dieValue > 3 then dieValue = 7 - dieValue end
+                if dieValue > 3 then dieValue = 7 - dieValue end
                 flierOffset = {x=DIAGONAL_DELTA[flierDirection].x * dieValue, z=DIAGONAL_DELTA[flierDirection].z * dieValue}
                 --debugMessage(1, "Flier direction: " .. flierDirection .. " Flier destination offset: x: " .. flierOffset.x .. " z: " .. flierOffset.z)
                 allGameMessage({"{p1} rolled a {n1}", {'{p1}', activePlayers[currentPlayer]}, {'{n1}', dieValue}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
@@ -7716,12 +7714,9 @@ end
 ----#include !\Carcassonne\scripts\helper_functions
 --Helper Functions
 --These are general purpose helpers to make coding in TTS easier
-
 PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}
-
 NEUTRAL_COLOR = {r=0.5,g=0.5,b=0.5}
 ERROR_COLOR = {r=1,g=0,b=0}
-
 --will print a message to all players, but not to the log
 function gameNotification(msg, rgb, target_color)
     if type(msg) == 'table' then
@@ -7742,7 +7737,6 @@ function gameNotification(msg, rgb, target_color)
         end
     end
 end
-
 --will print a message to all players, broadcasting to the target_color
 --spectators will not receive this message if target_color is not nil
 function allGameMessage(msg, rgb, target_color)
@@ -7770,7 +7764,6 @@ function allGameMessage(msg, rgb, target_color)
     -- params.body = notes[gameLogTabIndex].body .. "\n" .. msg
     -- editNotebookTab(params)
 end
-
 --will print an error message to all players
 function allErrorMessage(msg, target_color)
     if type(msg) == 'table' then
@@ -7791,7 +7784,6 @@ function allErrorMessage(msg, target_color)
         end
     end
 end
-
 --will print an error message to the target player
 function playerErrorMessage(msg, target_color)
     if type(msg) == 'table' then
@@ -7808,7 +7800,6 @@ function playerErrorMessage(msg, target_color)
         broadcastToColor("You are seated in another player's hotseat and cannot play.", target_color, ERROR_COLOR)
     end
 end
-
 --will print the message if the debug level is high enough
 function debugMessage(level, msg)
     if debugMode >= level then
@@ -7821,12 +7812,10 @@ function debugMessage(level, msg)
         print(msg)
     end
 end
-
 --will return a string in the form of bracketed hex codes (ie. [ffffff] for white) when passed the string name of the color
 function stringToBracketedHex(color)
     return RGBToBracketedHex(player_color_tints[color])
 end
-
 --returns the bracketed hex color code for a color, which can be used to add colors to strings (ie. [ffffff] for white). input table must include correct rgb tags to work
 function RGBToBracketedHex(rgb)
     if rgb ~= nil then
@@ -7835,7 +7824,6 @@ function RGBToBracketedHex(rgb)
         return ""
     end
 end
-
 --perform takeObject only if the object exists in the container
 function takeObjectSafe(container, params)
     if params.guid ~= nil then
@@ -7849,7 +7837,6 @@ function takeObjectSafe(container, params)
     end
     printToAll("Warning: Object " .. params.guid .. " not found in container. It may have already been removed.", ERROR_COLOR)
 end
-
 --true if element is one of the elements of the table, otherwise false
 --if element is a table, then checks if an identical table is in the table
 function table.contains(table, element)
@@ -7872,7 +7859,6 @@ function table.contains(table, element)
     end
     return false
 end
-
 --non-recursive table copy
 function table.shallow_copy(t)
   local t2 = {}
@@ -7881,13 +7867,11 @@ function table.shallow_copy(t)
   end
   return t2
 end
-
 --waits for the specified number of seconds. Can only be run from a coroutine
 function wait(time)
   local start = os.clock()
   repeat coroutine.yield(0) until os.clock() > start + time
 end
-
 --isWithinErrorMargin
 -- params:
 --  float: number (to be compared)
@@ -7904,11 +7888,8 @@ end
 
 ----#include !\Carcassonne\scripts\ai
 -------------------------------------------------------------------
-
 --AI Code
-
 -------------------------------------------------------------------
-
 END_GAME_TRANSITION = 35 --when there are less than this number of tiles, the AI will begin abandoning difficult to complete roads with inns and cities with cathedrals
 SCORE_THREAT_THRESHOLD = 50 --players that are more than this many points behind are no longer considered a threat and won't be factored into the decisions
 FOLLOWER_SCORE_THRESHOLD = 0.75 --player won't use a figure to take a feature unless it is worth at least this much
@@ -7918,7 +7899,6 @@ FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being u
 AI_DRAW_TILE_TIME = 1.0 --time delay to allow the drawn tile to travel to the AI player's hand
 AI_ANIMATIONS_ENABLED = false --will move pieces smoothly if true, otherwise the pieces will instantly move
 UNFINISHED_TRADE_TOKEN_VALUE = 1.0
-
 function AIStateHandler()
     --debugMessage(1, "AIStateHandler - " .. turnState)
     if turnState == 'awaiting tile placement' then
@@ -7967,7 +7947,6 @@ function AIStateHandler()
         return stateHandler()
     end
 end
-
 function AIChooseTileLocation()
     --debugMessage(2, "AI choosing tile location...")
     lastFrameTime = os.clock()
@@ -8011,13 +7990,10 @@ function AIChooseTileLocation()
             return 1
         end
     end
-
     calculationStart = os.clock()
     AICalculateBaselineScores()
-
     lastDrawnTile_GUID = newTile.getGUID()
     coroutine.yield(0)
-
     if startingTile_GUID ~= nil then
         local tileConfigurations = {}
         for x, tileColumn in pairs(tileGrid) do
@@ -8044,7 +8020,6 @@ function AIChooseTileLocation()
         highestScoreZ = 20
         highestScoreRot = 4
     end
-
     local posText = highestScorePos
     local figureText = highestScoreFigure
     if highestScorePos == nil then posText = "N/A" end
@@ -8067,9 +8042,7 @@ function AIChooseTileLocation()
     end
     return 1
 end
-
 --initialize this so it will compile correctly
-
 function AICalculateBaselineScores()
     highestScore = -999
     highestScoreX = nil
@@ -8078,9 +8051,7 @@ function AICalculateBaselineScores()
     highestScorePos = nil
     highestScoreFigure = nil
     numIdenticalScore = 1
-
     getActiveFigures()
-
     -- for featureNum, figures in pairs(activeFigures) do
     --     local numFollowers = 0
     --     local numFigures = 0
@@ -8092,14 +8063,11 @@ function AICalculateBaselineScores()
     --     end
     --     print("feature " .. featureNum .. " has " .. numFollowers .. " followers, " .. numFigures .. " special figures.")
     -- end
-
     --since we haven't joined any features yet, the currently active figures can be used
     joinedActiveFigures = activeFigures
     tempFeatureList = featureList
     tempLinkedFeatures = linkedFeatures
-
     AICalculateActiveScores()
-
     baselineScores = {}
     --debugMessage(1, "baseline scores:")
     for _, player in pairs(activePlayers) do
@@ -8107,7 +8075,6 @@ function AICalculateBaselineScores()
         --debugMessage(1, " " .. player .. ": " .. baselineScores[player])
     end
 end
-
 function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
     --debugMessage(1, "AICalculateLocationScore at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
     --temporarily insert this tile into the grid
@@ -8155,7 +8122,6 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
             --print(player .. ":subtract score of " .. scoreChange[player] * (SCORE_THREAT_THRESHOLD - (activeScores[activePlayers[currentPlayer]] + followerCountChange[player] * USED_FOLLOWER_PENALTY)) .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
         end
     end
-
     local tilesRemaining = 0
     if getObjectFromGUID(tileStack_GUID) ~= nil then
         tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
@@ -8163,12 +8129,9 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
         tilesRemaining = 1
     end
     local numRemainingMoves = math.floor(tilesRemaining / #activePlayers) + 1
-
     local highestUnusedFeature = 0
-
     local featureVisited = { }
     local featuresToVisit = { }
-
     local specialFeatures = newTile.getTable('specialFeatures')
     if specialFeatures ~= nil then
         for i, feature in ipairs(specialFeatures) do
@@ -8180,7 +8143,6 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
     for i=1, 12 do
         table.insert(featuresToVisit, i)
     end
-
     for _, i in ipairs(featuresToVisit) do
         local direction
         if i < 5 then
@@ -8197,7 +8159,6 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
         if featureNum ~= nil and tempJoinedFeature[featureNum] ~= nil then
             featureNum = tempJoinedFeature[featureNum]
         end
-
         if featureNum ~= nil and featureVisited[featureNum] ~= true then
             local featureFigures = joinedActiveFigures[featureNum]
             if featureFigures == nil then
@@ -8208,7 +8169,6 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
             local featureScore, featureOpenings, nameOfFeature = AICalculateFeatureScore(featureNum, featureFigures)
             local spareFollowerAdjustment = (-7 * USED_FOLLOWER_PENALTY) + (spareFollowerCounts[activePlayers[currentPlayer]] * USED_FOLLOWER_PENALTY)
             local score
-
             if numRemainingMoves > spareFollowerCounts[activePlayers[currentPlayer]] and (featureOpenings > 0 or nameOfFeature == 'Field') then
                 score = featureScore + moveScore + spareFollowerAdjustment
                 if nameOfFeature ~= 'Field' and nameOfFeature ~= 'Cloister' then
@@ -8219,7 +8179,6 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
             else
                 score = featureScore + moveScore
             end
-
             local usedFeature = false
             local playerHasFollower = false
             for _, follower in ipairs(featureFigures.followers) do
@@ -8317,10 +8276,8 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
         highestScorePos = nil
         highestScoreFigure = nil
     end
-
     tileGrid[xIndex][zIndex] = nil
 end
-
 function AICalculateActiveScores(newXIndex, newZIndex)
     --debugMessage(2, "AI checking current active scores..")
     if os.clock() - lastFrameTime > FRAME_TIME then
@@ -8338,11 +8295,9 @@ function AICalculateActiveScores(newXIndex, newZIndex)
         end
         followerCountChange[player] = 0
     end
-
     if newXIndex ~= nil and (controlPanelSettings['TnBTradeGoods'] or controlPanelSettings['TnBBuilder']) then
         local specialFeatures = {}
         local newTile = getObjectFromGUID(tileGrid[newXIndex][newZIndex].tile_guid)
-
         if newTile.getTable('sides')[1] ~= 'Abbey' then
             for featureNum, feature in pairs(tempFeatureList) do
                 if feature.openings == 0 and feature.nameOfFeature == 'City' then
@@ -8396,7 +8351,6 @@ function AICalculateActiveScores(newXIndex, newZIndex)
                 end
             end
         end
-
         if controlPanelSettings['TnBTradeGoods'] then
             for _, specialFeature in ipairs(specialFeatures) do
                 local highestNumTokens = 0
@@ -8505,12 +8459,10 @@ function AICalculateActiveScores(newXIndex, newZIndex)
         end
     end
 end
-
 function AICalculateFeatureScore(featureNum, figures)
     --debugMessage(3, "AICalculateFeatureScore")
     local feature = tempFeatureList[featureNum]
     if feature == nil then feature = featureList[featureNum] end
-
     local nameOfFeature = feature.nameOfFeature
     local specialFeatures = feature.specialFeatures
     local featureOpenings = feature.openings
@@ -8518,21 +8470,18 @@ function AICalculateFeatureScore(featureNum, figures)
     if nameOfFeature == 'River' or nameOfFeature == 'Carcassonne' then
         return -1000, featureOpenings, nameOfFeature
     end
-
     local tilesRemaining = 0
     if getObjectFromGUID(tileStack_GUID) ~= nil then
         tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
     elseif finalTile_GUID ~= nil then
         tilesRemaining = 1
     end
-
     local featureComplete
     if featureOpenings == 0 then
         featureComplete = true
     else
         featureComplete = false
     end
-
     local hasPig = {}
     --local hasBarn = false
     --local hasNewBarn = false
@@ -8615,7 +8564,6 @@ function AICalculateFeatureScore(featureNum, figures)
            featureComplete and controlPanelSettings['BaseNerfSmallCity'] and score == 4 then score = 2 end
     elseif nameOfFeature == 'Field' and not controlPanelSettings['BaseDisableFarms'] then
         local numCities = 0
-
         local linkedCities = tempLinkedFeatures['City-Field'][featureNum]
         if linkedCities == nil then linkedCities = linkedFeatures['City-Field'][featureNum] end
         if linkedCities ~= nil then
@@ -8781,7 +8729,6 @@ function AICalculateFeatureScore(featureNum, figures)
     end
     return score, featureOpenings, nameOfFeature
 end
-
 HAND_SCALE_CONSTANT = 1.3 -- for some reason, a hand with {1,1,1} scale is not 1 unit wide in each dimension, but instead around 1.2.
 -- Move a card from the specified player's hand to the position smoothly
 -- This works by first setting the position directly in front of the hand to prevent rubber-banding, then immediately moving to the intended position
@@ -8794,7 +8741,6 @@ function setPositionFromHandSmooth(obj, player_color, position)
   obj.setPosition(tempPosition)
   obj.setPositionSmooth(position)
 end
-
 --temporary function to get around the bug of not being able to setPosition from a hand
 function dealInFrontOfHand(obj, player_color, is_a_deck)
   local handTransform = Player[player_color].getHandTransform()
@@ -8812,12 +8758,10 @@ function dealInFrontOfHand(obj, player_color, is_a_deck)
     obj.setRotationSmooth({obj.getRotation().x, handTransform.rotation.y, obj.getRotation().z})
   end
 end
-
 function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     if os.clock() - calculationStart < AI_DRAW_TILE_TIME then -- wait a minimum of this many seconds to make it flow nicer
         wait(AI_DRAW_TILE_TIME - (os.clock() - calculationStart))
     end
-
     --if the newest tile is at the edge of the play area, then shift it if there is room
     --https://stackoverflow.com/a/1252776
     local next = next
@@ -8855,7 +8799,6 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     end
     lastPlacedTileX = xIndex
     lastPlacedTileZ = zIndex
-
     addTile(xIndex, zIndex, newTile, tileRotation, false)
     if startingTile_GUID == nil and newTile.getVar('isStartingPiece') then
         startingTile_GUID = newTile.getGUID()
@@ -8863,7 +8806,6 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     if startingRiverTile_GUID == nil and newTile.getVar('isStartingPiece') then
         startingRiverTile_GUID = newTile.getGUID()
     end
-
     if AI_ANIMATIONS_ENABLED then
         setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
         newTile.setRotationSmooth({0, tileRotation * 90, 0})
@@ -8871,17 +8813,14 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
         newTile.setPosition({xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
         newTile.setRotation({0, tileRotation * 90, 0})
     end
-
     coroutine.yield(0) -- wait one frame before setting interactable to false due to a rubber-banding bug
     newTile.interactable = false
-
     if AI_ANIMATIONS_ENABLED then
         Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={tile=newTile}, delay=2.0})
     else
         AILockTile({tile=newTile})
     end
 end
-
 function AILockTile(params)
     local tile = params.tile
     tile.interactable = true
@@ -8890,7 +8829,6 @@ function AILockTile(params)
     end
     return nextState('tile placed')
 end
-
 function AIMoveFigureToLocation()
     local tile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
     local nameOfFeature = getFeatureName(tile, highestScorePos)
@@ -8931,7 +8869,6 @@ function AIMoveFigureToLocation()
         end
     end
 end
-
 function AILockFigure(params)
     local figure = params.figure
     figure.interactable = true
