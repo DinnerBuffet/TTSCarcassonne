@@ -2285,6 +2285,7 @@ function showWagonFeatureMarkers()
             allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
         end
     end
+    return 1
 end
 
 function showFlierFeatureMarkers(newFigure)
@@ -2802,6 +2803,7 @@ function checkTile(params)
 end
 
 function addTile(xIndex, zIndex, tile, rotation, temp)
+    local startTime = os.clock()
     if startingTile_GUID == nil and tile.getVar('isStartingPiece') and not temp then
         startingTile_GUID = tile.getGUID()
         linkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
@@ -2844,7 +2846,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                     for _, link in ipairs(links) do
                         --HACK: Because quadrants and octants can't be linked, Abbeys create a scenario where they get different feature numbers.
                         --The least hacky way I could fix it (without having to redo huge chunks of code) was as follows, in addition to linking all 12 positions to the 13th on the tiles...
-                        if nameOfFeature == 'Abbey' then
+                        if nameOfFeature == 'Abbey' and position < 13 then
                             link = {1,2,3,4,5,6,7,8,9,10,11,12}
                         end
                         if table.contains(link, position) then
