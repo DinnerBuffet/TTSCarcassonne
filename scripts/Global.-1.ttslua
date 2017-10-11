@@ -2874,7 +2874,6 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             local newFeatureIndex
             if #connectedFeatures > 0 then
                 newFeatureIndex = connectedFeatures[1]
-                --print("position " .. direction .. " connected to feature " .. newFeatureIndex)
 
                 if temp then
                     if tempFeatureList[newFeatureIndex] == nil then
@@ -6005,6 +6004,12 @@ function debugShowFeatureMap()
     local maxX = 25
     local minZ = 25
     local maxZ = 25
+    local chatWindowMaxWidth
+    if featureIndex < 100 then
+        chatWindowMaxWidth = 11
+    else
+        chatWindowMaxWidth = 6
+    end
 
     for xIndex, gridColumn in pairs(featureMap) do
         if xIndex < minX then minX = xIndex end
@@ -6015,58 +6020,78 @@ function debugShowFeatureMap()
         end
     end
 
-    print("printing feature map x:" .. minX .. "-" .. maxX .. " z:" .. minZ .. "-" .. maxZ)
-
-    for zIndex=maxZ, minZ, -1 do
-        for i, positionRow in ipairs({{99, 5, 1, 6, 99}, {12, 99, 99, 99, 7}, {4, 99, 99, 99, 2}, {11, 99, 99, 99, 8}, {99, 10, 3, 9, 99}}) do
-            local printLine = ""
-            for xIndex=minX, maxX do
-                if featureMap[xIndex] ~= nil then
-                    if featureMap[xIndex][zIndex] ~= nil then
-                        local tilePositionRow = table.shallow_copy(positionRow)
-                        if i >= 2 and i <= 4 then
-                            for j=2, 4 do
-                                local closestFeature = findClosestFeatureMap((j - 3) * 0.25, (i - 3) * 0.25, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation)
-                                if closestFeature > 12 then
-                                    tilePositionRow[j] = closestFeature
+    local printColumnMinX = minX
+    for printColumnMaxX = minX + chatWindowMaxWidth, maxX + chatWindowMaxWidth, chatWindowMaxWidth + 1 do
+        if printColumnMaxX > maxX then printColumnMaxX = maxX end
+        print("printing feature map x:" .. printColumnMinX .. "-" .. printColumnMaxX .. " z:" .. minZ .. "-" .. maxZ)
+        for zIndex=maxZ, minZ, -1 do
+            for i, positionRow in ipairs({{99, 5, 1, 6, 99}, {12, 99, 99, 99, 7}, {4, 99, 99, 99, 2}, {11, 99, 99, 99, 8}, {99, 10, 3, 9, 99}}) do
+                local printLine = ""
+                for xIndex=printColumnMinX, printColumnMaxX do
+                    if featureMap[xIndex] ~= nil then
+                        if featureMap[xIndex][zIndex] ~= nil then
+                            local tilePositionRow = table.shallow_copy(positionRow)
+                            if i >= 2 and i <= 4 then
+                                for j=2, 4 do
+                                    local closestFeature = findClosestFeatureMap((j - 3) * 0.25, (i - 3) * 0.25, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation)
+                                    if closestFeature > 12 then
+                                        tilePositionRow[j] = closestFeature
+                                    end
                                 end
                             end
-                        end
-                        for _, position in ipairs(tilePositionRow) do
-                            if position == 99 then
-                                printLine = printLine .. '    '
-                            else
-                                -- local nameOfFeature
-                                -- if featureMap[xIndex][zIndex][position] ~= nil then
-                                --     nameOfFeature = featureList[featureMap[xIndex][zIndex][position]].nameOfFeature
-                                -- else
-                                --     nameOfFeature = featureList[featureMap[xIndex][zIndex][(position * 2) + 3]].nameOfFeature
-                                -- end
-                                -- printLine = printLine .. nameOfFeature:sub(1,1)
-
-                                local featureNum = featureMap[xIndex][zIndex][position]
-                                if featureNum == nil and position < 5 and featureMap[xIndex][zIndex][(position * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(position * 2) + 3] == featureMap[xIndex][zIndex][(position * 2) + 4] then
-                                    featureNum = featureMap[xIndex][zIndex][(position * 2) + 3]
-                                end
-                                if featureNum == nil then
-                                    print("no feature found for x:" .. xIndex .. " z:" .. zIndex .. " position:" .. position .. " on tile:" .. tileGrid[xIndex][zIndex].tile_guid)
-                                    featureNum = 'XX'
+                            for _, position in ipairs(tilePositionRow) do
+                                if position == 99 then
+                                    if featureIndex < 100 then
+                                        printLine = printLine .. '    '
+                                    else
+                                        printLine = printLine .. '      '
+                                    end
                                 else
-                                    featureNum = tonumber(featureNum)
-                                    if featureNum < 10 then featureNum = '0' .. featureNum end
+                                    -- local nameOfFeature
+                                    -- if featureMap[xIndex][zIndex][position] ~= nil then
+                                    --     nameOfFeature = featureList[featureMap[xIndex][zIndex][position]].nameOfFeature
+                                    -- else
+                                    --     nameOfFeature = featureList[featureMap[xIndex][zIndex][(position * 2) + 3]].nameOfFeature
+                                    -- end
+                                    -- printLine = printLine .. nameOfFeature:sub(1,1)
+
+                                    local featureNum = featureMap[xIndex][zIndex][position]
+                                    if featureNum == nil and position < 5 and featureMap[xIndex][zIndex][(position * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(position * 2) + 3] == featureMap[xIndex][zIndex][(position * 2) + 4] then
+                                        featureNum = featureMap[xIndex][zIndex][(position * 2) + 3]
+                                    end
+                                    if featureNum == nil then
+                                        print("no feature found for x:" .. xIndex .. " z:" .. zIndex .. " position:" .. position .. " on tile:" .. tileGrid[xIndex][zIndex].tile_guid)
+                                        if featureIndex < 100 then
+                                            featureNum = 'XX'
+                                        else
+                                            featureNum = 'XXX'
+                                        end
+                                    else
+                                        featureNum = tonumber(featureNum)
+                                        if featureIndex < 100 then
+                                            if featureNum < 10 then featureNum = '0' .. featureNum end
+                                        else
+                                            if featureNum < 10 then featureNum = '00' .. featureNum elseif featureNum < 100 then featureNum = '0' .. featureNum end
+                                        end
+                                    end
+                                    printLine = printLine .. featureNum
                                 end
-                                printLine = printLine .. featureNum
+                            end
+                        else
+                            if featureIndex < 100 then
+                                printLine = printLine .. '                    '
+                            else
+                                printLine = printLine .. '                              '
                             end
                         end
-                    else
-                        printLine = printLine .. '                    '
                     end
                 end
+                --substituing 1's for L's to keep the character width consistent
+                printLine = printLine:gsub("1", "L")
+                print(printLine)
             end
-            --substituing 1's for L's to keep the character width consistent
-            printLine = printLine:gsub("1", "L")
-            print(printLine)
         end
+        printColumnMinX = printColumnMinX + chatWindowMaxWidth + 1
     end
     print("printing features...")
     for featureKey, feature in pairs(featureList) do
@@ -6100,6 +6125,7 @@ function debugShowFeatureMap()
                 printLine = printLine .. destination
             end
         end
+        printLine = printLine:gsub("1", "L")
         print(printLine)
     end
 end
@@ -7171,6 +7197,9 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                 featureNum = tempFeatureMap[(direction * 2) + 3]
             end
         end
+        if featureNum ~= nil and tempJoinedFeature[featureNum] ~= nil then
+            featureNum = tempJoinedFeature[featureNum]
+        end
 
         if featureNum ~= nil and featureVisited[featureNum] ~= true then
             local featureFigures = joinedActiveFigures[featureNum]
@@ -7219,6 +7248,7 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
                         highestScorePos = i
+                        print(featureNum)
                         if baselineFigures[activePlayers[currentPlayer]]['Big Follower'] and (baselineFollowerCounts[activePlayers[currentPlayer]] == 0 or nameOfFeature == 'City') then
                             highestScoreFigure = 'Big Follower'
                         else
