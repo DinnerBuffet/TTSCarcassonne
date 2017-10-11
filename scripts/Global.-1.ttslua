@@ -45,6 +45,8 @@ TILE_THICKNESS = 0.005 --about how much thicker each tile makes a stack when add
 TILE_STANDARD_ROTATION = 2 --every tile is rotated this much so that the perceived rotation of the tiles matches the actual rotation in the code
 TILE_180_ROTATION = 2
 
+SPAM_DELAY = 2 --amount of time after an error message before another will be printed
+
 MIDDLE_LOCATION = {x = 0.795, z = -0.795}
 --HACK: TTS cannot save table variables with negative indexes. Adding this arbitrary value to offset the middle ensures that all grid positions are positive (unless another table is used)
 MIDDLE_OFFSET = {x = 20 * TILE_SPACING, z = 20 * TILE_SPACING}
@@ -59,13 +61,13 @@ NEUTRAL_COLOR = {r=0.5, g=0.5, b=0.5}
 ERROR_COLOR = {r=1, g=0, b=0}
 
 PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}
-player_color_tints = {}
 
 --The following figure definitions were specified in the CAR (Carcassonne Annoted Rules).
 --Although not all figures have the same properties, their relative similarities may simpify code
 FOLLOWER_TYPES = {'Follower', 'Big Follower', 'Phantom', 'Abbot', 'Mayor', 'Wagon'}
 SPECIAL_FIGURE_TYPES = {'Shepherd', 'Builder', 'Pig', 'Barn'}
-NEUTRAL_FIGURE_TYPES = {'Count', 'Dragon', 'Fairy', 'Tower Block'}
+NEUTRAL_FIGURE_TYPES = {'Count', 'Dragon', 'Fairy', 'Tower'}
+NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
 
 SHEEP_TOKEN_TYPES = {'Sheep', 'Wolf'}
 TRADE_TOKEN_TYPES = {'Wine Token', 'Wheat Token', 'Cloth Token'}
@@ -75,15 +77,6 @@ TRADE_TOKEN_COUNTS = {
     ['Cloth Token'] = 5
 }
 GOLD_BAR_NAME = 'Gold Bar'
-
-score_counter_guids = {
-    ['Green'] = '28bdff',
-    ['Pink'] = '7ef326',
-    ['Purple'] = 'f206e4',
-    ['Blue'] = '9d1e70',
-    ['Red'] = '4e3519',
-    ['White'] = '1ecf3f'
-}
 
 arbitraryButtonAnchors = {}
 
@@ -97,8 +90,11 @@ FIGURE_DISTANCE_FROM_EDGE = 0.1 --percentage distance from the edge that each qu
 
 FIGURE_RETURN_DELAY = 0.5 --seconds to wait while returning a figure in order to prevent double-scoring
 FIGURE_PRAISE_DELAY = 2.5 --seconds to wait while figure is spinning before it is returned
+FIGURE_CAPTURE_DELAY = 2.0 --seconds to wait after capturing a figure before it is locked
 
 FRAME_TIME = 0.01667 --time that coroutine can run before it should yield to the main thread. Approx 60FPS
+
+PLAY_AREA_SCRIPTING_ZONE_GUID = '799064'
 
 tileStack_GUID = '16d9db'
 startingTile_GUID = 'c107f0'
@@ -109,7 +105,15 @@ lakeTile_GUID = nil
 riverBodyTiles_GUID = nil
 finalTile_GUID = nil
 
-PLAY_AREA_SCRIPTING_ZONE_GUID = '799064'
+
+score_counter_guids = {
+    ['Green'] = '28bdff',
+    ['Pink'] = '7ef326',
+    ['Purple'] = 'f206e4',
+    ['Blue'] = '9d1e70',
+    ['Red'] = '4e3519',
+    ['White'] = '1ecf3f'
+}
 
 figurepad_GUIDs = {
     ['Green'] = 'cee9ef',
@@ -128,6 +132,8 @@ handColor = {
     ['Red'] = 'Red',
     ['Pink'] = 'Pink'
 }
+
+player_color_tints = {}
 
 figurePositions = {}
 
@@ -270,11 +276,14 @@ expansionBags = {
         ['RiverLakeTile'] = {guid = 'b9de5a'},
         ['RiverBodyTiles'] = {guid = 'e9d3b0'},
     }},
+    ['RussianPromo'] = {guid = 'bdeb95', contents = {
+        ['RussianPromoTiles'] = {guid = 'd47ccc'}
+    }},
     ['SpielPromo'] = {guid = '1e48bf', contents = {
         ['SpielPromoTiles'] = {guid = '9129b0'}
     }},
-    ['RussianPromo'] = {guid = 'bdeb95', contents = {
-        ['RussianPromoTiles'] = {guid = 'd47ccc'}
+    ['Tower'] = {guid = 'd59a8b', contents = {
+        ['TowerTiles'] = {guid = '15a27f'}
     }}
 }
 
@@ -412,6 +421,11 @@ figureSettings = {
     ['CIIAbbot'] = {name = 'Abbot', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -5.15, z = -0.5}, scale = {0.5, 0.5, 0.5}, use_snap_points = true}
 }
 
+playerNeutralFigureSettings = {
+    ['TowerTowers'] = {name = 'Tower', type=5, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRjE1YTNuUlFwbVk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -9.15, z = 0.0}, scale = {0.39, 0.48, 0.5}, use_snap_points = true, num = 'TowerNumTowers'},
+    ['BCnBBridges'] = {name = 'Bridge', type=1, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -11.15, z = 0.0}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BCnBNumBridges'}
+}
+
 --[<steam_id>] = {['Intro'] = <intro string>, [<figure name>] = {<custom figure settings>}}
 vipFigureSettings = {
     -- ['76561197962338210'] = {
@@ -485,6 +499,7 @@ shepherdAwaitingAction = nil
 newBarn = nil
 hasBuilderAwaitingAction = false
 hasAlreadyTakenBuilderTile = false
+hasRansomedPrisoner = false
 buriedTile = nil
 dragonHasAwaken = false
 dragonMoveNumber = 1
@@ -548,6 +563,7 @@ stateMachine = {
         ['placed figure'] = 'post figure events',
         ['placed shepherd'] = 'initialize shepherd',
         ['placed flier'] = 'wait for flier roll',
+        ['placed tower'] = 'prompt tower capture',
         ['placed fairy'] = 'post figure events',
         ['seduce knight'] = 'seduce knight'
     },
@@ -566,6 +582,27 @@ stateMachine = {
     },
     ['awaiting flier decision'] = {
         ['placed flier'] = 'post figure events'
+    },
+    ['prompt tower capture'] = {
+        ['skip capture'] = 'post figure events',
+        ['return follower'] = 'tower - return follower',
+        ['capture follower'] = 'tower capture - delay'
+    },
+    ['tower - return follower'] = {
+        ['figures returned'] = 'post figure events'
+    },
+    ['tower capture - delay'] = {
+        ['next'] = 'tower capture - exchange prisoners'
+    },
+    ['tower capture - exchange prisoners'] = {
+        ['next'] = 'post figure events',
+        ['return followers'] = 'tower capture - return exchanged prisoners'
+    },
+    ['tower capture - return exchanged prisoners'] = {
+        ['figures returned'] = 'tower capture - recreate buttons'
+    },
+    ['tower capture - recreate buttons'] = {
+        ['next'] = 'post figure events'
     },
     ['return flier'] = {
         ['figures returned'] = 'return flier - delay'
@@ -643,16 +680,15 @@ function stateHandler()
         --game hasn't started yet. This should never happen.
         return
     end
-    if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
-        return AIStateHandler()
-    end
     --debugMessage(1, "stateHandler - " .. turnState)
     if turnState == 'begin turn' then
         hasAlreadyTakenBuilderTile = false
+        hasRansomedPrisoner = false
         wagonLocations = {}
         hasAvailableWagonFeature = {}
         newBarn = nil
         lastPlacedTileX = nil
+        createRansomButtons()
         return nextState('next')
     elseif turnState == 'reward fairy' then
         return rewardFairy()
@@ -740,6 +776,21 @@ function stateHandler()
         end
         gameNotification("Place the flier on the destination tile.", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return
+    elseif turnState == 'prompt tower capture' then
+        clearFigureOptions()
+        capturableFollowers = {}
+        return promptTowerCapture()
+    elseif turnState == 'tower - return follower' then
+        return returnFigures()
+    elseif turnState == 'tower capture - delay' then
+        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_CAPTURE_DELAY})
+    elseif turnState == 'tower capture - exchange prisoners' then
+        return exchangePrisoners()
+    elseif turnState == 'tower capture - return exchanged prisoners' then
+        return returnFigures()
+    elseif turnState == 'tower capture - recreate buttons' then
+        createRansomButtons()
+        return nextState('next')
     elseif turnState == 'initialize shepherd' then
         local shepherd = getObjectFromGUID(shepherdAwaitingAction)
         if controlPanelSettings['PnDDragon'] then
@@ -773,7 +824,11 @@ function stateHandler()
         currentPlayerAbbot = nil
         return nextState('next')
     elseif turnState == 'post figure event - prompt shepherd' then
-        return promptShepherd()
+        if shepherdAwaitingAction ~= nil then
+            return promptShepherd()
+        else
+            return nextState('next')
+        end
     elseif turnState == 'check added tile feature - dragon' then
         shepherdAwaitingAction = nil
         return checkTileForDragon()
@@ -821,10 +876,15 @@ function stateHandler()
 end
 
 function nextState(action)
+    if action == nil then action = 'next' end
     if stateMachine[turnState] ~= nil then
         if stateMachine[turnState][action] ~= nil then
             turnState = stateMachine[turnState][action]
-            return stateHandler()
+            if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+                return AIStateHandler()
+            else
+                return stateHandler()
+            end
         else
             allErrorMessage("Error: action - " .. action .. " does not exist for current state - " .. turnState, activePlayers[currentPlayer])
         end
@@ -892,12 +952,17 @@ function onload(save_state)
         if saved_data.player_possession_areas ~= nil then player_possession_areas = saved_data.player_possession_areas end
         if saved_data.turnState ~= nil then turnState = saved_data.turnState end
         if saved_data.wagonLocations ~= nil then wagonLocations = saved_data.wagonLocations end
+        if saved_data.seducedKnights ~= nil then seducedKnights = saved_data.seducedKnights end
+        if saved_data.numberActiveTowers ~= nil then numberActiveTowers = saved_data.numberActiveTowers end
+        if saved_data.towerX ~= nil then towerX = saved_data.towerX end
+        if saved_data.towerZ ~= nil then towerZ = saved_data.towerZ end
         if saved_data.hasAvailableWagonFeature ~= nil then hasAvailableWagonFeature = saved_data.hasAvailableWagonFeature end
         if saved_data.currentMiniTurn ~= nil then currentMiniTurn = saved_data.currentMiniTurn end
         if saved_data.shepherdAwaitingAction ~= nil then shepherdAwaitingAction = saved_data.shepherdAwaitingAction end
         if saved_data.newBarn ~= nil then newBarn = saved_data.newBarn end
         if saved_data.hasBuilderAwaitingAction ~= nil then hasBuilderAwaitingAction = saved_data.hasBuilderAwaitingAction end
         if saved_data.hasAlreadyTakenBuilderTile ~= nil then hasAlreadyTakenBuilderTile = saved_data.hasAlreadyTakenBuilderTile end
+        if saved_data.hasRansomedPrisoner ~= nil then hasRansomedPrisoner = saved_data.hasRansomedPrisoner end
         if saved_data.buriedTile ~= nil then buriedTile = saved_data.buriedTile end
         if saved_data.dragonHasAwaken ~= nil then dragonHasAwaken = saved_data.dragonHasAwaken end
         if saved_data.dragonMoveNumber ~= nil then dragonMoveNumber = saved_data.dragonMoveNumber end
@@ -949,7 +1014,14 @@ function onload(save_state)
         allGameMessage("Please note that rewinds are not supported. You may need to clean some things up if the state was saved while the script was running.", NEUTRAL_COLOR)
     end
     progressPartiallyCompleteStates()
-    return stateHandler()
+    if turnState ~= nil then
+        createRansomButtons()
+        if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+            return AIStateHandler()
+        else
+            return stateHandler()
+        end
+    end
 end
 
 function onSave()
@@ -998,12 +1070,17 @@ function onSave()
         --the following is partial turn data
         turnState = turnState,
         wagonLocations = wagonLocations,
+        seducedKnights = seducedKnights,
+        numberActiveTowers = numberActiveTowers,
+        towerX = towerX,
+        towerZ = towerZ,
         hasAvailableWagonFeature = hasAvailableWagonFeature,
         currentMiniTurn = currentMiniTurn,
         shepherdAwaitingAction = shepherdAwaitingAction,
         newBarn = newBarn,
         hasBuilderAwaitingAction = hasBuilderAwaitingAction,
         hasAlreadyTakenBuilderTile = hasAlreadyTakenBuilderTile,
+        hasRansomedPrisoner = hasRansomedPrisoner,
         --the following is partial state data (for when a state doesn't completely finish)
         buriedTile = buriedTile,
         dragonHasAwaken = dragonHasAwaken,
@@ -1128,7 +1205,25 @@ function cbSpawnUnlock()
 end
 
 function onPlayerChangedColor(player)
-
+    if not gameover then return end
+    local numPlayers = 0
+    for _, color in ipairs(PLAYER_COLORS) do
+        if Player[color].seated or controlPanelSettings[color .. 'Control'] ~= nil then
+            numPlayers = numPlayers + 1
+        end
+        if Player[color].seated and controlPanelSettings[color .. 'Control'] ~= nil then
+            allGameMessage(stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. controlPanelSettings[color .. 'Control'] .. NEUTRAL_COLOR_HEX .. "'s hotseat, " .. stringToBracketedHex(color) .. color .. NEUTRAL_COLOR_HEX .. ", has been taken.", stringColorToRGB(color))
+            controlPanelSettings[color .. 'Control'] = value
+        end
+        if controlPanelSettings[color .. 'Control'] ~= nil and controlPanelSettings[color .. 'Control']:sub(1,2) ~= 'AI' and not Player[controlPanelSettings[color .. 'Control']].seated then
+            allGameMessage(stringToBracketedHex(color) .. color .. NEUTRAL_COLOR_HEX .. "'s hotseat owner, " .. stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. controlPanelSettings[color .. 'Control'] .. NEUTRAL_COLOR_HEX .. ", has left the table or moved.", stringColorToRGB(color))
+            controlPanelSettings[color .. 'Control'] = nil
+        end
+    end
+    controlPanelSettings['TowerNumTowers'] = NUM_TOWERS_PER_PLAYER[numPlayers]
+    if controlPanelSettings['TowerTowers'] then
+        allGameMessage("Warning: Tower count has changed to " .. NUM_TOWERS_PER_PLAYER[numPlayers] .. " due to a player joining on leaving the table.", NEUTRAL_COLOR, nil)
+    end
 end
 
 function onPlayerTurnEnd(player_color_end, player_color_next )
@@ -1187,6 +1282,13 @@ function skipTurnButton(object, sPlayer)
 end
 
 function endTurn()
+    for _, object in ipairs(getAllObjects()) do
+        if tostring(object) == 'Card(Clone) (LuaGameObjectScript)' or table.contains(FOLLOWER_TYPES, object.getName()) or table.contains(SPECIAL_FIGURE_TYPES, object.getName()) then
+            --hasRansomedPrisoner
+            object.highlightOff()
+            object.clearButtons()
+        end
+    end
     if not gameover then
         --the following will detect that the game has finished and will not go to the next turn
         --local tileStack = getObjectFromGUID(tileStack_GUID)
@@ -1208,7 +1310,11 @@ function endTurn()
                 allGameMessage(activePlayers[currentPlayer] .. " gets another turn for laying down the volcano lake tile.", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
             end
             turnState = 'begin turn' --in case skip turn was pressed, go to the beginning from every state
-            return stateHandler()
+            if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+                return AIStateHandler()
+            else
+                return stateHandler()
+            end
         --end
     end
 end
@@ -1296,7 +1402,6 @@ function gameToggleButton(object, sPlayer)
             end
             endGameButtonParam.label = 'End game\n(score\npoints)'
             startLuaCoroutine(self, 'startGame')
-            --startGame()
         else
         endGameButtonParam.label = 'Score\nSummary'
             endGameButtonParam.click_function = 'printScoreSummary'
@@ -1405,8 +1510,8 @@ function startGame()
         startingTile_GUID = nil
         addTile(20, 20, getObjectFromGUID(newTile), 2, false)
     end
-    startLuaCoroutine(self, 'prepareStartingTiles')
     startLuaCoroutine(self, 'prepareTileStack')
+    startLuaCoroutine(self, 'prepareStartingTiles')
     startLuaCoroutine(self, 'preparePlayerPossessionArea')
     startLuaCoroutine(self, 'prepareNeutralItems')
     return 1
@@ -1433,6 +1538,9 @@ function initializeScoreSummary()
         end
         if controlPanelSettings['GoldminesGold'] then
             scoreSummary[player]['Gold'] = 0
+        end
+        if controlPanelSettings['TowerTowers'] then
+            scoreSummary[player]['Ransom'] = 0
         end
     end
 end
@@ -1471,7 +1579,7 @@ function printScoreToNotes()
                 end
             end
         end
-        if highscore >= 0 then
+        if highscore > -999 then
             if highscore < lastHighscore then rank = playerNum end
             local steam_name = ""
             if getPlayerOwner(color):sub(1,2) == 'AI' then
@@ -1626,7 +1734,11 @@ function prepareTileStack()
     gameover = false
     turnState = 'begin turn'
     printScoreToNotes()
-    stateHandler()
+    if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+        AIStateHandler()
+    else
+        stateHandler()
+    end
     return 1
 end
 
@@ -1734,7 +1846,6 @@ function preparePlayerPossessionArea()
                     local x, z = rotateCoordinatesDegrees(figure.offset.x + (((i - 1) % 4) * -1.45), figure.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
                     local params = {}
                     params.type = 'Custom_Model'
-
                     params.position = {figurePad.getPosition().x + x, 2, figurePad.getPosition().z + z}
                     params.rotation = {0, figurePad.getRotation().y, 0}
                     params.scale = figure.scale
@@ -1759,6 +1870,48 @@ function preparePlayerPossessionArea()
                         coroutine.yield(0)
                     end
                     figurePositions[player][figure.name][i] = obj.getGUID()
+                end
+            end
+        end
+        for figureSetting, figure in pairs(playerNeutralFigureSettings) do
+            if controlPanelSettings[figureSetting] then
+                if getPlayerOwner(player):sub(1,2) ~= 'AI' and Player[getPlayerOwner(player)].seated and vipFigureSettings[Player[getPlayerOwner(player)].steam_id] ~= nil and vipFigureSettings[Player[getPlayerOwner(player)].steam_id][figureSetting] ~= nil then
+                    figure = vipFigureSettings[Player[getPlayerOwner(player)].steam_id][figureSetting]
+                end
+                local num
+                if figure.num ~= nil then num = controlPanelSettings[figure.num] else num = 1 end
+                for i=1, num do
+                    local x, z = rotateCoordinatesDegrees(figure.offset.x, figure.offset.z, -figurePad.getRotation().y)
+                    local y = 0
+                    if figureSetting == 'TowerTowers' then
+                        y = -1 + (i - 1) * 0.5
+                    elseif figureSetting == 'BCnBBridges' then
+                        x, z = rotateCoordinatesDegrees(figure.offset.x + (((i - 1) % 4) * -1.45), figure.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                    end
+                    local params = {}
+                    params.type = 'Custom_Model'
+                    params.position = {figurePad.getPosition().x + x, 2 + y, figurePad.getPosition().z + z}
+                    params.rotation = {0, figurePad.getRotation().y, 0}
+                    params.scale = figure.scale
+                    params.callback_owner = Global
+                    params.callback = "cbSpawnUnlock"
+                    gSpawnLock = true
+                    local obj = spawnObject(params)
+
+                    local custom_params = {}
+                    custom_params.mesh = figure.mesh
+                    custom_params.diffuse = figure.diffuse
+                    custom_params.type = figure.type
+                    custom_params.material = 1
+                    custom_params.specular_intensity = 0.05
+                    obj.setCustomObject(custom_params)
+                    obj.setName(figure.name)
+                    obj.setColorTint({r=141/255, g=75/255, b=0})
+                    obj.use_grid = false
+                    obj.use_snap_points = figure.use_snap_points
+                    while gSpawnLock do
+                        coroutine.yield(0)
+                    end
                 end
             end
         end
@@ -1802,7 +1955,11 @@ function endGame()
     gameover = true
     if scoring ~= true then
         turnState = 'game over'
-        stateHandler()
+        if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+            return AIStateHandler()
+        else
+            return stateHandler()
+        end
     end
 end
 
@@ -1851,12 +2008,12 @@ function onObjectDrop(player, droppedObject)
                         if not spamLock then
                             allErrorMessage("It is currently not allowed to place a tile. You are only allowed to place a tile at the beginning of your turn. Current state: " .. turnState, player)
                             spamLock = true
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=2})
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
                         end
                     end
-                elseif table.contains(FOLLOWER_TYPES, droppedObject.getName()) or table.contains(SPECIAL_FIGURE_TYPES, droppedObject.getName()) or droppedObject.getName() == "Fairy" then
+                elseif table.contains(FOLLOWER_TYPES, droppedObject.getName()) or table.contains(SPECIAL_FIGURE_TYPES, droppedObject.getName()) or droppedObject.getName() == "Fairy" or droppedObject.getName() == "Tower" then
                     if (currentMiniTurn ~= nil and (droppedObject.getDescription() == activePlayers[currentMiniTurn])) or
-                        (currentMiniTurn == nil and (droppedObject.getDescription() == activePlayers[currentPlayer])) or droppedObject.getName() == "Fairy" then
+                        (currentMiniTurn == nil and (droppedObject.getDescription() == activePlayers[currentPlayer])) or droppedObject.getName() == "Fairy" or droppedObject.getName() == "Tower" then
                         if turnState == 'awaiting figure decision' then
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
                         elseif turnState == 'replace finished wagons' then
@@ -1868,7 +2025,7 @@ function onObjectDrop(player, droppedObject)
                             if not spamLock then
                                 allErrorMessage("It is currently not allowed to place a figure. You are only allowed to place a figure after a tile. Current state: " .. turnState, player)
                                 spamLock = true
-                                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
                             end
                         end
                     else
@@ -1876,7 +2033,7 @@ function onObjectDrop(player, droppedObject)
                         if not spamLock then
                             playerErrorMessage("Incorrect colored figure was dropped. Are you sure it is yours?", player)
                             spamLock = true
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=2})
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
                         end
                     end
                 else
@@ -1886,26 +2043,26 @@ function onObjectDrop(player, droppedObject)
                 if not spamLock then
                     allErrorMessage("Multiple pieces dropped too fast, please wait.", player)
                     spamLock = true
-                    Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=2})
+                    Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
                 end
             end
         else
             if not spamLock then
                 playerErrorMessage("It is currently not your turn. Dropped pieces will not count.", player)
                 spamLock = true
-                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=2})
+                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
             end
         end
     elseif tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' then
         if not spamLock then
-            allErrorMessage("Game over or not yet started. Press the start game button and re-lay tile", player)
+            playerErrorMessage("Game over or not yet started. Press the start game button and re-lay tile", player)
             spamLock = true
-            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=2})
+            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
         end
     end
 end
 
-function spamunlock()
+function spamUnlock()
     spamLock = false
 end
 
@@ -1915,6 +2072,7 @@ function onObjectPickUp(player, pickedUpObject)
         lastDroppedTime = 0
     end
     if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' then
+        pickedUpObject.clearButtons()
         local xPosition = (pickedUpObject.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
         local zPosition = (pickedUpObject.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
         local xIndex = math.floor(xPosition + TILE_POSITION_MARGIN)
@@ -1936,7 +2094,11 @@ function onObjectPickUp(player, pickedUpObject)
             allGameMessage("Tile removed from grid", NEUTRAL_COLOR)
             clearArbitraryButtons()
             turnState = 'awaiting tile placement'
-            stateHandler()
+            if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+                return AIStateHandler()
+            else
+                return stateHandler()
+            end
         end
         if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
             (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
@@ -1945,8 +2107,8 @@ function onObjectPickUp(player, pickedUpObject)
             end
         end
     elseif table.contains(FOLLOWER_TYPES, pickedUpObject.getName()) or table.contains(SPECIAL_FIGURE_TYPES, pickedUpObject.getName()) then
-        if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
-            (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
+        if (currentMiniTurn ~= nil and pickedUpObject.getDescription() == activePlayers[currentMiniTurn] and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
+            (currentMiniTurn == nil and pickedUpObject.getDescription() == activePlayers[currentPlayer] and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
             if turnState == 'awaiting figure decision' then
                 gPickedUpObject = pickedUpObject
                 startLuaCoroutine(self, 'showFeatureMarkers')
@@ -1961,7 +2123,6 @@ function onObjectPickUp(player, pickedUpObject)
         --     (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
         --     turnState = 'awaiting figure placement'
         -- end
-        pickedUpObject.clearButtons()
     end
 end
 
@@ -2041,7 +2202,7 @@ function showFeatureMarkers()
         local specialFeatures = tile.getTable('specialFeatures')
         if specialFeatures ~= nil then
             for i, feature in ipairs(specialFeatures) do
-                if feature[3] ~= nil then
+                if feature[3] ~= nil and not (feature[1] == 'Tower Foundation' and newFigure.getName() ~= 'Tower') then
                     table.insert(featuresToVisit, i+12)
                 end
             end
@@ -2516,6 +2677,51 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, nameOfFeatur
             return false
         end
     end
+    if nameOfFeature == 'Tower Foundation' then
+        if newFigure.getName() ~= 'Follower' and newFigure.getName() ~= 'Big Follower' and newFigure.getName() ~= 'Tower' then
+            if verbose then allErrorMessage("Invalid Location: Only towers can be placed on tower foundations. Only additional towers, normal followers, and big followers can be placed on towers.", activePlayers[currentPlayer]) end
+            return false
+        else
+            local hasTower = false
+            for _, obj in ipairs(getAllObjects()) do
+                local nestedXIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                local nestedZIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                if xIndex == nestedXIndex and zIndex == nestedZIndex then
+                    local tile, rotation
+                    if tileGridOccupied(xIndex, zIndex) then
+                        tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                        rotation = tileGrid[xIndex][zIndex].rotation
+                    else
+                        allErrorMessage("ERROR: Something went very wrong.", activePlayers[currentPlayer])
+                        return false
+                    end
+                    local xPosition = (obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+                    local zPosition = (obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+                    xPosition = xPosition - xIndex
+                    zPosition = zPosition - zIndex
+                    local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
+                    if closestFeature == position and obj.getGUID() ~= newFigure.getGUID() then
+                        if obj.getName() == 'Follower' or obj.getName() == 'Big Follower' then
+                            if verbose then allErrorMessage("Invalid Location: This tower already has a follower on it.", activePlayers[currentPlayer]) end
+                            return false
+                        elseif obj.getName() == 'Tower' then
+                            hasTower = true
+                        elseif tostring(obj) == 'Card(Clone) (LuaGameObjectScript)' then
+                            --it's the tile, we can ignore it
+                        else
+                            if verbose then allErrorMessage("ERROR: There is an illegal piece in this tower location: " .. obj.getName(), activePlayers[currentPlayer]) end
+                            return false
+                        end
+                    end
+                end
+            end
+            if (newFigure.getName() == 'Follower' or newFigure.getName() == 'Big Follower') and not hasTower then
+                if verbose then allErrorMessage("Invalid Location: Followers cannot be placed on tower foundations.", activePlayers[currentPlayer]) end
+                return false
+            end
+            return true
+        end
+    end
     if newFigure.getName() == 'Shepherd' and nameOfFeature ~= 'Field' then
         if verbose then allErrorMessage("Invalid Location: Shepherd can only be placed on fields.", activePlayers[currentPlayer]) end
         return false
@@ -2803,7 +3009,6 @@ function checkTile(params)
 end
 
 function addTile(xIndex, zIndex, tile, rotation, temp)
-    local startTime = os.clock()
     if startingTile_GUID == nil and tile.getVar('isStartingPiece') and not temp then
         startingTile_GUID = tile.getGUID()
         linkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
@@ -4072,6 +4277,174 @@ function retrieveAbbotButton(object, sPlayer)
     allErrorMessage("Error: The abbot is currently on an invalid feature. Abbots can only be placed on gardens and cloisters.", activePlayers[currentPlayer])
 end
 
+function promptTowerCapture()
+    getObjectFromGUID(tileGrid[towerX][towerZ].tile_guid).highlightOn({1,0,0})
+    for i=1, numberActiveTowers do
+        for side, sideDelta in pairs(SIDE_DELTA) do
+            if tileGridOccupied(towerX + sideDelta.x * i, towerZ + sideDelta.z * i) then
+                getObjectFromGUID(tileGrid[towerX + sideDelta.x * i][towerZ + sideDelta.z * i].tile_guid).highlightOn({1,0,0})
+            end
+        end
+    end
+    local hasFollower = false
+    capturableFollowers = {}
+    for _, obj in ipairs(getAllObjects()) do
+        if table.contains(FOLLOWER_TYPES, obj.getName()) then
+            local xIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+            local zIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            if (xIndex == towerX and zIndex <= towerZ + numberActiveTowers and zIndex >= towerZ - numberActiveTowers) or (zIndex == towerZ and xIndex <= towerX + numberActiveTowers and xIndex >= towerX - numberActiveTowers) then
+                local captureFollowerButtonParam = {
+                   index = 1, label = 'Capture\n' .. obj.getName(), click_function = 'captureFollowerButton',
+                   position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+                }
+                table.insert(capturableFollowers, obj.getGUID())
+                createNormalizedButton(obj, captureFollowerButtonParam, true)
+                hasFollower = true
+            end
+        end
+    end
+    if hasFollower then
+        local skipCaptureButtonParam = {
+           index = 2, label = 'Skip capturing\nfollower', click_function = 'skipCaptureButton',
+           position = {x=0, y=FLOATING_BUTTON_HEIGHT * FLOATING_BUTTON_Y_SCALE, z=2.5 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=600, font_size = 200, function_owner = nil
+        }
+        createNormalizedButton(getObjectFromGUID(tileGrid[towerX][towerZ].tile_guid), skipCaptureButtonParam, true)
+    else
+        return nextState('skip capture')
+    end
+end
+
+function captureFollowerButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        --although we later remove these buttons, there is a slight delay during the figure removal, so we remove them now
+        clearArbitraryButtons()
+        for _, follower in ipairs(capturableFollowers) do
+            getObjectFromGUID(follower).clearButtons()
+        end
+
+        removeDependentFigures(object)
+        if object.getDescription() == activePlayers[currentPlayer] then
+            table.insert(removedFigures, {guid=object.getGUID(), winner=false})
+            allGameMessage(object.getDescription() .. " " .. object.getName() .. " was captured by its owner and returned to supply.", player_color_tints[object.getDescription()])
+            return nextState('return follower')
+        else
+            local x, z = rotateCoordinates(8.9, 2.0, player_possession_areas[activePlayers[currentPlayer]].rotation)
+            object.setLock(false)
+            object.setPositionSmooth({player_possession_areas[activePlayers[currentPlayer]].x + x, 2, player_possession_areas[activePlayers[currentPlayer]].z + z})
+            allGameMessage(object.getDescription() .. " " .. object.getName() .. RGBToBracketedHex(NEUTRAL_COLOR) .. " has been captured by " .. RGBToBracketedHex(player_color_tints[activePlayers[currentPlayer]]) .. activePlayers[currentPlayer], player_color_tints[object.getDescription()])
+            return nextState('capture follower')
+        end
+    end
+end
+
+function skipCaptureButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        return nextState('skip capture')
+    end
+end
+
+function createRansomButtons()
+    allPrisoners = getPrisoners()
+    for player, prisoners in pairs(allPrisoners) do
+        for _, prisoner in ipairs(prisoners) do
+            if prisoner.getDescription() == activePlayers[currentPlayer] then
+                local ransomFollowerButtonParam = {
+                   index = 1, label = 'Ransom\n' .. prisoner.getName(), click_function = 'ransomFollowerButton',
+                   position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+                }
+                createNormalizedButton(prisoner, ransomFollowerButtonParam, true)
+            end
+        end
+    end
+end
+
+function ransomFollowerButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        local captor = nil
+        for player, prisoners in pairs(allPrisoners) do
+            for _, prisoner in ipairs(prisoners) do
+                if object == prisoner then
+                    captor = player
+                end
+                prisoner.clearButtons()
+            end
+        end
+        table.insert(removedFigures, {guid=object.getGUID(), winner=false})
+        scorePoints(activePlayers[currentPlayer], 'Ransom', -3)
+        if captor ~= nil then
+            scorePoints(captor, 'Ransom', 3)
+            allGameMessage(object.getDescription() .. " " .. object.getName() .. " was ransomed from " .. captor .. " for 3 points and returned to supply.", player_color_tints[object.getDescription()])
+        else
+            allErrorMessage("ERROR: Could not find the captor of the prisoner.")
+        end
+        return returnFigures(true)
+    end
+end
+
+function getPrisoners()
+    local prisoners = {}
+    for _, player in ipairs(activePlayers) do
+        prisoners[player] = {}
+        local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
+        local playerNumTokens = 0
+        for _, obj in ipairs(playerPossessions) do
+            if table.contains(FOLLOWER_TYPES, obj.getName()) and obj.getDescription() ~= player then
+                table.insert(prisoners[player], obj)
+            end
+        end
+    end
+    return prisoners
+end
+
+function exchangePrisoners()
+    local prisoners = getPrisoners()
+    prisonersOfOtherPlayer = {}
+    if(#prisoners[prisoners[activePlayers[currentPlayer]][1].getDescription()] ~= 0) then
+        for _, prisoner in ipairs(prisoners[prisoners[activePlayers[currentPlayer]][1].getDescription()]) do
+            if prisoner.getDescription() == activePlayers[currentPlayer] then
+                table.insert(prisonersOfOtherPlayer, prisoner)
+            end
+        end
+    end
+    if #prisonersOfOtherPlayer == 0 then
+        prisoners[activePlayers[currentPlayer]][1].setLock(true)
+        return nextState('next')
+    elseif #prisonersOfOtherPlayer == 1 then
+        prisoners[activePlayers[currentPlayer]][1].clearButtons()
+        prisonersOfOtherPlayer[1].clearButtons()
+        table.insert(removedFigures, {guid=prisoners[activePlayers[currentPlayer]][1].getGUID(), winner=false})
+        table.insert(removedFigures, {guid=prisonersOfOtherPlayer[1].getGUID(), winner=false})
+        allGameMessage(prisoners[activePlayers[currentPlayer]][1].getDescription() .. RGBToBracketedHex(NEUTRAL_COLOR) .. ' and ' .. RGBToBracketedHex(player_color_tints[activePlayers[currentPlayer]]) .. activePlayers[currentPlayer] .. RGBToBracketedHex(NEUTRAL_COLOR) .. " return each others' followers", player_color_tints[prisoners[activePlayers[currentPlayer]][1].getDescription()])
+        return nextState('return followers')
+    else
+        prisoners[activePlayers[currentPlayer]][1].clearButtons()
+        table.insert(removedFigures, {guid=prisoners[activePlayers[currentPlayer]][1].getGUID(), winner=false})
+        allGameMessage(activePlayers[currentPlayer] .. ' must choose a prisoner from ' .. prisoners[activePlayers[currentPlayer]][1].getDescription() .. ' to exchange for ', player_color_tints[activePlayers[currentPlayer]])
+        for _, prisoner in ipairs(prisonersOfOtherPlayer) do
+            prisoner.clearButtons()
+            local returnFollowerButtonParam = {
+               index = 1, label = 'Return\n' .. prisoner.getName(), click_function = 'returnFollowerButton',
+               position = {x=0, y=3.0, z=2.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+            }
+            createNormalizedButton(prisoner, returnFollowerButtonParam, true)
+        end
+    end
+end
+
+function returnFollowerButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        --although we later remove these buttons, there is a slight delay during the figure removal, so we remove them now
+        clearArbitraryButtons()
+        for _, prisoner in ipairs(prisonersOfOtherPlayer) do
+            prisoner.clearButtons()
+        end
+
+        table.insert(removedFigures, {guid=object.getGUID(), winner=false})
+        allGameMessage(object.getDescription() .. " " .. object.getName() .. " was returned to its owner in exchange for a prisoner", player_color_tints[object.getDescription()])
+        return nextState('return followers')
+    end
+end
+
 --adds any special figures that were dependent on this figure to the removed figure list
 function removeDependentFigures(object)
     local xIndex = math.floor((object.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
@@ -4137,14 +4510,14 @@ function checkFigure(params)
                     --allErrorMessage("Invalid Location: Figure was not placed on a tile", activePlayers[currentPlayer])
                     return
                 end
-                if (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) or (tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getName())) or newFigure.getName() == 'Barn' then
-                    local xPosition = (newFigure.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
-                    local zPosition = (newFigure.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
-                    xPosition = xPosition - xIndex
-                    zPosition = zPosition - zIndex
-                    --debugMessage(3, "piece position: x: " .. xPosition .. " z: " .. zPosition)
-                    local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
-                    local nameOfFeature = getFeatureName(tile, closestFeature)
+                local xPosition = (newFigure.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+                local zPosition = (newFigure.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+                xPosition = xPosition - xIndex
+                zPosition = zPosition - zIndex
+                --debugMessage(3, "piece position: x: " .. xPosition .. " z: " .. zPosition)
+                local closestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
+                local nameOfFeature = getFeatureName(tile, closestFeature)
+                if (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) or (tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getName())) or newFigure.getName() == 'Barn' or nameOfFeature == 'Tower Foundation' then
                     local featureOpenings
                     if closestFeature < 5 then
                         if nameOfFeature == 'Road' then
@@ -4177,10 +4550,41 @@ function checkFigure(params)
                             flierDirection = flierDirection + ((rotation - TILE_STANDARD_ROTATION) * 2)
                             if flierDirection > 8 then flierDirection = flierDirection - 8 end
                             if flierDirection < 1 then flierDirection = flierDirection + 8 end
+                            allGameMessage(newFigure.getDescription() .. " " .. newFigure.getName() .. " placed on a flier", player_color_tints[newFigure.getDescription()])
                             return nextState('placed flier')
                         end
                         if AUTOLOCK then
                             newFigure.setLock(true)
+                        end
+                        if newFigure.getName() == 'Tower' then
+                            numberActiveTowers = 0
+                            towerX = xIndex
+                            towerZ = zIndex
+                            for _, obj in ipairs(getAllObjects()) do
+                                if obj.getName() == 'Tower' then
+                                    local nestedXIndex = math.floor((obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                                    local nestedZIndex = math.floor((obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                                    if xIndex == nestedXIndex and zIndex == nestedZIndex then
+                                        local xPosition = (obj.getPosition().x - MIDDLE_LOCATION.x + MIDDLE_OFFSET.x) / TILE_SPACING
+                                        local zPosition = (obj.getPosition().z - MIDDLE_LOCATION.z + MIDDLE_OFFSET.z) / TILE_SPACING
+                                        xPosition = xPosition - xIndex
+                                        zPosition = zPosition - zIndex
+                                        local nestedClosestFeature = findClosestFeature(xPosition, zPosition, tile, rotation)
+                                        if closestFeature == nestedClosestFeature then
+                                            numberActiveTowers = numberActiveTowers + 1
+                                        end
+                                    end
+                                end
+                            end
+                            if numberActiveTowers == 1 then
+                                allGameMessage("Tower started on a Tower Foundation", player_color_tints[activePlayers[currentPlayer]])
+                            else
+                                allGameMessage("The tower has been increased by one level.", player_color_tints[activePlayers[currentPlayer]])
+                            end
+                            return nextState('placed tower')
+                        end
+                        if nameOfFeature == 'Tower Foundation' then
+                            nameOfFeature = 'a tower'
                         end
                         allGameMessage(newFigure.getDescription() .. " " .. newFigure.getName() .. " placed on " .. nameOfFeature, player_color_tints[newFigure.getDescription()])
                         if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' or nameOfFeature == 'Shrine' then
@@ -4529,6 +4933,27 @@ function clearFigureOptions()
 end
 
 function clearArbitraryButtons()
+    local prisoners = getPrisoners()
+    for _, object in ipairs(getAllObjects()) do
+        if tostring(object) == 'Card(Clone) (LuaGameObjectScript)' then
+            object.highlightOff()
+            object.clearButtons()
+        elseif table.contains(FOLLOWER_TYPES, object.getName()) or table.contains(SPECIAL_FIGURE_TYPES, object.getName()) then
+            local isPrisoner = false
+            for player, prisoners in pairs(allPrisoners) do
+                for _, prisoner in ipairs(prisoners) do
+                    if prisoner == object then
+                        isPrisoner = true
+                        break
+                    end
+                end
+            end
+            if not isPrisoner then
+                object.highlightOff()
+                object.clearButtons()
+            end
+        end
+    end
     if lastPlacedTileX ~= nil then
         getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
     end
@@ -4783,33 +5208,29 @@ function findClosestFeature(xPosition, zPosition, tile, rotation)
 end
 
 function promptShepherd()
-    if shepherdAwaitingAction ~= nil then
-        -- local shepherdExpandButtonParam = {
-        --    index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
-        --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.5}, width = 1400, height=700, font_size = 200, function_owner = nil
-        -- }
-        -- local shepherdHerdButtonParam = {
-        --    index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
-        --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=2.3}, width = 1400, height=700, font_size = 200, function_owner = nil
-        -- }
-        local shepherdExpandButtonParam = {
-           index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
-           position = {x=0, y=3, z=1.5 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=700, font_size = 200, function_owner = nil
-        }
-        local shepherdHerdButtonParam = {
-           index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
-           position = {x=0, y=3, z=2.3 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=700, font_size = 200, function_owner = nil
-        }
-        local shepherd = getObjectFromGUID(shepherdAwaitingAction)
-        --createNormalizedArbitraryButton(shepherd, shepherdExpandButtonParam, true)
-        --createNormalizedArbitraryButton(shepherd, shepherdHerdButtonParam, true)
-        createNormalizedButton(shepherd, shepherdExpandButtonParam, true)
-        createNormalizedButton(shepherd, shepherdHerdButtonParam, true)
-        allGameMessage(activePlayers[currentPlayer] .. " added to their Shepherd's field and has an opportunity to expand their flock", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-        return
-    else
-        return nextState('next')
-    end
+    -- local shepherdExpandButtonParam = {
+    --    index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
+    --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.5}, width = 1400, height=700, font_size = 200, function_owner = nil
+    -- }
+    -- local shepherdHerdButtonParam = {
+    --    index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
+    --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=2.3}, width = 1400, height=700, font_size = 200, function_owner = nil
+    -- }
+    local shepherdExpandButtonParam = {
+       index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
+       position = {x=0, y=3, z=1.5 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=700, font_size = 200, function_owner = nil
+    }
+    local shepherdHerdButtonParam = {
+       index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
+       position = {x=0, y=3, z=2.3 * FLOATING_BUTTON_Z_SCALE}, width = 1400, height=700, font_size = 200, function_owner = nil
+    }
+    local shepherd = getObjectFromGUID(shepherdAwaitingAction)
+    --createNormalizedArbitraryButton(shepherd, shepherdExpandButtonParam, true)
+    --createNormalizedArbitraryButton(shepherd, shepherdHerdButtonParam, true)
+    createNormalizedButton(shepherd, shepherdExpandButtonParam, true)
+    createNormalizedButton(shepherd, shepherdHerdButtonParam, true)
+    allGameMessage(activePlayers[currentPlayer] .. " added to their Shepherd's field and has an opportunity to expand their flock", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+    return
 end
 
 function addSheepToFlockButton(object, sPlayer)
@@ -5298,7 +5719,7 @@ function scoreFeatures()
                             score = #transversedTileCoords
                         end
                         for player, value in pairs(followerCounts) do
-                            if nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,6) ~= 'Flier' then --FIXME: need a better permanent solution
+                            if nameOfFeature ~= 'Carcassonne' and nameOfFeature ~= 'Tower Foundation' and string.sub(nameOfFeature,1,6) ~= 'Flier' then --FIXME: need a better permanent solution
                                 if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn and #transversedFollowers > 0) or (gameover and hasBarn and #transversedFollowers == 0) then
                                     if (topWeight > 0 and value >= topWeight) then
                                         playerScore = score
@@ -5343,7 +5764,7 @@ function scoreFeatures()
                                 end
                             end
                         end
-                        if nameOfFeature ~= 'Carcassonne' then --FIXME: need a better permanent solution
+                        if nameOfFeature ~= 'Carcassonne' and nameOfFeature ~= 'Tower Foundation' then --FIXME: need a better permanent solution
                         if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn) then
                             for _, follower in ipairs(transversedFollowers) do
                                 local closestFollower = fairyClosestFollower()
@@ -5725,7 +6146,7 @@ end
 
 function giveGold(gold, player)
     local tradeGoodPile
-    local x, z = rotateCoordinates(6.9, 1.5, player_possession_areas[player].rotation)
+    local x, z = rotateCoordinates(6.9, 2.0, player_possession_areas[player].rotation)
     --params.rotation = {0,  player_possession_areas[activePlayers[currentPlayer]].rotation * -90, 0}
     getObjectFromGUID(gold).setPositionSmooth({player_possession_areas[player].x + x, 2, player_possession_areas[player].z + z})
 
@@ -5886,9 +6307,15 @@ function identifyFeature(obj)
     obj.setLock(true)
 end
 
-function returnFigures()
+function returnFigures(skipStates)
     --startLuaCoroutine(self, 'returnFiguresCoroutine')
 
+    --HACK: ransoming followers shouldn't progress the state machine
+    if skipStates then
+        skipStateProgression = true
+    else
+        skipStateProgression = false
+    end
     local CoNew = coroutine.create(returnFiguresCoroutine)
     --add it to the list of active coroutines
     table.insert(m_Routines, {Co = CoNew, iYield = 0})
@@ -5989,7 +6416,9 @@ function returnFiguresCoroutine()
     removedFigures = {}
 
     --make sure to give enough time for pieces to travel back or they might be counted twice
-    nextState('figures returned')
+    if not skipStateProgression then
+        nextState('figures returned')
+    end
     return 1
 end
 
@@ -6831,50 +7260,15 @@ UNFINISHED_TRADE_TOKEN_VALUE = 1.0
 
 function AIStateHandler()
     --debugMessage(1, "AIStateHandler - " .. turnState)
-    if turnState == 'begin turn' then
-        hasAlreadyTakenBuilderTile = false
-        wagonLocations = {}
-        hasAvailableWagonFeature = {}
-        newBarn = nil
-        lastPlacedTileX = nil
-        return nextState('next')
-    elseif turnState == 'reward fairy' then
-        return rewardFairy()
-    elseif turnState == 'eliminate oldest flea' then
-        return nextState('next')
-    elseif turnState == 'awaiting tile placement' then
+    if turnState == 'awaiting tile placement' then
         gameNotification("AI player is calculating their move...", NEUTRAL_COLOR, activePlayers[currentPlayer])
         startLuaCoroutine(self, 'AIChooseTileLocation')
-    elseif turnState == 'check added tile features' then
-        buriedTile = nil
-        tileHasVolcano = false
-        tileHasMagicPortal = false
-        seducedKnights = {}
-        currentPlayerAbbot = nil
-        shepherdAwaitingAction = nil
-        hasBuilderAwaitingAction = false
-        return nextState('next')
-    elseif turnState == 'check added tile feature - hill' then
-        return checkTileForHill()
-    elseif turnState == 'check added tile feature - volcano' then
-        return checkTileForVolcano()
-    elseif turnState == 'check added tile feature - volcano - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=2.00})
-    elseif turnState == 'check added tile feature - volcano - lock' then
-        getObjectFromGUID(expansionBags['PnD'].contents['PnDDragon'].guid).setLock(true)
-        return nextState('next')
-    elseif turnState == 'check added tile feature - magic portal' then
-        return checkTileForMagicPortal()
-    elseif turnState == 'check added tile feature - gold' then
-        return checkTileForGold()
     elseif turnState == 'place gold on tile' then
         gameNotification("AI not implemented for expansion: The Goldmines", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return addGoldToTile(lastPlacedTileX, lastPlacedTileZ)
     elseif turnState == 'awaiting gold placement' then
-        gameNotification("Choose a location to place the gold bar", NEUTRAL_COLOR, activePlayers[currentPlayer])
+        gameNotification("AI not implemented for expansion: The Goldmines", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return displayGoldButtons()
-    elseif turnState == 'check added tile feature extensions' then
-        return checkAddedTileFeatureExtensions()
     elseif turnState == 'awaiting figure decision' then
         if highestScorePos == nil then
             gameNotification("AI decided not to place a figure.", NEUTRAL_COLOR, activePlayers[currentPlayer])
@@ -6882,87 +7276,34 @@ function AIStateHandler()
         else
             return AIMoveFigureToLocation()
         end
-    elseif turnState == 'retrieve abbot' then
-        return
-    elseif turnState == 'retrieve abbot - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'wait for flier roll' then
         gameNotification("AI not implemented for expansion: The Fliers", NEUTRAL_COLOR, activePlayers[currentPlayer])
         --gameNotification("Roll the flier die to determine your flier's distance.", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return
-    elseif turnState == 'check flier destination' then
-        return checkFlierDestination()
     elseif turnState == 'awaiting flier decision' then
         gameNotification("AI not implemented for expansion: The Fliers", NEUTRAL_COLOR, activePlayers[currentPlayer])
         --gameNotification("Place the flier on the destination tile.", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return
-    elseif turnState == 'initialize shepherd' then
-        local shepherd = getObjectFromGUID(shepherdAwaitingAction)
-        if controlPanelSettings['PnDDragon'] then
-            return addSheepToTile(shepherd)
-        else
-            return addSheepToField(shepherd)
-        end
-    elseif turnState == 'initialize shepherd - finish' then
-        shepherdAwaitingAction = nil
-        return nextState('next')
-    elseif turnState == 'seduce knight' then
-        return returnFigures()
-    elseif turnState == 'seduce knight - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
-    elseif turnState == 'return flier' then
-        return returnFigures()
-    elseif turnState == 'return flier - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
-    elseif turnState == 'post figure events' then
-        seducedKnights = {}
-        currentPlayerAbbot = nil
-        return nextState('next')
     elseif turnState == 'post figure event - prompt shepherd' then
-        return promptShepherd()
-    elseif turnState == 'check added tile feature - dragon' then
-        shepherdAwaitingAction = nil
-        return checkTileForDragon()
-    elseif turnState == 'post figure event - dragon movement' then
-        if currentMiniTurn > #activePlayers then currentMiniTurn = 1 end
-        if dragonMoveNumber <= 6 then
-            return createDragonButtons()
+        if shepherdAwaitingAction ~= nil then
+            gameNotification("AI not implemented for expansion: Hills & Sheep", NEUTRAL_COLOR, activePlayers[currentPlayer])
+            --return promptShepherd()
         else
             return nextState('next')
         end
-    elseif turnState == 'post figure event - dragon movement - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=1.00})
-    elseif turnState == 'post figure event - dragon movement - lock' then
-        getObjectFromGUID(expansionBags['PnD'].contents['PnDDragon'].guid).setLock(true)
-        return nextState('next')
-    elseif turnState == 'score features' then
-        currentMiniTurn = nil
-        for _, tileCoords in ipairs(dragonIllegalTiles) do
-            getObjectFromGUID(tileGrid[tileCoords[1]][tileCoords[2]].tile_guid).highlightOff()
-        end
-        return scoreFeatures()
-    elseif turnState == 'score features - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
-    elseif turnState == 'post scoring events' then
-        return nextState('next')
-    elseif turnState == 'reward gold' then
-        return rewardGold()
-    elseif turnState == 'replace finished wagons' then
-        return replaceFinishedWagons()
-    elseif turnState == 'check for extra builder turn' then
-        if hasBuilderAwaitingAction then
-            hasAlreadyTakenBuilderTile = true
-            allGameMessage(activePlayers[currentPlayer] .."'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-            return nextState('has builder')
-        else
-            return nextState('no builder')
-        end
-    elseif turnState == 'end turn' then
-        return endTurn()
-    elseif turnState == 'game over' then
-        return scoreFeatures()
-    elseif turnState == 'game over - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
+    elseif turnState == 'post figure event - dragon movement' then
+        gameNotification("AI not implemented for expansion: The Princess & The Dragon", NEUTRAL_COLOR, activePlayers[currentPlayer])
+        --if currentMiniTurn > #activePlayers then currentMiniTurn = 1 end
+        --if dragonMoveNumber <= 6 then
+        --    return createDragonButtons()
+        --else
+        --    return nextState('next')
+        --end
+    --elseif turnState == 'replace finished wagons' then
+    --    gameNotification("AI not implemented for expansion: The Abbey & The Mayor", NEUTRAL_COLOR, activePlayers[currentPlayer])
+        --return replaceFinishedWagons()
+    else
+        return stateHandler()
     end
 end
 
@@ -7273,8 +7614,11 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                     playerHasFollower = true
                 end
             end
-
-            if #featureFigures.followers == 0 then
+            if #featureFigures.followers == 0 and
+                not (nameOfFeature == 'Road' and controlPanelSettings['BaseDisableRoads']) and
+                not (nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities']) and
+                not (nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters']) and
+                not (nameOfFeature == 'Field' and controlPanelSettings['BaseDisableFarms']) then
                 if (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]]['Big Follower']) and (numRemainingMoves <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
                     if score == highestScore then
                         --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
