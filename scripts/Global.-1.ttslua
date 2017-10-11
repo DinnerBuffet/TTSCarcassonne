@@ -8853,10 +8853,13 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
         startingRiverTile_GUID = newTile.getGUID()
     end
 
+    --newTile.setPosition({xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
+    --newTile.setRotation({0, tileRotation * 90, 0})
     setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
     newTile.setRotationSmooth({0, tileRotation * 90, 0})
     coroutine.yield(0) -- wait one frame before setting interactable to false due to a rubber-banding bug
     newTile.interactable = false
+    --AILockTile({tile=newTile})
     Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={tile=newTile}, delay=2.0})
 end
 
