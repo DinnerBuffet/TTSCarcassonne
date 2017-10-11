@@ -612,7 +612,7 @@ LOCALIZED_STRINGS = {
     ["Mayor"] = "\u{5e02}\u{9577}",
     ["Wagon"] = "\u{99ac}\u{8eca}",
     ["Barn"] = "\u{7a40}\u{5009}",
-    ["Shepherd"] = "",
+    ["Shepherd"] = "\u{7267}\u{7f8a}\u{4eba}",
     ["Tower"] = "\u{5854}",
     --Situational Figure Names
     ["Meeple"] = "\u{7c73}\u{5bf6}", --one of the 7 basic followers
@@ -647,7 +647,8 @@ LOCALIZED_STRINGS = {
     --["Dragon"] = "\u{706b}\u{9f8d}", --share with figure name?
     --Game Buttons
     ["Start\nGame"] = "\u{958b}\u{59cb}\u{904a}\u{6232}",
-    ["End game\n(score\npoints)"] = "",
+    ["End game\n(score\npoints)"] = "\u{7d50}\u{675f}\u{904a}\u{6232}\n(\u{8a08}\u{7b97}\u{6210}\u{7e3e}\n\u{6210}\u{7e3e})",
+    ["Score\nSummary"] = "\u{8a08}\u{7b97}\u{6210}\u{7e3e}\n\u{7e3d}\u{5206}",
     ["Skip\nTurn"] = "\u{8df3}\u{904e}",
     ["Show\nMarkers:\n"] = "\u{6a19}\u{8a18}:\n",
     ["Both"] = "\u{5168}\u{90e8}",
@@ -665,7 +666,7 @@ LOCALIZED_STRINGS = {
     ["Hills & Sheep"] = "\u{7f8a}\u{54a9}\u{64f4}\u{5145}",
     ["The River"] = "\u{6cb3}\u{6d41}\u{4e00}\u{64f4}\u{5145}",
     ["The River II"] = "\u{6cb3}\u{6d41}\u{4e8c}\u{64f4}\u{5145}",
-    ["King & Robber Baron"] = "\u{570b}\u{738b}\u{8207}\u{65a5}\u{4faf}\u{64f4}\u{5145}", --aka King & Scout, both unused
+    ["King & Robber Baron"] = "\u{570b}\u{738b}\u{8207}\u{65a5}\u{4faf}\u{64f4}\u{5145}", --aka King & Scout, both unused. Jenny suggests "\u{570b}\u{738b}\u{8207}\u{65a5}\u{4faf}\u{ff08}\u{5f37}\u{76dc}\u{ff09}\u{64f4}\u{5145}"
     ["The Cathars"] = "\u{7570}\u{6559}\u{5f92}\u{64f4}\u{5145}(\u{570d}\u{57ce}\u{64f4}\u{5145})",
     ["The Count of Carcassonne"] = "\u{4f2f}\u{7235}\u{64f4}\u{5145}",
     ["The Cult, The Siege"] = "\u{796d}\u{58c7}\u{6230}\u{4e82}\u{64f4}\u{5145}", --??
@@ -689,21 +690,30 @@ LOCALIZED_STRINGS = {
     ["{c1} is no longer a hotseat player"] = "{c1}\u{4e0d}\u{518d}\u{662f}\u{71b1}\u{5ea7}\u{5b8c}\u{5bb6}",
     ["Warning: Tower count has changed to {n1} due to a hotseat/AI player being added/removed."] = "\u{8b66}\u{544a}\u{ff1a}\u{56e0}\u{70ba}\u{65b0}\u{589e}\u{6216}\u{79fb}\u{9664}\u{71b1}\u{5ea7}/\u{4eba}\u{5de5}\u{667a}\u{6167}\u{73a9}\u{5bb6}\u{ff0c}\u{5854}\u{6578}\u{5df2}\u{6539}\u{8b8a}\u{6210}{n1}",
     --Game Messages
-    ["Choose a location to place the gold bar"] = "",
-    ["Place a figure if desired."] = "",
-    ["Roll the flier die to determine your flier's distance."] = "",
-    ["Place the flier on the destination tile."] = "",
+    ["Choose a location to place the gold bar"] = "\u{8acb}\u{9078}\u{64c7}\u{4e00}\u{500b}\u{91d1}\u{689d}\u{653e}\u{7f6e}\u{5730}\u{9ede}",
+    ["Place a figure if desired."] = "\u{60a8}\u{53ef}\u{4ee5}\u{653e}\u{7f6e}\u{4eba}\u{7269}",
+    ["Roll the flier die to determine your flier's distance."] = "\u{64f2}\u{98db}\u{4eba}\u{9ab0}\u{5b57}\u{4ee5}\u{6c7a}\u{5b9a}\u{6b65}",
+    ["Place the flier on the destination tile."] = "\u{8acb}\u{628a}\u{98db}\u{4eba}\u{79fb}\u{5230}\u{9ab0}\u{51fa}\u{7684}\u{76ee}\u{7684}\u{5730}",
     ["{p1}'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn."] = "{p1}\u{73a9}\u{5bb6}\u{7684}\u{5efa}\u{7bc9}\u{5e2b}\u{8b93}\u{4ed6}\u{53ef}\u{4ee5}\u{518d}\u{62bd}\u{4e00}\u{5f35}\u{724c}\u{ff0c}\u{8acb}\u{518d}\u{62bd}\u{4e00}\u{5f35}\u{ff0c}\u{4e26}\u{4e14}\u{5728}\u{63db}\u{73a9}\u{5bb6}\u{524d}\u{57f7}\u{884c}\u{5982}\u{5f80}\u{5e38}\u{7684}\u{9078}\u{64c7}\u{8207}\u{52d5}\u{4f5c}",
     ["Error: action - {s1} does not exist for current state - {s2}"] = "\u{5c31}{s2}\u{72c0}\u{6cc1}{s1}\u{4e26}\u{4e0d}\u{5b58}\u{5728}",
     ["Error: current state does not exist - {s1}"] = "\u{76ee}\u{524d}{s1}\u{968e}\u{6bb5}\u{4e0d}\u{5b58}\u{5728}",
     ["Loaded game was in the middle of scoring. Game pieces may need to be removed manually. Skipping to post scoring events. Some unscored pieces may remain."] = "\u{904e}\u{53bb}\u{8f09}\u{5165}\u{7684}\u{904a}\u{6232}\u{6b63}\u{5728}\u{8a08}\u{5206}\u{ff0c}\u{53ef}\u{80fd}\u{9700}\u{8981}\u{624b}\u{52d5}\u{79fb}\u{9664}\u{7c73}\u{5bf6}\u{ff0c}\u{9084}\u{6c92}\u{8a08}\u{5206}\u{7684}\u{7c73}\u{5bf6}\u{53ef}\u{80fd}\u{6703}\u{7559}\u{5728}\u{539f}\u{4f4d}",
     ["Game loaded. It is now {p1}'s turn on state: {s1}."] = "\u{904a}\u{6232}\u{5df2}\u{8f09}\u{5165}\u{ff0c}\u{73fe}\u{5728}\u{63db}{p1}, {s1}",
     ["{p1} is controlled by {c1}"] = "{p1}\u{88ab}{c1}\u{63a7}\u{5236}",
-    ["Please note that rewinds are not supported. You may need to clean some things up if the state was saved while the script was running."] = "",
+    ["Please note that rewinds are not supported. You may need to clean some things up if the state was saved while the script was running."] = "\u{8acb}\u{6ce8}\u{610f}\u{ff0c}\u{4e26}\u{4e0d}\u{652f}\u{6301}\u{8fd4}\u{56de}\u{529f}\u{80fd}\u{ff0c}\u{5047}\u{5982}\u{904a}\u{6232}\u{72c0}\u{614b}\u{5132}\u{5b58}\u{6642}\u{904a}\u{6232}\u{7a0b}\u{5f0f}\u{6b63}\u{5728}\u{904b}\u{4f5c}\u{ff0c}\u{4f60}\u{53ef}\u{80fd}\u{9700}\u{8981}\u{624b}\u{52d5}\u{6e05}\u{7406}\u{684c}\u{9762}",
     ["{c1}'s hotseat, {c2}, has been taken."] = "{c1}\u{7684}\u{71b1}\u{5ea7},{c2}\u{5df2}\u{7d93}\u{6709}\u{4eba}",
     ["{c1}'s hotseat owner, {c2}, has left the table or moved."] = "{c1}\u{7684}\u{71b1}\u{5ea7}\u{64c1}\u{6709}\u{8005}\u{ff0c}{c2}\u{5df2}\u{7d93}\u{96e2}\u{684c}\u{6216}\u{63db}\u{4f4d}\u{7f6e}",
-    ["Warning: Tower count has changed to {c1} due to a player joining on leaving the table."] = "",
-    ["{p1} rolled a {n1}"] = "",
+    ["Warning: Tower count has changed to {c1} due to a player joining or leaving the table."] = "\u{8b66}\u{544a}\u{ff1a}\u{6bcf}\u{4eba}\u{6709}\u{7684}\u{5854}\u{6578}\u{5df2}\u{7d93}\u{6539}\u{8b8a}\u{ff0c}\u{56e0}\u{70ba}{c1}\u{73a9}\u{5bb6}\u{52a0}\u{5165}\u{6216}\u{9000}\u{51fa}\u{904a}\u{6232}",
+    ["{p1} rolled a {n1}"] = "{p1}\u{9ab0}\u{4e86}{n1}",
+    ["ERROR: It is not currently your turn OR you rolled the die without picking it up."] = "\u{932f}\u{8aa4}\u{ff1a}\u{73fe}\u{5728}\u{9084}\u{6c92}\u{63db}\u{5230}\u{60a8}\u{ff0c}\u{6216}\u{662f}\u{60a8}\u{6c92}\u{6709}\u{628a}\u{9ab0}\u{5b50}\u{64bf}\u{8d77}\u{5c31}\u{9ab0}\u{4e86}\u{9ab0}\u{5b50}",
+    ["-----------It is now {c1}'s turn-----------"] = "-----------\u{73fe}\u{5728}\u{63db}{c1}-----------",
+    ["-------{c1} is controlled by {c2}------"] = "-------{c1}\u{88ab}{c2}\u{63a7}\u{5236}------",
+    ["{c1} gets another turn for laying down the volcano lake tile."] = "\u{56e0}\u{70ba}\u{653e}\u{4e86}\u{706b}\u{5c71}\u{6cb3}\u{724c}{c1}\u{53ef}\u{4ee5}\u{518d}\u{884c}\u{99db}\u{4e00}\u{6b21}\u{52d5}\u{4f5c}",
+    ["Cannot start a game without a starting tileset."] = "\u{6c92}\u{6709}\u{4efb}\u{4f55}\u{7248}\u{672c}\u{724c}\u{7d44}\u{ff0c}\u{904a}\u{6232}\u{7121}\u{6cd5}\u{958b}\u{59cb}",
+    ["Cannot start an AI game with incompatible expansion: {s1}."] = "\u{4eba}\u{5de5}\u{667a}\u{6167}\u{73a9}\u{5bb6}\u{9084}\u{6c92}\u{5b78}\u{6703}{s1}\u{7248}\u{672c}\u{ff0c}\u{904a}\u{6232}\u{7121}\u{6cd5}\u{958b}\u{59cb}",
+    ["{c1} has substituted their color for {c2}"] = "{c1}\u{628a}\u{984f}\u{8272}\u{63db}\u{6210}{c2}",
+    ["{n1} points - {p1}"] = "{n1}\u{5206} - {p1}", --this is displayed as a line for each player on the scoreboard
+    ["#{n1} - {n2} points - {c1} - {p1}"] = "#{n1} - {n2}\u{5206} - {c1} - {p1}", --this is displayed as a line for each player when printing the scores at the end of the game
   },
 }
 ----#include !\Carcassonne\scripts\localization
@@ -4250,7 +4260,7 @@ function checkTileForDragon()
                     currentMiniTurn = currentPlayer
                     local forbiddenZones = {expansionBags['PnD'].contents['PnDDragon'].guid}
                     if controlPanelSettings['PnDFairy'] then
-                        table.insert(forbiddenZones, expansionBags['PnD'].contents['PnDDragon'].guid)
+                        table.insert(forbiddenZones, expansionBags['PnD'].contents['PnDFairy'].guid)
                     end
                     if controlPanelSettings['StartingTileCoC'] then
                         table.insert(forbiddenZones, expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[6].guid)
