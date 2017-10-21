@@ -1,5 +1,5 @@
 isStartingPiece = true
 ignoredFeatures = {2, 7, 8}
-sides = {'Carcassonne', 'Carcassonne', 'Road', 'Carcassonne'}
+sides = {'Carcassonne', 'Field/Carcassonne', 'Road', 'Carcassonne/Field'}
 linkedOctants = {{5, 6, 7, 12}, {8, 9}, {10, 11}}
 specialFeatures = {{'Quarter-Blacksmith', nil, {0.1, 0.0}}, {'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}}

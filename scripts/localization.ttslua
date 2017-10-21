@@ -11,15 +11,6 @@ function translate(params)
   return msg
 end
 
-function setLocalizedObjectNames()
-  FOLLOWER_TYPES = {translate({'Follower'}), translate({'Big Follower'}), translate({'Phantom'}), translate({'Abbot'}), translate({'Mayor'}), translate({'Wagon'})}
-  SPECIAL_FIGURE_TYPES = {translate({'Shepherd'}), translate({'Builder'}), translate({'Pig'}), translate({'Barn'})}
-  NEUTRAL_FIGURE_TYPES = {translate({'Count'}), translate({'Dragon'}), translate({'Fairy'}), translate({'Tower'})}
-  GOLD_BAR_NAME = translate({'Gold Bar'})
-  SHEEP_TOKEN_TYPES = {translate({'Sheep'}), translate({'Wolf'})}
-  TRADE_TOKEN_TYPES = {translate({'Wine Token'}), translate({'Wheat Token'}), translate({'Cloth Token'})}
-end
-
 LOCALIZED_STRINGS = {
   ['zh-tw'] = {
     --Player Colors

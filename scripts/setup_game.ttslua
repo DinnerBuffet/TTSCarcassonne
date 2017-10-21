@@ -1,4 +1,4 @@
---contains scripts and data related to setuping up the game
+--contains scripts and data related to setting up the game
 
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {}}}
 tileSettings = {
@@ -9,10 +9,9 @@ tileSettings = {
     ['AnMTiles'] = {['AnM'] = {['AnMTiles'] = {}}},
     ['KnRBTiles'] = {['KnRB'] = {['KnRBTiles'] = {}}},
     ['CultTiles'] = {['Cult'] = {
-            ['CultTiles'] = {},
-            ['CultBonusTile'] = {}
-        }
-    },
+        ['CultTiles'] = {},
+        ['CultBonusTile'] = {}
+    }},
 	['CatapultTiles'] = {['Catapult'] = {['CatapultTiles'] = {}}},
 	['BCnBTiles'] = {['BCnB'] = {['BCnBTiles'] = {}}},
     ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}},
@@ -23,66 +22,63 @@ tileSettings = {
     ['RussianPromoTiles'] = {['RussianPromo'] = {['RussianPromoTiles'] = {}}}
 }
 
+--the following location is used for the MixAllTiles house rule
+defaultRiverLocation = {position = {x=0.0, y=2.32, z=17.49}, rotation = {x=0,y=180,z=180}}
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {position={<position on table>}, rotation={<rotation>}, shuffle=<should shuffle>, lock=<should lock>}}}
 --will only use the first ForkTile, SpringTile, and LakeTile, prioritizing GamesQuarterly over RiverII over BB5 River over the original River (CAR ref 237)
 startingTileSettings = {
     ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {
-        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
     }},
     ['StartingTileRiverII'] = {['RiverII'] = {
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
         ['RiverForkTile'] = {position = {x=-3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
         ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
     }},
     ['StartingTileRiverBB5'] = {['RiverBB5'] = {
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
         ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
     }},
     ['StartingTileRiver'] = {['River'] = {
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
         ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false}
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
     }},
-    ['StartingTileCoC'] = {
-        ['CoC'] = {
-            ['CoCCarcassonneTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
-                [1] = {position = {x=-3.18, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [2] = {position = {x=-1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [3] = {position = {x=0.0, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [4] = {position = {x=1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [5] = {position = {x=-3.18, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [6] = {position = {x=-1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [7] = {position = {x=0.0, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [8] = {position = {x=1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [9] = {position = {x=-3.18, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [10] = {position = {x=-1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [11] = {position = {x=0.0, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-                [12] = {position = {x=1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
-            }},
-            ['CoCCount'] = {position = {x=-0.30, y=2.0, z=1.44}, rotation = {x=0,y=0,z=0}, shuffle = false, lock = true}
-        }
-    }
+    ['StartingTileCoC'] = {['CoC'] = {
+        ['CoCCarcassonneTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
+            [1] = {position = {x=-3.18, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [2] = {position = {x=-1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [3] = {position = {x=0.0, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [4] = {position = {x=1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [5] = {position = {x=-3.18, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [6] = {position = {x=-1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [7] = {position = {x=0.0, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [8] = {position = {x=1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [9] = {position = {x=-3.18, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [10] = {position = {x=-1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [11] = {position = {x=0.0, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [12] = {position = {x=1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+        }},
+        ['CoCCount'] = {position = {x=-0.30, y=2.0, z=1.44}, rotation = {x=0,y=0,z=0}, shuffle = false, lock = true}
+    }}
 }
 
---[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, offset = {x=<x offset>, z=<z offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, num=<setting with number to spawn>}
-figureSettings = {
-    ['BaseFollower'] = {name = 'Follower', offset = {x = 5.15, z = -0.5}, use_snap_points = true, num = 'BaseNumFollowers', model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} }},
-    ['InCBigFollower'] = {name = 'Big Follower', offset = {x = -0.8, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.6, 0.6, 0.5} }},
-    ['TnBBuilder'] = {name = 'Builder', offset = {x = -0.8, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}, --should probably be closer to {0.5, 0.42, 0.5}
-    ['TnBPig'] = {name = 'Pig', offset = {x = -2.25, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}, --should probably be closer to {0.45, 0.5, 0.5}
-    ['AnMMayor'] = {name = 'Mayor', offset = {x = -2.25, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
-    ['AnMWagon'] = {name = 'Wagon', offset = {x = -3.7, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
-    ['AnMBarn'] = {name = 'Barn', offset = {x = -3.7, z = -0.5}, use_snap_points = false, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
-    ['HnSShepherd'] = {name = 'Shepherd', offset = {x = -5.15, z = 0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }},
-    ['CIIAbbot'] = {name = 'Abbot', offset = {x = -5.15, z = -0.5}, use_snap_points = true, model_settings = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg', scale = {0.5, 0.5, 0.5} }}
-}
-
-playerNeutralFigureSettings = {
-    ['TowerTowers'] = {name = 'Tower', type=5, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTUR2R1doUW5NOGc', collider='https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdUtJZ3dSdkppa1E', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -9.15, z = 0.0}, scale = {0.39, 0.48, 0.5}, use_snap_points = true, num = 'TowerNumTowers'},
-    ['BCnBBridges'] = {name = 'Bridge', type=1, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'http://i.imgur.com/6xSYszt.jpg', offset = {x = -11.15, z = 0.0}, scale = {0.5, 0.5, 0.5}, use_snap_points = true, num = 'BCnBNumBridges'}
+--[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, figurepad_offset = {x=<x figurepad_offset>, z=<z figurepad_offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, num=<setting with number to spawn>}
+playerFigureSettings = {
+    ['BaseFollower'] = {name = 'Follower', figurepad_offset = {x = 5.15, z = -0.5}, use_snap_points = true, num = 'BaseNumFollowers', save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg'}},
+    ['InCBigFollower'] = {name = 'Big Follower', figurepad_offset = {x = -0.8, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.6, 0.6, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg'}},
+    ['TnBBuilder'] = {name = 'Builder', figurepad_offset = {x = -0.8, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}, --scale should probably be closer to {0.5, 0.42, 0.5}
+    ['TnBPig'] = {name = 'Pig', figurepad_offset = {x = -2.25, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}, --scale should probably be closer to {0.45, 0.5, 0.5}
+    ['AnMMayor'] = {name = 'Mayor', figurepad_offset = {x = -2.25, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['AnMWagon'] = {name = 'Wagon', figurepad_offset = {x = -3.7, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['AnMBarn'] = {name = 'Barn', figurepad_offset = {x = -3.7, z = -0.5}, use_snap_points = false, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['HnSShepherd'] = {name = 'Shepherd', figurepad_offset = {x = -5.15, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['CIIAbbot'] = {name = 'Abbot', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['TowerTowers'] = {name = 'Tower', figurepad_offset = {x = -9.15, z = 0.0}, use_snap_points = true, save_figurepad_location = false, num = 'TowerNumTowers', color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255}, object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}}, custom_object_params = {type=5, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTUR2R1doUW5NOGc', collider='https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdUtJZ3dSdkppa1E', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['BCnBBridges'] = {name = 'Bridge', figurepad_offset = {x = -11.15, z = 0.0}, use_snap_points = true, save_figurepad_location = false, num = 'BCnBNumBridges', color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255}, object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}
 }
 
 --[<steam_id>] = {['Intro'] = <intro string>, [<figure name>] = {<custom figure settings>}}
@@ -101,24 +97,47 @@ vipFigureSettings = {
     }
 }
 
+--figures that can be generated in code
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {width = <width of object>}}}
 neutralFigureSettings = {
-    ['TnBTradeGoods'] = {['TnB'] = {
-            ['TnBClothTokenStack'] = {width = 1.0},
-            ['TnBWineTokenStack'] = {width = 1.0},
-            ['TnBWheatTokenStack'] = {width = 1.0}
-        }
-    },
-    ['KnRBKing'] = {['KnRB'] = {['KnRBKing'] = {width = 2.0}}},
-    ['KnRBRobber'] = {['KnRB'] = {['KnRBRobber'] = {width = 2.0}}},
-    ['HnSShepherd'] = {['HnS'] = {['HnSSheepBag'] = {width = 1.5}}},
-    ['PnDFairy'] = {['PnD'] = {['PnDFairy'] = {width = 1.0}}},
-    ['PnDDragon'] = {['PnD'] = {['PnDDragon'] = {width = 2.0}}},
-    ['FlierFlier'] = {['Flier'] = {['FlierDie'] = {width = 1.0}}},
-    ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {width = 1.5}}}
+    ['PnDFairy'] = {name = 'Fairy', width = 1.0, use_snap_points = false, color = {r = 162/255, g = 1, b = 1, a = 1}, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXT2hMVjh2QXJLa1k', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['PnDDragon'] = {name = 'Dragon', width = 2.0, use_snap_points = false, color = {r = 142/255, g = 0, b = 0, a = 1}, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXaUIyMll1aWs0SUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', collider = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdllDZHFOQ24yZGc'}},
+    ['FlierFlier'] = {width = 1.0, use_snap_points = false, object_params = {type = 'Custom_Dice', scale = {1.0, 1.0, 1.0}}, custom_object_params = {type=1, image = 'https://www.dropbox.com/s/ax3shaignnxpnmk/flierdie.jpg?raw=1'}, custom_script =
+[[m_sLastPlayer = nil     --Remember last player who picked up the die
+loaded = false
+
+function onLoad()
+    loaded = true
+end
+
+function onCollisionStay(collision_info)
+    if loaded and self.resting then
+        Global.call('onFlierDiceRolled', {sPlayer = m_sLastPlayer})
+    end
+end
+
+function onPickedUp(player_color)
+    m_sLastPlayer = player_color
+end
+
+function getLastPlayerColor()
+    return m_sLastPlayer
+end]]}
 }
 
-
+--items that are difficult to generate in code, which should be pulled from bags instead
+--[<setting name>] = {[<expansion bag>] = {[<item name>] = {width = <width of object>}}}
+neutralContainerSettings = {
+    ['TnBTradeGoods'] = {['TnB'] = {
+        ['TnBClothTokenStack'] = {name = 'Cloth Token', width = 1.0},
+        ['TnBWineTokenStack'] = {name = 'Wine Token', width = 1.0},
+        ['TnBWheatTokenStack'] = {name = 'Wheat Token', width = 1.0}
+    }},
+    ['KnRBKing'] = {['KnRB'] = {['KnRBKing'] = {name = 'King', width = 2.0}}},
+    ['KnRBRobber'] = {['KnRB'] = {['KnRBRobber'] = {name = 'Robber', width = 2.0}}},
+    ['HnSShepherd'] = {['HnS'] = {['HnSSheepBag'] = {name = 'Sheep tokens', width = 1.5}}},
+    ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {name = 'Gold bars', width = 1.5}}}
+}
 
 --setup the game
 --4 independent coroutines will be started that each setup a different aspect of the game
@@ -135,18 +154,18 @@ function startGame()
     for _, player_color in ipairs(PLAYER_COLORS) do
         --player_color_tints[player_color] = stringColorToRGB(player_color)
         --HACK: The above won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
-        player_color_tints[translate({player_color})] = {}
-        player_color_tints[translate({player_color})]['r'] = stringColorToRGB(player_color)['r']
-        player_color_tints[translate({player_color})]['g'] = stringColorToRGB(player_color)['g']
-        player_color_tints[translate({player_color})]['b'] = stringColorToRGB(player_color)['b']
+        player_color_tints[player_color] = {}
+        player_color_tints[player_color]['r'] = stringColorToRGB(player_color)['r']
+        player_color_tints[player_color]['g'] = stringColorToRGB(player_color)['g']
+        player_color_tints[player_color]['b'] = stringColorToRGB(player_color)['b']
         if Player[player_color].seated or controlPanelSettings[player_color .. 'Control'] ~= nil then
             local playerPossessionArea = player_possession_areas[player_color]
-            local params = {}
-            params.rotation = {0.1,180,0.1}
-            params.callback = "spawnStartingItemUnlock"  -- all the callback does is set spawnStartingItemLock to false
-            params.callback_owner = Global
-            params.type = "ScriptingTrigger"
-            params.position = {playerPossessionArea.x, TABLE_SURFACE_Y - 0.5 + PLAYER_POSSESSION_ZONE_HEIGHT / 2, playerPossessionArea.z}
+            local scripting_zone_params = {}
+            scripting_zone_params.rotation = {0.1,180,0.1}
+            scripting_zone_params.callback = "spawnStartingItemUnlock"  -- all the callback does is set spawnStartingItemLock to false
+            scripting_zone_params.callback_owner = Global
+            scripting_zone_params.type = "ScriptingTrigger"
+            scripting_zone_params.position = {playerPossessionArea.x, TABLE_SURFACE_Y - 0.5 + PLAYER_POSSESSION_ZONE_HEIGHT / 2, playerPossessionArea.z}
             local x_scale, z_scale
             if playerPossessionArea.rotation % 2 == 0 then
                 x_scale = PLAYER_POSSESSION_ZONE_WIDTH
@@ -156,7 +175,7 @@ function startGame()
                 z_scale = PLAYER_POSSESSION_ZONE_WIDTH
             end
             spawnStartingItemLock = true
-            local zoneObj = spawnObject(params)
+            local zoneObj = spawnObject(scripting_zone_params)
             while spawnStartingItemLock do
                 coroutine.yield(0)
             end
@@ -166,7 +185,7 @@ function startGame()
             coroutine.yield(0)
             local objs = zoneObj.getObjects()
             for _, obj in pairs(objs) do
-                if obj.getName() == translate({'Follower'}) then
+                if obj.getName() == 'Follower' then
                     newColor = obj.getDescription()
                     --player_color_tints[newColor] = obj.getColorTint()
                     --HACK: The above won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
@@ -179,7 +198,6 @@ function startGame()
                 end
             end
             playerPossessionScriptingZones[player_color] = zoneObj.getGUID()
-            newColor = translate({newColor})
             if newColor ~= player_color then
                 controllingPlayer = player_color
                 if controlPanelSettings[controllingPlayer .. 'Control'] ~= nil then
@@ -212,7 +230,7 @@ function startGame()
         end
     end
     for _, obj in ipairs(getAllObjects()) do
-        if obj.getName() == translate({'Follower'}) or obj.getName() == 'Substitute Colors' then
+        if obj.getName() == 'Follower' or obj.getName() == 'Substitute Colors' then
             obj.destruct()
         end
     end
@@ -322,94 +340,60 @@ function preparePlayerStartingItems()
     for _, player in ipairs(activePlayers) do
         local figurePad = getObjectFromGUID(figurepad_GUIDs[player])
         if controlPanelSettings['AnMAbbey'] then
-            local params = {}
+            local take_object_params = {}
             local x, z = rotateCoordinatesDegrees(-7.15, 0.0, -figurePad.getRotation().y)
-            params.position = {figurePad.getPosition().x + x, 2, figurePad.getPosition().z + z}
-            params.rotation = {0, figurePad.getRotation().y, 0}
-            params.callback_owner = Global
-            params.callback = "spawnStartingItemUnlock"
-            getObjectFromGUID(expansionBags['AnM'].contents['AnMAbbey'].guid).takeObject(params)
+            take_object_params.position = {figurePad.getPosition().x + x, 2, figurePad.getPosition().z + z}
+            take_object_params.rotation = {0, figurePad.getRotation().y, 0}
+            take_object_params.callback_owner = Global
+            take_object_params.callback = "spawnStartingItemUnlock"
+            getObjectFromGUID(expansionBags['AnM'].contents['AnMAbbey'].guid).takeObject(take_object_params)
         end
         figurePositions[player] = {}
 
-        for figure, figureSetting in pairs(figureSettings) do
+        for figure, figureSetting in pairs(playerFigureSettings) do
             local figureSettingCopy = table.shallow_copy(figureSetting)
             if controlPanelSettings[figure] then
                 if getPlayerOwner(player) == player and Player[player].seated and vipFigureSettings[Player[player].steam_id] ~= nil and vipFigureSettings[Player[player].steam_id][figure] ~= nil then
-                    figureSettingCopy.model_settings = vipFigureSettings[Player[player].steam_id][figure]
+                    figureSettingCopy.custom_object_params = vipFigureSettings[Player[player].steam_id][figure]
                 end
                 local num
                 if figureSettingCopy.num ~= nil then num = controlPanelSettings[figureSettingCopy.num] else num = 1 end
                 for i=1, num do
-                    local x, z = rotateCoordinatesDegrees(figureSettingCopy.offset.x + (((i - 1) % 4) * -1.45), figureSettingCopy.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
-                    local params = {}
-                    params.type = figureSettingCopy.model_settings.type
-                    params.position = {figurePad.getPosition().x + x, 2, figurePad.getPosition().z + z}
-                    params.rotation = {0, figurePad.getRotation().y, 0}
-                    params.scale = figureSettingCopy.model_settings.scale
-                    params.callback_owner = Global
-                    params.callback = "spawnStartingItemUnlock"
+                    local x, z
+                    local y = 0
+                    if figure == 'TowerTowers' then
+                        x, z = rotateCoordinatesDegrees(figureSetting.figurepad_offset.x, figureSetting.figurepad_offset.z, -figurePad.getRotation().y)
+                        y = -1 + (i - 1) * 0.5
+                    else
+                        x, z = rotateCoordinatesDegrees(figureSetting.figurepad_offset.x + (((i - 1) % 4) * -1.45), figureSetting.figurepad_offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
+                    end
+                    local object_params = table.shallow_copy(figureSettingCopy.object_params)
+                    object_params.position = {figurePad.getPosition().x + x, 2 + y, figurePad.getPosition().z + z}
+                    object_params.rotation = {0, figurePad.getRotation().y, 0}
+                    object_params.callback_owner = Global
+                    object_params.callback = "spawnStartingItemUnlock"
                     spawnStartingItemLock = true
-                    local obj = spawnObject(params)
+                    local obj = spawnObject(object_params)
 
-                    local custom_params = {}
-                    custom_params.assetbundle = figureSettingCopy.model_settings.assetbundle
-                    custom_params.mesh = figureSettingCopy.model_settings.mesh
-                    custom_params.diffuse = figureSettingCopy.model_settings.diffuse
-                    custom_params.type = 1
-                    custom_params.material = 1
-                    custom_params.specular_intensity = 0.05
-                    obj.setCustomObject(custom_params)
+                    local custom_object_params = table.shallow_copy(figureSettingCopy.custom_object_params)
+                    obj.setCustomObject(custom_object_params)
                     obj.setName(translate({figureSettingCopy.name}))
-                    obj.setDescription(translate({player}))
-                    obj.setColorTint(player_color_tints[player])
+                    if not figureSettingCopy.hide_owner then
+                        obj.setDescription(translate({player}))
+                    end
+                    if figureSettingCopy.color ~= nil then
+                        obj.setColorTint(figureSettingCopy.color)
+                    else
+                        obj.setColorTint(player_color_tints[player])
+                    end
+                    obj.setLuaScript("figureName = '" .. figureSettingCopy.name .. "'\n" .. "owner = '" .. player .. "'")
                     obj.use_grid = false
                     obj.use_snap_points = figureSettingCopy.use_snap_points
                     while spawnStartingItemLock do
                         coroutine.yield(0)
                     end
-                    figurePositions[player][obj.getGUID()] = {x=figureSettingCopy.offset.x + (((i - 1) % 4) * -1.45), z=figureSettingCopy.offset.z + (math.floor((i - 1) / 4) * 1.0)}
-                end
-            end
-        end
-        for figure, figureSetting in pairs(playerNeutralFigureSettings) do
-            if controlPanelSettings[figure] then
-                local num
-                if figureSetting.num ~= nil then num = controlPanelSettings[figureSetting.num] else num = 1 end
-                for i=1, num do
-                    local x, z = rotateCoordinatesDegrees(figureSetting.offset.x, figureSetting.offset.z, -figurePad.getRotation().y)
-                    local y = 0
-                    if figure == 'TowerTowers' then
-                        y = -1 + (i - 1) * 0.5
-                    elseif figure == 'BCnBBridges' then
-                        x, z = rotateCoordinatesDegrees(figureSetting.offset.x + (((i - 1) % 4) * -1.45), figureSetting.offset.z + (math.floor((i - 1) / 4) * 1.0), -figurePad.getRotation().y)
-                    end
-                    local params = {}
-                    params.type = 'Custom_Model'
-                    params.position = {figurePad.getPosition().x + x, 2 + y, figurePad.getPosition().z + z}
-                    params.rotation = {0, figurePad.getRotation().y, 0}
-                    params.scale = figureSetting.scale
-                    params.callback_owner = Global
-                    params.callback = "spawnStartingItemUnlock"
-                    spawnStartingItemLock = true
-                    local obj = spawnObject(params)
-
-                    local custom_params = {}
-                    custom_params.mesh = figureSetting.mesh
-                    custom_params.diffuse = figureSetting.diffuse
-                    if figureSetting.collider ~= nil then
-                        custom_params.collider = figureSetting.collider
-                    end
-                    custom_params.type = figureSetting.type
-                    custom_params.material = 1
-                    custom_params.specular_intensity = 0.05
-                    obj.setCustomObject(custom_params)
-                    obj.setName(figureSetting.name)
-                    obj.setColorTint({r=141/255, g=75/255, b=0})
-                    obj.use_grid = false
-                    obj.use_snap_points = figureSetting.use_snap_points
-                    while spawnStartingItemLock do
-                        coroutine.yield(0)
+                    if figureSettingCopy.save_figurepad_location then
+                        figurePositions[player][obj.getGUID()] = {x=figureSettingCopy.figurepad_offset.x + (((i - 1) % 4) * -1.45), z=figureSettingCopy.figurepad_offset.z + (math.floor((i - 1) / 4) * 1.0)}
                     end
                 end
             end
@@ -470,23 +454,35 @@ function prepareStartingTiles()
                             --HACK: only use GamesQuarterly river tiles if one of the rivers is enabled
                             if not (rule_id == 'GamesQuarterlyTiles' and (item_id == "RiverSpringTile" or item_id == "RiverBodyTiles") and not controlPanelSettings['StartingTileRiverII'] and not controlPanelSettings['StartingTileRiver'] and not controlPanelSettings['StartingTileRiverBB5']) then
                                 prepareStartingTileLock = true
-                                if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = item_settings.position, rotation = item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
+                                local position = item_settings.position
+                                local rotation = item_settings.rotation
+                                if controlPanelSettings['RiverMixAll'] and rule_id ~= 'StartingTileCoC' then
+                                    position = defaultRiverLocation.position
+                                    rotation = defaultRiverLocation.rotation
+                                end
+                                if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = position, rotation = rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
                                     prepareStartingTileLock = false
                                 end
                                 while prepareStartingTileLock do
                                     coroutine.yield(0)
                                 end
-                                if item_id == "RiverForkTile" and forkTile_GUID == nil then
-                                    forkTile_GUID = expansionBags[expansion_id].contents[item_id].guid
-                                end
-                                if item_id == "RiverSpringTile" then
-                                    springTile_GUID = expansionBags[expansion_id].contents[item_id].guid
-                                end
-                                if item_id == "RiverLakeTile" then
-                                    lakeTile_GUID = expansionBags[expansion_id].contents[item_id].guid
-                                end
-                                if item_id == "RiverBodyTiles" and rule_id ~= 'GamesQuarterlyTiles' and riverBodyTiles_GUID == nil then --HACK: gamesquarterly has a single body tile, so it won't be used as the bodyTileStack
-                                    riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                if controlPanelSettings['RiverMixAll'] and item_id ~= 'CoCCarcassonneTiles' then
+                                    if riverBodyTiles_GUID == nil and getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).getQuantity() > 1  then
+                                        riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                    end
+                                else
+                                    if item_id == "RiverForkTile" and forkTile_GUID == nil then
+                                        forkTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                    end
+                                    if item_id == "RiverSpringTile" then
+                                        springTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                    end
+                                    if item_id == "RiverLakeTile" then
+                                        lakeTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                    end
+                                    if item_id == "RiverBodyTiles" and rule_id ~= 'GamesQuarterlyTiles' and riverBodyTiles_GUID == nil then --HACK: gamesquarterly has a single body tile, so it won't be used as the bodyTileStack
+                                        riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                    end
                                 end
                                 wait(1.0)
                             end
@@ -533,19 +529,65 @@ end
 --sets up items that do not belong to any specific player in the neutral area
 function prepareNeutralItems()
     local offset = 0
-    for rule_id, rule in pairs(neutralFigureSettings) do
+    for rule_id, figureSetting in pairs(neutralFigureSettings) do
+        local figureSettingCopy = table.shallow_copy(figureSetting)
+        if controlPanelSettings[rule_id] then
+            local num
+            if figureSettingCopy.num ~= nil then num = controlPanelSettings[figureSettingCopy.num] else num = 1 end
+            for i=1, num do
+                offset = offset + figureSetting.width / 2
+                local object_params = table.shallow_copy(figureSettingCopy.object_params)
+                object_params.position = {x = NEUTRAL_ITEMS_LOCATION.x + offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}
+                object_params.rotation = {0,180,0}
+                object_params.callback_owner = Global
+                object_params.callback = "neutralItemsUnlock"
+                neutralItemsLock = true
+                local obj = spawnObject(object_params)
+
+                local custom_object_params = table.shallow_copy(figureSettingCopy.custom_object_params)
+                obj.setCustomObject(custom_object_params)
+                obj.setName(translate({figureSettingCopy.name}))
+                if figureSettingCopy.color ~= nil then
+                    obj.setColorTint(figureSettingCopy.color)
+                end
+                if figureSettingCopy.name ~= nil then
+                    obj.setLuaScript("figureName = '" .. figureSettingCopy.name .. "'")
+                end
+                if figureSettingCopy.custom_script ~= nil then
+                    obj.setLuaScript(figureSettingCopy.custom_script)
+                end
+                obj.use_grid = false
+                obj.use_snap_points = figureSettingCopy.use_snap_points
+                offset = offset + figureSetting.width / 2
+                while neutralItemsLock do
+                   coroutine.yield(0)
+                end
+                if rule_id == 'PnDFairy' then
+                    fairy_GUID = obj.getGUID()
+                elseif rule_id == 'PnDDragon' then
+                    dragon_GUID = obj.getGUID()
+                elseif rule_id == 'FlierFlier' then
+                    flierDie_GUID = obj.getGUID()
+                end
+            end
+        end
+    end
+    for rule_id, rule in pairs(neutralContainerSettings) do
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
                 for item_id, item_settings in pairs(expansion) do
                     neutralItemsLock = true
                     offset = offset + item_settings.width / 2
-                    if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = {x = NEUTRAL_ITEMS_LOCATION.x + offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}, rotation = {0,180,0}, callback_owner = Global, callback = "neutralItemsUnlock"}) == nil then
+                    local takenObject = takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = {x = NEUTRAL_ITEMS_LOCATION.x + offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}, rotation = {0,180,0}, callback_owner = Global, callback = "neutralItemsUnlock"})
+                    if takenObject == nil then
+                        --immediately unlock since the callback will never happen
                         neutralItemsLock = false
                     end
                     offset = offset + item_settings.width / 2
-                    --while neutralItemsLock do
-                    --    coroutine.yield(0)
-                    --end
+                    while neutralItemsLock do
+                       coroutine.yield(0)
+                    end
+                    takenObject.setName(item_settings.name)
                 end
             end
         end

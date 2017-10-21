@@ -220,15 +220,7 @@ function stateHandler()
         return nextState('next')
     elseif turnState == 'awaiting tile placement' then
         earnedPointsThisTile = {}
-        if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
-            if forkTile_GUID == nil and riverBodyTiles_GUID == nil and (getObjectFromGUID(tileStack_GUID) == nil or finalTile_GUID == nil) and springTile_GUID == nil and lakeTile_GUID == nil then
-                local tileStack = getObjectFromGUID(tileStack_GUID)
-                if tileStack ~= nil then
-                    tileStack.setLock(false)
-                    tileStack.interactable = true
-                end
-            end
-        end
+        riverTileCheck()
         return
     elseif turnState == 'check added tile features' then
         buriedTile = nil
@@ -248,7 +240,7 @@ function stateHandler()
     elseif turnState == 'check added tile feature - volcano - delay' then
         Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=2.00})
     elseif turnState == 'check added tile feature - volcano - lock' then
-        getObjectFromGUID(expansionBags['PnD'].contents['PnDDragon'].guid).setLock(true)
+        getObjectFromGUID(dragon_GUID).setLock(true)
         return nextState('next')
     elseif turnState == 'check added tile feature - princess' then
         return checkTileForPrincess()
@@ -267,7 +259,7 @@ function stateHandler()
         hasFairyLocation = false
         local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
         for _, obj in ipairs(objs) do
-            if obj.getDescription() == activePlayers[currentPlayer] and table.contains(FOLLOWER_TYPES, obj.getName()) then
+            if obj.getVar('owner') == activePlayers[currentPlayer] and table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
                 local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                 local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                 if tileGridOccupied(xIndex, zIndex) then
@@ -276,7 +268,7 @@ function stateHandler()
             end
         end
         if hasFairyLocation then
-            local fairy = getObjectFromGUID(expansionBags['PnD'].contents['PnDFairy'].guid)
+            local fairy = getObjectFromGUID(fairy_GUID)
             if controlPanelSettings['PnDFairy'] and fairy ~= nil then
                 fairy.setLock(false)
                 fairy.highlightOn({1,1,1})
@@ -393,7 +385,7 @@ function stateHandler()
     elseif turnState == 'post figure event - dragon movement - delay' then
         Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=1.00})
     elseif turnState == 'post figure event - dragon movement - lock' then
-        getObjectFromGUID(expansionBags['PnD'].contents['PnDDragon'].guid).setLock(true)
+        getObjectFromGUID(dragon_GUID).setLock(true)
         return nextState('next')
     elseif turnState == 'score features' then
         clearFigureOptions()

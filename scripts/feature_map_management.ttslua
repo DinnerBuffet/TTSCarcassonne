@@ -63,11 +63,6 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                         if table.contains(link, position) then
                             visitedPosition = true
                             for _, nestedPosition in ipairs(link) do
-                                --HACK: It would have taken a lot of work to code the City of Carcassonne in a way that it would be handled elegantly. Instead, if any of the linked feature locations are different,
-                                -- then treat the entire feature as that type
-                                if nameOfFeature == 'Carcassonne' and getFeatureName(tile, nestedPosition) ~= 'Carcassonne' then
-                                    nameOfFeature = getFeatureName(tile, nestedPosition)
-                                end
                                 featurePositions[nestedPosition] = true
                                 if nestedPosition < 13 then
                                     local connectedTilePosition

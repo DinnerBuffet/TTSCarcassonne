@@ -76,7 +76,7 @@ function showFeatureMarkers()
         end
     end
     for i=1, 12 do
-        if newFigure.getName() ~= translate({'Barn'}) or i > 4 and i % 2 == 1 then
+        if newFigure.getVar('figureName') ~= 'Barn' or i > 4 and i % 2 == 1 then
             table.insert(positionsToVisit, i)
         end
     end
@@ -111,13 +111,17 @@ function showFeatureMarkers()
             end
         end
     end
-    if tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getName()) then
+    if (tileHasMagicPortal or controlPanelSettings['TowerTowers']) and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
         lastFrameTime = os.clock()
-        allGameMessage("Calculating all possible magic portal locations. Hints may be delayed...", NEUTRAL_COLOR)
+        if tileHasMagicPortal then
+            allGameMessage("Calculating all possible magic portal locations. Hints may be delayed...", NEUTRAL_COLOR)
+        else
+            allGameMessage("Calculating all possible tower locations. Hints may be delayed...", NEUTRAL_COLOR)
+        end
 
         --prune features that don't have openings
         for featureNum, feature in pairs(featuresToMark) do
-            if feature.openings == 0 then
+            if feature.nameOfFeature ~= 'Tower Foundation' and feature.openings == 0 then
                 featuresToMark[featureNum] = nil
             end
         end
@@ -176,10 +180,10 @@ function showFeatureMarkers()
             end
         end
     end
-    if table.contains(FOLLOWER_TYPES, newFigure.getName()) then
+    if table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
         --all tower foundation locations are candidates for placing followers if they have a tower
         for _, obj in ipairs(getAllObjects()) do
-            if obj.getName() == translate({'Tower'}) then
+            if newFigure.getVar('figureName') == 'Tower' then
                 local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                 local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                 if tileGridOccupied(xIndex, zIndex) then
@@ -208,7 +212,7 @@ function showFeatureMarkers()
         end
         --however, if they already have a follower then we remove them
         for _, obj in ipairs(getAllObjects()) do
-            if table.contains(FOLLOWER_TYPES, obj.getName()) then
+            if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
                 local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                 local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                 if figureMarkers[xIndex] ~= nil and figureMarkers[xIndex][zIndex] ~= nil then
@@ -238,7 +242,7 @@ function showFeatureMarkers()
                 if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
                     local x = nil
                     local z = nil
-                    if newFigure.getName() ~= translate({'Barn'}) then
+                    if newFigure.getVar('figureName') ~= 'Barn' then
                         x, z = getFeatureLocation(position, tile, rotation)
                     else --put the marker on the corner instead of the feature position
                         if position % 2 == 1 then --pick one arbitrary position (assuming both were valid), then get the corner closest to it
@@ -323,7 +327,7 @@ function showTowerMarkers()
     end
 
     for _, obj in ipairs(getAllObjects()) do
-        if obj.getName() == translate({'Tower'}) then
+        if obj.getVar('figureName') == 'Tower' then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
             if figureMarkers[xIndex] ~= nil and figureMarkers[xIndex][zIndex] ~= nil then
@@ -351,7 +355,7 @@ function showTowerMarkers()
                 if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
                     local x = nil
                     local z = nil
-                    if newFigure.getName() ~= translate({'Barn'}) then
+                    if newFigure.getVar('figureName') ~= 'Barn' then
                         x, z = getFeatureLocation(position, tile, rotation)
                     else --put the marker on the corner instead of the feature position
                         if position % 2 == 1 then --pick one arbitrary position (assuming both were valid), then get the corner closest to it
@@ -385,7 +389,7 @@ function showFairyHighlights(newFigure)
     hasFairyLocation = false
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
     for _, obj in ipairs(objs) do
-        if obj.getDescription() == activePlayers[currentPlayer] and table.contains(FOLLOWER_TYPES, obj.getName()) then
+        if obj.getVar('owner') == activePlayers[currentPlayer] and table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
             if tileGridOccupied(xIndex, zIndex) then
@@ -830,7 +834,7 @@ function showFromCoCFeatureMarkers()
                 if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
                     local x = nil
                     local z = nil
-                    if newFigure.getName() ~= translate({'Barn'}) then
+                    if newFigure.getVar('figureName') ~= 'Barn' then
                         x, z = getFeatureLocation(position, tile, rotation)
                     else --put the marker on the corner instead of the feature position
                         if position % 2 == 1 then --pick one arbitrary position (assuming both were valid), then get the corner closest to it

@@ -7,6 +7,13 @@
 function onload(save_state)
     if save_state ~= nil then
         local saved_data = JSON.decode(save_state)
+        --featureMap data
+        featureMap = saved_data.featureMap
+        featureList = saved_data.featureList
+        linkedFeatures = saved_data.linkedFeatures
+        featureIndex = saved_data.featureIndex
+        --I'm not exactly sure if all of these nil checks are necessary. Leaving them just in case
+        if saved_data.controlPanelSettings ~= nil then controlPanelSettings = saved_data.controlPanelSettings end
         if saved_data.showMarkers ~= nil then showMarkers = saved_data.showMarkers end
         if saved_data.tileGrid ~= nil then tileGrid = saved_data.tileGrid end
         if saved_data.startingTile_GUID ~= nil then startingTile_GUID = saved_data.startingTile_GUID end
@@ -15,12 +22,13 @@ function onload(save_state)
         if saved_data.springTile_GUID ~= nil then springTile_GUID = saved_data.springTile_GUID end
         if saved_data.lakeTile_GUID ~= nil then lakeTile_GUID = saved_data.lakeTile_GUID end
         if saved_data.riverBodyTiles_GUID ~= nil then riverBodyTiles_GUID = saved_data.riverBodyTiles_GUID end
+        if saved_data.finalRiverTile_GUID ~= nil then finalRiverTile_GUID = saved_data.finalRiverTile_GUID end
         if saved_data.finalTile_GUID ~= nil then finalTile_GUID = saved_data.finalTile_GUID end
+        if saved_data.fairy_GUID ~= nil then fairy_GUID = saved_data.fairy_GUID end
+        if saved_data.dragon_GUID ~= nil then dragon_GUID = saved_data.dragon_GUID end
+        if saved_data.flierDie_GUID ~= nil then flierDie_GUID = saved_data.flierDie_GUID end
         if saved_data.lastPlacedTileX ~= nil then lastPlacedTileX = saved_data.lastPlacedTileX end
         if saved_data.lastPlacedTileZ ~= nil then lastPlacedTileZ = saved_data.lastPlacedTileZ end
-        if saved_data.controlPanelSettings ~= nil then
-            controlPanelSettings = saved_data.controlPanelSettings
-        end
         if saved_data.scores ~= nil then
             for player, score in pairs(saved_data.scores) do
                 local scoreCounter = getObjectFromGUID(score_counter_guids[player])
@@ -69,11 +77,6 @@ function onload(save_state)
                 getObjectFromGUID(featureMarker_GUID).destruct()
             end
         end
-        --featureMap data
-        featureMap = saved_data.featureMap
-        featureList = saved_data.featureList
-        linkedFeatures = saved_data.linkedFeatures
-        featureIndex = saved_data.featureIndex
     end
 
     local notes = getNotebookTabs()
@@ -104,7 +107,7 @@ function onload(save_state)
         buttonBoard.createButton(showTraversalParam)
         buttonBoard.createButton(showFeatureMapParam)
     end
-    setLocalizedObjectNames()
+    --setLocalizedObjectNames()
 
     if activePlayers ~= nil and currentPlayer ~= nil then
         if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] == nil then
@@ -163,18 +166,33 @@ function onSave()
         end
     end
     local toSave = {
+        --settings changed by the control panel
+        controlPanelSettings = controlPanelSettings,
+        --setting for which markers should be shown
         showMarkers = showMarkers,
+        --keeps track of which tiles are in which positions and with what rotation
         tileGrid = tileGrid,
+        --featureMap data
+        featureMap = featureMap,
+        featureList = featureList,
+        linkedFeatures = linkedFeatures,
+        featureIndex = featureIndex,
         startingTile_GUID = startingTile_GUID,
+        --keep track of these tiles to control the order that the AI places them
         startingRiverTile_GUID = startingRiverTile_GUID,
         forkTile_GUID = forkTile_GUID,
         springTile_GUID = springTile_GUID,
         lakeTile_GUID = lakeTile_GUID,
         riverBodyTiles_GUID = riverBodyTiles_GUID,
+        finalRiverTile_GUID = finalRiverTile_GUID,
         finalTile_GUID = finalTile_GUID,
+        --specific neutral figures that need to be tracked runtime
+        fairy_GUID = fairy_GUID,
+        dragon_GUID = dragon_GUID,
+        flierDie_GUID = flierDie_GUID,
+        --the most recent tile position placed
         lastPlacedTileX = lastPlacedTileX,
         lastPlacedTileZ = lastPlacedTileZ,
-        controlPanelSettings = controlPanelSettings,
         scores = scores,
         figurePositions = figurePositions,
         gameover = gameover,
@@ -217,12 +235,7 @@ function onSave()
         earnedPointsThisTile = earnedPointsThisTile,
         removedFigures = removedFigures,
         --if script was in the middle of making feature markers or deleting, delete them after loading
-        featureMarker_GUIDs = featureMarker_GUIDs,
-        --featureMap data
-        featureMap = featureMap,
-        featureList = featureList,
-        linkedFeatures = linkedFeatures,
-        featureIndex = featureIndex
+        featureMarker_GUIDs = featureMarker_GUIDs
     }
     return JSON.encode(toSave)
 end

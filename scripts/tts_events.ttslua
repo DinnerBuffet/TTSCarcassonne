@@ -65,7 +65,11 @@ function onObjectDestroyed(dying_object)
                 local dZ = dying_object.getPosition().z - obj.getPosition().z
                 if dX<rad and dX>-rad and dZ<rad and dZ>-rad then
                     if obj.held_by_color == nil and obj.getGUID() ~= lastDrawnTile_GUID then
-                        finalTile_GUID = obj.getGUID()
+                        if dying_object.getGUID() == tileStack_GUID then
+                            finalTile_GUID = obj.getGUID()
+                        elseif dying_object.getGUID() == riverBodyTiles_GUID then
+                            finalRiverTile_GUID = obj.getGUID()
+                        end
                     end
                 end
             end
@@ -80,7 +84,7 @@ function onFlierDiceRolled(params)
         if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
             (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
             if turnState == 'wait for flier roll' then
-                local dieValue = getObjectFromGUID(expansionBags['Flier'].contents['FlierDie'].guid).getValue()
+                local dieValue = getObjectFromGUID(flierDie_GUID).getValue()
                 if dieValue > 3 then dieValue = 7 - dieValue end
                 flierOffset = {x=DIAGONAL_DELTA[flierDirection].x * dieValue, z=DIAGONAL_DELTA[flierDirection].z * dieValue}
                 --debugMessage(1, "Flier direction: " .. flierDirection .. " Flier destination offset: x: " .. flierOffset.x .. " z: " .. flierOffset.z)
@@ -120,9 +124,9 @@ function onObjectDrop(player, droppedObject)
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
                         end
                     end
-                elseif table.contains(FOLLOWER_TYPES, droppedObject.getName()) or table.contains(SPECIAL_FIGURE_TYPES, droppedObject.getName()) then
-                    if (currentMiniTurn ~= nil and (droppedObject.getDescription() == activePlayers[currentMiniTurn])) or
-                        (currentMiniTurn == nil and (droppedObject.getDescription() == activePlayers[currentPlayer])) then
+                elseif table.contains(FOLLOWER_TYPES, droppedObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, droppedObject.getVar('figureName')) or droppedObject.getVar('figureName') == 'Tower' then
+                    if (currentMiniTurn ~= nil and (droppedObject.getVar('owner') == activePlayers[currentMiniTurn])) or
+                        (currentMiniTurn == nil and (droppedObject.getVar('owner') == activePlayers[currentPlayer])) then
                         if turnState == 'awaiting figure decision' then
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
                         elseif turnState == 'replace finished wagons' then
@@ -136,7 +140,11 @@ function onObjectDrop(player, droppedObject)
                         else
                             dropLock = false
                             if not spamLock then
-                                allErrorMessage("It is currently not allowed to place a figure. You are typically only allowed to place a figure after a tile. Current state: " .. turnState, player)
+                                if droppedObject.getVar('figureName') == 'Tower' then
+                                    allErrorMessage("It is currently not allowed to place a tower. You are only allowed to place a tower after placing a tile. Current state: " .. turnState, player)
+                                else
+                                    allErrorMessage("It is currently not allowed to place a figure. You are typically only allowed to place a figure after a tile. Current state: " .. turnState, player)
+                                end
                                 spamLock = true
                                 Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
                             end
@@ -144,12 +152,17 @@ function onObjectDrop(player, droppedObject)
                     else
                         dropLock = false
                         if not spamLock then
-                            playerErrorMessage("Incorrect colored figure was dropped. Are you sure it is yours?", player)
+                            if droppedObject.getVar('figureName') == 'Tower' then
+                                playerErrorMessage("This tower doesn't belong to you. Make sure you check the color in the description.", player)
+                            else
+                                playerErrorMessage("Incorrect colored figure was dropped. Are you sure it is yours?", player)
+                            end
+
                             spamLock = true
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
                         end
                     end
-                elseif droppedObject.getName() == translate({'Fairy'}) then
+                elseif droppedObject.getVar('figureName') == 'Fairy' then
                     if turnState == 'awaiting figure decision' then
                         Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
                         if highlightedTiles ~= nil then
@@ -167,18 +180,7 @@ function onObjectDrop(player, droppedObject)
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
                         end
                     end
-                elseif droppedObject.getName() == translate({'Tower'}) then
-                    if turnState == 'awaiting figure decision' then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
-                    else
-                        dropLock = false
-                        if not spamLock then
-                            allErrorMessage("It is currently not allowed to place a tower. You are only allowed to place a tower after placing a tile. Current state: " .. turnState, player)
-                            spamLock = true
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
-                        end
-                    end
-                elseif droppedObject.getName() == translate({'Count'}) then
+                elseif droppedObject.getVar('figureName') == 'Count' then
                     if turnState == 'prompt moving count' then
                         Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkToCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
                     else
@@ -267,13 +269,17 @@ function onObjectPickUp(player, pickedUpObject)
             if turnState == 'awaiting tile placement' then
                 showTileMarkers(pickedUpObject)
             end
-        elseif (table.contains(FOLLOWER_TYPES, pickedUpObject.getName()) or table.contains(SPECIAL_FIGURE_TYPES, pickedUpObject.getName())) and
-            ((currentMiniTurn ~= nil and pickedUpObject.getDescription() == activePlayers[currentMiniTurn]) or
-            (currentMiniTurn == nil and pickedUpObject.getDescription() == activePlayers[currentPlayer])) then
+        elseif (table.contains(FOLLOWER_TYPES, pickedUpObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, pickedUpObject.getVar('figureName')) or pickedUpObject.getVar('figureName') == 'Tower') and
+            ((currentMiniTurn ~= nil and pickedUpObject.getVar('owner') == activePlayers[currentMiniTurn]) or
+            (currentMiniTurn == nil and pickedUpObject.getVar('owner') == activePlayers[currentPlayer])) then
             if turnState == 'awaiting figure decision' then
                 gPickedUpObject = pickedUpObject
-                startLuaCoroutine(self, 'showFeatureMarkers')
-            elseif pickedUpObject.getName() == translate({'Wagon'}) and turnState == 'replace finished wagons' then
+                if pickedUpObject.getVar('figureName') == 'Tower' then
+                    startLuaCoroutine(self, 'showTowerMarkers')
+                else
+                    startLuaCoroutine(self, 'showFeatureMarkers')
+                end
+            elseif pickedUpObject.getVar('figureName') == 'Wagon' and turnState == 'replace finished wagons' then
                 showWagonFeatureMarkers(pickedUpObject)
             elseif turnState == 'awaiting flier decision' then
                 showFlierFeatureMarkers(pickedUpObject)
@@ -283,12 +289,9 @@ function onObjectPickUp(player, pickedUpObject)
                 gPickedUpObject = pickedUpObject
                 startLuaCoroutine(self, 'showFromCoCFeatureMarkers')
             end
-        elseif pickedUpObject.getName() == 'Tower' and turnState == 'awaiting figure decision' then
-            gPickedUpObject = pickedUpObject
-            startLuaCoroutine(self, 'showTowerMarkers')
-        elseif pickedUpObject.getName() == 'Fairy' and turnState == 'awaiting figure decision' then
+        elseif pickedUpObject.getVar('figureName') == 'Fairy' and turnState == 'awaiting figure decision' then
             showFairyHighlights(pickedUpObject)
-        elseif pickedUpObject.getName() == 'Count' and turnState == 'prompt moving count' then
+        elseif pickedUpObject.getVar('figureName') == 'Count' and turnState == 'prompt moving count' then
             showToCoCFeatureMarkers(pickedUpObject)
         end
     end

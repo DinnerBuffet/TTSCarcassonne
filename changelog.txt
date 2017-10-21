@@ -1,268 +1,283 @@
-﻿v1.18 - 20171010
-Finished implementing mini-expansion: The City of Carcassonne. This completes the whole major expansion: Count, King and Robber.
-Control panel now has tooltips on buttons with a quick description of the item
-Will now highlight valid tiles when the fairy is picked up, if feature hints are on
-Changed state machine order so that checking for completed features (king/robber/trade tokens) comes after placing figures and moving the dragon, to be in line with CAR. This has the added bonus of allowing players to change their decision without having to return the tokens, if they choose to.
-An arrow will be printed next to the name of the current player on the scoreboard
-Barn now correctly shows feature hints
-Fixed yet another wagon bug
+﻿v1.18.1 - 20171021
+[*]The first 4 pages of tiles have been color-corrected by MsFairyViolet so that the grass matches better. This includes most of the major expansions used. Thanks!
+[*]River tiles can now be played in any order, without risk of getting the game stuck. Left-over pieces when the river is finished will be automatically deleted. The AI will still prefer to use them in the standard order, but won't freak out if you mix them into the "body" stack.
+[*]A new house rule has been added to page 6 of the control panel that will mix all of the river tiles during setup
+[*]The script is no longer dependent on the Name and Description of figures and tokens once the game is setup. Instead, each piece has a Lua script with the data embedded. You can now rename them however you want, and the game will even print the name during play (though it will always print the description followed by the name)
+[*]Color constraints have been added to tower pieces (so that you can no longer place your opponent's tower as your own). The color is also in the description to avoid confusion.
+[*]Feature markers should now show for towers that you can place a follower on.
+[*]Fixed Princess being broken (due to a change in 1.18)
+[*]Fixed not being able to place a tower on tiles other than the one just placed (due to a change in 1.18)
+[*]Fixed gold bars being broken (due to a change in 1.18)
+[*]You are no longer allowed to place a follower in a City of Carcassonne quarter if the corresponding feature has been turned off in the house rules
+[*]Fixed not allowing city of carcassonne followers to be moved to cities finished by Abbey. Also fixed the same problem for roads when the Robber is turned off.
+[*]Fixed City of Carcassonne feature markers being incorrect sometimes
+[*]AI is no longer allowed with City of Carcassonne (even with Count off). I had forgotten that some AI logic still needs to be coded, sorry.
+
+v1.18 - 20171010
+[*]Finished implementing mini-expansion: The City of Carcassonne. This completes the whole major expansion: Count, King and Robber.
+[*]Control panel now has tooltips on buttons with a quick description of the item
+[*]Will now highlight valid tiles when the fairy is picked up, if feature hints are on
+[*]Changed state machine order so that checking for completed features (king/robber/trade tokens) comes after placing figures and moving the dragon, to be in line with CAR. This has the added bonus of allowing players to change their decision without having to return the tokens, if they choose to.
+[*]An arrow will be printed next to the name of the current player on the scoreboard
+[*]Barn now correctly shows feature hints
+[*]Fixed yet another wagon bug
 
 v1.17.14 - 20171003
-Implemented workaround to fix bug with Flier die not working correctly on sides with custom rotation values. (Thanks JoeysRattata!)
+[*]Implemented workaround to fix bug with Flier die not working correctly on sides with custom rotation values. (Thanks JoeysRattata!)
 
 v1.17.13 - 20170930
-Fixed being able to move the dragon to the tile that the fairy is on. (Thanks SuxC!)
+[*]Fixed being able to move the dragon to the tile that the fairy is on. (Thanks SuxC!)
 
 v1.17.12 - 20170917
-Implemented a temporary fix for tile getting stuck in AI player's hands (hopefully)
+[*]Implemented a temporary fix for tile getting stuck in AI player's hands (hopefully)
 
 v1.17.11 - 20170910
-Fixed AI breaking when shrines are used (Thanks Calloused!)
+[*]Fixed AI breaking when shrines are used (Thanks Calloused!)
 
 v1.17.10 - 20170907
-Fixed an error that occured each time the builder was used (Thanks Kharnax!)
-Fixed fields around City of Carcassonne so that they now can have a farmer placed in them
+[*]Fixed an error that occured each time the builder was used (Thanks Kharnax!)
+[*]Fixed fields around City of Carcassonne so that they now can have a farmer placed in them
 
 v1.17.9 - 20170905
-Fixed play area shifting not working correctly for the z-dimension
-Fixed City of Carcassonne tile setup being broken due to shifting table grid and contents in 1.17.8
-The dragon is now forbidden from going to the middle 2 tiles of the City of Carcassonne (according to the rules)
+[*]Fixed play area shifting not working correctly for the z-dimension
+[*]Fixed City of Carcassonne tile setup being broken due to shifting table grid and contents in 1.17.8
+[*]The dragon is now forbidden from going to the middle 2 tiles of the City of Carcassonne (according to the rules)
 
 v1.17.8 - 20170903
-The play area will now automatically shift if a tile is placed at the edge. This will continue until it reaches the other end.
-Tiles no longer need to be placed precisely. As long as they're within a liberal margin, the game will set their position to the correct location.
-Feature hints have been added for towers
-Buttons for dragon movement and placing gold have now been normalized. There should no longer be any button stretching issues (FINALLY)
-Play area is now limited to the blue part of the table and the possession area has been moved to prevent overlap between the two. This shouldn't limit the area too much since the game will now shift the pieces. If additional room is needed, we'll need to wait until custom tables are introduced.
-possession area has been re-organized and will space captured followers and gold out instead of piling them in one location
-Fixed flier target tiles not being highlighted
-Dragon movement tiles are now re-highlighted when loading a game
-AI once again will move tiles into their hands before playing. It should no longer get stuck.
-Extra figure pads are deleted to reduce clutter
-Show Markers now defaults to "Both" once again (accidentally changed in 1.17.7) (Thanks SPARK!)
+[*]The play area will now automatically shift if a tile is placed at the edge. This will continue until it reaches the other end.
+[*]Tiles no longer need to be placed precisely. As long as they're within a liberal margin, the game will set their position to the correct location.
+[*]Feature hints have been added for towers
+[*]Buttons for dragon movement and placing gold have now been normalized. There should no longer be any button stretching issues (FINALLY)
+[*]Play area is now limited to the blue part of the table and the possession area has been moved to prevent overlap between the two. This shouldn't limit the area too much since the game will now shift the pieces. If additional room is needed, we'll need to wait until custom tables are introduced.
+[*]possession area has been re-organized and will space captured followers and gold out instead of piling them in one location
+[*]Fixed flier target tiles not being highlighted
+[*]Dragon movement tiles are now re-highlighted when loading a game
+[*]AI once again will move tiles into their hands before playing. It should no longer get stuck.
+[*]Extra figure pads are deleted to reduce clutter
+[*]Show Markers now defaults to "Both" once again (accidentally changed in 1.17.7) (Thanks SPARK!)
 
 v1.17.7 - 20170821
-Implemented a workaround to fix AI being broken. The cards will now be moved to in front of the hands instead of into them.
-Flier dice now use the custom rotation value system added to TTS recently.
-Fixed bug: Figure hints do not rotate correctly for special feature locations.
+[*]Implemented a workaround to fix AI being broken. The cards will now be moved to in front of the hands instead of into them.
+[*]Flier dice now use the custom rotation value system added to TTS recently.
+[*]Fixed bug: Figure hints do not rotate correctly for special feature locations.
 
 v1.17.6 - 20170804
-Fixed capture buttons on meeples being rotated under the table.
-Fixed tile feature markers not being transparent (Thanks to MrStump for helping me with the model!)
-Fixed cloisters not being valid places to move a wagon to (Thanks TheLimeyDragon!)
-Added a button anchor under the table that can be used to put buttons in arbitrary positions. This should help fix button warping issues for the standard figure placement buttons. The rest will need a different solution later.
-Implemented a new function for moving cards from hands to a position smoothly. Shouldn't be too much noticable difference.
-If the score counters are updated manually, the scoreboard on the note section will be updated at the end of each turn.
+[*]Fixed capture buttons on meeples being rotated under the table.
+[*]Fixed tile feature markers not being transparent (Thanks to MrStump for helping me with the model!)
+[*]Fixed cloisters not being valid places to move a wagon to (Thanks TheLimeyDragon!)
+[*]Added a button anchor under the table that can be used to put buttons in arbitrary positions. This should help fix button warping issues for the standard figure placement buttons. The rest will need a different solution later.
+[*]Implemented a new function for moving cards from hands to a position smoothly. Shouldn't be too much noticable difference.
+[*]If the score counters are updated manually, the scoreboard on the note section will be updated at the end of each turn.
 
 v1.17.5 - 20170711
-Turned off snapping to snap points for Carcassonne v2 tiles (Thanks Jokru!)
-Fixed tile being considered valid despite it being rotated along the x-axis. This was especially noticable if a figure blocked the placement of a tile.
+[*]Turned off snapping to snap points for Carcassonne v2 tiles (Thanks Jokru!)
+[*]Fixed tile being considered valid despite it being rotated along the x-axis. This was especially noticable if a figure blocked the placement of a tile.
 
 v1.17.4 - 20170629
-Added tiles for Crop Circles, Crop Circles II, and both Monastaries expansions (Thanks TheLimeyDragon!)
-Fixed magic portal feature markers so that they are much much faster (almost instant).
+[*]Added tiles for Crop Circles, Crop Circles II, and both Monastaries expansions (Thanks TheLimeyDragon!)
+[*]Fixed magic portal feature markers so that they are much much faster (almost instant).
 
 v1.17.3 - 20170625
-Added tiles for The Catapult (Thanks TheLimeyDragon!)
-Fixed magic portal and wagon feature markers being very slow. They should now be instant.
-The wagon has been completely recoded to be in line with the new wagon feature marker code. There was a previous bug with the wagon that should have been fixed by this.
-Fixed wagon announcements so that they are the color of the player that is replacing the wagon instead of always being the color of the current player.
-Previous fix for AI choosing the wrong location broke their feature of tending to put figures into the middle of a side rather than octant. New code resolves this.
-Fixed mispositioned snap point on '2eccda'
-Fixed bug where trying to switch to the seat of a hotseat/AI player would cause an error (due to a change in 1.17)
-The nerf tower house rule added in 1.17.1 will now only be used if it was enabled in the control panel.
-The flier die will no longer spam an error message saying that you rolled the die at the wrong turn state. This is due to TTS sending random die rolled events, which I can't do anything about. The message has been disabled completely to avoid it.
-Exchanging tower prisoners no longer leaves a ransom button for the next player's turn.
-Spectators now receive all game messages
-capture follower buttons are now only displayed if the follower is actually on a tile
-Fixed dragon forbidden tiles not being highlighted (due to a change in 1.17)
+[*]Added tiles for The Catapult (Thanks TheLimeyDragon!)
+[*]Fixed magic portal and wagon feature markers being very slow. They should now be instant.
+[*]The wagon has been completely recoded to be in line with the new wagon feature marker code. There was a previous bug with the wagon that should have been fixed by this.
+[*]Fixed wagon announcements so that they are the color of the player that is replacing the wagon instead of always being the color of the current player.
+[*]Previous fix for AI choosing the wrong location broke their feature of tending to put figures into the middle of a side rather than octant. New code resolves this.
+[*]Fixed mispositioned snap point on '2eccda'
+[*]Fixed bug where trying to switch to the seat of a hotseat/AI player would cause an error (due to a change in 1.17)
+[*]The nerf tower house rule added in 1.17.1 will now only be used if it was enabled in the control panel.
+[*]The flier die will no longer spam an error message saying that you rolled the die at the wrong turn state. This is due to TTS sending random die rolled events, which I can't do anything about. The message has been disabled completely to avoid it.
+[*]Exchanging tower prisoners no longer leaves a ransom button for the next player's turn.
+[*]Spectators now receive all game messages
+[*]capture follower buttons are now only displayed if the follower is actually on a tile
+[*]Fixed dragon forbidden tiles not being highlighted (due to a change in 1.17)
 
 v1.17.2 - 20170622
-Changed host for a couple of images that were still on picblaze (Thanks D2A NOVARIOT!)
+[*]Changed host for a couple of images that were still on picblaze (Thanks D2A NOVARIOT!)
 
 v1.17.1 - 20170528
-Added tiles for Bridges, Castles, and Bazaars (Thanks TheLimeyDragon!)
-Added house rule to reduce the tower range by 1. This effectively gets rid of "surprise towers", allowing the defending player to block tower construction on a new adjacent tile. It is recommended to increase the number of towers that each player receives if you use this option.
-AI will no longer assume that a quadrant with a nil feature number is still valid and to use a neighboring octant feature number instead, which would break tiles where it was intended for the quadrant to be invalid (Thanks Melody!)
-Figure buttons are now immediately cleared when a shepherd is placed
-Ransom buttons are now removed when the game is ended
-Can no longer start a game with AI if Towers are being used (not compatible yet) (Thanks philipp-87!)
+[*]Added tiles for Bridges, Castles, and Bazaars (Thanks TheLimeyDragon!)
+[*]Added house rule to reduce the tower range by 1. This effectively gets rid of "surprise towers", allowing the defending player to block tower construction on a new adjacent tile. It is recommended to increase the number of towers that each player receives if you use this option.
+[*]AI will no longer assume that a quadrant with a nil feature number is still valid and to use a neighboring octant feature number instead, which would break tiles where it was intended for the quadrant to be invalid (Thanks Melody!)
+[*]Figure buttons are now immediately cleared when a shepherd is placed
+[*]Ransom buttons are now removed when the game is ended
+[*]Can no longer start a game with AI if Towers are being used (not compatible yet) (Thanks philipp-87!)
 
 v1.17 - 20170514
-Added Expansion: The Tower
-Control panel will now show the correct (saved) color assignments if the seating changes after the game has started.
-Fixed issue with message spamlock not unlocking properly, resulting in only 1 error message being printed each game.
-Fixed small issue where hotseat reassignments wouldn't be printed to the players if they were on the wrong page of the control panel when someone changed their color
-Added seduced knights to the save file, which could prevent an issue with rewinding or loading a partially completed turn, which is still not officially supported.
-Fixed AI not following house rules (ie. disabled fields) (Thanks Will!)
+[*]Added Expansion: The Tower
+[*]Control panel will now show the correct (saved) color assignments if the seating changes after the game has started.
+[*]Fixed issue with message spamlock not unlocking properly, resulting in only 1 error message being printed each game.
+[*]Fixed small issue where hotseat reassignments wouldn't be printed to the players if they were on the wrong page of the control panel when someone changed their color
+[*]Added seduced knights to the save file, which could prevent an issue with rewinding or loading a partially completed turn, which is still not officially supported.
+[*]Fixed AI not following house rules (ie. disabled fields) (Thanks Will!)
 
 v1.16.4 - 20170507
-Fixed infinite loop when placing an Abbey tile (Thanks Luke Allstar!)
-Fixed error message when displaying wagon markers
+[*]Fixed infinite loop when placing an Abbey tile (Thanks Luke Allstar!)
+[*]Fixed error message when displaying wagon markers
 
 v1.16.3 - 20170503
-Fixed City of Carcassonne setup being broken (due to a change in 1.16) (Thanks pauliina!)
-Tried to change tileGrid indices to strings but it didn't work. As a temporary solution, changed middle offset to x=20 z=20. This might help reduce some null saved data.
+[*]Fixed City of Carcassonne setup being broken (due to a change in 1.16) (Thanks pauliina!)
+[*]Tried to change tileGrid indices to strings but it didn't work. As a temporary solution, changed middle offset to x=20 z=20. This might help reduce some null saved data.
 
 v1.16.2 - 20170412
-The notes are now used as a scoreboard once the game starts
-Got rid of the separate option to not bury tiles. This added confusion since it appeared hills were still on when they were turned off, or that they are turned off when they are still on. Now burying tiles will always be off if hills are off. (Thanks Ƶee!)
-Fixed hills being buried wrong if the tile stack is upside down, which could cause the 2 tiles to create a deck and have an error.
-Changed the AI slightly to favor fields less at the beginning of the game, and more at the end of the game.
+[*]The notes are now used as a scoreboard once the game starts
+[*]Got rid of the separate option to not bury tiles. This added confusion since it appeared hills were still on when they were turned off, or that they are turned off when they are still on. Now burying tiles will always be off if hills are off. (Thanks Ƶee!)
+[*]Fixed hills being buried wrong if the tile stack is upside down, which could cause the 2 tiles to create a deck and have an error.
+[*]Changed the AI slightly to favor fields less at the beginning of the game, and more at the end of the game.
 
 v1.16.1 - 20170409
-Fixed field not passing under the bridge, as it should according to the rules (CAR 253 pg. 83) (Thanks TheLimeyDragon!)
-Fixed different features on the same tile that are linked together by other tiles not being considered by the AI (Thanks QuackerJack!)
+[*]Fixed field not passing under the bridge, as it should according to the rules (CAR 253 pg. 83) (Thanks TheLimeyDragon!)
+[*]Fixed different features on the same tile that are linked together by other tiles not being considered by the AI (Thanks QuackerJack!)
 
 v1.16 - 20170408
-Re-coded AI to calculate feature values without transversing the features. Should drastically increase the speed at which it will calculate moves.
-There is no longer a praise animation if feature markers are turned off. This should save several seconds whenever a feature is scored, if you want a faster game.
-Fixed Abbot not being retrievable from Abbey
-Fixed incorrect snap point on Traders & Builders piece ('526fcd') (Thanks QuackerJack!)
+[*]Re-coded AI to calculate feature values without transversing the features. Should drastically increase the speed at which it will calculate moves.
+[*]There is no longer a praise animation if feature markers are turned off. This should save several seconds whenever a feature is scored, if you want a faster game.
+[*]Fixed Abbot not being retrievable from Abbey
+[*]Fixed incorrect snap point on Traders & Builders piece ('526fcd') (Thanks QuackerJack!)
 
 v1.15.4 - 20170315
-Reverted back to the old method of creating buttons, which will hopefully fix an issue with buttons not appearing. Unfortunately this also means buttons will go back to being warped and ugly
-Fixed crash when the shepherd is eaten by the dragon
+[*]Reverted back to the old method of creating buttons, which will hopefully fix an issue with buttons not appearing. Unfortunately this also means buttons will go back to being warped and ugly
+[*]Fixed crash when the shepherd is eaten by the dragon
 
 v1.15.3 - 20170311
-AI now supports City of Carcassonne
-You can no longer place the first river tile such that it doesn't connect with the City of Carcassonne (if it's being used)
-AI no longer selects the incorrect tile order when playing with the river without the River II spring tile
-Added option to disable Inn and Cathedral features. This is intended to fix discrepency in the rules where the Inn in The River II shouldn't be used if Inns & Cathedrals isn't included. Of course, users can still choose to enable the Inn without including the Inns & Cathedrals tiles.
-Added houserule option for The River II to disable the pig-herd
+[*]AI now supports City of Carcassonne
+[*]You can no longer place the first river tile such that it doesn't connect with the City of Carcassonne (if it's being used)
+[*]AI no longer selects the incorrect tile order when playing with the river without the River II spring tile
+[*]Added option to disable Inn and Cathedral features. This is intended to fix discrepency in the rules where the Inn in The River II shouldn't be used if Inns & Cathedrals isn't included. Of course, users can still choose to enable the Inn without including the Inns & Cathedrals tiles.
+[*]Added houserule option for The River II to disable the pig-herd
 
 v1.15.2 - 20170310
-Fixed AI being broken with vanilla starting tile due to a change in v1.15.1
-Can no longer start an AI game with City of Carcassonne tileset
-Can no longer start a game without a starting tileset
+[*]Fixed AI being broken with vanilla starting tile due to a change in v1.15.1
+[*]Can no longer start an AI game with City of Carcassonne tileset
+[*]Can no longer start a game without a starting tileset
 
 v1.15.1 - 20170228
-Fixed Barn feature markers, which were not working. Also made the marker appear on the corner instead of the standard position markers, which would have made little sense to the player.
-Fixed feature markers showing invalid locations for special figures when using a tile with a magic portal (portals are only supposed to work for followers).
+[*]Fixed Barn feature markers, which were not working. Also made the marker appear on the corner instead of the standard position markers, which would have made little sense to the player.
+[*]Fixed feature markers showing invalid locations for special figures when using a tile with a magic portal (portals are only supposed to work for followers).
 
 v1.15 - 20170221
-Implemented AI for the Big Follower, Builder, Trade Tokens, and Pig
-Implemented new button normalizing, which should fix the ugly stretching and inconsistencies (most noticable with the Dragon). Gold from goldmines and seducing knights still use the old method, but those should be somewhat consistent at least.
-Fixed Dragon being broken due to change in v1.14
-Fixed issue with player possessions being skipped at the end of the game (probably broken since v1.12)
-Fixed issue with AI getting stuck if a follower was on a field that was "completed"
-The tile stack will now be locked and uninteractable until the river is finished
+[*]Implemented AI for the Big Follower, Builder, Trade Tokens, and Pig
+[*]Implemented new button normalizing, which should fix the ugly stretching and inconsistencies (most noticable with the Dragon). Gold from goldmines and seducing knights still use the old method, but those should be somewhat consistent at least.
+[*]Fixed Dragon being broken due to change in v1.14
+[*]Fixed issue with player possessions being skipped at the end of the game (probably broken since v1.12)
+[*]Fixed issue with AI getting stuck if a follower was on a field that was "completed"
+[*]The tile stack will now be locked and uninteractable until the river is finished
 
 v1.14 - 20170211
-A page has been added to the control panel for micro expansions
-A page has been added to the control panel for house rules
-AI now supports the rivers
-Rivers setup was recoded to accommodate AI and the games quarterly expansion
-Game will not be allowed to start with AI players if an unsupported expansion is selected
-Removed debug print messages for AI
+[*]A page has been added to the control panel for micro expansions
+[*]A page has been added to the control panel for house rules
+[*]AI now supports the rivers
+[*]Rivers setup was recoded to accommodate AI and the games quarterly expansion
+[*]Game will not be allowed to start with AI players if an unsupported expansion is selected
+[*]Removed debug print messages for AI
 
 v1.13 - 20170205
-Implemented a basic AI system. Currently only works with the base game.
-Added figure markers to show valid positions that the current player can put their figures. Shares the same option with tile markers, which have been renamed to "Hints"
-Now using 8.6 feature: putObject(). Tiles are setup much quicker and should no longer have any risk of floating in mid-air and not getting shuffled (old bug). Tokens should now be returned to their containers gracefully, without risk of mid-air collision (another old bug).
-When a follower occupies a flier, the tiles that it could land on are now highlighted. After the roll, it will highlight the correct tile rolled.
-Game no longer breaks when the 2nd to last tile is drawn before an automated function (ie. burying a tile)
-Game now knows when tiles have depleted and won't reward the fairy a point after last tile is drawn. Could technically also prevent the next turn from beginning at all and do final game scoring, but decided not to for now in case the tile stack GUID is accidentally changed by manually stacking tiles.
-Fixed tile hints not disappearing when alternating between objects quickly
-Added extra snap points to the middle of 'Field', 'Field', 'Road', 'Road' pieces
-Fixed being able to use a flier to land on the same tile as a dragon.
-Fixed player possession areas being broken if a custom color was used.
-Fixed wagon not working correctly when used from the quadrant of a city (instead of octant)
-Fixed wagon not working correctly for going from a road to a cloister
+[*]Implemented a basic AI system. Currently only works with the base game.
+[*]Added figure markers to show valid positions that the current player can put their figures. Shares the same option with tile markers, which have been renamed to "Hints"
+[*]Now using 8.6 feature: putObject(). Tiles are setup much quicker and should no longer have any risk of floating in mid-air and not getting shuffled (old bug). Tokens should now be returned to their containers gracefully, without risk of mid-air collision (another old bug).
+[*]When a follower occupies a flier, the tiles that it could land on are now highlighted. After the roll, it will highlight the correct tile rolled.
+[*]Game no longer breaks when the 2nd to last tile is drawn before an automated function (ie. burying a tile)
+[*]Game now knows when tiles have depleted and won't reward the fairy a point after last tile is drawn. Could technically also prevent the next turn from beginning at all and do final game scoring, but decided not to for now in case the tile stack GUID is accidentally changed by manually stacking tiles.
+[*]Fixed tile hints not disappearing when alternating between objects quickly
+[*]Added extra snap points to the middle of 'Field', 'Field', 'Road', 'Road' pieces
+[*]Fixed being able to use a flier to land on the same tile as a dragon.
+[*]Fixed player possession areas being broken if a custom color was used.
+[*]Fixed wagon not working correctly when used from the quadrant of a city (instead of octant)
+[*]Fixed wagon not working correctly for going from a road to a cloister
 
 v1.12.2 - 20170202
-Fixed Abbeys not being setup correctly due to change in 1.12 (thanks to Yixaviar for reporting)
+[*]Fixed Abbeys not being setup correctly due to change in 1.12 (thanks to Yixaviar for reporting)
 
 v1.12.1 - 20170121
-Tile markers are now correct for The River
-Improved the code so that there shouldn't be a descrepency between tile markers and tile validation anymore
+[*]Tile markers are now correct for The River
+[*]Improved the code so that there shouldn't be a descrepency between tile markers and tile validation anymore
 
 v1.12 - 20170121
-Added custom color functionality
-Game now uses the player's steam name in the turn change notification
+[*]Added custom color functionality
+[*]Game now uses the player's steam name in the turn change notification
 
 v1.11 - 20170115
-Fairy now unlocks during the figure placement phase. Also is highlighted so it is more obvious that she is an option.
-Tiles which the dragon cannot move to are now highlighted red.
-Fixed objects not being unlocked by setPostion (due to changes in the API in 8.5).
+[*]Fairy now unlocks during the figure placement phase. Also is highlighted so it is more obvious that she is an option.
+[*]Tiles which the dragon cannot move to are now highlighted red.
+[*]Fixed objects not being unlocked by setPostion (due to changes in the API in 8.5).
 
 v1.10 - 20170114
-Implemented Carcassonne II base game. Not yet implemented in the control panel.
-Tile markers are now enabled by default. This can of course be changed with the button at the corner, but I at least wanted people to notice that it's an option.
-Fixed bug where flier would get stuck if a mayor was used and the destination tile had a cloister.
-Increased the size of the play area scripting zone to accomodate the entire table, so that players no longer get errors when they get near the edge.
-Changed the Yellow player to Pink, since Yellow can be quite difficult to see at times.
+[*]Implemented Carcassonne II base game. Not yet implemented in the control panel.
+[*]Tile markers are now enabled by default. This can of course be changed with the button at the corner, but I at least wanted people to notice that it's an option.
+[*]Fixed bug where flier would get stuck if a mayor was used and the destination tile had a cloister.
+[*]Increased the size of the play area scripting zone to accomodate the entire table, so that players no longer get errors when they get near the edge.
+[*]Changed the Yellow player to Pink, since Yellow can be quite difficult to see at times.
 
 v1.09 - 20170108
-Implemented mini-expansion: The Goldmines.
-Fixed Flier die not working with hotseats.
-Attempting to start the game after tiles/game pieces have been removed from their bags will no longer crash the script. A warning message will be printed instead. This will not prevent the script from breaking in more extreme cases of fiddling around.
-Neutral item starting locations have been recoded to have dynamic positions.
-Made turn chat notifications more obvious.
-Lowered button height of dragon movement buttons.
+[*]Implemented mini-expansion: The Goldmines.
+[*]Fixed Flier die not working with hotseats.
+[*]Attempting to start the game after tiles/game pieces have been removed from their bags will no longer crash the script. A warning message will be printed instead. This will not prevent the script from breaking in more extreme cases of fiddling around.
+[*]Neutral item starting locations have been recoded to have dynamic positions.
+[*]Made turn chat notifications more obvious.
+[*]Lowered button height of dragon movement buttons.
 
 v1.08 - 20161210
-Added another page to the control panel, which includes mini expansions. Also updated the artwork on the other pages.
+[*]Added another page to the control panel, which includes mini expansions. Also updated the artwork on the other pages.
 
 v1.07 - 20161113
-Implemented mini-expansion: The Flier. Like the other mini-expansions, it has not yet been added to the control panel, but can be manually added.
-Fixed potential issue detecting added tile features.
-Placing a hill no longer prompts the user to place a figure twice.
-Added broadcast messages to the current player for some game notifications.
-Cloisters are no longer challenged by features other than a shrine.
-Fixed herding sheep bug, which made playing with the shepherd impossible.
-Hopefully fixed an issue with sheep tokens not being returned to their bag properly.
-New mayor model by RiceKun (previous version had weird shadows on it)
+[*]Implemented mini-expansion: The Flier. Like the other mini-expansions, it has not yet been added to the control panel, but can be manually added.
+[*]Fixed potential issue detecting added tile features.
+[*]Placing a hill no longer prompts the user to place a figure twice.
+[*]Added broadcast messages to the current player for some game notifications.
+[*]Cloisters are no longer challenged by features other than a shrine.
+[*]Fixed herding sheep bug, which made playing with the shepherd impossible.
+[*]Hopefully fixed an issue with sheep tokens not being returned to their bag properly.
+[*]New mayor model by RiceKun (previous version had weird shadows on it)
 
 v1.06 - 20161029
-Implemented mini-expansions: The Cult, Games Quarterly, and Russian Promos. The latter two are not in the control panel yet, but can be played by manually pulling them from the bag and adding them to the tile stack.
-Partially implemented Count of Carcassonne. Starting tiles work but the function of the city isn't implemented, nor is the Count. The dragon is also currently not prevented from going through the city.
-Implemented tile markers to show all legal moves. This can be enabled by toggling the show markers button. There are now 4 options to toggle through: Scoring (default), Tiles, Both, None
-Fixed control panel not updating when a player joins or switches seats
-Fixed error when creating seduce knight buttons
-Scores now show the same rank for tied players
+[*]Implemented mini-expansions: The Cult, Games Quarterly, and Russian Promos. The latter two are not in the control panel yet, but can be played by manually pulling them from the bag and adding them to the tile stack.
+[*]Partially implemented Count of Carcassonne. Starting tiles work but the function of the city isn't implemented, nor is the Count. The dragon is also currently not prevented from going through the city.
+[*]Implemented tile markers to show all legal moves. This can be enabled by toggling the show markers button. There are now 4 options to toggle through: Scoring (default), Tiles, Both, None
+[*]Fixed control panel not updating when a player joins or switches seats
+[*]Fixed error when creating seduce knight buttons
+[*]Scores now show the same rank for tied players
 
 v1.05 - 20161025
-New expansion: The Princess & and the Dragon
-New dragon collision model by RiceKun that will allow tiles to be dropped through the tail and the head.
-Re-wrote code to use a finite-state machine. Includes several small changes that I can't remember.
-Mod should in theory be more rewind compatible now, but more work needs to be done to prevent the game from breaking on rewind. Until then, please avoid using it.
-Barn can now be placed directly on a corner, or near it on any of the 4 corner tiles. Barn also no longer snaps to snap points.
-Sheep will now only be placed on the tile with the shepherd when the dragon is enabled. Will spread them out when the dragon is enabled, since their location doesn't matter in this case.
-Placing a figure in places where there are no tiles no longer gives an error message. This was too verbose and obvious.
-Fixed a deadlock that could happen that would make the game stuck on "Multiple objects dropped too fast"
-Scoring now includes a summary breakdown of how the points were accumulated. The End Game button should change to this after the game is over. Will only print the information to the person that presses it.
+[*]New expansion: The Princess & and the Dragon
+[*]New dragon collision model by RiceKun that will allow tiles to be dropped through the tail and the head.
+[*]Re-wrote code to use a finite-state machine. Includes several small changes that I can't remember.
+[*]Mod should in theory be more rewind compatible now, but more work needs to be done to prevent the game from breaking on rewind. Until then, please avoid using it.
+[*]Barn can now be placed directly on a corner, or near it on any of the 4 corner tiles. Barn also no longer snaps to snap points.
+[*]Sheep will now only be placed on the tile with the shepherd when the dragon is enabled. Will spread them out when the dragon is enabled, since their location doesn't matter in this case.
+[*]Placing a figure in places where there are no tiles no longer gives an error message. This was too verbose and obvious.
+[*]Fixed a deadlock that could happen that would make the game stuck on "Multiple objects dropped too fast"
+[*]Scoring now includes a summary breakdown of how the points were accumulated. The End Game button should change to this after the game is over. Will only print the information to the person that presses it.
 
 v1.04 - 20161020
-A player can no longer place another player's figure on their turn.
-Hills have been fixed so that multiple hills do not give an additional advantage against a player that has fewer hills, according to the official rules. 
-Broadcast message works for builder now.
+[*]A player can no longer place another player's figure on their turn.
+[*]Hills have been fixed so that multiple hills do not give an additional advantage against a player that has fewer hills, according to the official rules. 
+[*]Broadcast message works for builder now.
 
 v1.03 - 20161019
-Changed host for most of the dropbox files to google drive. Some expansions still don't work.
-Changed coroutines such that they do not continue when the game is rewound or loaded (this should have no affect on the game but is one step towards making the game rewind compatible)
-feature markers that remain after a game is rewound or loaded should automatically delete themselves.
-New follower model provided by RiceKun. Thanks!
-Fixed inconsistency with the rules when completing a feature with a wagon and builder at the same time. Wagon should now be given priority before the extra tile is drawn.
-Added detection to see if a finished wagon has a possible new location to put it after finishing. If not, will not prompt the player.
-control panel is now locked in all states
+[*]Changed host for most of the dropbox files to google drive. Some expansions still don't work.
+[*]Changed coroutines such that they do not continue when the game is rewound or loaded (this should have no affect on the game but is one step towards making the game rewind compatible)
+[*]feature markers that remain after a game is rewound or loaded should automatically delete themselves.
+[*]New follower model provided by RiceKun. Thanks!
+[*]Fixed inconsistency with the rules when completing a feature with a wagon and builder at the same time. Wagon should now be given priority before the extra tile is drawn.
+[*]Added detection to see if a finished wagon has a possible new location to put it after finishing. If not, will not prompt the player.
+[*]control panel is now locked in all states
 
 v1.02 - 20161014
-Expansions are now unchecked by default.
-Turned off checkboxes for unimplemented expansions.
-Fixed River II piece ('1dd42f') that had incorrect tile side data.
-Fixed River II piece ('4b84d4') that had incorrect tile data (pig-herd wasn't being scored).
-Fixed issue with fields around rivers not being transversed correctly.
+[*]Expansions are now unchecked by default.
+[*]Turned off checkboxes for unimplemented expansions.
+[*]Fixed River II piece ('1dd42f') that had incorrect tile side data.
+[*]Fixed River II piece ('4b84d4') that had incorrect tile data (pig-herd wasn't being scored).
+[*]Fixed issue with fields around rivers not being transversed correctly.
 
 v1.01 - 20161013
-Fixed River II piece ('656947') that had incorrect tile side data.
-Fixed missing snap point on Base tile piece ('b34d70')
-Fixed missing tile data on Inns & Cathedrals piece ('50c7ba')
-Fixed roads not counting for the correct points (caused by road intersection transversal marking roads as visited before they could be added to the transversed tile list).
-Fixed LUA error message that would appear on the host's screen whenever they did something out of turn.
-Fixed Abbey trying to reward King or Robber Baron token even when it had been disabled.
-Black counter is now Blue and works correctly.
-Mayor can now only be placed in a city.
+[*]Fixed River II piece ('656947') that had incorrect tile side data.
+[*]Fixed missing snap point on Base tile piece ('b34d70')
+[*]Fixed missing tile data on Inns & Cathedrals piece ('50c7ba')
+[*]Fixed roads not counting for the correct points (caused by road intersection transversal marking roads as visited before they could be added to the transversed tile list).
+[*]Fixed LUA error message that would appear on the host's screen whenever they did something out of turn.
+[*]Fixed Abbey trying to reward King or Robber Baron token even when it had been disabled.
+[*]Black counter is now Blue and works correctly.
+[*]Mayor can now only be placed in a city.
 
 v1.0 - 20161013
-Initial launch version
+[*]Initial launch version

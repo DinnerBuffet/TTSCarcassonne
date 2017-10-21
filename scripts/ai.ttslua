@@ -17,6 +17,7 @@ UNFINISHED_TRADE_TOKEN_VALUE = 1.0
 function AIStateHandler()
     --debugMessage(1, "AIStateHandler - " .. turnState)
     if turnState == 'awaiting tile placement' then
+        riverTileCheck()
         gameNotification("AI player is calculating their move...", NEUTRAL_COLOR, activePlayers[currentPlayer])
         startLuaCoroutine(self, 'AIChooseTileLocation')
     elseif turnState == 'place gold on tile' then
@@ -69,21 +70,21 @@ function AIChooseTileLocation()
     local newTile = nil
     local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
     if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
-        if forkTile_GUID ~= nil then
+        if forkTile_GUID ~= nil and getObjectFromGUID(forkTile_GUID) ~= nil then
             newTile = getObjectFromGUID(forkTile_GUID)
             newTile.setPositionSmooth(handPosition)
-        elseif riverBodyTiles_GUID ~= nil then
+        elseif riverBodyTiles_GUID ~= nil and getObjectFromGUID(riverBodyTiles_GUID) ~= nil then
             local riverStack = getObjectFromGUID(riverBodyTiles_GUID)
             if riverStack ~= nil then
                 newTile = riverStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
             end
-        elseif getObjectFromGUID(tileStack_GUID) ~= nil and finalTile_GUID ~= nil then
-            newTile = getObjectFromGUID(finalTile_GUID)
+        elseif finalRiverTile_GUID ~= nil and getObjectFromGUID(finalRiverTile_GUID) ~= nil then
+            newTile = getObjectFromGUID(finalRiverTile_GUID)
             newTile.setPositionSmooth(handPosition)
-        elseif springTile_GUID ~= nil then
+        elseif springTile_GUID ~= nil and getObjectFromGUID(springTile_GUID) ~= nil then
             newTile = getObjectFromGUID(springTile_GUID)
             newTile.setPositionSmooth(handPosition)
-        elseif lakeTile_GUID ~= nil then
+        elseif lakeTile_GUID ~= nil and getObjectFromGUID(lakeTile_GUID) ~= nil then
             newTile = getObjectFromGUID(lakeTile_GUID)
             newTile.setPositionSmooth(handPosition)
         end
@@ -318,7 +319,7 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
             local usedFeature = false
             local playerHasFollower = false
             for _, follower in ipairs(featureFigures.followers) do
-                if follower.getDescription() == activePlayers[currentPlayer] and (follower.getName() == translate({'Follower'}) or follower.getName() == translate({'Wagon'}) or follower.getName() == translate({'Abbot'}) or follower.getName() == translate({'Big Follower'}) or follower.getName() == translate({'Mayor'})) then
+                if follower.getVar('owner') == activePlayers[currentPlayer] and (follower.getVar('figureName') == 'Follower' or follower.getVar('figureName') == 'Wagon' or follower.getVar('figureName') == 'Abbot' or follower.getVar('figureName') == 'Big Follower' or follower.getVar('figureName') == 'Mayor') then
                     playerHasFollower = true
                 end
             end
@@ -327,7 +328,7 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                 not (nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities']) and
                 not (nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters']) and
                 not (nameOfFeature == 'Field' and controlPanelSettings['BaseDisableFarms']) then
-                if (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]][translate({'Big Follower'})]) and (numRemainingMoves <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
+                if (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]]['Big Follower']) and (numRemainingMoves <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
                     if score == highestScore then
                         --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                         numIdenticalScore = numIdenticalScore + 1
@@ -343,10 +344,10 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
                         highestScorePos = i
-                        if baselineFigures[activePlayers[currentPlayer]][translate({'Big Follower'})] and (baselineFollowerCounts[activePlayers[currentPlayer]] == 0 or nameOfFeature == 'City') then
-                            highestScoreFigure = translate({'Big Follower'})
+                        if baselineFigures[activePlayers[currentPlayer]]['Big Follower'] and (baselineFollowerCounts[activePlayers[currentPlayer]] == 0 or nameOfFeature == 'City') then
+                            highestScoreFigure = 'Big Follower'
                         else
-                            highestScoreFigure = translate({'Follower'})
+                            highestScoreFigure = 'Follower'
                         end
                         usedFeature = true
                     end
@@ -354,7 +355,7 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                 if not usedFeature and nameOfFeature ~= 'Field' and nameOfFeature ~= 'Cloister' then
                     highestUnusedFeature = featureScore
                 end
-            elseif playerHasFollower and nameOfFeature == 'Field' and baselineFigures[activePlayers[currentPlayer]][translate({'Pig'})] then
+            elseif playerHasFollower and nameOfFeature == 'Field' and baselineFigures[activePlayers[currentPlayer]]['Pig'] then
                 score = featureScore / 3
                 if score == highestScore then
                     --debugMessage(1, "found identical pig score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
@@ -370,10 +371,10 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
                     highestScorePos = i
-                    highestScoreFigure = translate({'Pig'})
+                    highestScoreFigure = 'Pig'
                     usedFeature = true
                 end
-            elseif playerHasFollower and featureOpenings > 0 and (nameOfFeature == 'City' or nameOfFeature == 'Road') and baselineFigures[activePlayers[currentPlayer]][translate({'Builder'})] then
+            elseif playerHasFollower and featureOpenings > 0 and (nameOfFeature == 'City' or nameOfFeature == 'Road') and baselineFigures[activePlayers[currentPlayer]]['Builder'] then
                 if moveScore == highestScore then
                     --debugMessage(1, "found identical builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                     numIdenticalScore = numIdenticalScore + 1
@@ -388,7 +389,7 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
                     highestScorePos = i
-                    highestScoreFigure = translate({'Builder'})
+                    highestScoreFigure = 'Builder'
                     usedFeature = true
                 end
             end
@@ -449,10 +450,10 @@ function AICalculateActiveScores(newXIndex, newZIndex)
                 end
                 if joinedActiveFigures[featureNum] ~= nil and (feature.nameOfFeature == 'City' or feature.nameOfFeature == 'Road') then
                     for _, specialFigure in ipairs(joinedActiveFigures[featureNum].specialFigures) do
-                        if specialFigure.getDescription() == activePlayers[currentPlayer] then --do not give give sheep/extra builder tile (CAR ref 149)
-                            if specialFigure.getName() == translate({'Shepherd'}) then
+                        if specialFigure.getVar('owner') == activePlayers[currentPlayer] then --do not give give sheep/extra builder tile (CAR ref 149)
+                            if specialFigure.getVar('figureName') == 'Shepherd' then
                                 --TODO: implement
-                            elseif specialFigure.getName() == translate({'Builder'}) and not hasAlreadyTakenBuilderTile then
+                            elseif specialFigure.getVar('figureName') == 'Builder' and not hasAlreadyTakenBuilderTile then
                                 activeScores[activePlayers[currentPlayer]] = activeScores[activePlayers[currentPlayer]] + 1
                             end
                         end
@@ -504,7 +505,7 @@ function AICalculateActiveScores(newXIndex, newZIndex)
                     local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
                     local playerNumTokens = 0
                     for _, obj in ipairs(playerPossessions) do
-                        if obj.getName() == specialFeature then
+                        if obj.getVar('tokenName') == specialFeature then
                             local quantity = obj.getQuantity()
                             if quantity == -1 then quantity = 1 end
                             if tokenCounts[player] == nil then
@@ -543,16 +544,16 @@ function AICalculateActiveScores(newXIndex, newZIndex)
         --find the relative weights for the followers on this feature
         for _, follower in ipairs(featureFigures.followers) do
             if featureOpenings == 0 and nameOfFeature ~= 'Field' then
-                followerCountChange[follower.getDescription()] = followerCountChange[follower.getDescription()] + 1
+                followerCountChange[follower.getVar('owner')] = followerCountChange[follower.getVar('owner')] + 1
             end
             local weight = 0
-            if follower.getName() == translate({'Follower'}) or follower.getName() == translate({'Wagon'}) or follower.getName() == translate({'Abbot'}) then weight = 1
-            elseif follower.getName() == translate({'Big Follower'}) then weight = 2
-            elseif follower.getName() == translate({'Mayor'}) then
+            if follower.getVar('figureName') == 'Follower' or follower.getVar('figureName') == 'Wagon' or follower.getVar('figureName') == 'Abbot' then weight = 1
+            elseif follower.getVar('figureName') == 'Big Follower' then weight = 2
+            elseif follower.getVar('figureName') == 'Mayor' then
                 for _, specialFeature in ipairs(traversedSpecialFeatures) do
                     if specialFeature == 'Coat of Arms' then weight = weight + 1 end
                 end
-                hasMayor[follower.getDescription()] = true
+                hasMayor[follower.getVar('owner')] = true
             end
             if weight > 0 then
                 local followerXIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
@@ -562,15 +563,15 @@ function AICalculateActiveScores(newXIndex, newZIndex)
                     for _, specialFeature in ipairs(specialFeatures) do
                         if specialFeature[1] == "Hill" then
                             --although it would have been easier to just add 0.001 to the weight here, it would have technically violated the rules, since multiple hills are not supposed to give extra weight.
-                            hasHill[follower.getDescription()] = true
+                            hasHill[follower.getVar('owner')] = true
                         end
                     end
                 end
             end
-            if followerCounts[follower.getDescription()] == nil then
-                followerCounts[follower.getDescription()] = weight
+            if followerCounts[follower.getVar('owner')] == nil then
+                followerCounts[follower.getVar('owner')] = weight
             else
-                followerCounts[follower.getDescription()] = followerCounts[follower.getDescription()] + weight
+                followerCounts[follower.getVar('owner')] = followerCounts[follower.getVar('owner')] + weight
             end
         end
         --add hill weight if there is a hill, find top weight for the feature
@@ -583,14 +584,14 @@ function AICalculateActiveScores(newXIndex, newZIndex)
         end
             -- local closestFollower = fairyClosestFollower()
             -- if closestFollower == follower then
-            --     allGameMessage(closestFollower.getDescription() .. " " .. closestFollower.getName() .. " scores 3 points for being next to the fairy when scoring a feature.", player_color_tints[closestFollower.getDescription()])
-            --     scorePoints(closestFollower.getDescription(), translate({'Fairy'}), 3)
+            --     allGameMessage(closestFollower.getDescription() .. (closestFollower.getDescription() ~= "" and " " or "") .. closestFollower.getName() .. " scores 3 points for being next to the fairy when scoring a feature.", player_color_tints[closestFollower.getVar('owner')])
+            --     scorePoints(closestFollower.getVar('owner'), 'Fairy', 3)
             -- end
-            -- if follower.getName() == "Wagon" then
-            --     wagonLocations[follower.getDescription()] = {}
-            --     wagonLocations[follower.getDescription()].x = follower.getPosition().x
-            --     wagonLocations[follower.getDescription()].z = follower.getPosition().z
-            --     hasAvailableWagonFeature[follower.getDescription()] = hasIncompleteSecondaryFeature
+            -- if follower.getVar('figureName') == "Wagon" then
+            --     wagonLocations[follower.getVar('owner')] = {}
+            --     wagonLocations[follower.getVar('owner')].x = follower.getPosition().x
+            --     wagonLocations[follower.getVar('owner')].z = follower.getPosition().z
+            --     hasAvailableWagonFeature[follower.getVar('owner')] = hasIncompleteSecondaryFeature
             -- end
             -- local winner = false
         for player, value in pairs(followerCounts) do
@@ -632,8 +633,8 @@ function AICalculateFeatureScore(featureNum, figures)
     --local hasBarn = false
     --local hasNewBarn = false
     for _, figure in ipairs(figures.specialFigures) do
-        if figure.getName() == translate({'Pig'}) then hasPig[figure.getDescription()] = true end
-        -- if figure.getName() == translate({'Barn'}) then
+        if figure.getVar('figureName') == 'Pig' then hasPig[figure.getVar('owner')] = true end
+        -- if figure.getVar('figureName') == 'Barn' then
         --     hasBarn = true
         --     if newBarn ~= nil and figure.getGUID() == newBarn then
         --         hasNewBarn = true
@@ -641,12 +642,12 @@ function AICalculateFeatureScore(featureNum, figures)
         --     end
         --     --recalculate "follower count" with only barns. Technically they aren't followers but it was easier in code.
         --     if #traversedFollowers == 0 then
-        --         if followerCounts[figure.getDescription()] == nil then
-        --             followerCounts[figure.getDescription()] = 1
+        --         if followerCounts[figure.getVar('owner')] == nil then
+        --             followerCounts[figure.getVar('owner')] = 1
         --         else
-        --             followerCounts[figure.getDescription()] = followerCounts[figure.getDescription()] + 1
+        --             followerCounts[figure.getVar('owner')] = followerCounts[figure.getVar('owner')] + 1
         --         end
-        --         if followerCounts[figure.getDescription()] > topWeight then topWeight = followerCounts[figure.getDescription()] end
+        --         if followerCounts[figure.getVar('owner')] > topWeight then topWeight = followerCounts[figure.getVar('owner')] end
         --     end
         -- end
     end
@@ -844,7 +845,7 @@ function AICalculateFeatureScore(featureNum, figures)
         --                             if numTiles ~= 9 then
         --                                 local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
         --                                 for _, object in ipairs(objs) do
-        --                                     if table.contains(FOLLOWER_TYPES, object.getName()) then
+        --                                     if table.contains(FOLLOWER_TYPES, object.getVar('figureName')) then
         --                                         local objectXIndex = math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
         --                                         local objectZIndex = math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
         --                                         if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
@@ -860,7 +861,7 @@ function AICalculateFeatureScore(featureNum, figures)
         --                                                 --raise the follower in the air
         --                                                 object.setPositionSmooth({object.getPosition().x, object.getPosition().y + 2.5, object.getPosition().z}, false, false)
         --                                                 table.insert(removedFigures, {guid=object.getGUID(), winner=false})
-        --                                                 allGameMessage(object.getDescription() .. " " .. object.getName() .. " has lost the Cloister/Shrine challenge.", player_color_tints[object.getDescription()])
+        --                                                 allGameMessage(object.getDescription() .. (object.getDescription() ~= "" and " " or "") .. object.getName() .. " has lost the Cloister/Shrine challenge.", player_color_tints[object.getVar('owner')])
         --                                             end
         --                                         end
         --                                     end
@@ -939,6 +940,9 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     if newTile.getGUID() == finalTile_GUID then
         finalTile_GUID = nil
     end
+    if newTile.getGUID() == finalRiverTile_GUID then
+        finalRiverTile_GUID = nil
+    end
     if newTile.getGUID() == forkTile_GUID then
         forkTile_GUID = nil
     end
@@ -991,14 +995,14 @@ function AIMoveFigureToLocation()
     local nameOfFeature = getFeatureName(tile, highestScorePos)
     local x, z = getFeatureLocation(highestScorePos, tile, tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation)
     for _, obj in ipairs(getAllObjects()) do
-        if highestScoreFigure == obj.getName() and obj.getDescription() == activePlayers[currentPlayer] then
+        if highestScoreFigure == obj.getVar('figureName') and obj.getVar('owner') == activePlayers[currentPlayer] then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
             if tileGrid[xIndex] == nil or tileGrid[xIndex][zIndex] == nil then
                 local pieceRotation = 0
                 if highestScorePos < 5 then pieceRotation = (highestScorePos - 1) * 90
                 elseif highestScorePos < 13 then pieceRotation = math.floor((highestScorePos - 5) / 2) * 90 end
-                if (obj.getName() == translate({'Follower'}) or obj.getName() == translate({'Big Follower'})) and nameOfFeature == 'Field' then
+                if (obj.getVar('figureName') == 'Follower' or obj.getVar('figureName') == 'Big Follower') and nameOfFeature == 'Field' then
                     --lay the Follower down
                     if AI_ANIMATIONS_ENABLED then
                         obj.setRotationSmooth({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})

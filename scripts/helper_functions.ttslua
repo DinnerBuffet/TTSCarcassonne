@@ -166,6 +166,20 @@ function table.shallow_copy(t)
   return t2
 end
 
+--https://stackoverflow.com/a/7615129
+function string.split(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t={}
+    local i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
+end
+
 --waits for the specified number of seconds. Can only be run from a coroutine
 function wait(time)
   local start = os.clock()
