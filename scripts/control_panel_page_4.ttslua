@@ -21,20 +21,21 @@ COLUMN_2_7 = -6.6
 
 function onLoad()
 --Wheel of Fortune
-    -- initializeAllCheckbox(COLUMN_1_1, ROW_1, 'WoFAll')
-    -- initializeCheckbox(COLUMN_1_2, ROW_1, 'WoFTiles')
-    -- initializeCheckbox(COLUMN_1_3, ROW_1, 'WoFWheel')
-    -- initializeCheckbox(COLUMN_1_4, ROW_1, 'WoFCrowns')
-    -- initializeCheckbox(COLUMN_1_5, ROW_1, 'WoFFortune')
-    -- initializeCheckbox(COLUMN_1_6, ROW_1, 'WoFTaxes')
-    -- initializeCheckbox(COLUMN_1_3, ROW_2, 'WoFFamine')
-    -- initializeCheckbox(COLUMN_1_4, ROW_2, 'WoFStorm')
-    -- initializeCheckbox(COLUMN_1_5, ROW_2, 'WoFInquisition')
-    -- initializeCheckbox(COLUMN_1_6, ROW_2, 'WoFPest')
+    initializeAllCheckbox(COLUMN_1_1, ROW_1, 'WoFAll', "Enable all")
+    initializeCheckbox(COLUMN_1_2, ROW_1, 'WoFTiles', "52 tiles")
+    initializeCheckbox(COLUMN_1_3, ROW_1, 'StartingTileWoF', "The starting wheel piece.")
+    initializeCheckbox(COLUMN_1_4, ROW_1, 'WoFCrowns', "Players may choose to place followers on the crown spaces instead of a tile, awarding points when the pig lands on them.")
+    initializeCheckbox(COLUMN_1_5, ROW_1, 'WoFFortune', "When the pig lands on the Fortune event, the current player will be awarded 3 points.")
+    initializeCheckbox(COLUMN_1_6, ROW_1, 'WoFTaxes', "When the pig lands on the Tax event, each knight will score 1 point for every knight (included itself) and pennant in their city.")
+    initializeCheckbox(COLUMN_1_2, ROW_2, 'WoFWheelTiles', "19 tiles containing Wheel of Fortune icons, which spin the wheel")
+    initializeCheckbox(COLUMN_1_3, ROW_2, 'WoFFamine', "When the pig lands on the Famine event, every farmer will score 1 point per completed city touching their field.")
+    initializeCheckbox(COLUMN_1_4, ROW_2, 'WoFStorm', "When the pig lands on the Storm event, every player will be awarded 1 point for each unused follower in their supply.")
+    initializeCheckbox(COLUMN_1_5, ROW_2, 'WoFInquisition', "When the pig lands on the Inquisition event, every player will receive 2 points for each monk.")
+    initializeCheckbox(COLUMN_1_6, ROW_2, 'WoFPlague', "When the pig lands on the Plague event, each player must return 1 follower from a land tile.")
 
 --The Flier
-    initializeAllCheckbox(COLUMN_2_1, ROW_3, 'FlierAll', "")
-    initializeCheckbox(COLUMN_2_2, ROW_3, 'FlierTiles', "")
+    initializeAllCheckbox(COLUMN_2_1, ROW_3, 'FlierAll', "Enable all")
+    initializeCheckbox(COLUMN_2_2, ROW_3, 'FlierTiles', "8 tiles")
     initializeCheckbox(COLUMN_2_3, ROW_3, 'FlierFlier', "The Flier may have a follower placed on it. When done so, a die is rolled to see how far the follower will fly. The player must then place the follower on this tile, if possible, and can even place on a feature that is already occupied (even a cloister). Fields are not allowed.")
 
 --The Messages
@@ -48,8 +49,8 @@ function onLoad()
     -- initializeCheckbox(COLUMN_2_3, ROW_4, 'FerriesFerries', button_parameters)
 
 --The Goldmines
-    initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', "")
-    initializeCheckbox(COLUMN_2_6, ROW_4, 'GoldminesTiles', "")
+    initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', "Enable all")
+    initializeCheckbox(COLUMN_2_6, ROW_4, 'GoldminesTiles', "8 tiles")
     initializeCheckbox(COLUMN_2_7, ROW_4, 'GoldminesGold', "A tile placed with a gold icon will receive a gold bar, along with a neighboring tile. Any player that completes a feature on these tiles will be rewarded the gold, which is worth points at the end of the game.")
 
 --Mage & Witch
@@ -66,7 +67,7 @@ end
 
 function initializeAllCheckbox(x, z, key, description)
     local buttonGroup
-    if key == 'WoFAll' then buttonGroup = {'WoFTiles', 'WoFWheel', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPest'}
+    if key == 'WoFAll' then buttonGroup = {'WoFTiles', 'WoFWheelTiles', 'StartingTileWoF', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPlague'}
     elseif key == 'FlierAll' then buttonGroup = {'FlierTiles', 'FlierFlier'}
     elseif key == 'MessagesAll' then buttonGroup = {'MessagesMessages', 'MessagesMessenger'}
     elseif key == 'FerriesAll' then buttonGroup = {'FerriesTiles', 'FerriesFerries'}
@@ -86,6 +87,7 @@ function initializeAllCheckbox(x, z, key, description)
     else
         button_parameters.label = ''
     end
+    button_parameters.tooltip = description
     button_parameters.click_function = 'on' .. key .. 'Toggle'
     button_parameters.position = {x, BUTTON_HEIGHT, z}
     self.createButton( button_parameters )
@@ -96,7 +98,7 @@ end
 function checkAllCheckboxes()
     for _, button_key in ipairs({'btnWoFAllToggle', 'btnFlierAllToggle', 'btnMessagesAllToggle', 'btnFerriesAllToggle', 'btnGoldminesAllToggle', 'btnMnWAllToggle', 'btnRobbersAllToggle'}) do
         local buttonGroup
-        if button_key == 'btnWoFAllToggle' then buttonGroup = {'WoFTiles', 'WoFWheel', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPest'}
+        if button_key == 'btnWoFAllToggle' then buttonGroup = {'WoFTiles', 'WoFWheelTiles', 'StartingTileWoF', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPlague'}
         elseif button_key == 'btnFlierAllToggle' then buttonGroup = {'FlierTiles', 'FlierFlier'}
         elseif button_key == 'btnMessagesAllToggle' then buttonGroup = {'MessagesMessages', 'MessagesMessenger'}
         elseif button_key == 'btnFerriesAllToggle' then buttonGroup = {'FerriesTiles', 'FerriesFerries'}
@@ -122,7 +124,7 @@ end
 function onAllButtonToggle(sPlayer, button_key)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local buttonGroup
-    if button_key == 'btnWoFAllToggle' then buttonGroup = {'WoFTiles', 'WoFWheel', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPest'}
+    if button_key == 'btnWoFAllToggle' then buttonGroup = {'WoFTiles', 'WoFWheelTiles', 'StartingTileWoF', 'WoFCrowns', 'WoFFortune', 'WoFTaxes', 'WoFFamine', 'WoFStorm', 'WoFInquisition', 'WoFPlague'}
     elseif button_key == 'btnFlierAllToggle' then buttonGroup = {'FlierTiles', 'FlierFlier'}
     elseif button_key == 'btnMessagesAllToggle' then buttonGroup = {'MessagesMessages', 'MessagesMessenger'}
     elseif button_key == 'btnFerriesAllToggle' then buttonGroup = {'FerriesTiles', 'FerriesFerries'}
@@ -147,6 +149,13 @@ function onAllButtonToggle(sPlayer, button_key)
     end
     self.editButton({index = btnIDs[button_key], label = label})
     for _, key in ipairs(buttonGroup) do
+        if key == 'StartingTileWoF' then
+            if not Global.call('getControlPanelState', {key = 'StartingTileWoF'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
+                Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
+                printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+            end
+        end
+
         self.editButton({index = btnIDs['btn' .. key .. 'Toggle'], label = label})
         Global.call('setControlPanelState', {key = key, value = value})
     end
@@ -161,8 +170,16 @@ function onWoFTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'WoFTiles', 'btnWoFTilesToggle')
 end
 
-function onWoFWheelToggle(Object, sPlayer)
-    onCheckboxToggle(sPlayer, 'WoFWheel', 'btnWoFWheelToggle')
+function onWoFWheelTilesToggle(Object, sPlayer)
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
+        Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
+        printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+    end
+    onCheckboxToggle(sPlayer, 'WoFWheelTiles', 'btnWoFWheelTilesToggle')
+end
+
+function onStartingTileWoFToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'StartingTileWoF', 'btnStartingTileWoFToggle')
 end
 
 function onWoFCrownsToggle(Object, sPlayer)
@@ -189,8 +206,8 @@ function onWoFInquisitionToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'WoFInquisition', 'btnWoFInquisitionToggle')
 end
 
-function onWoFPestToggle(Object, sPlayer)
-    onCheckboxToggle(sPlayer, 'WoFPest', 'btnWoFPestToggle')
+function onWoFPlagueToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'WoFPlague', 'btnWoFPlagueToggle')
 end
 
 function onFlierAllToggle(Object, sPlayer)

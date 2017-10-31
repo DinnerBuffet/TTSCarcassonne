@@ -76,7 +76,7 @@ function checkFigure(params)
                         numberActiveTowers = 0
                         towerX = xIndex
                         towerZ = zIndex
-                        for _, obj in ipairs(getAllObjects()) do
+                        for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
                             if obj.getVar('figureName') == 'Tower' then
                                 local nestedXIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                                 local nestedZIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -150,10 +150,18 @@ function checkFigure(params)
                     elseif closestPosition < 13 then pieceRotation = math.floor((closestPosition - 5) / 2) * 90 end
                     if (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') and nameOfFeature == 'Field' then
                         --lay the Follower down
-                        newFigure.setRotation({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        if closestPosition < 13 then
+                            newFigure.setRotation({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        else
+                            newFigure.setRotation({tile.getRotation().x + 90, newFigure.getRotation().y + pieceRotation, tile.getRotation().z})
+                        end
                     else
                         --align with the tile
-                        newFigure.setRotation({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        if closestPosition < 13 then
+                            newFigure.setRotation({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        else
+                            newFigure.setRotation({tile.getRotation().x, newFigure.getRotation().y + pieceRotation, tile.getRotation().z})
+                        end
                     end
                     if newFigure.getVar('figureName') == 'Barn' then
                         newBarn = newFigure.getGUID()
@@ -770,7 +778,7 @@ end
 function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, newFigureInTranversal, verbose)
     local nameOfFeature = featureList[featureNum].nameOfFeature
     local featureOpenings = featureList[featureNum].openings
-    if not ((xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) or (tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName'))) or newFigure.getVar('figureName') == 'Barn' or nameOfFeature == 'Tower Foundation') then
+    if not ((xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) or (tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName'))) or newFigure.getVar('figureName') == 'Barn' or nameOfFeature == 'Tower Foundation' or string.sub(nameOfFeature,1,6) == 'Crown-') then
         if verbose then allErrorMessage("Invalid Location: You must place the figure on the tile you had just placed.", activePlayers[currentPlayer]) end
         return
     end
@@ -787,8 +795,6 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
         return false
     end
     if nameOfFeature == 'Carcassonne' or string.sub(nameOfFeature,1,8) == 'Quarter-' then
-        --TEST: REMOVE ME
-        print(nameOfFeature)
         if verbose then allErrorMessage("Invalid Location: You cannot place a figure in the City of Carcassonne at this stage in the game.", activePlayers[currentPlayer]) end
         return false
     end
@@ -811,7 +817,7 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
             return false
         else
             local hasTower = false
-            for _, obj in ipairs(getAllObjects()) do
+            for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
                 local nestedXIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                 local nestedZIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                 if xIndex == nestedXIndex and zIndex == nestedZIndex then
@@ -849,6 +855,10 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
             end
             return true
         end
+    end
+    if string.sub(nameOfFeature,1,6) == 'Crown-' and newFigure.getVar('figureName') ~= 'Follower' and newFigure.getVar('figureName') ~= 'Big Follower' then
+        if verbose then allErrorMessage("Invalid Location: Only followers can be placed on Crown spaces.", activePlayers[currentPlayer]) end
+        return false
     end
     if newFigure.getVar('figureName') == 'Shepherd' and nameOfFeature ~= 'Field' then
         if verbose then allErrorMessage("Invalid Location: Shepherd can only be placed on fields.", activePlayers[currentPlayer]) end
@@ -900,7 +910,7 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
             return false
         end
     end
-    if featureOpenings == 0 and not (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) and newFigure.getVar('figureName') ~= 'Barn' then
+    if featureOpenings == 0 and not (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) and not string.sub(nameOfFeature,1,6) == 'Crown-' and newFigure.getVar('figureName') ~= 'Barn' then
         if verbose then allErrorMessage("Invalid Location: You may not use the magic portal to place a follower on a completed feature.", activePlayers[currentPlayer]) end
         return false
     end
@@ -996,8 +1006,7 @@ function isValidWagonLocation(newFigure, featureNum, verbose)
     end
 
     if featureOpenings > 0 then
-        local objs = getAllObjects()
-        for _, obj in ipairs(objs) do
+        for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
             if obj ~= newFigure and table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
                 local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                 local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)

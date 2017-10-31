@@ -28,7 +28,7 @@
 --                  'City-Field' = city-field link - if the cities specified are completed, they score points to the specified fields. Multiple different cities and fields specified
 --                             are NOT linked to each other, only fields are linked to cities (and vice versa, in the case of using old rules (TODO: implement later?). Coordinates are not used for this feature.
 --                  'Road Intersection' = links roads to each other or other features. This is used for wagons.
---                  Linked Features with no coordinates: 'Coat of Arms', 'Inn', 'Cathedral', 'Princess'
+--                  Linked Features with no coordinates: 'Pennant', 'Inn', 'Cathedral', 'Princess'
 --                  Unlinked Features of the tile: 'Volcano', 'Dragon', 'Hill'
 --                  'Garden' - specifies the location of a garden. Links are not used for this feature.
 
@@ -244,7 +244,7 @@ expansionBags = {
     }},
     ['CoC'] = {guid = 'd3189b', contents = {
         ['CoCCount'] = {guid = 'fba388'},
-        ['CoCCarcassonneTiles'] = {guid = 'af8d39', contents = {
+        ['CoCStartingTiles'] = {guid = 'af8d39', contents = {
             [1] = {guid = '9c4fe7'},
             [2] = {guid = 'a6ff3c'},
             [3] = {guid = '9fd64f'},
@@ -321,11 +321,43 @@ expansionBags = {
     }},
     ['Tower'] = {guid = 'd59a8b', contents = {
         ['TowerTiles'] = {guid = '15a27f'}
+    }},
+    ['WoF'] = {guid = '6feb10', contents = {
+        ['WoFTiles'] = {guid = '71aa80'},
+        ['WoFWheelTiles'] = {guid = 'ee3e97'},
+        ['WoFStartingTiles'] = {guid = '6a31db', contents = {
+            [1] = {guid = 'c7bc6d'},
+            [2] = {guid = 'c391bc'},
+            [3] = {guid = '7e508f'},
+            [4] = {guid = '01f705'},
+            [5] = {guid = '983022'},
+            [6] = {guid = 'a39cb0'},
+            [7] = {guid = 'f28f77'},
+            [8] = {guid = '744e80'},
+            [9] = {guid = '79956d'},
+            [10] = {guid = '466a78'},
+            [11] = {guid = '1d5025'},
+            [12] = {guid = '2faa15'},
+            [13] = {guid = '21cc72'},
+            [14] = {guid = '8e2c6f'},
+            [15] = {guid = '2c3d25'},
+            [16] = {guid = '9dc2d2'},
+        }},
+        ['WoFWheel'] = {guid = 'ef0143'},
+        ['WoFPig'] = {guid = '97e9dc'}
     }}
 }
 
 controlPanelSettings = {
---Starting tiles
+--pg 1
+    --Hotseat or AI control settings (nil means default color control)
+    ['GreenControl'] = nil,
+    ['PurpleControl'] = nil,
+    ['WhiteControl'] = nil,
+    ['BlueControl'] = nil,
+    ['RedControl'] = nil,
+    ['PinkControl'] = nil,
+    --Starting tiles
     ['StartingTileBase'] = true,
     ['StartingTileRiver'] = false,
     ['StartingTileRiverII'] = false,
@@ -334,15 +366,11 @@ controlPanelSettings = {
     ['StartingTileWoF'] = false,
     ['StartingTileSchool'] = false,
     ['StartingTileWindRoses'] = false,
---Base + Major expansions
+--pg 2
+    --Base + Major expansions
     ['BaseTiles'] = true,
     ['BaseFollower'] = true,
     ['BaseNumFollowers'] = 7,
-    ['BaseDisableRoads'] = false,
-    ['BaseDisableCities'] = false,
-    ['BaseDisableCloisters'] = false,
-    ['BaseDisableFarms'] = false,
-    ['BaseNerfSmallCity'] = false,
     ['InCTiles'] = false,
     ['InCBigFollower'] = false,
     ['InCInns'] = false,
@@ -359,14 +387,13 @@ controlPanelSettings = {
     ['TowerTiles'] = false,
     ['TowerTowers'] = false,
     ['TowerNumTowers'] = 10,
-    ['TowerNerfTowers'] = false,
+--pg 3
     ['AnMTiles'] = false,
     ['AnMAbbey'] = false,
     ['AnMMayor'] = false,
     ['AnMWagon'] = false,
     ['AnMBarn'] = false,
     ['KnRBTiles'] = false,
-    ['CoCNoCount'] = false,
     ['KnRBKing'] = false,
     ['KnRBRobber'] = false,
     ['CultTiles'] = false,
@@ -379,20 +406,37 @@ controlPanelSettings = {
     ['HnSShepherd'] = false,
     ['HnSHills'] = false,
     ['HnSVineyards'] = false,
-    ['RiverMixAll'] = false,
-    ['RIIDisablePigherd'] = false,
---Mini expansions
+--pg 4
+    ['WoFTiles'] = false,
+    ['WoFWheelTiles'] = false,
+    ['WoFCrowns'] = false,
+    ['WoFFortune'] = false,
+    ['WoFTaxes'] = false,
+    ['WoFFamine'] = false,
+    ['WoFStorm'] = false,
+    ['WoFInquisition'] = false,
+    ['WoFPlague'] = false,
+    --Mini expansions
     ['FlierTiles'] = false,
     ['FlierFlier'] = false,
     ['GoldminesTiles'] = false,
     ['GoldminesGold'] = false,
---Hotseat or AI control settings (nil means default color cou)
-    ['GreenControl'] = nil,
-    ['PurpleControl'] = nil,
-    ['WhiteControl'] = nil,
-    ['BlueControl'] = nil,
-    ['RedControl'] = nil,
-    ['PinkControl'] = nil
+--pg 5
+    --Micro expansions
+    ['GamesQuarterlyTiles'] = false,
+    ['SpielPromoTiles'] = false,
+    ['RussianPromoTiles'] = false,
+--pg 6
+    --House rules
+    ['BaseDisableRoads'] = false,
+    ['BaseDisableCities'] = false,
+    ['BaseDisableCloisters'] = false,
+    ['BaseDisableFarms'] = false,
+    ['BaseNerfSmallCity'] = false,
+    ['TowerNerfTowers'] = false,
+    ['RiverMixAll'] = false,
+    ['RIIDisablePigherd'] = false,
+    ['CoCNoCount'] = false,
 }
 
 tileGrid = {[MIDDLE_X_OFFSET]={[MIDDLE_Z_OFFSET]={tile_guid=startingTile_GUID, rotation=2}}}
@@ -451,6 +495,7 @@ flierOffset = nil
 seducedKnights = {}
 carcassonneFigures = nil
 barnFeatureNumbers = nil
+wofPigPosition = 1
 
 turnState = nil
 
@@ -640,10 +685,20 @@ function gameToggleButton(object, sPlayer)
                 allErrorMessage({"Cannot start a game without a starting tileset."}, sPlayer)
                 return
             end
+            local hasTileStack = false
+            for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
+                if settingOn and table.contains({'BaseTiles','InCTiles','TnBTiles','PnDTiles','TowerTiles','AnMTiles','KnRBTiles','CultTiles','CatapultTiles','BCnBTiles','HnSTiles','WoFTiles','WoFWheelTiles','FlierTiles','GoldminesTiles'}, controlPanelSetting) then
+                    hasTileStack = true
+                end
+            end
+            if not hasTileStack then
+                allErrorMessage({"Cannot start a game without tiles."}, sPlayer)
+                return
+            end
             for _, player_color in ipairs(PLAYER_COLORS) do
                 if controlPanelSettings[player_color .. 'Control'] ~= nil and controlPanelSettings[player_color .. 'Control']:sub(1,2) == 'AI' then
                     for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
-                        if settingOn and table.contains({'StartingTileCoC', 'PnDDragon', 'TowerTowers', 'AnMAbbey', 'AnMWagon', 'FlierFlier', 'GoldminesGold'}, controlPanelSetting) then
+                        if settingOn and table.contains({'StartingTileCoC', 'PnDDragon', 'TowerTowers', 'AnMAbbey', 'AnMWagon', 'WoFPlague', 'FlierFlier', 'GoldminesGold'}, controlPanelSetting) then
                             allErrorMessage({"Cannot start an AI game with incompatible expansion: {s1}.", {'{s1}', controlPanelSetting}}, sPlayer)
                             return
                         end
@@ -708,6 +763,9 @@ function initializeScoreSummary()
         end
         if controlPanelSettings['TowerTowers'] then
             scoreSummary[player_color]['Ransom'] = 0
+        end
+        if controlPanelSettings['StartingTileWoF'] then
+            scoreSummary[player_color]['Wheel'] = 0
         end
     end
 end
@@ -846,8 +904,7 @@ function getActiveFigures()
         baselineFollowerCounts[player] = 0
         baselineFigures[player] = {}
     end
-    local objs = getAllObjects()
-    for _, obj in ipairs(objs) do
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, obj.getVar('figureName')) then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -889,8 +946,7 @@ end
 function getActiveNeutralFigures()
     activeNeutralFigures = {}
 
-    local objs = getAllObjects()
-    for _, obj in ipairs(objs) do
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if obj.getVar('figureName') == GOLD_BAR_NAME then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -1066,6 +1122,258 @@ function finishHillTile(param)
     return nextState('next')
 end
 
+ANIMATION_PIG_ACCEL_DEGREES = 30
+ANIMATION_PIG_ACCEL_TIME = 0.5
+-- using equation d = vi t + (a t * t) / 2
+ANIMATION_PIG_ACCEL = ANIMATION_PIG_ACCEL_DEGREES * 2 / (ANIMATION_PIG_ACCEL_TIME * ANIMATION_PIG_ACCEL_TIME)
+-- using equation d = (vi + vf) / 2 * t
+ANIMATION_PIG_MAX_VELOCITY = ANIMATION_PIG_ACCEL_DEGREES * 2 / ANIMATION_PIG_ACCEL_TIME
+-- 60 degrees per space
+ANIMATION_PIG_TIME_PER_SPACE = 60 / ANIMATION_PIG_MAX_VELOCITY
+
+function checkTileForWheel()
+    local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+    --put another tile underneath it
+    local specialFeatures = newTile.getTable('specialFeatures')
+    if specialFeatures ~= nil then
+        for _, specialFeature in ipairs(specialFeatures) do
+            if controlPanelSettings['StartingTileWoF'] and string.sub(specialFeature[1],1,6) == 'Wheel-' then
+                local pos_moved = string.sub(specialFeature[1],7,7)
+                startAnimation({type='WoFPig', start_time=os.clock(), start_position=wofPigPosition, num_positions_moved=pos_moved})
+                wofPigPosition = wofPigPosition + pos_moved
+                if wofPigPosition > 6 then wofPigPosition = wofPigPosition - 6 end
+                Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='resolveWheel', function_owner=nil, parameters={}, delay=ANIMATION_PIG_ACCEL_TIME * 2 + (pos_moved - 1) * ANIMATION_PIG_TIME_PER_SPACE + 0.5}) --0.5 is an arbitrary delay
+                return
+            end
+        end
+    end
+    return nextState('next')
+end
+
+WHEEL_POSITIONS = {'Fortune', 'Taxes', 'Famine', 'Storm', 'Inquisition', 'Plague'}
+
+function resolveWheel()
+    getActiveFigures()
+    if WHEEL_POSITIONS[wofPigPosition] == 'Fortune' then
+        if controlPanelSettings['WoFFortune'] then
+            allGameMessage({"The pig landed on the Fortune event. The current player will be awarded 3 points."}, NEUTRAL_COLOR)
+            allGameMessage({"{c1} scores 3 points for landing on the Fortune event.", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]])
+            scorePoints(activePlayers[currentPlayer], 'Wheel', 3)
+        else
+            allGameMessage({"The {s1} event is currently disabled. Nothing happens.", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
+        end
+    elseif WHEEL_POSITIONS[wofPigPosition] == 'Taxes' then
+        if controlPanelSettings['WoFTaxes'] then
+            allGameMessage({"The pig landed on the Taxes event. Each knight will score 1 point for every knight (included itself) and pennant in their city."}, NEUTRAL_COLOR)
+            for featureNum, figures in pairs(activeFigures) do
+                if featureList[featureNum].nameOfFeature == 'City' then
+                    local num_pennants = 0
+                    for _, specialFeature in ipairs(featureList[featureNum].specialFeatures) do
+                        if specialFeature == 'Pennant' then
+                            num_pennants = num_pennants + 1
+                        end
+                    end
+                    for _, follower in ipairs(figures.followers) do
+                        num_points = num_pennants
+                        for _, nestedFollower in ipairs(figures.followers) do
+                            if follower.getVar('owner') == nestedFollower.getVar('owner') then
+                                num_points = num_points + 1
+                            end
+                        end
+                        allGameMessage({"{c1}'s follower scores {n1} points for the Taxes event.", {'{c1}', follower.getVar('owner')}, {'{n1}', num_points}}, player_color_tints[follower.getVar('owner')])
+                        scorePoints(follower.getVar('owner'), 'Wheel', num_points)
+                    end
+                end
+            end
+        else
+            allGameMessage({"The {s1} event is currently disabled. Nothing happens.", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
+        end
+    elseif WHEEL_POSITIONS[wofPigPosition] == 'Famine' then
+        if controlPanelSettings['WoFFamine'] then
+            allGameMessage({"The pig landed on the Famine event. Each farmer will score 1 point per completed city touching their field (bonuses count)."}, NEUTRAL_COLOR)
+            for featureNum, figures in pairs(activeFigures) do
+                if featureList[featureNum].nameOfFeature == 'Field' then
+                    local num_cities = 0
+                    for linkedFeatureNum, _ in pairs(linkedFeatures['City-Field'][featureNum]) do
+                        if (featureList[linkedFeatureNum].nameOfFeature == 'City' or featureList[linkedFeatureNum].nameOfFeature == 'Carcassonne') and featureList[linkedFeatureNum].openings == 0 then
+                            num_cities = num_cities + 1
+                        end
+                    end
+                    -- CAR pg 111 ref 333
+                    local containsPigHerd = false
+                    for _, feature in ipairs(featureList[featureNum].specialFeatures) do
+                        if feature == 'Pig-herd' and not controlPanelSettings['RIIDisablePigherd'] then
+                            containsPigHerd = true
+                        end
+                    end
+                    local hasPig = {}
+                    for _, figure in ipairs(figures.specialFigures) do
+                        if figure.getVar('figureName') == 'Pig' then
+                            hasPig[figure.getVar('owner')] = true
+                        end
+                    end
+                    if num_cities > 0 then
+                        for _, follower in ipairs(figures.followers) do
+                            local scoreMultiplier = 1
+                            if hasPig[follower.getVar('owner')] ~= nil then
+                                scoreMultiplier = scoreMultiplier + 1
+                            end
+                            if containsPigHerd then
+                                scoreMultiplier = scoreMultiplier + 1
+                            end
+                            local playerScore = num_cities * scoreMultiplier
+                            allGameMessage({"{c1}'s follower scores {n1} points for the Famine event.", {'{c1}', follower.getVar('owner')}, {'{n1}', playerScore}}, player_color_tints[follower.getVar('owner')])
+                            scorePoints(follower.getVar('owner'), 'Wheel', playerScore)
+                        end
+                    end
+                end
+            end
+        else
+            allGameMessage({"The {s1} event is currently disabled. Nothing happens.", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
+        end
+    elseif WHEEL_POSITIONS[wofPigPosition] == 'Storm' then
+        if controlPanelSettings['WoFStorm'] then
+            allGameMessage({"The pig landed on the Storm event. Every player will be awarded 1 point for each unused follower in their supply."}, NEUTRAL_COLOR)
+            for playerColor, num_followers in pairs(baselineFollowerCounts) do
+                allGameMessage({"{c1} scores {n1} points for the Storm event.", {'{c1}', playerColor}, {'{n1}', num_followers}}, player_color_tints[playerColor])
+                scorePoints(playerColor, 'Wheel', num_followers)
+            end
+        else
+            allGameMessage({"The {s1} event is currently disabled. Nothing happens.", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
+        end
+    elseif WHEEL_POSITIONS[wofPigPosition] == 'Inquisition' then
+        if controlPanelSettings['WoFInquisition'] then
+            allGameMessage({"The pig landed on the Inquisition event. Every player will receive 2 points per monk."}, NEUTRAL_COLOR)
+            for featureNum, figures in pairs(activeFigures) do
+                if table.contains(CLOISTER_FEATURES, featureList[featureNum].nameOfFeature) then
+                    for _, follower in ipairs(figures.followers) do
+                        allGameMessage({"{c1}'s follower scores 2 points for the Inquisition event.", {'{c1}', follower.getVar('owner')}}, player_color_tints[follower.getVar('owner')])
+                        scorePoints(follower.getVar('owner'), 'Wheel', 2)
+                    end
+                end
+            end
+        else
+            allGameMessage({"The {s1} event is currently disabled. Nothing happens.", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
+        end
+    else--if WHEEL_POSITIONS[wofPigPosition == 'Plague'] then
+        if controlPanelSettings['WoFPlague'] then
+            allGameMessage({"The pig landed on the Plague event. Each player must return 1 follower from a land tile."}, NEUTRAL_COLOR)
+            return nextState('plague')
+        else
+            allGameMessage({"The {s1} event is currently disabled. Nothing happens.", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
+        end
+    end
+    return nextState('crown')
+end
+
+function resolvePlague()
+    getActiveFigures()
+    while true do
+        if currentMiniTurn == nil then
+            currentMiniTurn = currentPlayer
+        else
+            currentMiniTurn = currentMiniTurn + 1
+            if currentMiniTurn > #activePlayers then currentMiniTurn = 1 end
+            if currentMiniTurn == currentPlayer then break end
+        end
+        local removableFigures = {}
+        for featureNum, figures in pairs(activeFigures) do
+            if string.sub(featureList[featureNum].nameOfFeature,1,6) ~= 'Crown-' and string.sub(featureList[featureNum].nameOfFeature,1,8) ~= 'Quarter-' then
+                for _, follower in ipairs(figures.followers) do
+                    if follower.getVar('owner') == activePlayers[currentMiniTurn] then
+                        table.insert(removableFigures, follower)
+                    end
+                end
+            end
+        end
+        if #removableFigures == 0 then
+            allGameMessage(activePlayers[currentMiniTurn] .. " did not have any followers in play for the Plague event and was skipped.", player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+        elseif #removableFigures == 1 then
+            allGameMessage(activePlayers[currentMiniTurn] .. " only had 1 follower in play for the Plague event. It was removed.", player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+            table.insert(removedFigures, {guid=removableFigures[1].getGUID(), winner=false})
+            removeDependentFigures(removableFigures[1])
+            return returnFigures()
+        else
+            allGameMessage(activePlayers[currentMiniTurn] .. " must choose a follower to remove for the Plague event.", player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+            for _, follower in ipairs(removableFigures) do
+                local plaguedFollowerButtonParam = {
+                   index = 1, label = 'Return\nfollower', click_function = 'plaguedFollowerButton',
+                   position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.0}, width = 1700, height=600, font_size = 200, function_owner = nil
+                }
+                createNormalizedButton(follower, plaguedFollowerButtonParam, true)
+            end
+            return
+        end
+    end
+    currentMiniTurn = nil
+    return nextState('next')
+end
+
+function plaguedFollowerButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        --although we later remove these buttons, there is a slight delay during the figure removal, so we remove them now
+        clearArbitraryButtons()
+
+        table.insert(removedFigures, {guid=object.getGUID(), winner=false})
+        allGameMessage(object.getDescription() .. (object.getDescription() ~= "" and " " or "") .. object.getName() .. " was chosen to be removed by the plague.", player_color_tints[object.getVar('owner')])
+        removeDependentFigures(object)
+        return returnFigures()
+    end
+end
+
+--Reward points for followers on Wheel of Fortune Crown spaces when the pig lands on it
+function rewardCrownSpaces()
+    if controlPanelSettings['WoFCrowns'] then
+        local crownFollowers = {}
+        for featureNum, figures in pairs(activeFigures) do
+            if featureList[featureNum] == nil then --FIXME: can remove this debug code if no one complains after a while
+                print("ERROR: feature " .. featureNum .. " doesn't exist. This should not happen. Please save the game and send the save file to the dev, thanks!")
+                return nextState('next')
+            end
+            if featureList[featureNum].nameOfFeature == 'Crown-' .. WHEEL_POSITIONS[wofPigPosition] then
+                for _, follower in ipairs(figures.followers) do
+                    table.insert(crownFollowers, follower)
+                end
+            end
+        end
+        if #crownFollowers > 0 then
+            local points = 6
+            if #crownFollowers > 1 or table.contains({'Fortune', 'Famine', 'Inquisition'}, WHEEL_POSITIONS[wofPigPosition]) then points = 3 end
+            for i, follower in ipairs(crownFollowers) do
+                allGameMessage({"{c1}'s follower scores {n1} points on the {s1} Crown.", {'{c1}', follower.getVar('owner')}, {'{n1}', points}, {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, player_color_tints[follower.getVar('owner')])
+                scorePoints(follower.getVar('owner'), 'Wheel', points)
+
+                if showMarkers == 'Both' or showMarkers == 'Scoring' then
+                    local xIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                    local zIndex = math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                    local xPosition = (follower.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+                    local zPosition = (follower.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+                    xPosition = xPosition - xIndex
+                    zPosition = zPosition - zIndex
+                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                    local tileRotation = tileGrid[xIndex][zIndex].rotation
+                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                    getFeatureComponents(xIndex, zIndex, closestPosition, 2, i == 1)
+                end
+
+                table.insert(removedFigures, {guid=follower.getGUID(), winner=true})
+                follower.setLock(false)
+                follower.use_gravity = false
+                follower.interactable = false
+                --raise the follower in the air
+                follower.setPositionSmooth({follower.getPosition().x, follower.getPosition().y + 2.5, follower.getPosition().z}, false, false)
+            end
+            if showMarkers == 'Both' or showMarkers == 'Scoring' then
+                Timer.create({identifier=os.clock(), function_name='praiseFigures', function_owner=nil, parameters=nil, delay=0.9})
+            else
+                returnFigures()
+            end
+            return
+        end
+    end
+    return nextState('next')
+end
+
 function checkTileForVolcano()
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
     --put another tile underneath it
@@ -1101,8 +1409,14 @@ function checkTileForDragon()
                         table.insert(forbiddenZones, fairy_GUID)
                     end
                     if controlPanelSettings['StartingTileCoC'] then
-                        table.insert(forbiddenZones, expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[6].guid)
-                        table.insert(forbiddenZones, expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[7].guid)
+                        table.insert(forbiddenZones, expansionBags['CoC'].contents['CoCStartingTiles'].contents[6].guid)
+                        table.insert(forbiddenZones, expansionBags['CoC'].contents['CoCStartingTiles'].contents[7].guid)
+                    end
+                    if controlPanelSettings['StartingTileWoF'] then
+                        table.insert(forbiddenZones, expansionBags['WoF'].contents['WoFStartingTiles'].contents[6].guid)
+                        table.insert(forbiddenZones, expansionBags['WoF'].contents['WoFStartingTiles'].contents[7].guid)
+                        table.insert(forbiddenZones, expansionBags['WoF'].contents['WoFStartingTiles'].contents[10].guid)
+                        table.insert(forbiddenZones, expansionBags['WoF'].contents['WoFStartingTiles'].contents[11].guid)
                     end
                     for _, forbiddenZone_GUID in ipairs(forbiddenZones) do
                         forbiddenZone = getObjectFromGUID(forbiddenZone_GUID)
@@ -1242,7 +1556,7 @@ function moveDragonToTile(xIndex, zIndex)
                     zPosition = zPosition - zIndex
                     local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
                     local nameOfFeature = getFeatureName(tile, closestPosition)
-                    if string.sub(nameOfFeature,1,8) ~= 'Quarter-' and nameOfFeature ~= 'Carcassonne' then
+                    if string.sub(nameOfFeature,1,8) ~= 'Quarter-' and nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,6) ~= 'Crown-' then
                         --an assumption is made here that there won't be more than 1 figure on the same tile that the figures are dependent on.
                         --It is possible for more than 1 figure from the same player to be on the same tile through use of the magic portal, but not on the same feature.
                         --Therefore, I think the assumption is safe unless there is interference from the players
@@ -1624,7 +1938,7 @@ function displayFigureButtons()
         }
         createNormalizedButton(getObjectFromGUID(knight), seduceKnightButtonParam, true)
     end
-    for _, obj in ipairs(getAllObjects()) do
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if obj.getVar('figureName') == 'Abbot' and obj.getVar('owner') == activePlayers[currentPlayer] then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -1720,15 +2034,12 @@ function seduceKnightButton(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
         --although we later remove these buttons, there is a slight delay during the figure removal, so we remove them now
         clearArbitraryButtons()
-        for _, knight in ipairs(seducedKnights) do
-            getObjectFromGUID(knight).clearButtons()
-        end
 
         table.insert(removedFigures, {guid=object.getGUID(), winner=false})
         if object.getVar('figureName') == 'Wagon' then
             allGameMessage(object.getDescription() .. (object.getDescription() ~= "" and " " or "") .. object.getName() .. " has been seduced by the princess! Well not the wagon but the wagon crew... all of them... wow. Let's move on and forget this.", player_color_tints[object.getVar('owner')])
         else
-        allGameMessage(object.getDescription() .. (object.getDescription() ~= "" and " " or "") .. object.getName() .. " has been seduced by the princess! bow chicka wow wow~", player_color_tints[object.getVar('owner')])
+            allGameMessage(object.getDescription() .. (object.getDescription() ~= "" and " " or "") .. object.getName() .. " has been seduced by the princess! bow chicka wow wow~", player_color_tints[object.getVar('owner')])
         end
         removeDependentFigures(object)
         return nextState('seduce knight')
@@ -1790,7 +2101,7 @@ function promptTowerCapture()
 	end
     local hasFollower = false
     capturableFollowers = {}
-    for _, obj in ipairs(getAllObjects()) do
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -2558,8 +2869,7 @@ function promptMovingFromCoC()
             end
 
             --find all followers in the city of carcassonne
-            local objs = getAllObjects()
-            for _, obj in ipairs(objs) do
+            for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
                 if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or obj.getVar('figureName') == 'Barn' then
                     local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                     local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -2594,8 +2904,7 @@ function promptMovingFromCoC()
         --this is necessary if the game is loaded during this turn state. I don't want to save it to the save file so i have to make this check.
         if barnFeatureNumbers == nil then
             barnFeatureNumbers = {}
-            local objs = getAllObjects()
-            for _, obj in ipairs(objs) do
+            for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
                 if obj.getVar('figureName') == 'Barn' then
                     local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                     local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -2767,7 +3076,7 @@ function promptMovingFromCoC()
                    index = 2, label = 'Skip placing\nfigure', click_function = 'skipCoCButton',
                    position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=4.5}, width = 1400, height=600, font_size = 200, function_owner = nil
                 }
-                local CoCMiddlePosition = getObjectFromGUID(expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[6].guid).getPosition()
+                local CoCMiddlePosition = getObjectFromGUID(expansionBags['CoC'].contents['CoCStartingTiles'].contents[6].guid).getPosition()
                 CoCMiddlePosition.x = CoCMiddlePosition.x + TILE_SPACING / 2
                 createNormalizedArbitraryButton({x=-CoCMiddlePosition.x, y=CoCMiddlePosition.y, z=-CoCMiddlePosition.z}, labelButtonParam, true)
                 createNormalizedArbitraryButton({x=-CoCMiddlePosition.x, y=CoCMiddlePosition.y, z=-CoCMiddlePosition.z}, skipFigureButtonParam, true)
@@ -2868,7 +3177,7 @@ function scoreFeatures()
                                 elseif follower.getVar('figureName') == 'Big Follower' then weight = 2
                                 elseif follower.getVar('figureName') == 'Mayor' then
                                     for _, specialFeature in ipairs(featureList[featureNum].specialFeatures) do
-                                        if specialFeature == 'Coat of Arms' then weight = weight + 1 end
+                                        if specialFeature == 'Pennant' then weight = weight + 1 end
                                     end
                                     hasMayor[follower.getVar('owner')] = true
                                 end
@@ -2929,7 +3238,7 @@ function scoreFeatures()
                                 score = featureList[featureNum].numTiles
                                 local containsCathedral = false
                                 for _, feature in ipairs(featureList[featureNum].specialFeatures) do
-                                    if feature == 'Coat of Arms' then
+                                    if feature == 'Pennant' then
                                         score = score + 1
                                     end
                                     if feature == 'Cathedral' and controlPanelSettings['InCCathedrals'] then
@@ -3051,10 +3360,10 @@ function scoreFeatures()
                                 score = featureList[featureNum].numTiles
                             end
                             for player, value in pairs(followerCounts) do
-                                if nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,8) ~= 'Quarter-' and nameOfFeature ~= 'Tower Foundation' and string.sub(nameOfFeature,1,6) ~= 'Flier' then
+                                if nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,8) ~= 'Quarter-' and string.sub(nameOfFeature,1,6) ~= 'Crown-' and nameOfFeature ~= 'Tower Foundation' and string.sub(nameOfFeature,1,6) ~= 'Flier' then
                                     if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn and #featureFollowers > 0) or (gameover and hasBarn and #featureFollowers == 0) then
                                         if (topWeight > 0 and value >= topWeight) then
-                                            playerScore = score
+                                            local playerScore = score
                                             if nameOfFeature == 'Field' then
                                                 local scoreMultiplier = 3
                                                 if hasBarn then
@@ -3079,7 +3388,7 @@ function scoreFeatures()
                                         elseif value > 0 then
                                             --allGameMessage(player .. " did not score any points with a strength of only " .. value .. " followers", player_color_tints[player])
                                         elseif topWeight == 0 and hasMayor[player] then
-                                            allGameMessage(player .. " scores 0 points on " .. nameOfFeature .. ". A mayor can only score points if the city contains a coat of arms!", player_color_tints[player])
+                                            allGameMessage(player .. " scores 0 points on " .. nameOfFeature .. ". A mayor can only score points if the city contains a Pennant!", player_color_tints[player])
                                         end
                                     end
                                 end
@@ -3096,7 +3405,7 @@ function scoreFeatures()
                                     end
                                 end
                             end
-                            if nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,8) ~= 'Quarter-' and nameOfFeature ~= 'Tower Foundation' then
+                            if nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,8) ~= 'Quarter-' and string.sub(nameOfFeature,1,6) ~= 'Crown-' and nameOfFeature ~= 'Tower Foundation' then
                                 if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn) then
                                     for _, follower in ipairs(featureFollowers) do
                                         local closestFollower = fairyClosestFollower()
@@ -3601,7 +3910,7 @@ function promptMovingToCarcassonne()
                index = 2, label = 'Skip placing\nfigure', click_function = 'skipFigureButton',
                position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=4.5}, width = 1400, height=600, font_size = 200, function_owner = nil
             }
-            local CoCMiddlePosition = getObjectFromGUID(expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[6].guid).getPosition()
+            local CoCMiddlePosition = getObjectFromGUID(expansionBags['CoC'].contents['CoCStartingTiles'].contents[6].guid).getPosition()
             CoCMiddlePosition.x = CoCMiddlePosition.x + TILE_SPACING / 2
             createNormalizedArbitraryButton({x=-CoCMiddlePosition.x, y=CoCMiddlePosition.y, z=-CoCMiddlePosition.z}, labelButtonParam, true)
             createNormalizedArbitraryButton({x=-CoCMiddlePosition.x, y=CoCMiddlePosition.y, z=-CoCMiddlePosition.z}, skipFigureButtonParam, true)
@@ -3623,7 +3932,7 @@ function promptMovingCount()
            index = 2, label = 'Skip moving\nthe count', click_function = 'skipFigureButton',
            position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=4.5}, width = 1400, height=600, font_size = 200, function_owner = nil
         }
-        local CoCMiddlePosition = getObjectFromGUID(expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents[6].guid).getPosition()
+        local CoCMiddlePosition = getObjectFromGUID(expansionBags['CoC'].contents['CoCStartingTiles'].contents[6].guid).getPosition()
         CoCMiddlePosition.x = CoCMiddlePosition.x + TILE_SPACING / 2
         createNormalizedArbitraryButton({x=-CoCMiddlePosition.x, y=CoCMiddlePosition.y, z=-CoCMiddlePosition.z}, labelButtonParam, true)
         createNormalizedArbitraryButton({x=-CoCMiddlePosition.x, y=CoCMiddlePosition.y, z=-CoCMiddlePosition.z}, skipFigureButtonParam, true)
@@ -3659,8 +3968,7 @@ function hasAvailableWagonFeature(wagonFeatureNum)
         end
     end
 
-    local objs = getAllObjects()
-    for _, obj in ipairs(objs) do
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -3880,9 +4188,43 @@ function returnFiguresCoroutine()
 
     --make sure to give enough time for pieces to travel back or they might be counted twice
     if not skipStateProgression then
+        wait(FIGURE_RETURN_DELAY)
         nextState('figures returned')
     end
     return 1
+end
+
+function startAnimation(animation)
+    function animate()
+        local animation_finished = false
+        while not animation_finished do
+            if animation.type == 'WoFPig' then
+                local pig = getObjectFromGUID(expansionBags['WoF'].contents['WoFPig'].guid)
+                local time_elapsed = os.clock() - animation.start_time
+                local degrees_rotated = (animation.start_position - 1) * 60
+                if time_elapsed < ANIMATION_PIG_ACCEL_TIME then
+                    --using d = (a * elapsed time^2) / 2
+                    degrees_rotated = degrees_rotated + ANIMATION_PIG_ACCEL * time_elapsed * time_elapsed / 2
+                elseif time_elapsed < ANIMATION_PIG_ACCEL_TIME + (ANIMATION_PIG_TIME_PER_SPACE * (animation.num_positions_moved - 1)) then
+                    degrees_rotated = degrees_rotated + ANIMATION_PIG_ACCEL_DEGREES + (ANIMATION_PIG_MAX_VELOCITY * (time_elapsed - ANIMATION_PIG_ACCEL_TIME))
+                elseif time_elapsed < ANIMATION_PIG_ACCEL_TIME * 2 + (ANIMATION_PIG_TIME_PER_SPACE * (animation.num_positions_moved - 1)) then
+                    local time_decelerating = (time_elapsed - ANIMATION_PIG_ACCEL_TIME - ANIMATION_PIG_TIME_PER_SPACE * (animation.num_positions_moved - 1))
+                    degrees_rotated = degrees_rotated + ANIMATION_PIG_ACCEL_DEGREES + (60 * (animation.num_positions_moved - 1)) +
+                    -- using d = vi t + (a t * t) / 2
+                        (ANIMATION_PIG_MAX_VELOCITY * time_decelerating) + (-ANIMATION_PIG_ACCEL * time_decelerating * time_decelerating / 2)
+                else
+                    degrees_rotated = degrees_rotated + 60 * animation.num_positions_moved
+                    animation_finished = true
+                end
+                local x, z = rotateCoordinatesDegrees(startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].position.x - wheelCenterLocation.x, startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].position.z - wheelCenterLocation.z, -degrees_rotated)
+                pig.setPosition({x=x + wheelCenterLocation.x, y=startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].position.y, z=z + wheelCenterLocation.z})
+                pig.setRotation({x=startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].rotation.x, y=startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].rotation.y, z=degrees_rotated})
+            end
+            coroutine.yield()
+        end
+        return 1
+    end
+    startLuaCoroutine(Global, "animate")
 end
 
 function debugShowTraversal()
@@ -4439,7 +4781,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                                             --we don't really care if the feature is finished or not. In fact, we really don't need to traverse intersections at all, except for the removeTile method
                                         end
                                     end
-                                elseif feature[1] == 'Coat of Arms' or feature[1] == 'Inn' or feature[1] == 'Cathedral' or
+                                elseif feature[1] == 'Pennant' or feature[1] == 'Inn' or feature[1] == 'Cathedral' or
                                     table.contains(TRADE_GOOD_TYPES, feature[1]) or
                                     feature[1] == 'Pig-herd' or feature[1] == 'Sheep' then
                                     table.insert(traversedSpecialFeatures, feature[1])

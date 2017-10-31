@@ -1,4 +1,12 @@
-﻿v1.18.1 - 20171021
+﻿v1.19 - 20171031
+[*]Wheel of Fortune has been added. Huge thanks to TheLimeyDragon on this one for inputting all of the tile data, as well as separating the wheel into individual tiles (so that it can work with the script better).
+[*]The base tiles can now be disabled (useful if you'd like to use Wheel of Fortune tiles instead).
+[*]Removed some unnecessary delays from starting tile setup. It should be several times faster now.
+[*]Incorrect tooltips on the control panel have been corrected. Also, tile buttons now have tooltips showing the number of tiles in each expansion.
+[*]Coat of Arms has been renamed to Pennant, to be in line with CAR. I believe this change is only in code and won't affect the user experience.
+[*]AI will once again draw tiles to in front of their hand, to avoid a persistant rubberbanding bug.
+
+v1.18.1 - 20171021
 [*]The first 4 pages of tiles have been color-corrected by MsFairyViolet so that the grass matches better. This includes most of the major expansions used. Thanks!
 [*]River tiles can now be played in any order, without risk of getting the game stuck. Left-over pieces when the river is finished will be automatically deleted. The AI will still prefer to use them in the standard order, but won't freak out if you mix them into the "body" stack.
 [*]A new house rule has been added to page 6 of the control panel that will mix all of the river tiles during setup

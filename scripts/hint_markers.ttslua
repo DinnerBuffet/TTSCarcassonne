@@ -111,17 +111,97 @@ function showFeatureMarkers()
             end
         end
     end
-    if (tileHasMagicPortal or controlPanelSettings['TowerTowers']) and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
-        lastFrameTime = os.clock()
-        if tileHasMagicPortal then
-            allGameMessage("Calculating all possible magic portal locations. Hints may be delayed...", NEUTRAL_COLOR)
-        else
-            allGameMessage("Calculating all possible tower locations. Hints may be delayed...", NEUTRAL_COLOR)
+    --uncapped towers
+    if controlPanelSettings['TowerTowers'] and (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') then
+        --all tower locations are candidates for placing followers if they are legally placed
+        for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
+            if obj.getVar('figureName') == 'Tower' then
+                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                if tileGridOccupied(xIndex, zIndex) then
+                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                    local tileRotation = tileGrid[xIndex][zIndex].rotation
+                    local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+                    local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+                    xPosition = xPosition - xIndex
+                    zPosition = zPosition - zIndex
+                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                    local direction
+                    if closestPosition < 5 then
+                        direction = (3 + closestPosition + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+                    elseif closestPosition < 13 then
+                        direction = (3 + closestPosition + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+                    else
+                        direction = closestPosition
+                    end
+                    local featureNum = featureMap[xIndex][zIndex][direction]
+                    if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(direction * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(direction * 2) + 3] == featureMap[xIndex][zIndex][(direction * 2) + 4] then
+                       featureNum = featureMap[xIndex][zIndex][(direction * 2) + 3]
+                    end
+                    if featureNum ~= nil and isValidFigureLocation(newFigure, xIndex, zIndex, closestPosition, featureNum, false, false) then
+                        if figureMarkers[xIndex] == nil then
+                            figureMarkers[xIndex] = {}
+                        end
+                        if figureMarkers[xIndex][zIndex] == nil then
+                            figureMarkers[xIndex][zIndex] = {}
+                        end
+                        if figureMarkers[xIndex][zIndex][closestPosition] == nil then
+                            figureMarkers[xIndex][zIndex][closestPosition] = 0
+                        end
+                        figureMarkers[xIndex][zIndex][closestPosition] = figureMarkers[xIndex][zIndex][closestPosition] + 1
+                    end
+                end
+            end
         end
+    end
+    --wheel of fortune crown spaces
+    if controlPanelSettings['WoFCrowns'] and (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') then
+        for _, tileIndex in ipairs({1, 2, 3, 4, 5, 8, 9, 12, 14, 15}) do --these are the indexes of the tiles that have crown features on them
+            local obj = getObjectFromGUID(expansionBags['WoF'].contents['WoFStartingTiles'].contents[tileIndex].guid)
+            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            if tileGridOccupied(xIndex, zIndex) then
+                local positionsToVisit = {}
+                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+                local tileRotation = tileGrid[xIndex][zIndex].rotation
+                local specialFeatures = tile.getTable('specialFeatures')
+                if specialFeatures ~= nil then
+                    for i, feature in ipairs(specialFeatures) do
+                        if string.sub(feature[1],1,6) == 'Crown-' then
+                            table.insert(positionsToVisit, i+12)
+                        end
+                    end
+                end
+
+                for _, i in ipairs(positionsToVisit) do
+                    local direction = i
+                    local featureNum = featureMap[xIndex][zIndex][direction]
+
+                    if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
+                        if isValidFigureLocation(newFigure, xIndex, zIndex, i, featureNum, false, false) then
+                            if figureMarkers[xIndex] == nil then
+                                figureMarkers[xIndex] = {}
+                            end
+                            if figureMarkers[xIndex][zIndex] == nil then
+                                figureMarkers[xIndex][zIndex] = {}
+                            end
+
+                            figureMarkers[xIndex][zIndex][direction] = 0
+                            featuresToMark[featureNum] = nil
+                        end
+                    end
+                end
+            end
+        end
+    end
+    --magic portal
+    if tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
+        lastFrameTime = os.clock()
+        allGameMessage("Calculating all possible magic portal locations. Hints may be delayed...", NEUTRAL_COLOR)
 
         --prune features that don't have openings
         for featureNum, feature in pairs(featuresToMark) do
-            if feature.nameOfFeature ~= 'Tower Foundation' and feature.openings == 0 then
+            if feature.openings == 0 then
                 featuresToMark[featureNum] = nil
             end
         end
@@ -175,57 +255,6 @@ function showFeatureMarkers()
                     end
                     if turnState ~= 'awaiting figure decision' or newFigure.held_by_color == nil then
                         return 1
-                    end
-                end
-            end
-        end
-    end
-    if table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
-        --all tower foundation locations are candidates for placing followers if they have a tower
-        for _, obj in ipairs(getAllObjects()) do
-            if newFigure.getVar('figureName') == 'Tower' then
-                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                if tileGridOccupied(xIndex, zIndex) then
-                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
-                    local tileRotation = tileGrid[xIndex][zIndex].rotation
-                    local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                    local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                    xPosition = xPosition - xIndex
-                    zPosition = zPosition - zIndex
-                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
-                    local nameOfFeature = getFeatureName(tile, closestPosition)
-                    if nameOfFeature == 'Tower Foundation' then
-                        if figureMarkers[xIndex] == nil then
-                            figureMarkers[xIndex] = {}
-                        end
-                        if figureMarkers[xIndex][zIndex] == nil then
-                            figureMarkers[xIndex][zIndex] = {}
-                        end
-                        if figureMarkers[xIndex][zIndex][closestPosition] == nil then
-                            figureMarkers[xIndex][zIndex][closestPosition] = 0
-                        end
-                        figureMarkers[xIndex][zIndex][closestPosition] = figureMarkers[xIndex][zIndex][closestPosition] + 1
-                    end
-                end
-            end
-        end
-        --however, if they already have a follower then we remove them
-        for _, obj in ipairs(getAllObjects()) do
-            if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
-                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                if figureMarkers[xIndex] ~= nil and figureMarkers[xIndex][zIndex] ~= nil then
-                    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
-                    local tileRotation = tileGrid[xIndex][zIndex].rotation
-                    local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                    local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                    xPosition = xPosition - xIndex
-                    zPosition = zPosition - zIndex
-                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
-                    local nameOfFeature = getFeatureName(tile, closestPosition)
-                    if nameOfFeature == 'Tower Foundation' and figureMarkers[xIndex][zIndex][closestPosition] ~= nil then
-                        figureMarkers[xIndex][zIndex][closestPosition] = nil
                     end
                 end
             end
@@ -326,7 +355,7 @@ function showTowerMarkers()
         end
     end
 
-    for _, obj in ipairs(getAllObjects()) do
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if obj.getVar('figureName') == 'Tower' then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -592,7 +621,7 @@ end
 
 function showToCoCFeatureMarkers(newFigure)
     figureMarkers = {}
-    for _, cocTileSetting in ipairs(expansionBags['CoC'].contents['CoCCarcassonneTiles'].contents) do
+    for _, cocTileSetting in ipairs(expansionBags['CoC'].contents['CoCStartingTiles'].contents) do
         local cocTile = getObjectFromGUID(cocTileSetting.guid)
         local xIndex = math.floor((cocTile.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
         local zIndex = math.floor((cocTile.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)

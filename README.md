@@ -27,10 +27,12 @@ Recommended: Check "Experimental: Ignore files from outwith the TTS folder"
 
 Now load Carcassonne from the workshop and make a new save file. Load that save file.
 
-You should now be able to edit the code more easily
+You should now be able to edit the code as separate files, rather than one big global file.
 
 # Recommended plugins
 
 https://atom.io/packages/minimap
 
 https://atom.io/packages/minimap-git-diff
+
+https://atom.io/packages/linter

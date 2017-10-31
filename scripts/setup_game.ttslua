@@ -1,5 +1,7 @@
 --contains scripts and data related to setting up the game
 
+--the following location is used when the base tile stack is disabled
+defaultTileStackPosition = {x=6.36, y=1.36, z=23.85}
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {}}}
 tileSettings = {
     ['InCTiles'] = {['InC'] = {['InCTiles'] = {}}},
@@ -15,6 +17,8 @@ tileSettings = {
 	['CatapultTiles'] = {['Catapult'] = {['CatapultTiles'] = {}}},
 	['BCnBTiles'] = {['BCnB'] = {['BCnBTiles'] = {}}},
     ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}},
+    ['WoFTiles'] = {['WoF'] = {['WoFTiles'] = {}}},
+    ['WoFWheelTiles'] = {['WoF'] = {['WoFWheelTiles'] = {}}},
     ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}},
     ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {['GamesQuarterlyTiles'] = {}}},
     ['GoldminesTiles'] = {['Goldmines'] = {['GoldminesTiles'] = {}}},
@@ -24,6 +28,8 @@ tileSettings = {
 
 --the following location is used for the MixAllTiles house rule
 defaultRiverLocation = {position = {x=0.0, y=2.32, z=17.49}, rotation = {x=0,y=180,z=180}}
+--location of the center of the wheel
+wheelCenterLocation = {x=-0.795, z=-0.795}
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {position={<position on table>}, rotation={<rotation>}, shuffle=<should shuffle>, lock=<should lock>}}}
 --will only use the first ForkTile, SpringTile, and LakeTile, prioritizing GamesQuarterly over RiverII over BB5 River over the original River (CAR ref 237)
 startingTileSettings = {
@@ -48,7 +54,25 @@ startingTileSettings = {
         ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
     }},
     ['StartingTileCoC'] = {['CoC'] = {
-        ['CoCCarcassonneTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
+        ['CoCStartingTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
+            [1] = {position = {x=-3.18, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [2] = {position = {x=-1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [3] = {position = {x=0.0, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [4] = {position = {x=1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [5] = {position = {x=-3.18, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [6] = {position = {x=-1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [7] = {position = {x=0.0, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [8] = {position = {x=1.59, y=2.0, z=0.0}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [9] = {position = {x=-3.18, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [10] = {position = {x=-1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [11] = {position = {x=0.0, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [12] = {position = {x=1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true}
+        }},
+        ['CoCCount'] = {position = {x=-0.30, y=2.0, z=1.44}, rotation = {x=0,y=0,z=0}, shuffle = false, lock = true}
+    }},
+    ['StartingTileWoF'] = {['WoF'] = {
+        -- ['WoFWheel'] = {position = {x=-0.795, y=2.0, z=-0.795}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true},
+        ['WoFStartingTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
             [1] = {position = {x=-3.18, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
             [2] = {position = {x=-1.59, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
             [3] = {position = {x=0.0, y=2.0, z=1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
@@ -61,8 +85,12 @@ startingTileSettings = {
             [10] = {position = {x=-1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
             [11] = {position = {x=0.0, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
             [12] = {position = {x=1.59, y=2.0, z=-1.59}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [13] = {position = {x=-3.18, y=2.0, z=-3.18}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [14] = {position = {x=-1.59, y=2.0, z=-3.18}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [15] = {position = {x=0.0, y=2.0, z=-3.18}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
+            [16] = {position = {x=1.59, y=2.0, z=-3.18}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true}
         }},
-        ['CoCCount'] = {position = {x=-0.30, y=2.0, z=1.44}, rotation = {x=0,y=0,z=0}, shuffle = false, lock = true}
+        ['WoFPig'] = {position = {x=-0.795, y=1.23, z=0.85}, rotation = {x=270,y=180,z=0}, shuffle = false, lock = true}
     }}
 }
 
@@ -252,6 +280,13 @@ function startGame()
         startingTile_GUID = nil
         addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(newTile), 2, false)
     end
+    if not controlPanelSettings['BaseTiles'] then
+        local baseTileStack = getObjectFromGUID(tileStack_GUID)
+        if baseTileStack ~= nil then
+            baseTileStack.destruct()
+            tileStack_GUID = nil
+        end
+    end
     startLuaCoroutine(self, 'prepareTileStack')
     startLuaCoroutine(self, 'prepareStartingTiles')
     startLuaCoroutine(self, 'preparePlayerStartingItems')
@@ -415,35 +450,63 @@ end
 
 --pulls tiles from expansion bags into the main tile stack
 function prepareTileStack()
-    local tileStack = getObjectFromGUID(tileStack_GUID)
-    if tileStack ~= nil then
-        local tileStackPosition = tileStack.getPosition()
-        local tileStackAddPosition = tileStackPosition
-        local stackY = tileStackPosition.y
-        for rule_id, rule in pairs(tileSettings) do
-            if controlPanelSettings[rule_id] then
-                for expansion_id, expansion in pairs(rule) do
-                    for item_id, item_settings in pairs(expansion) do
+    local tileStack = nil
+    local tileStackAddPosition
+    if tileStack_GUID == nil then
+        tileStackAddPosition = defaultTileStackPosition
+    else
+        tileStack = getObjectFromGUID(tileStack_GUID)
+        tileStackAddPosition = tileStack.getPosition()
+    end
+    local stackY = tileStackAddPosition.y
+    for rule_id, rule in pairs(tileSettings) do
+        if controlPanelSettings[rule_id] then
+            for expansion_id, expansion in pairs(rule) do
+                for item_id, item_settings in pairs(expansion) do
+                    if tileStack ~= nil then
                         tileStackAddPosition.y = stackY + 1 + tileStack.getQuantity() * TILE_THICKNESS
-                        local newStack = takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = tileStackAddPosition, rotation = {0,180,180}})
-                        if newStack == nil then
+                    end
+                    local params = {guid = expansionBags[expansion_id].contents[item_id].guid,
+                                    position = tileStackAddPosition,
+                                    rotation = {0,180,180}}
+                    if tileStack_GUID == nil then
+                        prepareTileStackLock = true
+                        params.callback_owner = Global
+                        params.callback = "prepareTileStackUnlock"
+                    end
+                    local newStack = takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), params)
+                    if newStack ~= nil then
+                        if tileStack_GUID == nil then
+                            while prepareTileStackLock do
+                                coroutine.yield(0)
+                            end
+                            if newStack.getQuantity() > 1 then --HACK: this technically wouldn't work if the first two were only one tile, but for the time being it works
+                                tileStack_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                tileStack = newStack
+                            end
                         else
                             tileStack.putObject(newStack)
                         end
-                        coroutine.yield(0)
                     end
+                    coroutine.yield(0)
                 end
             end
         end
-    else
-        allErrorMessage("Error: Tile stack not found. Scripting will be partially broken unless the game is reloaded.")
     end
     prepareTileStackFinished = true
     return 1
 end
 
+--unlocks the prepareTileStack coroutine
+function prepareTileStackUnlock()
+    prepareTileStackLock = false
+end
+
 --setup the starting tiles of the game
 function prepareStartingTiles()
+    if controlPanelSettings['StartingTileWoF'] and controlPanelSettings['StartingTileCoC'] then
+        wheelCenterLocation.z = wheelCenterLocation.z - 1.59
+    end
     for rule_id, rule in pairs(startingTileSettings) do
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
@@ -456,9 +519,16 @@ function prepareStartingTiles()
                                 prepareStartingTileLock = true
                                 local position = item_settings.position
                                 local rotation = item_settings.rotation
-                                if controlPanelSettings['RiverMixAll'] and rule_id ~= 'StartingTileCoC' then
+                                if controlPanelSettings['RiverMixAll'] and (item_id == 'RiverForkTile' or item_id == 'RiverSpringTile' or item_id == 'RiverBodyTiles' or item_id == 'RiverLakeTile') then
                                     position = defaultRiverLocation.position
                                     rotation = defaultRiverLocation.rotation
+                                end
+                                if controlPanelSettings['StartingTileWoF'] and controlPanelSettings['StartingTileCoC'] then
+                                    if item_id == 'CoCCount' then
+                                        position.z = position.z + (1.59 * 2) --move to make room for the WoF
+                                    elseif item_id == 'WoFWheel' or item_id == 'WoFPig' then
+                                        position.z = position.z - 1.59 --move to make room for the CoC
+                                    end
                                 end
                                 if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = position, rotation = rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
                                     prepareStartingTileLock = false
@@ -466,8 +536,8 @@ function prepareStartingTiles()
                                 while prepareStartingTileLock do
                                     coroutine.yield(0)
                                 end
-                                if controlPanelSettings['RiverMixAll'] and item_id ~= 'CoCCarcassonneTiles' then
-                                    if riverBodyTiles_GUID == nil and getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).getQuantity() > 1  then
+                                if controlPanelSettings['RiverMixAll'] and item_id ~= 'CoCStartingTiles' then
+                                    if riverBodyTiles_GUID == nil and getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).getQuantity() > 1  then --HACK: this technically wouldn't work if the first two were only one tile, but for the time being it works
                                         riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
                                     end
                                 else
@@ -484,26 +554,43 @@ function prepareStartingTiles()
                                         riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
                                     end
                                 end
-                                wait(1.0)
                             end
                         end
                         if item_settings.contents ~= nil then
                             for sub_item_id, sub_item_settings in pairs(item_settings.contents) do
-                                prepareStartingTileLock = true
-                                if getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid) ~= nil then
-                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).takeObject({guid = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid, position = sub_item_settings.position, rotation = sub_item_settings.rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"})
-                                else
-                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid).setPositionSmooth(sub_item_settings.position)
-                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid).setRotationSmooth(sub_item_settings.rotation)
-                                    prepareStartingTileLock = false
-                                    wait(2)
+                                local position = sub_item_settings.position
+                                if controlPanelSettings['StartingTileWoF'] and controlPanelSettings['StartingTileCoC'] then
+                                    if item_id == 'CoCStartingTiles' then
+                                        position.z = position.z + (1.59 * 2) --move to make room for the WoF
+                                    elseif item_id == 'WoFStartingTiles' then
+                                        position.z = position.z - 1.59 --move to make room for the CoC
+                                    end
                                 end
-                                --don't need the following anymore because it is set when addTile is called (?)
-                                --if startingTile_GUID == nil then
-                                --    startingTile_GUID = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid
-                                --end
-                                while prepareStartingTileLock do
-                                   coroutine.yield(0)
+                                if getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid) ~= nil then
+                                    local params = {guid = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid,
+                                                    position = position,
+                                                    rotation = sub_item_settings.rotation}
+                                    if sub_item_id == #item_settings.contents - 1 then
+                                        prepareStartingTileLock = true
+                                        params.callback_owner = Global
+                                        params.callback = "prepareStartingTileUnlock"
+                                    end
+                                    -- if item_id == 'WoFStartingTiles' then
+                                    --     params.params = {position = position, rotation = sub_item_settings.rotation}
+                                    --     params.callback = "prepareWoFStartingTile"
+                                    -- end
+                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).takeObject(params)
+                                else
+                                    local newObj = getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid)
+                                    newObj.setPositionSmooth(position)
+                                    newObj.setRotationSmooth(sub_item_settings.rotation)
+                                    prepareStartingTileLock = false
+                                    wait(1.5)
+                                end
+                                if sub_item_id == #item_settings.contents - 1 then
+                                    while prepareStartingTileLock do
+                                       coroutine.yield(0)
+                                    end
                                 end
                             end
                         end
@@ -523,6 +610,14 @@ end
 
 --unlocks the preparePlayerStartingItems coroutine
 function prepareStartingTileUnlock()
+    prepareStartingTileLock = false
+end
+
+--unlocks the preparePlayerStartingItems coroutine
+function prepareWoFStartingTile(newObj, params)
+    newObj.setPosition(params.position)
+    newObj.setRotation(params.rotation)
+    newObj.setLock(true)
     prepareStartingTileLock = false
 end
 

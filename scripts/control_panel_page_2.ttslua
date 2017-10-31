@@ -16,9 +16,6 @@ NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
 numPlayers = 1
 
 function onLoad()
--- Base game
-    initializeCheckbox(COLUMN_2, ROW_1, 'BaseTiles', "")
-
     button_parameters.click_function = 'onBaseFollowerDecr'
     button_parameters.label = '-'
     button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_1}
@@ -28,6 +25,7 @@ function onLoad()
 
     button_parameters.click_function = 'onBaseFollowerToggle'
     button_parameters.position = {COLUMN_3, BUTTON_HEIGHT, ROW_1}
+    button_parameters.tooltip = "Follower - The Follower is the basic piece of the player. It can be placed on cities, roads, fields, or cloisters (churches) to take control of that feature."
     button_parameters.label = '7'
     self.createButton( button_parameters )
     btnIDs['btnBaseFollowerToggle'] = index
@@ -40,31 +38,34 @@ function onLoad()
     btnIDs['btnBaseFollowerIncr'] = index
     index = index + 1
 
+-- Base game
+    initializeCheckbox(COLUMN_2, ROW_1, 'BaseTiles', "71 tiles")
+
 --Inns & Cathedrals
-    initializeAllCheckbox(COLUMN_1, ROW_2, 'InCAll', "")
-    initializeCheckbox(COLUMN_2, ROW_2, 'InCTiles', "")
+    initializeAllCheckbox(COLUMN_1, ROW_2, 'InCAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_2, 'InCTiles', "18 tiles")
     initializeCheckbox(COLUMN_3, ROW_2, 'InCBigFollower', "Follower - The Big Follower has the same weight as 2 normal followers. This means that only 1 big follower is needed to steal a feature controlled by a player with only 1 normal follower. Even if the player had 2 normal followers, the points would still be shared.")
     initializeCheckbox(COLUMN_4, ROW_2, 'InCInns', "Roads with inns are granted double points when they are finished, but are given no points if they do not finish.")
     initializeCheckbox(COLUMN_5, ROW_2, 'InCCathedrals', "Cities with cathedrals are granted triple points when they are finished (instead of double), but are given no points if they do not finish.")
 
 --Traders & Builders
-    initializeAllCheckbox(COLUMN_1, ROW_3, 'TnBAll', "")
-    initializeCheckbox(COLUMN_2, ROW_3, 'TnBTiles', "")
+    initializeAllCheckbox(COLUMN_1, ROW_3, 'TnBAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_3, 'TnBTiles', "24 tiles")
     initializeCheckbox(COLUMN_3, ROW_3, 'TnBBuilder', "Special Figure - The builder can be placed on any road or city which already has one of your followers. Once placed, anytime the owner of the builder adds to this feature, they will be able to draw an additional tile.")
     initializeCheckbox(COLUMN_4, ROW_3, 'TnBPig', "Special Figure - The pig can be placed on any field that already has one of your followers. At the end of the game, any field containing the pig (that scored points for the player) will score an additional 1 point per city")
     initializeCheckbox(COLUMN_5, ROW_3, 'TnBTradeGoods', "Trade goods icons are present in some cities on Traders and Builders tiles. When a player completes the city (regardless if it was controlled by that player), they will be awarded a token. The player with the most of each type of token will be awarded 10 points at the end of the game. Disabling this does not prevent tiles with trade token icons from being included, but it will prevent the tokens from being awarded.")
 
 --The Princess & The Dragon
-    initializeAllCheckbox(COLUMN_1, ROW_4, 'PnDAll', "")
-    initializeCheckbox(COLUMN_2, ROW_4, 'PnDTiles', "")
+    initializeAllCheckbox(COLUMN_1, ROW_4, 'PnDAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_4, 'PnDTiles', "30 tiles")
     initializeCheckbox(COLUMN_3, ROW_4, 'PnDDragon', "Neutral Figure - The Dragon will be summoned when a tile with a volcano is drawn. Afterwards, each time a tile with a dragon icon is drawn, the dragon is moved by the players 6 times. The dragon eats most figures on each tile it is moved to. See rules for more details.")
     initializeCheckbox(COLUMN_4, ROW_4, 'PnDFairy', "Neutral Figure - The fairy can be moved instead of placing a follower on one's turn. The fairy does 3 things: gives 1 point to the follower next to it at the beginning of that follower's turn, gives 3 points when that follower's feature gets finished, and protects the tile from the dragon.")
     initializeCheckbox(COLUMN_5, ROW_4, 'PnDMagicPortal', "When a tile with a magic portal is drawn, the next follower may be placed on that tile or any other tile already played. The usual rules on follower placement must still be followed.")
     initializeCheckbox(COLUMN_6, ROW_4, 'PnDPrincess', "Placing a city with the princess will allow the placing player to remove one knight (follower) from the connected city, instead of placing a follower.")
 
 --The Tower
-    initializeAllCheckbox(COLUMN_1, ROW_5, 'TowerAll', "")
-    initializeCheckbox(COLUMN_2, ROW_5, 'TowerTiles', "")
+    initializeAllCheckbox(COLUMN_1, ROW_5, 'TowerAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_5, 'TowerTiles', "18 tiles")
 
     button_parameters.click_function = 'onTowerDecr'
     button_parameters.label = '-'
@@ -183,8 +184,7 @@ function onAllButtonToggle(sPlayer, button_key)
 end
 
 function onBaseTilesToggle(Object, sPlayer)
-    printToColor("You currently cannot disable the base tiles.", sPlayer, {1,0,0})
-    --onCheckboxToggle(sPlayer, 'BaseTiles', 'btnBaseTilesToggle')
+    onCheckboxToggle(sPlayer, 'BaseTiles', 'btnBaseTilesToggle')
 end
 
 function onBaseFollowerDecr(Object, sPlayer)
@@ -218,7 +218,6 @@ function onBaseFollowerToggle(Object, sPlayer)
         self.editButton({index = btnIDs['btnBaseFollowerToggle'], label = '0'})
         printToColor("Warning: It is strongly recommended not to turn off followers", sPlayer, {1,0,0})
     else
-        printToColor("Follower - The Follower is the basic piece of the player. It can be placed on cities, roads, fields, or cloisters (churches) to take control of that feature.", sPlayer, NEUTRAL_COLOR)
         Global.call('setControlPanelState', {key = 'BaseFollower', value = true})
         self.editButton({index = btnIDs['btnBaseFollowerToggle'], label = '' .. Global.call('getControlPanelState', {key = 'BaseNumFollowers'})})
     end

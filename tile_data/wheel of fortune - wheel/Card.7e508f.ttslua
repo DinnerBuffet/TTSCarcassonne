@@ -1,0 +1,5 @@
+isStartingPiece = true
+ignoredFeatures = {4}
+sides = {'Road', 'Field/Wheel', 'Wheel', 'Wheel/Field'}
+linkedOctants = {{5, 12}, {6, 7}, {8, 9, 10, 11}}
+specialFeatures = {{'Crown-Fortune', nil, {-0.43, 0.0}}}

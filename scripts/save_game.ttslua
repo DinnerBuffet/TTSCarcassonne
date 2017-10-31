@@ -55,6 +55,7 @@ function onload(save_state)
         if saved_data.wagonFeatures ~= nil then wagonFeatures = saved_data.wagonFeatures end
         if saved_data.seducedKnights ~= nil then seducedKnights = saved_data.seducedKnights end
         if saved_data.carcassonneFigures ~= nil then carcassonneFigures = saved_data.carcassonneFigures end
+        if saved_data.wofPigPosition ~= nil then wofPigPosition = saved_data.wofPigPosition end
         if saved_data.numberActiveTowers ~= nil then numberActiveTowers = saved_data.numberActiveTowers end
         if saved_data.towerX ~= nil then towerX = saved_data.towerX end
         if saved_data.towerZ ~= nil then towerZ = saved_data.towerZ end
@@ -215,6 +216,7 @@ function onSave()
         wagonFeatures = wagonFeatures,
         seducedKnights = seducedKnights,
         carcassonneFigures = carcassonneFigures,
+        wofPigPosition = wofPigPosition,
         numberActiveTowers = numberActiveTowers,
         towerX = towerX,
         towerZ = towerZ,

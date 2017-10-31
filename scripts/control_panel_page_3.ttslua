@@ -14,48 +14,48 @@ COLUMN_6 = -7.1
 
 function onLoad()
 --Abbey & Mayor
-    initializeAllCheckbox(COLUMN_1, ROW_1, 'AnMAll', nil)
-    initializeCheckbox(COLUMN_2, ROW_1, 'AnMTiles', nil)
-    initializeCheckbox(COLUMN_3, ROW_1, 'AnMAbbey', "The Abbey is a special tile that can be used instead of drawing a random facedown tile. The abbey can only be placed if it is surrounded on all 4 sides by tiles. The abbey completes all features (road, city, field) that it connects to. A follower can be placed in the abbey as a cloister.")
-    initializeCheckbox(COLUMN_4, ROW_1, 'AnMMayor', "Follower - The Mayor can only be placed on cities. It's strength is the equivalent of 1 normal follower per coat of arms in the city.")
+    initializeAllCheckbox(COLUMN_1, ROW_1, 'AnMAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_1, 'AnMTiles', "12 tiles")
+    initializeCheckbox(COLUMN_3, ROW_1, 'AnMAbbey', "The Abbey is a special tile that can be used instead of drawing a random tile from the stack. The abbey can only be placed if it is surrounded on all 4 sides by tiles. The abbey completes all features (road, city, field) that it connects to. A follower can be placed in the abbey as a cloister.")
+    initializeCheckbox(COLUMN_4, ROW_1, 'AnMMayor', "Follower - The Mayor can only be placed on cities. It's strength is the equivalent of 1 normal follower per Pennant in the city.")
     initializeCheckbox(COLUMN_5, ROW_1, 'AnMWagon', "Follower - The Wagon can only be placed on cities, roads, and cloisters. It is scored exactly the same as a normal follower. Once scored, though, the wagon can be moved to any connected feature. A feature is considered connected if it DIRECTLY touches a road. Please see the rules for more details.")
     initializeCheckbox(COLUMN_6, ROW_1, 'AnMBarn', "Special Figure - The Barn can only be placed in the corner of 4 tiles, where the corner contains only fields. Any followers in this field are immediately scored and removed. Any followers in fields that are later connected to this field are also removed, but for fewer points. At the end of the game, the barn scores 4 points per completed city in the field. Please see the rules for more details.")
 
 --Count, King, and Robber
-    initializeAllCheckbox(COLUMN_1, ROW_2, 'CKnRAll', nil)
-    initializeCheckbox(COLUMN_2, ROW_2, 'KnRBTiles', nil)
-    --initializeCheckbox(COLUMN_3, ROW_2, 'CoCCount', nil)
-    initializeCheckbox(COLUMN_3, ROW_2, 'KnRBKing', "The King token is awarded to the player that completes the largest city (most tiles). The token is then moved if anyone completes an even bigger city. At the end of the game, the player with the token is awarded 1 point per completed city (anywhere in play).")
-    initializeCheckbox(COLUMN_4, ROW_2, 'KnRBRobber', "The Robber Baron token is awarded to the player that completes the longest road (most tiles). The token is then moved if anyone completes an even longer road. At the end of the game, the player with the token is awarded 1 point per completed road (anywhere in play).")
-    initializeCheckbox(COLUMN_5, ROW_2, 'CultTiles', "Claiming a shrine next to a cloister will challenge that cloister, or vice verca. The first to be completed between the two will score points, while the other will not.")
+    initializeAllCheckbox(COLUMN_1, ROW_2, 'CKnRAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_2, 'KnRBTiles', "5 tiles")
+    initializeCheckbox(COLUMN_3, ROW_2, 'StartingTileCoC', "The City of Carcassonne starting tiles. Can be used to store followers whenever you score points for others. These followers can be snuck into features after they are finished, but before they are scored.")
+    initializeCheckbox(COLUMN_4, ROW_2, 'KnRBKing', "The King token is awarded to the player that completes the largest city (most tiles). The token is then moved if anyone completes an even bigger city. At the end of the game, the player with the token is awarded 1 point per completed city (anywhere in play).")
+    initializeCheckbox(COLUMN_5, ROW_2, 'KnRBRobber', "The Robber Baron token is awarded to the player that completes the longest road (most tiles). The token is then moved if anyone completes an even longer road. At the end of the game, the player with the token is awarded 1 point per completed road (anywhere in play).")
+    initializeCheckbox(COLUMN_6, ROW_2, 'CultTiles', "6 shrine tiles. Claiming a shrine next to a cloister will challenge that cloister, or vice verca. The first to be completed between the two will score points, while the other will not.")
 
 --The Catapult
-    -- initializeAllCheckbox(COLUMN_1, ROW_3, 'CatapultAll', nil)
-    initializeCheckbox(COLUMN_2, ROW_3, 'CatapultTiles', nil)
+    -- initializeAllCheckbox(COLUMN_1, ROW_3, 'CatapultAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_3, 'CatapultTiles', "12 tiles")
     -- initializeCheckbox(COLUMN_3, ROW_3, 'CatapultKnockOut', nil)
     -- initializeCheckbox(COLUMN_4, ROW_3, 'CatapultSeduction', nil)
     -- initializeCheckbox(COLUMN_5, ROW_3, 'CatapultTarget', nil)
     -- initializeCheckbox(COLUMN_6, ROW_3, 'CatapultCatch', nil)
 
 --Bridges, Castles, and Bazaars
-    -- initializeAllCheckbox(COLUMN_1, ROW_4, 'BCnBAll', nil)
-    initializeCheckbox(COLUMN_2, ROW_4, 'BCnBTiles', nil)
+    -- initializeAllCheckbox(COLUMN_1, ROW_4, 'BCnBAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_4, 'BCnBTiles', "12 tiles")
     -- initializeCheckbox(COLUMN_3, ROW_4, 'BCnBBridges', nil)
     -- initializeCheckbox(COLUMN_4, ROW_4, 'BCnBCastles', nil)
     -- initializeCheckbox(COLUMN_5, ROW_4, 'BCnBBazaars', nil)
 
 --Hills & Sheep
-    initializeAllCheckbox(COLUMN_1, ROW_5, 'HnSAll', nil)
-    initializeCheckbox(COLUMN_2, ROW_5, 'HnSTiles', nil)
+    initializeAllCheckbox(COLUMN_1, ROW_5, 'HnSAll', "Enable all")
+    initializeCheckbox(COLUMN_2, ROW_5, 'HnSTiles', "18 tiles")
     initializeCheckbox(COLUMN_3, ROW_5, 'HnSShepherd', "Special Figure - The Shepherd can be placed in a field. When placed, the player will draw a random sheep token and add it to the field. Each time the shepherd owner adds a tile to the field, they may draw another token, or herd them for 1 point per sheep. If the player draws a wolf, then all sheep are lost and the shepherd is returned to the supply. See rules for more details.")
     initializeCheckbox(COLUMN_4, ROW_5, 'HnSHills', "The Hill is a feature on some Hills and Sheep tiles. When a player places a follower on any feature on that tile (not the hill itself), that player will break any scoring ties in their favor. See rules for more details. Disabling this option will not prevent tiles containing this feature from being included (it will also not prevent a tile from being 'buried' underneath). Disabling this option will also not prevent tiles containing this feature from being included.")
     initializeCheckbox(COLUMN_5, ROW_5, 'HnSVineyards', "The Vineyard is a feature on some Hills and Sheep tiles. When a cloister is finished that includes one of these tiles, it will get an additional 3 points per vineyard. This does not apply if the cloister is not finished. See rules for more details. Disabling this option will not prevent tiles containing this feature from being included.")
 end
 
-function initializeAllCheckbox(x, z, key)
+function initializeAllCheckbox(x, z, key, description)
     local buttonGroup
     if key == 'AnMAll' then buttonGroup = {'AnMTiles', 'AnMAbbey', 'AnMMayor', 'AnMWagon', 'AnMBarn'}
-    elseif key == 'CKnRAll' then buttonGroup = {'KnRBTiles', 'KnRBKing', 'KnRBRobber', 'CultTiles'}
+    elseif key == 'CKnRAll' then buttonGroup = {'KnRBTiles', 'StartingTileCoC', 'KnRBKing', 'KnRBRobber', 'CultTiles'}
     elseif key == 'CatapultAll' then buttonGroup = {'CatapultTiles', 'CatapultKnockOut', 'CatapultSeduction', 'CatapultTarget', 'CatapultCatch'}
     elseif key == 'BCnBAll' then buttonGroup = {'BCnBTiles', 'BCnBBridges', 'BCnBCastles', 'BCnBBazaars'}
     elseif key == 'HnSAll' then buttonGroup = {'HnSTiles', 'HnSShepherd', 'HnSHills', 'HnSVineyards'}
@@ -72,6 +72,7 @@ function initializeAllCheckbox(x, z, key)
     else
         button_parameters.label = ''
     end
+    button_parameters.tooltip = description
     button_parameters.click_function = 'on' .. key .. 'Toggle'
     button_parameters.position = {x, BUTTON_HEIGHT, z}
     self.createButton( button_parameters )
@@ -83,7 +84,7 @@ function checkAllCheckboxes()
     for _, button_key in ipairs({'btnAnMAllToggle', 'btnCKnRAllToggle', 'btnCatapultAllToggle', 'btnBCnBAllToggle', 'btnHnSAllToggle'}) do
         local buttonGroup
         if button_key == 'btnAnMAllToggle' then buttonGroup = {'AnMTiles', 'AnMAbbey', 'AnMMayor', 'AnMWagon', 'AnMBarn'}
-        elseif button_key == 'btnCKnRAllToggle' then buttonGroup = {'KnRBTiles', 'KnRBKing', 'KnRBRobber', 'CultTiles'}
+        elseif button_key == 'btnCKnRAllToggle' then buttonGroup = {'KnRBTiles', 'StartingTileCoC', 'KnRBKing', 'KnRBRobber', 'CultTiles'}
         elseif button_key == 'btnCatapultAllToggle' then buttonGroup = {'CatapultTiles', 'CatapultKnockOut', 'CatapultSeduction', 'CatapultTarget', 'CatapultCatch'}
         elseif button_key == 'btnBCnBAllToggle' then buttonGroup = {'BCnBTiles', 'BCnBBridges', 'BCnBCastles', 'BCnBBazaars'}
         elseif button_key == 'btnHnSAllToggle' then buttonGroup = {'HnSTiles', 'HnSShepherd', 'HnSHills', 'HnSVineyards'}
@@ -107,7 +108,7 @@ function onAllButtonToggle(sPlayer, button_key)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local buttonGroup
     if button_key == 'btnAnMAllToggle' then buttonGroup = {'AnMTiles', 'AnMAbbey', 'AnMMayor', 'AnMWagon', 'AnMBarn'}
-    elseif button_key == 'btnCKnRAllToggle' then buttonGroup = {'KnRBTiles', 'KnRBKing', 'KnRBRobber', 'CultTiles'}
+    elseif button_key == 'btnCKnRAllToggle' then buttonGroup = {'KnRBTiles', 'StartingTileCoC', 'KnRBKing', 'KnRBRobber', 'CultTiles'}
     elseif button_key == 'btnCatapultAllToggle' then buttonGroup = {'CatapultTiles', 'CatapultKnockOut', 'CatapultSeduction', 'CatapultTarget', 'CatapultCatch'}
     elseif button_key == 'btnBCnBAllToggle' then buttonGroup = {'BCnBTiles', 'BCnBBridges', 'BCnBCastles', 'BCnBBazaars'}
     elseif button_key == 'btnHnSAllToggle' then buttonGroup = {'HnSTiles', 'HnSShepherd', 'HnSHills', 'HnSVineyards'}
@@ -128,13 +129,14 @@ function onAllButtonToggle(sPlayer, button_key)
         value = true
     end
     for _, key in ipairs(buttonGroup) do
-        -- if key == 'CoCCount' and value == true and not Global.call('getControlPanelState', {key = 'StartingTileCoc'}) then
-        --     printToColor("The Count can only be enabled when playing with the City of Carcassonne starting tiles", sPlayer, ERROR_COLOR)
-        --     label = ''
-        -- else
-            self.editButton({index = btnIDs['btn' .. key .. 'Toggle'], label = label})
-            Global.call('setControlPanelState', {key = key, value = value})
-        -- end
+        if key == 'StartingTileCoC' then
+            if not Global.call('getControlPanelState', {key = 'StartingTileCoC'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
+                Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
+                printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+            end
+        end
+        self.editButton({index = btnIDs['btn' .. key .. 'Toggle'], label = label})
+        Global.call('setControlPanelState', {key = key, value = value})
     end
     self.editButton({index = btnIDs[button_key], label = label})
 end
@@ -171,9 +173,13 @@ function onKnRBTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'KnRBTiles', 'btnKnRBTilesToggle')
 end
 
--- function onCoCCountToggle(Object, sPlayer)
---     onCheckboxToggle(sPlayer, 'CoCCount', 'btnCoCCountToggle')
--- end
+function onStartingTileCoCToggle(Object, sPlayer)
+    if not Global.call('getControlPanelState', {key = 'StartingTileCoC'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
+        Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
+        printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+    end
+    onCheckboxToggle(sPlayer, 'StartingTileCoC', 'btnStartingTileCoCToggle')
+end
 
 function onKnRBKingToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'KnRBKing', 'btnKnRBKingToggle')

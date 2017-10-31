@@ -30,9 +30,10 @@ function onLoad()
     --Starting tiles
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', "Basic starting tile.")
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', "12 river tiles that create a winding river before adding normal tiles.")
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', "12 river tiles that feature a fork, dividing the river into 3 parts.")
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', "12 river tiles that feature permanent extra sheep for shepherds and a pig-herd for extra points to farmers.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', "12 river tiles that feature a fork, dividing the river into 3 parts, and a pig-herd for extra points to farmers.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', "12 river tiles that feature permanent extra sheep for shepherds.")
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', "A city where players can store followers whenever they score points for other players (without getting any points themselves). These followers can be snuck into features after they are finished, but before they are scored.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_6, 'StartingTileWoF', "Draw tiles to spin the wheel for an extra element of chance.")
     -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', 'Base Starting Tile', {x=-LABEL_SEPARATION, z=0}, 2)
     -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', 'The River', {x=-LABEL_SEPARATION, z=0}, 2)
     -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', 'The River II', {x=-LABEL_SEPARATION, z=0}, 2)
@@ -202,6 +203,10 @@ end
 
 function onStartingTileCoCToggle(Object, sPlayer)
     onStartingCheckboxToggle(sPlayer, 'StartingTileCoC', 'btnStartingTileCoCToggle')
+end
+
+function onStartingTileWoFToggle(Object, sPlayer)
+    onStartingCheckboxToggle(sPlayer, 'StartingTileWoF', 'btnStartingTileWoFToggle')
 end
 
 function hasIncompatibleStartingTiles(data_key)

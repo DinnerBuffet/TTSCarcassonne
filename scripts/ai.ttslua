@@ -12,6 +12,7 @@ OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this f
 FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being used too early in the game
 AI_DRAW_TILE_TIME = 1.0 --time delay to allow the drawn tile to travel to the AI player's hand
 AI_ANIMATIONS_ENABLED = false --will move pieces smoothly if true, otherwise the pieces will instantly move
+AI_DRAW_TILE_TO_HAND = false -- will move the pieces to the AI player's hand first. If false, pieces will be moved in front of their hand instead
 UNFINISHED_TRADE_TOKEN_VALUE = 1.0
 
 function AIStateHandler()
@@ -72,21 +73,41 @@ function AIChooseTileLocation()
     if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
         if forkTile_GUID ~= nil and getObjectFromGUID(forkTile_GUID) ~= nil then
             newTile = getObjectFromGUID(forkTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            if AI_DRAW_TILE_TO_HAND then
+                newTile.setPositionSmooth(handPosition)
+            else
+                dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
+            end
         elseif riverBodyTiles_GUID ~= nil and getObjectFromGUID(riverBodyTiles_GUID) ~= nil then
             local riverStack = getObjectFromGUID(riverBodyTiles_GUID)
             if riverStack ~= nil then
-                newTile = riverStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+                if AI_DRAW_TILE_TO_HAND then
+                    newTile = riverStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+                else
+                    newTile = dealInFrontOfHand(riverStack, handColor[activePlayers[currentPlayer]], true)
+                end
             end
         elseif finalRiverTile_GUID ~= nil and getObjectFromGUID(finalRiverTile_GUID) ~= nil then
             newTile = getObjectFromGUID(finalRiverTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            if AI_DRAW_TILE_TO_HAND then
+                newTile.setPositionSmooth(handPosition)
+            else
+                dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
+            end
         elseif springTile_GUID ~= nil and getObjectFromGUID(springTile_GUID) ~= nil then
             newTile = getObjectFromGUID(springTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            if AI_DRAW_TILE_TO_HAND then
+                newTile.setPositionSmooth(handPosition)
+            else
+                dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
+            end
         elseif lakeTile_GUID ~= nil and getObjectFromGUID(lakeTile_GUID) ~= nil then
             newTile = getObjectFromGUID(lakeTile_GUID)
-            newTile.setPositionSmooth(handPosition)
+            if AI_DRAW_TILE_TO_HAND then
+                newTile.setPositionSmooth(handPosition)
+            else
+                dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
+            end
         end
         if newTile ~= nil then
             alreadyFound = true
@@ -96,12 +117,20 @@ function AIChooseTileLocation()
     if newTile == nil then
         tileStack = getObjectFromGUID(tileStack_GUID)
         if tileStack ~= nil then
+            if AI_DRAW_TILE_TO_HAND then
             newTile = tileStack.dealToColorWithOffset( {0,0,0}, true, handColor[activePlayers[currentPlayer]])
+            else
+                newTile = dealInFrontOfHand(tileStack, handColor[activePlayers[currentPlayer]], true)
+            end
             --getObjectFromGUID(tileStack_GUID).dealToColor(1, getCurrentPlayerOwner())
         elseif finalTile_GUID ~= nil then
             newTile = getObjectFromGUID(finalTile_GUID)
-            local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
-            newTile.setPositionSmooth(handPosition)
+            if AI_DRAW_TILE_TO_HAND then
+                local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
+                newTile.setPositionSmooth(handPosition)
+            else
+                dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
+            end
         else
             allGameMessage("AI could not find the tile stack. The game is assumed to be over.", NEUTRAL_COLOR, nil)
             return 1
@@ -551,7 +580,7 @@ function AICalculateActiveScores(newXIndex, newZIndex)
             elseif follower.getVar('figureName') == 'Big Follower' then weight = 2
             elseif follower.getVar('figureName') == 'Mayor' then
                 for _, specialFeature in ipairs(traversedSpecialFeatures) do
-                    if specialFeature == 'Coat of Arms' then weight = weight + 1 end
+                    if specialFeature == 'Pennant' then weight = weight + 1 end
                 end
                 hasMayor[follower.getVar('owner')] = true
             end
@@ -657,7 +686,7 @@ function AICalculateFeatureScore(featureNum, figures)
         score = numTiles
         local containsCathedral = false
         for _, feature in ipairs(specialFeatures) do
-            if feature == 'Coat of Arms' then
+            if feature == 'Pennant' then
                 score = score + 1
             elseif table.contains(TRADE_GOOD_TYPES, feature) and featureOpenings > 0 then
                 score = score + UNFINISHED_TRADE_TOKEN_VALUE
@@ -896,8 +925,8 @@ function dealInFrontOfHand(obj, player_color, is_a_deck)
   local handTransform = Player[player_color].getHandTransform()
   local tempPosition = handTransform.position
   tempPosition.y = tempPosition.y - 1
-  tempPosition.x = tempPosition.x + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.x
-  tempPosition.z = tempPosition.z + (handTransform.scale.z * HAND_SCALE_CONSTANT / 2 + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.z
+  tempPosition.x = tempPosition.x + (handTransform.scale.z + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.x
+  tempPosition.z = tempPosition.z + (handTransform.scale.z + obj.getBoundsNormalized().size.z / 2) * handTransform.forward.z
   if is_a_deck then
     local params = {}
     params.position = tempPosition
@@ -994,7 +1023,7 @@ function AIMoveFigureToLocation()
     local tile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
     local nameOfFeature = getFeatureName(tile, highestScorePos)
     local x, z = getFeatureLocation(highestScorePos, tile, tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation)
-    for _, obj in ipairs(getAllObjects()) do
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if highestScoreFigure == obj.getVar('figureName') and obj.getVar('owner') == activePlayers[currentPlayer] then
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)

@@ -23,7 +23,20 @@ stateMachine = {
         ['next'] = 'check added tile feature - hill'
     },
     ['check added tile feature - hill'] = {
+        ['next'] = 'check added tile feature - wheel of fortune'
+    },
+    ['check added tile feature - wheel of fortune'] = {
+        ['plague'] = 'check added tile feature - wheel of fortune - plague',
+        ['crown'] = 'check added tile feature - wheel of fortune - crown',
         ['next'] = 'check added tile feature - volcano'
+    },
+    ['check added tile feature - wheel of fortune - plague'] = {
+        ['next'] = 'check added tile feature - wheel of fortune - crown',
+        ['figures returned'] = 'check added tile feature - wheel of fortune - plague'
+    },
+    ['check added tile feature - wheel of fortune - crown'] = {
+        ['next'] = 'check added tile feature - volcano',
+        ['figures returned'] = 'check added tile feature - volcano'
     },
     ['check added tile feature - volcano'] = {
         ['next'] = 'check added tile feature - princess',
@@ -62,10 +75,7 @@ stateMachine = {
         ['seduce knight'] = 'seduce knight'
     },
     ['retrieve abbot'] = {
-        ['figures returned'] = 'retrieve abbot - delay'
-    },
-    ['retrieve abbot - delay'] = {
-        ['next'] = 'post figure events'
+        ['figures returned'] = 'post figure events'
     },
     ['wait for flier roll'] = {
         ['die rolled'] = 'check flier destination'
@@ -93,25 +103,16 @@ stateMachine = {
         ['return followers'] = 'tower capture - return exchanged prisoners'
     },
     ['tower capture - return exchanged prisoners'] = {
-        ['figures returned'] = 'tower capture - return exchanged prisoners - delay'
-    },
-    ['tower capture - return exchanged prisoners - delay'] = {
-        ['next'] = 'tower capture - recreate buttons'
+        ['figures returned'] = 'tower capture - recreate buttons'
     },
     ['tower capture - recreate buttons'] = {
         ['next'] = 'post figure events'
     },
     ['return flier'] = {
-        ['figures returned'] = 'return flier - delay'
-    },
-    ['return flier - delay'] = {
-        ['next'] = 'post figure events'
+        ['figures returned'] = 'post figure events'
     },
     ['seduce knight'] = {
-        ['figures returned'] = 'seduce knight - delay'
-    },
-    ['seduce knight - delay'] = {
-        ['next'] = 'post figure events'
+        ['figures returned'] = 'post figure events'
     },
     ['post figure events'] = {
         ['next'] = 'post figure event - prompt shepherd'
@@ -150,10 +151,7 @@ stateMachine = {
     },
     ['score features'] = {
         ['next'] = 'post scoring events',
-        ['figures returned'] = 'score features - delay'
-    },
-    ['score features - delay'] = {
-        ['next'] = 'score features'
+        ['figures returned'] = 'score features'
     },
     ['post scoring events'] = {
         ['next'] = 'reward gold'
@@ -190,10 +188,7 @@ stateMachine = {
     },
     ['game over - scoring'] = {
         ['next'] = 'game over - scoring',
-        ['figures returned'] = 'game over - scoring - delay'
-    },
-    ['game over - scoring - delay'] = {
-        ['next'] = 'game over - scoring',
+        ['figures returned'] = 'game over - scoring'
     }
 }
 
@@ -235,6 +230,12 @@ function stateHandler()
         return checkAddedTileSpecialFigureExtensions()
     elseif turnState == 'check added tile feature - hill' then
         return checkTileForHill()
+    elseif turnState == 'check added tile feature - wheel of fortune' then
+        return checkTileForWheel()
+    elseif turnState == 'check added tile feature - wheel of fortune - plague' then
+        return resolvePlague()
+    elseif turnState == 'check added tile feature - wheel of fortune - crown' then
+        return rewardCrownSpaces()
     elseif turnState == 'check added tile feature - volcano' then
         return checkTileForVolcano()
     elseif turnState == 'check added tile feature - volcano - delay' then
@@ -277,8 +278,6 @@ function stateHandler()
         return displayFigureButtons()
     elseif turnState == 'retrieve abbot' then
         return
-    elseif turnState == 'retrieve abbot - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'wait for flier roll' then
         clearFigureOptions()
         for i=1, 3 do
@@ -321,8 +320,6 @@ function stateHandler()
         return exchangePrisoners()
     elseif turnState == 'tower capture - return exchanged prisoners' then
         return returnFigures()
-    elseif turnState == 'tower capture - return exchanged prisoners - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'tower capture - recreate buttons' then
         createRansomButtons()
         return nextState('next')
@@ -339,8 +336,6 @@ function stateHandler()
         return nextState('next')
     elseif turnState == 'seduce knight' then
         return returnFigures()
-    elseif turnState == 'seduce knight - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'return flier' then
         for i=1, 3 do
             local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
@@ -352,8 +347,6 @@ function stateHandler()
             end
         end
         return returnFigures()
-    elseif turnState == 'return flier - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'post figure events' then
         clearFigureOptions()
         seducedKnights = {}
@@ -394,8 +387,6 @@ function stateHandler()
             getObjectFromGUID(tileGrid[tileCoords[1]][tileCoords[2]].tile_guid).highlightOff()
         end
         return scoreFeatures()
-    elseif turnState == 'score features - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     elseif turnState == 'post scoring events' then
         return nextState('next')
     elseif turnState == 'reward gold' then
@@ -429,8 +420,6 @@ function stateHandler()
     elseif turnState == 'game over - scoring' then
         clearFigureOptions()
         return scoreFeatures()
-    elseif turnState == 'game over - scoring - delay' then
-        Timer.create({identifier=os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=FIGURE_RETURN_DELAY})
     end
 end
 

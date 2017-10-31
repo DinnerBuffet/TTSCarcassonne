@@ -25,6 +25,6 @@ Data Format:
                  'City-Field' = city-field link - if the cities specified are completed, they score points to the specified fields. Multiple different cities and fields specified
                             are NOT linked to each other, only fields are linked to cities (and vice versa, in the case of using old rules (TODO: implement later?). Coordinates are not used for this feature.
                  'Road Intersection' = links roads to each other or other features. This is used for wagons.
-                 Linked Features with no coordinates: 'Coat of Arms', 'Inn', 'Cathedral', 'Princess'
+                 Linked Features with no coordinates: 'Pennant', 'Inn', 'Cathedral', 'Princess'
                  Unlinked Features of the tile: 'Volcano', 'Dragon', 'Hill'
                  'Garden' - specifies the location of a garden. Links are not used for this feature.
