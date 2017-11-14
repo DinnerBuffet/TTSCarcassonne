@@ -1,4 +1,8 @@
-﻿v1.19 - 20171031
+﻿v1.19.1 - 20171114
+[*]Fixed Count not being moveable (due to a change in 1.19) (Thanks to ScoreCount for reporting!)
+[*]Fixed trade tokens not being counted (due to a change in 1.19) (Thanks to Scruxx for reporting!)
+
+v1.19 - 20171031
 [*]Wheel of Fortune has been added. Huge thanks to TheLimeyDragon on this one for inputting all of the tile data, as well as separating the wheel into individual tiles (so that it can work with the script better).
 [*]The base tiles can now be disabled (useful if you'd like to use Wheel of Fortune tiles instead).
 [*]Removed some unnecessary delays from starting tile setup. It should be several times faster now.

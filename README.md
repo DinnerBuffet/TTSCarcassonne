@@ -13,7 +13,7 @@ You can see a rough outline of my road map at my Trello:
 
 https://trello.com/b/3YNFvv9C/tts-carcassonne-road-map
 
-# Instructions
+## Instructions
 
 Install Atom and the TTS plugin: http://berserk-games.com/knowledgebase/atom-editor-plugin/
 
@@ -29,7 +29,7 @@ Now load Carcassonne from the workshop and make a new save file. Load that save 
 
 You should now be able to edit the code as separate files, rather than one big global file.
 
-# Recommended plugins
+## Recommended plugins
 
 https://atom.io/packages/minimap
 
