@@ -764,7 +764,7 @@ function initializeScoreSummary()
         if controlPanelSettings['TowerTowers'] then
             scoreSummary[player_color]['Ransom'] = 0
         end
-        if controlPanelSettings['StartingTileWoF'] then
+        if pigIsEnabled() then
             scoreSummary[player_color]['Wheel'] = 0
         end
     end
@@ -1137,7 +1137,7 @@ function checkTileForWheel()
     local specialFeatures = newTile.getTable('specialFeatures')
     if specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
-            if controlPanelSettings['StartingTileWoF'] and string.sub(specialFeature[1],1,6) == 'Wheel-' then
+            if pigIsEnabled() and string.sub(specialFeature[1],1,6) == 'Wheel-' then
                 local pos_moved = string.sub(specialFeature[1],7,7)
                 startAnimation({type='WoFPig', start_time=os.clock(), start_position=wofPigPosition, num_positions_moved=pos_moved})
                 wofPigPosition = wofPigPosition + pos_moved
@@ -4154,11 +4154,11 @@ function returnFiguresCoroutine()
             end
 
             local container = nil
-            if figure_obj.getVar('figureName') == 'Wheat Token' then
+            if figure_obj.getVar('tokenName') == 'Wheat Token' then
                 container = getObjectFromGUID(expansionBags['TnB'].contents['TnBWheatTokenStack'].guid)
-            elseif figure_obj.getVar('figureName') == 'Wine Token' then
+            elseif figure_obj.getVar('tokenName') == 'Wine Token' then
                 container = getObjectFromGUID(expansionBags['TnB'].contents['TnBWineTokenStack'].guid)
-            elseif figure_obj.getVar('figureName') == 'Cloth Token' then
+            elseif figure_obj.getVar('tokenName') == 'Cloth Token' then
                 container = getObjectFromGUID(expansionBags['TnB'].contents['TnBClothTokenStack'].guid)
             elseif figure_obj.getVar('figureName') == GOLD_BAR_NAME then
                 container = getObjectFromGUID(expansionBags['Goldmines'].contents['GoldminesGold'].guid)
@@ -4197,6 +4197,7 @@ end
 function startAnimation(animation)
     function animate()
         local animation_finished = false
+        local wheelCenterPosition = getWheelCenterPosition()
         while not animation_finished do
             if animation.type == 'WoFPig' then
                 local pig = getObjectFromGUID(expansionBags['WoF'].contents['WoFPig'].guid)
@@ -4216,8 +4217,8 @@ function startAnimation(animation)
                     degrees_rotated = degrees_rotated + 60 * animation.num_positions_moved
                     animation_finished = true
                 end
-                local x, z = rotateCoordinatesDegrees(startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].position.x - wheelCenterLocation.x, startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].position.z - wheelCenterLocation.z, -degrees_rotated)
-                pig.setPosition({x=x + wheelCenterLocation.x, y=startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].position.y, z=z + wheelCenterLocation.z})
+                local x, z = rotateCoordinatesDegrees(wheelPigStartingOffset.x, wheelPigStartingOffset.z, -degrees_rotated)
+                pig.setPosition({x=x + wheelCenterPosition.x, y=startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].position.y, z=z + wheelCenterPosition.z})
                 pig.setRotation({x=startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].rotation.x, y=startingTileSettings['StartingTileWoF']['WoF']['WoFPig'].rotation.y, z=degrees_rotated})
             end
             coroutine.yield()
@@ -4225,6 +4226,32 @@ function startAnimation(animation)
         return 1
     end
     startLuaCoroutine(Global, "animate")
+end
+
+--Find the center
+function getWheelCenterPosition()
+    local x = 0
+    local z = 0
+    for _, i in ipairs({6, 7, 10, 11}) do
+        local wheelCenterTile = getObjectFromGUID(expansionBags['WoF'].contents['WoFStartingTiles'].contents[i].guid)
+        if wheelCenterTile == nil then return end
+        local wheelCenterTilePosition = wheelCenterTile.getPosition()
+        x = x + wheelCenterTilePosition.x
+        z = z + wheelCenterTilePosition.z
+    end
+    x = x / 4
+    z = z / 4
+    return {x=x, z=z}
+end
+
+function pigIsEnabled()
+    if controlPanelSettings['StartingTileWoF'] and
+        (controlPanelSettings['WoFCrowns'] or controlPanelSettings['WoFFortune'] or controlPanelSettings['WoFTaxes'] or
+        controlPanelSettings['WoFFamine'] or controlPanelSettings['WoFStorm'] or controlPanelSettings['WoFInquisition'] or
+        controlPanelSettings['WoFPlague']) then
+        return true
+    end
+    return false
 end
 
 function debugShowTraversal()

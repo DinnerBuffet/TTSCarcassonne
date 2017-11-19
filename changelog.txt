@@ -1,4 +1,11 @@
-﻿v1.19.1 - 20171114
+﻿v1.19.2 - 20171119
+[*]The pig will now be disabled if no relevant options are enabled.
+[*]Wheel of fortune options cannot be enabled if the wheel is disabled (to avoid confusion)
+[*]Fixed the wheel of fortune pig being in the wrong position if the wheel is moved by tiles being shifted (Thanks to TheLimeyDragon for reporting!)
+[*]Fixed trade tokens not being returned to their stacks at the end of the game (due to a change in 1.19)
+[*]Fixed base starting tile not being disabled if the wheel was enabled from page 4 of the control panel
+
+v1.19.1 - 20171114
 [*]Fixed Count not being moveable (due to a change in 1.19) (Thanks to ScoreCount for reporting!)
 [*]Fixed trade tokens not being counted (due to a change in 1.19) (Thanks to Scruxx for reporting!)
 

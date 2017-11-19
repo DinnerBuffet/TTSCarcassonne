@@ -171,42 +171,78 @@ function onWoFTilesToggle(Object, sPlayer)
 end
 
 function onWoFWheelTilesToggle(Object, sPlayer)
-    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
-        Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
-        printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
-    end
     onCheckboxToggle(sPlayer, 'WoFWheelTiles', 'btnWoFWheelTilesToggle')
 end
 
 function onStartingTileWoFToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
+        Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
+        printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+    end
     onCheckboxToggle(sPlayer, 'StartingTileWoF', 'btnStartingTileWoFToggle')
 end
 
 function onWoFCrownsToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
+        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        return
+    end
     onCheckboxToggle(sPlayer, 'WoFCrowns', 'btnWoFCrownsToggle')
 end
 
 function onWoFFortuneToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
+        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        return
+    end
     onCheckboxToggle(sPlayer, 'WoFFortune', 'btnWoFFortuneToggle')
 end
 
 function onWoFTaxesToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
+        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        return
+    end
     onCheckboxToggle(sPlayer, 'WoFTaxes', 'btnWoFTaxesToggle')
 end
 
 function onWoFFamineToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
+        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        return
+    end
     onCheckboxToggle(sPlayer, 'WoFFamine', 'btnWoFFamineToggle')
 end
 
 function onWoFStormToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
+        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        return
+    end
     onCheckboxToggle(sPlayer, 'WoFStorm', 'btnWoFStormToggle')
 end
 
 function onWoFInquisitionToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
+        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        return
+    end
     onCheckboxToggle(sPlayer, 'WoFInquisition', 'btnWoFInquisitionToggle')
 end
 
 function onWoFPlagueToggle(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
+        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        return
+    end
     onCheckboxToggle(sPlayer, 'WoFPlague', 'btnWoFPlagueToggle')
 end
 

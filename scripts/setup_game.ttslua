@@ -28,8 +28,10 @@ tileSettings = {
 
 --the following location is used for the MixAllTiles house rule
 defaultRiverLocation = {position = {x=0.0, y=2.32, z=17.49}, rotation = {x=0,y=180,z=180}}
---location of the center of the wheel
-wheelCenterLocation = {x=-0.795, z=-0.795}
+
+--the pig should start at this position relative to the center of the wheel
+wheelPigStartingOffset = {x=0.0, z=1.645}
+
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {position={<position on table>}, rotation={<rotation>}, shuffle=<should shuffle>, lock=<should lock>}}}
 --will only use the first ForkTile, SpringTile, and LakeTile, prioritizing GamesQuarterly over RiverII over BB5 River over the original River (CAR ref 237)
 startingTileSettings = {
@@ -504,9 +506,6 @@ end
 
 --setup the starting tiles of the game
 function prepareStartingTiles()
-    if controlPanelSettings['StartingTileWoF'] and controlPanelSettings['StartingTileCoC'] then
-        wheelCenterLocation.z = wheelCenterLocation.z - 1.59
-    end
     for rule_id, rule in pairs(startingTileSettings) do
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
@@ -516,6 +515,7 @@ function prepareStartingTiles()
                         if (item_id ~= "RiverSpringTile" or springTile_GUID == nil) and (item_id ~= "RiverLakeTile" or lakeTile_GUID == nil) then
                             --HACK: only use GamesQuarterly river tiles if one of the rivers is enabled
                             if not (rule_id == 'GamesQuarterlyTiles' and (item_id == "RiverSpringTile" or item_id == "RiverBodyTiles") and not controlPanelSettings['StartingTileRiverII'] and not controlPanelSettings['StartingTileRiver'] and not controlPanelSettings['StartingTileRiverBB5']) then
+                                if item_id == 'WoFPig' and not pigIsEnabled() then break end
                                 prepareStartingTileLock = true
                                 local position = item_settings.position
                                 local rotation = item_settings.rotation
