@@ -2656,9 +2656,9 @@ function scoreFlockCoroutine()
         local hasWolf = false
 
         for _, token in ipairs(traversedSheepTokens) do
-            if token.getVar('figureName') == 'Sheep' then
+            if token.getVar('tokenName') == 'Sheep' then
                 score = score + token.getVar('count')
-            elseif token.getVar('figureName') == 'Wolf' then
+            elseif token.getVar('tokenName') == 'Wolf' then
                 hasWolf = true
             end
             sheepTileBag.putObject(token)

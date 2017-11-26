@@ -1,4 +1,7 @@
-﻿v1.19.2 - 20171119
+﻿v1.19.3 - 20171126
+[*]Fixed Shepherd always getting 0 points for herding sheep (due to the same change in 1.19 as before) (Thanks to TheLimeyDragon for reporting!)
+
+v1.19.2 - 20171119
 [*]The pig will now be disabled if no relevant options are enabled.
 [*]Wheel of fortune options cannot be enabled if the wheel is disabled (to avoid confusion)
 [*]Fixed the wheel of fortune pig being in the wrong position if the wheel is moved by tiles being shifted (Thanks to TheLimeyDragon for reporting!)

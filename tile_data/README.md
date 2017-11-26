@@ -3,6 +3,15 @@
 Each tile should have a script including variables needed to represent the information on the tile. The data format is as follows:
   *In all examples, the "starting piece" is used*
   *It should be noted that the "top" and "topleft" is from the perspective of the white player. All of the tiles are, in actuality, rotated by 180 degrees, which is taken into account in code with TILE_STANDARD_ROTATION
+
+## Sample
+
+```isStartingPiece = true
+sides = {'City', 'Road', 'Field', 'Road'}
+linkedQuadrants = {{2, 4}}
+linkedOctants = {{5, 6}, {7, 12}, {8, 9, 10, 11}}
+specialFeatures = {{'City-Field', {5, 6, 7, 12}, nil}, {'Road', {2, 4}, {0.0,0.0}}}```
+  
 ## Data Format
 
 ### sides
