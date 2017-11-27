@@ -6,11 +6,13 @@ Each tile should have a script including variables needed to represent the infor
 
 ## Sample
 
-```isStartingPiece = true
+```
+isStartingPiece = true
 sides = {'City', 'Road', 'Field', 'Road'}
 linkedQuadrants = {{2, 4}}
 linkedOctants = {{5, 6}, {7, 12}, {8, 9, 10, 11}}
-specialFeatures = {{'City-Field', {5, 6, 7, 12}, nil}, {'Road', {2, 4}, {0.0,0.0}}}```
+specialFeatures = {{'City-Field', {5, 6, 7, 12}, nil}, {'Road', {2, 4}, {0.0,0.0}}}
+```
   
 ## Data Format
 
