@@ -34,26 +34,27 @@ wheelPigStartingOffset = {x=0.0, z=1.645}
 
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {position={<position on table>}, rotation={<rotation>}, shuffle=<should shuffle>, lock=<should lock>}}}
 --will only use the first ForkTile, SpringTile, and LakeTile, prioritizing GamesQuarterly over RiverII over BB5 River over the original River (CAR ref 237)
+--this is super hacky, especially since the order that pairs iterates is technically undefined, though we're relying on them coming in this order
 startingTileSettings = {
-    ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
-        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
-    }},
     ['StartingTileRiverII'] = {['RiverII'] = {
         ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
         ['RiverForkTile'] = {position = {x=-3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 1},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 1}
     }},
     ['StartingTileRiverBB5'] = {['RiverBB5'] = {
         ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
-        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 2},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 2}
     }},
     ['StartingTileRiver'] = {['River'] = {
         ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
-        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false},
-        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false}
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 3},
+        ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 3}
+    }},
+    ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {
+        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 0}
     }},
     ['StartingTileCoC'] = {['CoC'] = {
         ['CoCStartingTiles'] = {position = {x=0.0, y=2.32, z=11.13}, rotation = {x=0,y=180,z=180}, shuffle = false, lock = false, contents = {
@@ -506,13 +507,33 @@ end
 
 --setup the starting tiles of the game
 function prepareStartingTiles()
+    local springExpansion
+    local springPriority = 999
+    local lakeExpansion
+    local lakePriority = 999
+    for rule_id, rule in pairs(startingTileSettings) do
+        if controlPanelSettings[rule_id] then
+            for expansion_id, expansion in pairs(rule) do
+                for item_id, item_settings in pairs(expansion) do
+                    if (item_id == "RiverSpringTile" and item_settings.priority < springPriority) then
+                        springExpansion = expansion_id
+                        springPriority = item_settings.priority
+                    end
+                    if (item_id == "RiverLakeTile" and item_settings.priority < lakePriority) then
+                        lakeExpansion = expansion_id
+                        lakePriority = item_settings.priority
+                    end
+                end
+            end
+        end
+    end
     for rule_id, rule in pairs(startingTileSettings) do
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
                 for item_id, item_settings in pairs(expansion) do
                     --HACK: only use the count if it isn't disabled
                     if item_id ~= 'CoCCount' or not controlPanelSettings['CoCNoCount'] then
-                        if (item_id ~= "RiverSpringTile" or springTile_GUID == nil) and (item_id ~= "RiverLakeTile" or lakeTile_GUID == nil) then
+                        if (item_id ~= "RiverSpringTile" or springExpansion == expansion_id) and (item_id ~= "RiverLakeTile" or lakeExpansion == expansion_id) then
                             --HACK: only use GamesQuarterly river tiles if one of the rivers is enabled
                             if not (rule_id == 'GamesQuarterlyTiles' and (item_id == "RiverSpringTile" or item_id == "RiverBodyTiles") and not controlPanelSettings['StartingTileRiverII'] and not controlPanelSettings['StartingTileRiver'] and not controlPanelSettings['StartingTileRiverBB5']) then
                                 if item_id == 'WoFPig' and not pigIsEnabled() then break end

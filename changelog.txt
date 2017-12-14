@@ -1,4 +1,9 @@
-﻿v1.19.3 - 20171126
+﻿v1.19.4 - 20171214
+[*]Fixed page 5 control panel settings not working (Thanks to TIMA RAKOV for reporting!)
+[*]Fixed Games Quarterly Expansion breaking the "Mix all river tiles" option
+[*]Only 1 message will be displayed now when multiple leftover river pieces are removed
+
+v1.19.3 - 20171126
 [*]Fixed Shepherd always getting 0 points for herding sheep (due to the same change in 1.19 as before) (Thanks to TheLimeyDragon for reporting!)
 
 v1.19.2 - 20171119

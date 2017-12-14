@@ -38,6 +38,10 @@ function onLoad()
     initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 4, true, 'RussianPromoTiles', "We go to\nCarcassonne", {x=0, z=LABEL_SEPARATION}, 1, "2 unique tiles. Baba Yaga's hut is like a cloister, except its value starts at 10 and decreases by 1 point each adjacent tile. The Choice of Bogatyr is a 4-way road piece with a continuous 3-way road section with a 4th road at an intersection.")
 end
 
+--This is required so that we can use onCheckboxToggle
+function checkAllCheckboxes()
+end
+
 function onBesiegersTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'BesiegersTiles', 'btnBesiegersTilesToggle')
 end

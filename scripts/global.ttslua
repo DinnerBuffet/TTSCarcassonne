@@ -3733,12 +3733,16 @@ function riverTileCheck()
             end
         end
         if riverFinished then
+            local itemRemoved = false
             for i, obj_GUID in pairs({forkTile_GUID, riverBodyTiles_GUID, finalRiverTile_GUID, springTile_GUID, lakeTile_GUID}) do
                 local obj = getObjectFromGUID(obj_GUID)
                 if obj ~= nil then
-                    gameNotification("River is already finished. Removing additional tiles.", NEUTRAL_COLOR, activePlayers[currentPlayer])
+                    itemRemoved = true
                     obj.destruct()
                 end
+            end
+            if itemRemoved then
+                gameNotification("River is already finished. Removing additional tiles.", NEUTRAL_COLOR, activePlayers[currentPlayer])
             end
             forkTile_GUID = nil
             riverBodyTiles_GUID = nil
