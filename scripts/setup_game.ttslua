@@ -367,7 +367,7 @@ end
 function preparePlayerStartingItems()
     if controlPanelSettings['AnMAbbey'] then
         spawnStartingItemLock = true
-        if takeObjectSafe(getObjectFromGUID(expansionBags['AnM'].guid), {guid = expansionBags['AnM'].contents['AnMAbbey'].guid, position = {x = 0.0, y = 3.0, z = -10.0}, rotation = {0,180,0}, callback_owner = Global, callback = "spawnStartingItemUnlock"}) == nil then
+        if takeObjectSafe(getObjectFromGUID(expansionBags['AnM'].guid), {guid = expansionBags['AnM'].contents['AnMAbbey'].guid, position = {x = 0.0, y = 3.0, z = -10.0}, rotation = {0,180,0}, smooth = false, callback_owner = Global, callback = "spawnStartingItemUnlock"}) == nil then
             spawnStartingItemLock = false
         end
         while spawnStartingItemLock do
@@ -551,12 +551,13 @@ function prepareStartingTiles()
                                         position.z = position.z - 1.59 --move to make room for the CoC
                                     end
                                 end
-                                if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = position, rotation = rotation, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
+                                if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = position, rotation = rotation, smooth = false, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
                                     prepareStartingTileLock = false
                                 end
                                 while prepareStartingTileLock do
                                     coroutine.yield(0)
                                 end
+                                wait(0.1) --need to wait before taking objects from this stack. Wait time is arbitrary, but seems to work.
                                 if controlPanelSettings['RiverMixAll'] and item_id ~= 'CoCStartingTiles' then
                                     if riverBodyTiles_GUID == nil and getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).getQuantity() > 1  then --HACK: this technically wouldn't work if the first two were only one tile, but for the time being it works
                                         riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid

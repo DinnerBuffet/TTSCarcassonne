@@ -357,7 +357,15 @@ function AICalculateLocationScore(newTile, tileRotation, xIndex, zIndex)
                 not (nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities']) and
                 not (nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters']) and
                 not (nameOfFeature == 'Field' and controlPanelSettings['BaseDisableFarms']) then
-                if (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]]['Big Follower']) and (numRemainingMoves <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
+                local fieldHasBarn = false
+                if (nameOfFeature == 'Field' and #featureFigures.specialFigures > 0) then
+                    for _, figure in ipairs(featureFigures.specialFigures) do
+                        if figure.getVar('figureName') == 'Barn' then
+                            fieldHasBarn = true
+                        end
+                    end
+                end
+                if not fieldHasBarn and (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]]['Big Follower']) and (numRemainingMoves <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
                     if score == highestScore then
                         --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                         numIdenticalScore = numIdenticalScore + 1

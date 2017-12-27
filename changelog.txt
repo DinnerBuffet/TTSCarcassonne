@@ -1,4 +1,8 @@
-﻿v1.19.4 - 20171214
+﻿v1.19.5 - 20171227
+[*]Fixed various setup issues caused by the changes to takeObject in TTS v10.2 (Thanks to Tralan and Superwoemaen for reporting!)
+[*]Fixed AI being able place farmers on fields that are already occupied by barns (Thanks to loneXolf for reporting!)
+
+v1.19.4 - 20171214
 [*]Fixed page 5 control panel settings not working (Thanks to TIMA RAKOV for reporting!)
 [*]Fixed Games Quarterly Expansion breaking the "Mix all river tiles" option
 [*]Only 1 message will be displayed now when multiple leftover river pieces are removed
