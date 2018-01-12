@@ -2372,10 +2372,59 @@ function clearArbitraryButtons(alsoClearHighlights)
     arbitraryButtonAnchors = {}
 end
 
+function promptShepherd()
+    -- local shepherdExpandButtonParam = {
+    --    index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
+    --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.5}, width = 1400, height=700, font_size = 200, function_owner = nil
+    -- }
+    -- local shepherdHerdButtonParam = {
+    --    index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
+    --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=2.3}, width = 1400, height=700, font_size = 200, function_owner = nil
+    -- }
+    local shepherdExpandButtonParam = {
+       index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.5}, width = 1400, height=700, font_size = 200, function_owner = nil
+    }
+    local shepherdHerdButtonParam = {
+       index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.3}, width = 1400, height=700, font_size = 200, function_owner = nil
+    }
+    local shepherd = getObjectFromGUID(shepherdAwaitingAction)
+    createNormalizedButton(shepherd, shepherdExpandButtonParam, true)
+    createNormalizedButton(shepherd, shepherdHerdButtonParam, true)
+    allGameMessage(activePlayers[currentPlayer] .. " added to their Shepherd's field and has an opportunity to expand their flock", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+    return
+end
+
+function addSheepToFlockButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        local shepherd = getObjectFromGUID(shepherdAwaitingAction)
+        clearArbitraryButtons()
+        if controlPanelSettings['PnDDragon'] then
+            addSheepToTile(shepherd)
+        else
+            addSheepToField(shepherd)
+        end
+    end
+end
+
+function addSheepToField(shep)
+    shepherd = shep
+    --startLuaCoroutine(self, 'scoreFlockCoroutine')
+
+    local CoNew = coroutine.create(addSheepToFieldCoroutine)
+    --add it to the list of active coroutines
+    table.insert(m_Routines, {Co = CoNew, iYield = 0})
+    --run it...
+    local iIdx = #m_Routines
+    coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
+end
+
 --will go through all possible locations on the field and find an empty spot where the sheep tile can be put
 --Note: according to this forum post, this behavior actually violates the rules: https://boardgamegeek.com/thread/1434965/question-about-location-sheep-tokens
--- At first, I thought I could get around this by making the dragon not eat the sheep, but in the event that multiple fields are joined together, there needs to be a way to separate the different sheep groups
-function addSheepToField(shepherd)
+--At first, I thought I could get around this by making the dragon not eat the sheep, but in the event that multiple fields are joined together, there needs to be a way to separate the different sheep groups
+--We can still use it for games that do not include the dragon, because I think it looks nicer
+function addSheepToFieldCoroutine()
     --no error checking for the shepherd. Assume that it is still in a legal position
     local shepherdTileXIndex = math.floor((shepherd.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
     local shepherdTileZIndex = math.floor((shepherd.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -2421,12 +2470,19 @@ function addSheepToField(shepherd)
                             params.position.x = params.position.x - (SIDE_DELTA[math.floor((direction - 3) / 2)].x * 0.1 * TILE_SPACING)
                             params.position.z = params.position.z - (SIDE_DELTA[math.floor((direction - 3) / 2)].z * 0.1 * TILE_SPACING)
 
+                            params.callback_owner = Global
+                            params.callback = "drawingSheepUnlock"
+
                             sheepTileBag.shuffle()
+                            drawingSheepLock = true
                             local newTile = sheepTileBag.takeObject(params)
+                            while drawingSheepLock do
+                                coroutine.yield(0)
+                            end
                             if newTile.getVar('tokenName') == "Wolf" then
-                                Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='scoreFlock', function_owner=nil, parameters={shepherd=shepherd}, delay=2.5})
+                                Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='scoreFlock', function_owner=nil, parameters={shepherd=shepherd}, delay=1.0})
                             else
-                                Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=2.5})
+                                Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=1.0})
                             end
                             return
                         else
@@ -2442,8 +2498,20 @@ function addSheepToField(shepherd)
     addSheepToShepherd(shepherd)
 end
 
+function addSheepToTile(shep)
+    shepherd = shep
+    --startLuaCoroutine(self, 'scoreFlockCoroutine')
+
+    local CoNew = coroutine.create(addSheepToTileCoroutine)
+    --add it to the list of active coroutines
+    table.insert(m_Routines, {Co = CoNew, iYield = 0})
+    --run it...
+    local iIdx = #m_Routines
+    coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
+end
+
 --adds a sheep to the tile that the shepherd is on, if there is room
-function addSheepToTile(shepherd)
+function addSheepToTileCoroutine()
     --no error checking for the shepherd. Assume that it is still in a legal position
     local shepherdTileXIndex = math.floor((shepherd.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
     local shepherdTileZIndex = math.floor((shepherd.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
@@ -2488,12 +2556,19 @@ function addSheepToTile(shepherd)
                         params.position.x = params.position.x - (SIDE_DELTA[math.floor((direction - 3) / 2)].x * 0.1 * TILE_SPACING)
                         params.position.z = params.position.z - (SIDE_DELTA[math.floor((direction - 3) / 2)].z * 0.1 * TILE_SPACING)
 
+                        params.callback_owner = Global
+                        params.callback = "drawingSheepUnlock"
+
                         sheepTileBag.shuffle()
+                        drawingSheepLock = true
                         local newTile = sheepTileBag.takeObject(params)
+                        while drawingSheepLock do
+                            coroutine.yield(0)
+                        end
                         if newTile.getVar('tokenName') == "Wolf" then
-                            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='scoreFlock', function_owner=nil, parameters={shepherd=shepherd}, delay=2.5})
+                            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='scoreFlock', function_owner=nil, parameters={shepherd=shepherd}, delay=1.0})
                         else
-                            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=2.5})
+                            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=1.0})
                         end
                         return
                     else
@@ -2508,114 +2583,35 @@ function addSheepToTile(shepherd)
     addSheepToShepherd(shepherd)
 end
 
---findClosestPosition
--- params:
---  int: x
---  int: z
---  obj: tile to check
---  int: rotation (1-4)
---  bool: true if the coordinates should be rotated for realtime lookups (not used for featureMap) (special feature coordinates are rotated regardless since they are checked at runtime)
--- returns:
---  int: 1-4 for quadrants, 5-12 for octants, 13.. for additional features
-function findClosestPosition(xPosition, zPosition, tile, rotation, rotateCoords)
-    --debugMessage(3, "finding closest feature for object at x:" .. xPosition .. " z:" .. zPosition .. " for rotation:" .. rotation)
-    rotatedXPosition, rotatedZPosition = rotateCoordinates(xPosition, zPosition, ((rotation + TILE_STANDARD_ROTATION - 1) % 4) + 1)
-
-    local position = 1
-    local closestPosition = 1
-    local closestDistance = 999 --presumably every position should be closer than this
-
-    local ignoredFeatures = tile.getTable('ignoredFeatures')
-    for a = 0, 1 do -- a==0 is for quadrants, a==1 is for octants
-        for side = 1, 4 do
-            for j = 0, a do -- should do 1 loop for quadrants, 2 loops for octants
-                if ignoredFeatures == nil or not table.contains(ignoredFeatures, position) then
-                    local x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, 5 - side)
-                    local distance
-                    if rotateCoords then
-                        distance = (rotatedXPosition - x) * (rotatedXPosition - x) + (rotatedZPosition - z) * (rotatedZPosition - z)
-                    else
-                        distance = (xPosition - x) * (xPosition - x) + (zPosition - z) * (zPosition - z)
-                    end
-                    --debugMessage(3, "compare to position " .. position .. ": x: " .. x .. " z: " .. z .. " distance: " .. distance)
-                    if distance < closestDistance then
-                        closestPosition = position
-                        closestDistance = distance
-                    end
-                end
-                position = position + 1
-            end
-        end
-    end
-    local specialFeatures = tile.getTable('specialFeatures')
-    if specialFeatures ~= nil then
-        --check for specialFeatures with a position
-        for _, feature in ipairs(specialFeatures) do
-            if feature[3] ~= nil then
-                local distance = (rotatedXPosition - feature[3][1]) * (rotatedXPosition - feature[3][1]) + (rotatedZPosition - feature[3][2]) * (rotatedZPosition - feature[3][2])
-                --debugMessage(3, "compare to position " .. position .. ": x: " .. feature[3][1] .. " z: " .. feature[3][2] .. " distance: " .. distance)
-                if distance < closestDistance then
-                    closestPosition = position
-                    closestDistance = distance
-                end
-            end
-            position = position + 1
-        end
-    end
-    return closestPosition
-end
-
-function promptShepherd()
-    -- local shepherdExpandButtonParam = {
-    --    index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
-    --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=1.5}, width = 1400, height=700, font_size = 200, function_owner = nil
-    -- }
-    -- local shepherdHerdButtonParam = {
-    --    index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
-    --    position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=2.3}, width = 1400, height=700, font_size = 200, function_owner = nil
-    -- }
-    local shepherdExpandButtonParam = {
-       index = 1, label = 'Expand the\nflock', click_function = 'addSheepToFlockButton',
-       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.5}, width = 1400, height=700, font_size = 200, function_owner = nil
-    }
-    local shepherdHerdButtonParam = {
-       index = 2, label = 'Herd the flock\ninto the stable', click_function = 'scoreFlockButton',
-       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.3}, width = 1400, height=700, font_size = 200, function_owner = nil
-    }
-    local shepherd = getObjectFromGUID(shepherdAwaitingAction)
-    createNormalizedButton(shepherd, shepherdExpandButtonParam, true)
-    createNormalizedButton(shepherd, shepherdHerdButtonParam, true)
-    allGameMessage(activePlayers[currentPlayer] .. " added to their Shepherd's field and has an opportunity to expand their flock", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-    return
-end
-
-function addSheepToFlockButton(object, sPlayer)
-    if checkGameButtonPrivileges(sPlayer) then
-        local shepherd = getObjectFromGUID(shepherdAwaitingAction)
-        clearArbitraryButtons()
-        if controlPanelSettings['PnDDragon'] then
-            addSheepToTile(shepherd)
-        else
-            addSheepToField(shepherd)
-        end
-    end
-end
-
+--if there is no room to add a sheep to a field, it will be placed on the shepherd's head
 function addSheepToShepherd(shepherd)
     local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
     if sheepTileBag ~= nil then
         local params = {}
         params.position = {shepherd.getPosition().x, shepherd.getPosition().y + 2, shepherd.getPosition().z}
+
+        params.callback_owner = Global
+        params.callback = "drawingSheepUnlock"
+
         sheepTileBag.shuffle()
+        drawingSheepLock = true
         local newTile = sheepTileBag.takeObject(params)
+        while drawingSheepLock do
+            coroutine.yield(0)
+        end
         if newTile.getVar('tokenName') == "Wolf" then
-            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='scoreFlock', function_owner=nil, parameters={shepherd=shepherd}, delay=2.5})
+            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='scoreFlock', function_owner=nil, parameters={shepherd=shepherd}, delay=1.0})
         else
-            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=2.5})
+            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=1.0})
         end
     else
         allErrorMessage("Error: Sheep bag is missing! The bag needs to remain out in order to draw sheep tokens")
     end
+end
+
+--unlocks the coroutine that drew the sheep, so that it can check the variables on the now-loaded token
+function drawingSheepUnlock()
+    drawingSheepLock = false
 end
 
 function scoreFlockButton(object, sPlayer)
@@ -4443,6 +4439,63 @@ function deleteMarkers()
         featureMarker.destruct()
     end
     featureMarkers = {}
+end
+
+--findClosestPosition
+-- params:
+--  int: x
+--  int: z
+--  obj: tile to check
+--  int: rotation (1-4)
+--  bool: true if the coordinates should be rotated for realtime lookups (not used for featureMap) (special feature coordinates are rotated regardless since they are checked at runtime)
+-- returns:
+--  int: 1-4 for quadrants, 5-12 for octants, 13.. for additional features
+function findClosestPosition(xPosition, zPosition, tile, rotation, rotateCoords)
+    --debugMessage(3, "finding closest feature for object at x:" .. xPosition .. " z:" .. zPosition .. " for rotation:" .. rotation)
+    rotatedXPosition, rotatedZPosition = rotateCoordinates(xPosition, zPosition, ((rotation + TILE_STANDARD_ROTATION - 1) % 4) + 1)
+
+    local position = 1
+    local closestPosition = 1
+    local closestDistance = 999 --presumably every position should be closer than this
+
+    local ignoredFeatures = tile.getTable('ignoredFeatures')
+    for a = 0, 1 do -- a==0 is for quadrants, a==1 is for octants
+        for side = 1, 4 do
+            for j = 0, a do -- should do 1 loop for quadrants, 2 loops for octants
+                if ignoredFeatures == nil or not table.contains(ignoredFeatures, position) then
+                    local x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, 5 - side)
+                    local distance
+                    if rotateCoords then
+                        distance = (rotatedXPosition - x) * (rotatedXPosition - x) + (rotatedZPosition - z) * (rotatedZPosition - z)
+                    else
+                        distance = (xPosition - x) * (xPosition - x) + (zPosition - z) * (zPosition - z)
+                    end
+                    --debugMessage(3, "compare to position " .. position .. ": x: " .. x .. " z: " .. z .. " distance: " .. distance)
+                    if distance < closestDistance then
+                        closestPosition = position
+                        closestDistance = distance
+                    end
+                end
+                position = position + 1
+            end
+        end
+    end
+    local specialFeatures = tile.getTable('specialFeatures')
+    if specialFeatures ~= nil then
+        --check for specialFeatures with a position
+        for _, feature in ipairs(specialFeatures) do
+            if feature[3] ~= nil then
+                local distance = (rotatedXPosition - feature[3][1]) * (rotatedXPosition - feature[3][1]) + (rotatedZPosition - feature[3][2]) * (rotatedZPosition - feature[3][2])
+                --debugMessage(3, "compare to position " .. position .. ": x: " .. feature[3][1] .. " z: " .. feature[3][2] .. " distance: " .. distance)
+                if distance < closestDistance then
+                    closestPosition = position
+                    closestDistance = distance
+                end
+            end
+            position = position + 1
+        end
+    end
+    return closestPosition
 end
 
 function getFeatureLocation(feature, tile, rotation)

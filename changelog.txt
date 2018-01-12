@@ -1,4 +1,7 @@
-﻿v1.19.5 - 20171227
+﻿v1.19.6 - 20170112
+[*]Fixed Shepherd not working correctly when a wolf is drawn. This is either caused by the takeObject changes in TTS v10.2, or perhaps it has simply gone unnoticed since my change to using embedded variables in v18.1 (Thanks to TheLimeyDragon for reporting!)
+
+v1.19.5 - 20171227
 [*]Fixed various setup issues caused by the changes to takeObject in TTS v10.2 (Thanks to Tralan and Superwoemaen for reporting!)
 [*]Fixed AI being able place farmers on fields that are already occupied by barns (Thanks to loneXolf for reporting!)
 
@@ -18,8 +21,8 @@ v1.19.2 - 20171119
 [*]Fixed base starting tile not being disabled if the wheel was enabled from page 4 of the control panel
 
 v1.19.1 - 20171114
-[*]Fixed Count not being moveable (due to a change in 1.19) (Thanks to ScoreCount for reporting!)
-[*]Fixed trade tokens not being counted (due to a change in 1.19) (Thanks to Scruxx for reporting!)
+[*]Fixed Count not being moveable (due to a change in 1.18.1) (Thanks to ScoreCount for reporting!)
+[*]Fixed trade tokens not being counted (due to a change in 1.18.1) (Thanks to Scruxx for reporting!)
 
 v1.19 - 20171031
 [*]Wheel of Fortune has been added. Huge thanks to TheLimeyDragon on this one for inputting all of the tile data, as well as separating the wheel into individual tiles (so that it can work with the script better).
