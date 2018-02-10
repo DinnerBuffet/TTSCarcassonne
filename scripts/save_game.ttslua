@@ -12,6 +12,9 @@ function onload(save_state)
         featureList = saved_data.featureList
         linkedFeatures = saved_data.linkedFeatures
         featureIndex = saved_data.featureIndex
+        unusedTiles = saved_data.unusedTiles
+        validTileLocations = saved_data.validTileLocations
+        tileConnectionOdds = saved_data.tileConnectionOdds
         --I'm not exactly sure if all of these nil checks are necessary. Leaving them just in case
         if saved_data.controlPanelSettings ~= nil then controlPanelSettings = saved_data.controlPanelSettings end
         if saved_data.showMarkers ~= nil then showMarkers = saved_data.showMarkers end
@@ -134,6 +137,13 @@ function onload(save_state)
       --     getObjectFromGUID(figurepad_GUIDs[player]).createInput(button_parameters)
       -- end
     end
+    tilesRemaining = 0
+    if getObjectFromGUID(tileStack_GUID) ~= nil then
+        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
+    elseif finalTile_GUID ~= nil then
+        tilesRemaining = 1
+    end
+    numRemainingMoves = math.floor(tilesRemaining / #activePlayers) + 1
     progressPartiallyCompleteStates()
     if turnState ~= nil then
 		if turnState ~= 'game over - scoring' then
@@ -179,6 +189,9 @@ function onSave()
         linkedFeatures = linkedFeatures,
         featureIndex = featureIndex,
         startingTile_GUID = startingTile_GUID,
+        unusedTiles = unusedTiles,
+        validTileLocations = validTileLocations,
+        tileConnectionOdds = tileConnectionOdds,
         --keep track of these tiles to control the order that the AI places them
         startingRiverTile_GUID = startingRiverTile_GUID,
         forkTile_GUID = forkTile_GUID,

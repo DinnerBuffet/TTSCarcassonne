@@ -81,13 +81,19 @@ function onHotseatButtonPressed(sPlayer, color, data_key, button_key)
     end
     local currentPlayerControl = Global.call('getControlPanelState', {key = data_key})
     local passedcurrentPlayerControl = false
-    if currentPlayerControl == nil then --and i == #bots then
-        Global.call('setControlPanelState', {key = data_key, value = 'AIBeta'})--player})
-        allGameMessage(color .. " has been set to an AI player of difficulty: " .. "Beta", stringColorToRGB(color), nil)
+    if currentPlayerControl == nil or currentPlayerControl == 'AIEasy' then --and i == #bots then
+        local newDifficulty
+        if currentPlayerControl == nil then
+            newDifficulty = 'Easy'
+        else
+            newDifficulty = 'Hard (Beta)'
+        end
+        Global.call('setControlPanelState', {key = data_key, value = 'AI' .. newDifficulty})--player})
+        allGameMessage(color .. " has been set to an AI player of difficulty: " .. newDifficulty, stringColorToRGB(color), nil)
         self.editButton({index = btnIDs[button_key], label = 'AI'})
         numPlayersChanged = true
     else
-        if 'AIBeta' == currentPlayerControl then
+        if currentPlayerControl == 'AIHard (Beta)' then
             passedcurrentPlayerControl = true
         end
         for i, player in ipairs(PLAYER_COLORS) do

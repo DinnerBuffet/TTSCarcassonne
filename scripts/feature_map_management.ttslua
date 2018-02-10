@@ -6,12 +6,16 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
     if startingTile_GUID == nil and tile.getVar('isStartingPiece') and not temp then
         startingTile_GUID = tile.getGUID()
         linkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
+        validTileLocations = {}
+        tileConnectionOdds = {}
         featureMap = {}
         featureIndex = 0
         featureList = {}
     end
     if temp then --do not modify the original data. If anything is modified, make a copy of it before modifying
         tempLinkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
+        tempValidTileLocations = {}
+        tempTileConnectionOdds = {}
         tempFeatureMap = {}
         tempFeatureIndex = featureIndex
         tempFeatureList = {}
@@ -35,6 +39,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
     local visitedFeatures = {}
     local features = tile.getTable('specialFeatures')
     local numSpecialFeatures = 0
+    local invalidatedFeatureCoordinates = {}
     if features ~= nil then numSpecialFeatures = #features end
     local numFeatures = 12 + numSpecialFeatures
     for position=1, numFeatures do
@@ -44,6 +49,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             local linkedSpecialFeatures = {}
             local connectedFeatures = {}
             local featureOpenings = 0
+            local featureOpeningCoords = {}
             local links = nil
 
             if position < 5 then
@@ -87,15 +93,14 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                                                 table.insert(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition])
                                             end
                                         else
-                                            if temp then
-                                                if tempFeatureList[featureMap[connectedX][connectedZ][connectedTilePosition]] == nil then
-                                                    tempFeatureList[featureMap[connectedX][connectedZ][connectedTilePosition]] = {}
-                                                end
+                                            if temp and tempFeatureList[featureMap[connectedX][connectedZ][connectedTilePosition]] == nil then
+                                                tempFeatureList[featureMap[connectedX][connectedZ][connectedTilePosition]] = {}
                                             end
                                             targetFeatureList[featureMap[connectedX][connectedZ][connectedTilePosition]].openings = featureList[featureMap[connectedX][connectedZ][connectedTilePosition]].openings - 1
                                         end
                                     elseif nameOfFeature ~= 'Abbey' then
                                         featureOpenings = featureOpenings + 1
+                                        featureOpeningCoords[connectedX .. "-" .. connectedZ] = true
                                     end
                                 end
                             end
@@ -123,7 +128,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             end
 
             local newFeatureIndex
-            if #connectedFeatures > 0 then
+            if #connectedFeatures > 0 then --this feature joined with an existing one, so we'll just add to that
                 newFeatureIndex = connectedFeatures[1]
 
                 if temp then
@@ -138,7 +143,15 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                     table.insert(targetFeatureList[newFeatureIndex].specialFeatures, specialFeature)
                 end
                 targetFeatureList[newFeatureIndex].openings = featureList[newFeatureIndex].openings + featureOpenings
-                if nameOfFeature ~= 'Field' then
+                for key, opening in pairs(featureList[newFeatureIndex].openingCoords) do
+                    if key ~= xIndex .. "-" .. zIndex then
+                        featureOpeningCoords[key] = true
+                    end
+                end
+                targetFeatureList[newFeatureIndex].openingCoords = featureOpeningCoords
+                if nameOfFeature == 'Field' then
+                    targetFeatureList[newFeatureIndex].numTiles = 0
+                else
                     targetFeatureList[newFeatureIndex].numTiles = featureList[newFeatureIndex].numTiles + 1
                 end
 
@@ -151,7 +164,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                     end
                 end
 
-                if #connectedFeatures > 1 then
+                if #connectedFeatures > 1 then --this feature merged with more than one feature, so we'll need to do a bit more work to merge them
                     local visitedTiles = {}
                     for i, connectedFeature in ipairs(connectedFeatures) do
                         for linkType, originFeatures in pairs(linkedFeatures) do
@@ -201,11 +214,17 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                                     end
                                 end
                             end
-                        else
+                        else --if 2 features have been merged to one, we should combine all special features, add the openings to each other, and recalculate numTiles
                             for _, specialFeature in ipairs(featureList[connectedFeature].specialFeatures) do
                                 table.insert(targetFeatureList[newFeatureIndex].specialFeatures, specialFeature)
                             end
                             targetFeatureList[newFeatureIndex].openings = targetFeatureList[newFeatureIndex].openings + featureList[connectedFeature].openings
+                            for openingCoord, _ in pairs(featureList[connectedFeature].openingCoords) do
+                                if openingCoord ~= xIndex .. "-" .. zIndex then
+                                    targetFeatureList[newFeatureIndex].openingCoords[openingCoord] = true
+                                    invalidatedFeatureCoordinates[openingCoord] = true
+                                end
+                            end
                             if temp then
                                 tempJoinedFeature[connectedFeature] = newFeatureIndex
                             end
@@ -241,7 +260,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                         end
                     end
                 end
-            else
+            else --this feature didn't merge with any existing one, so it is brand new and should be initialized and given a new feature number
                 if temp then
                     tempFeatureIndex = tempFeatureIndex + 1
                     newFeatureIndex = tostring(tempFeatureIndex)
@@ -253,6 +272,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                 targetFeatureList[newFeatureIndex].nameOfFeature = nameOfFeature
                 targetFeatureList[newFeatureIndex].specialFeatures = linkedSpecialFeatures
                 targetFeatureList[newFeatureIndex].openings = featureOpenings
+                targetFeatureList[newFeatureIndex].openingCoords = featureOpeningCoords
                 if table.contains(PROXIMITY_FEATURES, nameOfFeature) then
                     targetFeatureList[newFeatureIndex].featureLocation = {x=xIndex, z=zIndex}
                     targetFeatureList[newFeatureIndex].numTiles = 1
@@ -271,6 +291,8 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                                     end
                                 end
                             end
+                        else
+                            targetFeatureList[newFeatureIndex].openingCoords[neighborX .. "-" .. neighborZ] = true
                         end
                     end
                     targetFeatureList[newFeatureIndex].openings = 9 - targetFeatureList[newFeatureIndex].numTiles
@@ -330,7 +352,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
 
     addToProximityFeatures = {}
     if features ~= nil then
-        --if this tile contains specialFeatures relevant to neighboring tiles, add them to a list (there should only ever be one, but I'm leaving it open to shenanigan fan tiles)
+        --if this tile contains specialFeatures relevant to neighboring tiles, add them to a list (there should only ever be one proximity feature, but I'm leaving it open to shenanigan fan tiles)
         for _, feature in ipairs(features) do
             if feature[1] == 'Vineyard' then
                 table.insert(addToProximityFeatures, feature[1])
@@ -345,16 +367,38 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             for _, neighborFeatureNum in pairs(featureMap[neighborX][neighborZ]) do
                 if table.contains(PROXIMITY_FEATURES, featureList[neighborFeatureNum].nameOfFeature) then
                     if temp then
-                        tempFeatureList[neighborFeatureNum] = table.shallow_copy(featureList[neighborFeatureNum])
+                        tempFeatureList[neighborFeatureNum] = table.deep_copy(featureList[neighborFeatureNum])
                     end
                     targetFeatureList[neighborFeatureNum].numTiles = targetFeatureList[neighborFeatureNum].numTiles + 1
                     targetFeatureList[neighborFeatureNum].openings = targetFeatureList[neighborFeatureNum].openings - 1
-
+                    targetFeatureList[neighborFeatureNum].openingCoords[xIndex .. "-" .. zIndex] = nil
                     for _, neighborSpecialFeature in ipairs(addToProximityFeatures) do
                         table.insert(targetFeatureList[neighborFeatureNum].specialFeatures, neighborSpecialFeature)
                     end
                 end
             end
+        end
+    end
+    AITileAdded(xIndex, zIndex, tile, rotation, temp)
+    local targetValidTileLocations
+    local targetTileConnectionOdds
+    if temp then
+        targetValidTileLocations = tempValidTileLocations
+        targetTileConnectionOdds = tempTileConnectionOdds
+    else
+        targetValidTileLocations = validTileLocations
+        targetTileConnectionOdds = tileConnectionOdds
+    end
+    for openingCoord, _ in pairs(invalidatedFeatureCoordinates) do
+        if openingCoord ~= xIndex .. "-" .. zIndex then
+            local coord = string.split(openingCoord, "-")
+            local x = tonumber(coord[1])
+            local z = tonumber(coord[2])
+
+            if targetTileConnectionOdds[x] == nil then
+                targetTileConnectionOdds[x] = {}
+            end
+            targetTileConnectionOdds[x][z] = AICalculateOdds(x, z, xIndex, zIndex, temp)
         end
     end
 end
@@ -440,6 +484,7 @@ function removeTile(xIndex, zIndex, removedTile)
                     end
                     featureList[newFeatureIndex].specialFeatures = traversedSpecialFeatures
                     featureList[newFeatureIndex].openings = openings
+                    featureList[newFeatureIndex].openingCoords = traversedOpeningCoords
                     if nameOfFeature ~= 'Field' then
                         featureList[newFeatureIndex].numTiles = #traversedTileCoords
                     else
@@ -566,6 +611,7 @@ function removeTile(xIndex, zIndex, removedTile)
                 if table.contains(PROXIMITY_FEATURES, featureList[neighborFeatureNum].nameOfFeature) then
                     featureList[neighborFeatureNum].numTiles = featureList[neighborFeatureNum].numTiles - 1
                     featureList[neighborFeatureNum].openings = featureList[neighborFeatureNum].openings + 1
+                    featureList[neighborFeatureNum].openingCoords[xIndex .. "-" .. zIndex] = true
                     for _, neighborSpecialFeature in ipairs(removeFromProximityFeatures) do
                         for i, specialFeature in ipairs(featureList[neighborFeatureNum].specialFeatures) do
                             if neighborSpecialFeature == specialFeature then
@@ -578,6 +624,7 @@ function removeTile(xIndex, zIndex, removedTile)
             end
         end
     end
+    AITileRemoved(xIndex, zIndex, removedTile)
 end
 
 --This function will completely shift all objects on the table, along with the stored metadata, by the given deltas
@@ -607,6 +654,21 @@ function shiftPlayArea(delta_x, delta_z)
                 featureMap[x + delta_x] = featureMap[x]
                 featureMap[x] = nil
             end
+            if validTileLocations[x] ~= nil then
+                validTileLocations[x + delta_x] = validTileLocations[x]
+                validTileLocations[x] = nil
+                tileConnectionOdds[x + delta_x] = tileConnectionOdds[x]
+                tileConnectionOdds[x] = nil
+            end
+            for _, feature in pairs(featureList) do
+                if feature.openingCoords[connectedX .. "-" .. connectedZ] ~= nil then
+                    local coord = string.split(openingCoord, "-")
+                    local oldX = tonumber(coord[1])
+                    local oldZ = tonumber(coord[2])
+                    feature.openingCoords[oldX + delta_x .. "-" .. oldZ] = true
+                    feature.openingCoords[oldX .. "-" .. oldZ] = nil
+                end
+            end
         end
     end
     if delta_z ~= 0 then
@@ -624,6 +686,21 @@ function shiftPlayArea(delta_x, delta_z)
                     tileGrid[x][z] = nil
                     featureMap[x][z + delta_z] = featureMap[x][z]
                     featureMap[x][z] = nil
+                end
+                if validTileLocations[x][z] ~= nil then
+                    validTileLocations[x][z + delta_z] = validTileLocations[x][z]
+                    validTileLocations[x][z] = nil
+                    tileConnectionOdds[x][z + delta_z] = tileConnectionOdds[x][z]
+                    tileConnectionOdds[x][z] = nil
+                end
+                for _, feature in pairs(featureList) do
+                    if feature.openingCoords[connectedX .. "-" .. connectedZ] ~= nil then
+                        local coord = string.split(openingCoord, "-")
+                        local oldX = tonumber(coord[1])
+                        local oldZ = tonumber(coord[2])
+                        feature.openingCoords[oldX .. "-" .. oldZ + delta_z] = true
+                        feature.openingCoords[oldX .. "-" .. oldZ] = nil
+                    end
                 end
             end
         end

@@ -278,10 +278,6 @@ function startGame()
             startingTile_GUID = nil
             tileGrid[MIDDLE_X_OFFSET][MIDDLE_Z_OFFSET] = nil
         end
-    else
-        local newTile = startingTile_GUID
-        startingTile_GUID = nil
-        addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(newTile), 2, false)
     end
     if not controlPanelSettings['BaseTiles'] then
         local baseTileStack = getObjectFromGUID(tileStack_GUID)
@@ -299,6 +295,13 @@ function startGame()
         coroutine.yield(0)
     end
     wait(1.0) --I don't remember what this wait is for but I recall a problem if you don't use it
+    local tileStack = getObjectFromGUID(tileStack_GUID)
+    AIMemorizeCards(tileStack)
+    if controlPanelSettings['StartingTileBase'] then
+        local newTile = startingTile_GUID
+        startingTile_GUID = nil
+        addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(newTile), 2, false)
+    end
     --shuffle and lock starting tiles
     for rule_id, rule in pairs(startingTileSettings) do
         if controlPanelSettings[rule_id] then
@@ -332,7 +335,6 @@ function startGame()
             end
         end
     end
-    local tileStack = getObjectFromGUID(tileStack_GUID)
     tileStack.shuffle()
     if controlPanelSettings['StartingTileRiverII'] then
         allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the fork should be the first tile placed, followed by the facedown tiles until they are gone, then the spring, and lastly the lake piece.", NEUTRAL_COLOR)

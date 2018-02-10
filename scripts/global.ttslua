@@ -33,8 +33,8 @@
 --                  'Garden' - specifies the location of a garden. Links are not used for this feature.
 
 
-DEBUG_BUTTONS = false
-debugMode = 0
+DEBUG_BUTTONS = true
+debugLevel = 1
 --debugLogTabIndex = -1
 
 AUTOLOCK = true
@@ -196,7 +196,7 @@ skipTurnButtonParam = {
 }
 
 debugButtonParam = {
-   index = 3, label = 'Debug mode:\n' .. debugMode, click_function = 'switchDebugLevel',
+   index = 3, label = 'Debug mode:\n' .. debugLevel, click_function = 'switchDebugLevel',
    position = {-0.8, 0.1, 1.6}, width = 1000, height=500, font_size = 150, function_owner = nil
 }
 
@@ -461,6 +461,7 @@ currentMiniTurn = nil
 traversedGrid = {}
 traversedFeaturePositions = {}
 traversedTileCoords = {}
+traversedOpeningCoords = {}
 traversedSpecialFeatures = {}
 traversedFollowers = {}
 traversedSpecialFigures = {}
@@ -733,9 +734,9 @@ end
 -- Activates when button is pressed
 function switchDebugLevel()
     -- switches between debug mode levels. Updates button's label to match
-    debugMode = debugMode + 1
-    if debugMode > 3 then debugMode = 0 end
-    debugButtonParam.label = 'Debug mode:\n' .. debugMode
+    debugLevel = debugLevel + 1
+    if debugLevel > 3 then debugLevel = 0 end
+    debugButtonParam.label = 'Debug mode:\n' .. debugLevel
     buttonBoard.editButton(debugButtonParam)
 end
 
@@ -4406,11 +4407,16 @@ function debugShowFeatureMap()
                 specialFeatures = specialFeatures .. ", "
             end
         end
-        local featureOpenings = feature.openings
-        if feature.nameOfFeature ~= 'Road' and feature.nameOfFeature ~= 'River' then featureOpenings = featureOpenings / 2 end
+        local numFeatureOpenings = feature.openings
+        local featureOpenings = ""
+        for key, _ in pairs(feature.openingCoords) do
+            featureOpenings = featureOpenings .. key .. ", "
+        end
+        featureOpenings = featureOpenings:sub(1, -3) --get rid of the last comma and space
+        if feature.nameOfFeature ~= 'Road' and feature.nameOfFeature ~= 'River' and not table.contains(PROXIMITY_FEATURES, feature.nameOfFeature) then numFeatureOpenings = numFeatureOpenings / 2 end
         featureKey = "" .. tonumber(featureKey)
         featureKey = featureKey:gsub("1", "L")
-        print(featureKey .. " (" .. feature.nameOfFeature .. "): has " .. feature.numTiles .. " tiles and " .. featureOpenings .. " openings. Special Features: " .. specialFeatures)
+        print(featureKey .. " (" .. feature.nameOfFeature .. "): has " .. feature.numTiles .. " tiles and " .. numFeatureOpenings .. " openings: " .. featureOpenings .. " Special Features: " .. specialFeatures)
     end
     print("printing links...")
     for linkType, originFeatures in pairs(linkedFeatures) do
@@ -4431,6 +4437,14 @@ function debugShowFeatureMap()
         end
         printLine = printLine:gsub("1", "L")
         print(printLine)
+    end
+    print("printing connection odds...")
+    for x, columns in pairs(tileConnectionOdds) do --iterate through all valid tile lists and remove the added tile
+        for z, tileOdds in pairs(columns) do
+            for key, numChances in pairs(tileOdds) do
+                print("x:" .. x .. " z:" .. z .. " " .. key .. ":" .. numChances)
+            end
+        end
     end
 end
 
@@ -4557,7 +4571,7 @@ end
 
 --getFeatureComponents
 --
--- Transverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
+-- Traverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
 --
 -- params:
 --  int: xIndex
@@ -4567,7 +4581,7 @@ end
 --  bool: false if multiple getFeatureComponents calls will be made. This prevents resetting the traversal and also does not check for followers each time. The goal is to save on performance.
 -- returns:
 --  bool: true if the feature is complete, false if not complete
-function getFeatureComponents(xIndex, zIndex, position, tranversalLevels, reset, reverseCityTraversal)
+function getFeatureComponents(xIndex, zIndex, position, traversalLevels, reset, reverseCityTraversal)
     if reset then --for when we want to make multiple feature traversals without revisiting already visited positions
         resetTraversal()
     end
@@ -4577,14 +4591,14 @@ function getFeatureComponents(xIndex, zIndex, position, tranversalLevels, reset,
     if position < 5 then
         --if nameOfFeature == 'River' then return 0
         if nameOfFeature == 'Road' or nameOfFeature == 'River' then
-            finished = getTileComponents(xIndex, zIndex, position, tranversalLevels, 1, reverseCityTraversal)
+            finished = getTileComponents(xIndex, zIndex, position, traversalLevels, 1, reverseCityTraversal)
         else
             --in theory this shouldn't happen unless a player allows a figure to stay somewhere they're not supposed to
             --if it happens, just pick an arbitrary octant
-            finished = getTileComponents(xIndex, zIndex, (position * 2) + 3, tranversalLevels, 1, reverseCityTraversal)
+            finished = getTileComponents(xIndex, zIndex, (position * 2) + 3, traversalLevels, 1, reverseCityTraversal)
         end
     else
-        finished = getTileComponents(xIndex, zIndex, position, tranversalLevels, 1, reverseCityTraversal)
+        finished = getTileComponents(xIndex, zIndex, position, traversalLevels, 1, reverseCityTraversal)
     end
 
     if reset then -- don't run for each call of getFeatureComponents. Instead, getFigureComponents should be called from the calling method.
@@ -4602,7 +4616,7 @@ end
 
 --getFigureComponents
 --
--- Transverses the all objects in the play area, storing followers and tokens that were in the traversed positions
+-- Traverses the all objects in the play area, storing followers and tokens that were in the traversed positions
 function getFigureComponents()
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
     for _, obj in ipairs(objs) do
@@ -4640,7 +4654,7 @@ end
 
 --getTileComponents
 --
--- Transverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
+-- Traverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
 --
 -- params:
 --  int: xIndex
@@ -4652,8 +4666,8 @@ end
 --  bool: reverseCityTraversal - traverses from cities to fields, when the feature is a city. Currently only used for recalculating field connections from the city's point of view
 -- returns:
 --  bool: true if the feature is complete, false if not complete
-function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversalNum, reverseCityTraversal)
-    if traversalNum > tranversalLevels then return 0 end
+function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalNum, reverseCityTraversal)
+    if traversalNum > traversalLevels then return 0 end
     --debugMessage(2, "checking tile at x: " .. xIndex .. " z: " .. zIndex .. " position: " .. position .. " trans num: " .. traversalNum)
     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
     local rotation = tileGrid[xIndex][zIndex].rotation
@@ -4698,17 +4712,20 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                                     local newTilePosition = (3 + quadrant + rotation - newTileRotation + TILE_180_ROTATION) % 4 + 1
                                     --debugMessage(2, "newTilePosition: " .. newTilePosition)
                                     if getFeatureName(newTile, newTilePosition) ~= 'Abbey' and getFeatureName(tile, position) ~= 'Abbey' then
-                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, tranversalLevels, traversalNum, reverseCityTraversal)
+                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
                                     elseif traversalNum == 1 then
                                         if getFeatureName(newTile, newTilePosition) == 'Abbey' then
-                                            getTileComponents(newX, newZ, (newTilePosition * 2) + 3, tranversalLevels, traversalNum + 1, reverseCityTraversal)
+                                            getTileComponents(newX, newZ, (newTilePosition * 2) + 3, traversalLevels, traversalNum + 1, reverseCityTraversal)
                                         elseif getFeatureName(newTile, newTilePosition) ~= 'Field' then
-                                            getTileComponents(newX, newZ, newTilePosition, tranversalLevels, traversalNum + 1, reverseCityTraversal)
+                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
                                         end
                                     end
                                 else
                                     --debugMessage(2, "Next tile is empty. Feature is not finished")
                                     finished = finished + 1
+                                    if traversalNum == 1 then
+                                        traversedOpeningCoords[newX .. "-" .. newZ] = true
+                                    end
                                 end
                             end
                         end
@@ -4744,17 +4761,20 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                                     local newTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (newTileRotation * 2) - 4) % 8 + 5
                                     --debugMessage(2, "newTileRotation: " .. newTileRotation .. " newTilePosition: " .. newTilePosition)
                                     if getFeatureName(newTile, newTilePosition) ~= 'Abbey' and getFeatureName(tile, position) ~= 'Abbey' then
-                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, tranversalLevels, traversalNum, reverseCityTraversal)
+                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
                                     elseif traversalNum == 1 then -- all of this is for Abbeys and Wagons
                                         if getFeatureName(newTile, (newTilePosition - 3) / 2) == 'Road' then
-                                            getTileComponents(newX, newZ, math.floor((newTilePosition - 3) / 2), tranversalLevels, traversalNum + 1, reverseCityTraversal)
+                                            getTileComponents(newX, newZ, math.floor((newTilePosition - 3) / 2), traversalLevels, traversalNum + 1, reverseCityTraversal)
                                         elseif getFeatureName(newTile, newTilePosition) ~= 'Field' then
-                                            getTileComponents(newX, newZ, newTilePosition, tranversalLevels, traversalNum + 1, reverseCityTraversal)
+                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
                                         end
                                     end
                                 else
                                     --debugMessage(2, "Next tile is empty. Feature is not finished")
                                     finished = finished + 1
+                                    if traversalNum == 1 then
+                                        traversedOpeningCoords[newX .. "-" .. newZ] = true
+                                    end
                                 end
                             end
                         end
@@ -4813,6 +4833,8 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                                     end
                                 end
                             end
+                        else
+                            traversedOpeningCoords[xIndex + i .. "-" .. zIndex + j] = true
                         end
                     end
                 end
@@ -4825,7 +4847,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                             if traversalNum == 1 then
                                 traversedFeaturePositions[xIndex][zIndex][location] = 1
                             end
-                            finished = finished + getTileComponents(xIndex, zIndex, location, tranversalLevels, traversalNum, reverseCityTraversal)
+                            finished = finished + getTileComponents(xIndex, zIndex, location, traversalLevels, traversalNum, reverseCityTraversal)
                         end
                     end
                 end
@@ -4838,7 +4860,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                 if table.contains(feature[2], position) then
                     if (traversedGrid[xIndex][zIndex][i+12] == nil or traversedGrid[xIndex][zIndex][i+12] > traversalNum) and not (feature[1] == 'City-Field' and ((not reverseCityTraversal and getFeatureName(tile, position) ~= 'Field') or (reverseCityTraversal and getFeatureName(tile, position) ~= 'City'))) then
                         if feature[1] == 'Abbey' then
-                            finished = finished + getTileComponents(xIndex, zIndex, i+12, tranversalLevels, traversalNum, reverseCityTraversal)
+                            finished = finished + getTileComponents(xIndex, zIndex, i+12, traversalLevels, traversalNum, reverseCityTraversal)
                         else
                             traversedGrid[xIndex][zIndex][i+12] = traversalNum
                             if traversalNum == 1 then
@@ -4848,7 +4870,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                                         for _, octant in ipairs(feature[2]) do
                                             if getFeatureName(tile, octant) == 'City' or getFeatureName(tile, octant) == 'Carcassonne' or (reverseCityTraversal and getFeatureName(tile, octant) == 'Field') then
                                                 if traversedGrid[xIndex][zIndex][octant] == nil or traversedGrid[xIndex][zIndex][octant] > traversalNum + 1 then
-                                                    if getTileComponents(xIndex, zIndex, octant, tranversalLevels, traversalNum + 1, reverseCityTraversal) == 0 or reverseCityTraversal then
+                                                    if getTileComponents(xIndex, zIndex, octant, traversalLevels, traversalNum + 1, reverseCityTraversal) == 0 or reverseCityTraversal then
                                                         if not reverseCityTraversal then
                                                             table.insert(traversedSpecialFeatures, "Completed City")
                                                             --debugMessage(2, "Completed City added to traversedSpecialFeatures")
@@ -4861,7 +4883,7 @@ function getTileComponents(xIndex, zIndex, position, tranversalLevels, traversal
                                     end
                                 elseif feature[1] == 'Road Intersection' then
                                     for _, location in ipairs(feature[2]) do
-                                        if getTileComponents(xIndex, zIndex, location, tranversalLevels, traversalNum + 1, reverseCityTraversal) > 0 then
+                                        if getTileComponents(xIndex, zIndex, location, traversalLevels, traversalNum + 1, reverseCityTraversal) > 0 then
                                             --we don't really care if the feature is finished or not. In fact, we really don't need to traverse intersections at all, except for the removeTile method
                                         end
                                     end
@@ -4908,6 +4930,7 @@ function resetTraversal()
     traversedGrid = {}
     traversedFeaturePositions = {}
     traversedTileCoords = {}
+    traversedOpeningCoords = {}
     traversedSpecialFeatures = {}
     traversedFollowers = {}
     traversedSpecialFigures = {}
