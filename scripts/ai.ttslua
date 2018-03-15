@@ -36,7 +36,7 @@ FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being u
 function AIStateHandler()
     --debugMessage(1, "AIStateHandler - " .. turnState)
     if turnState == 'awaiting tile placement' then
-        if (controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5']) and not hasFinishedRiver() then
+        if (controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5']) and hasFinishedRiver() then
             -- local itemRemoved = false
             -- for _, obj_GUID in pairs({forkTile_GUID, riverBodyTiles_GUID, finalRiverTile_GUID, springTile_GUID, lakeTile_GUID}) do
             --     if obj_GUID ~= nil then
@@ -568,10 +568,10 @@ function AITileRemoved(xIndex, zIndex, removedTile)
     validTileLocations[xIndex][zIndex] = {}
     for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
         for tileRotation=1, 4 do --rebuild validTileLocations at the location the tile was removed
-            if ((not tileGridOccupied(xIndex + 1, zIndex) or unusedTile.sides[(3 + 4 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid).getTable('sides')[(3 + 4 - tileGrid[xIndex + 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                (not tileGridOccupied(xIndex - 1, zIndex) or unusedTile.sides[(3 + 2 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid).getTable('sides')[(3 + 2 - tileGrid[xIndex - 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                (not tileGridOccupied(xIndex, zIndex + 1) or unusedTile.sides[(3 + 3 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[xIndex][zIndex + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                (not tileGridOccupied(xIndex, zIndex - 1) or unusedTile.sides[(3 + 1 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[xIndex][zIndex - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
+            if ((not tileGridOccupied(xIndex + sideDelta.x + 1, zIndex + sideDelta.z) or unusedTile.sides[(3 + 4 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x + 1][zIndex + sideDelta.z].tile_guid).getTable('sides')[(3 + 4 - tileGrid[xIndex + sideDelta.x + 1][zIndex + sideDelta.z].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex + sideDelta.x - 1, zIndex + sideDelta.z) or unusedTile.sides[(3 + 2 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x - 1][zIndex + sideDelta.z].tile_guid).getTable('sides')[(3 + 2 - tileGrid[xIndex + sideDelta.x - 1][zIndex + sideDelta.z].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex + sideDelta.x, zIndex + sideDelta.z + 1) or unusedTile.sides[(3 + 3 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex + sideDelta.x, zIndex + sideDelta.z - 1) or unusedTile.sides[(3 + 1 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
                 if validTileLocations[xIndex][zIndex][unusedTile_GUID] == nil then
                     validTileLocations[xIndex][zIndex][unusedTile_GUID] = {}
                 end

@@ -1,4 +1,8 @@
-﻿v1.19.7 - 20180228
+﻿v1.19.8 - 20180302
+[*]Fixed removing tiles breaking the game (Thanks to JoeysRattata for reporting!)
+[*]Fixed AI being broken with the river if the AI makes the first move (Thanks to JoeysRattata and davewood5555 for reporting!)
+
+v1.19.7 - 20180228
 [*]Added support for custom model followers. Simply add your custom model to the game (only custom models supported. Asset bundles, figurines, ect. not supported at this time). The tint and scale of this model will also be used. It will also be reused for the Big Follower (with a 20% increase). However, the collision model for the default meeple will be used, to avoid issues with oversized models (though since the collision model scales with the model, the same problem will still occur if the scale is too large)
 [*]Hint markers no longer make a sound when spawning. Score markers also will not, and a sound effect has been added to replace the missing sound.
 [*]When hint markers are turned on, each player's last move is now highlighted.
