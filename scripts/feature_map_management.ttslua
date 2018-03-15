@@ -12,6 +12,9 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
         featureIndex = 0
         featureList = {}
     end
+    if startingRiverTile_GUID == nil and tile.getVar('isStartingPiece') and not temp then
+        startingRiverTile_GUID = tile.getGUID()
+    end
     if temp then --do not modify the original data. If anything is modified, make a copy of it before modifying
         tempLinkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
         tempValidTileLocations = {}
@@ -21,8 +24,75 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
         tempFeatureList = {}
         tempJoinedFeature = {}
     else
+        --if the newest tile is at the edge of the play area, then shift it if there is room
+        --https://stackoverflow.com/a/1252776
+        local next = next
+        if xIndex == MIN_X and (tileGrid[MAX_X] == nil or next(tileGrid[MAX_X]) == nil) then
+            shiftPlayArea(1, 0)
+            xIndex = xIndex + 1
+        end
+        if xIndex == MAX_X and (tileGrid[MIN_X] == nil or next(tileGrid[MIN_X]) == nil) then
+            shiftPlayArea(-1, 0)
+            xIndex = xIndex - 1
+        end
+        if zIndex == MIN_Z then
+            local atEdge = false;
+            for _, tileColumn in pairs(tileGrid) do
+                if tileColumn[MAX_Z] ~= nil then
+                    atEdge = true;
+                    break;
+                end
+            end
+            if not atEdge then
+                shiftPlayArea(0, 1)
+                zIndex = zIndex + 1
+            end
+        end
+        if zIndex == MAX_Z then
+            local atEdge = false;
+            for _, tileColumn in pairs(tileGrid) do
+                if tileColumn[MIN_Z] ~= nil then
+                    atEdge = true;
+                    break;
+                end
+            end
+            if not atEdge then
+                shiftPlayArea(0, -1)
+                zIndex = zIndex - 1
+            end
+        end
+        if tile.getGUID() == finalTile_GUID then
+            finalTile_GUID = nil
+        end
+        if tile.getGUID() == finalRiverTile_GUID then
+            finalRiverTile_GUID = nil
+        end
+        if tile.getGUID() == forkTile_GUID then
+            forkTile_GUID = nil
+        end
+        if tile.getGUID() == springTile_GUID then
+            springTile_GUID = nil
+        end
+        if tile.getGUID() == lakeTile_GUID then
+            lakeTile_GUID = nil
+        end
+
         if featureMap[xIndex] == nil then featureMap[xIndex] = {} end
         if featureMap[xIndex][zIndex] == nil then featureMap[xIndex][zIndex] = {} end
+        if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
+        tileGrid[xIndex][zIndex] = {}
+        tileGrid[xIndex][zIndex].tile_guid = tile.getGUID()
+        tileGrid[xIndex][zIndex].rotation = rotation
+        lastPlacedTileX = xIndex
+        lastPlacedTileZ = zIndex
+        if lastPlacedPlayerTiles[activePlayers[currentPlayer]] ~= nil then
+            local coordinates = lastPlacedPlayerTiles[activePlayers[currentPlayer]]
+            if tileGrid[coordinates.x][coordinates.z] ~= nil then
+                local tile = getObjectFromGUID(tileGrid[coordinates.x][coordinates.z].tile_guid)
+                tile.highlightOff()
+            end
+        end
+        lastPlacedPlayerTiles[activePlayers[currentPlayer]] = {x=xIndex, z=zIndex}
     end
     local targetLinkedFeatures
     local targetFeatureMap
@@ -40,6 +110,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
     local features = tile.getTable('specialFeatures')
     local numSpecialFeatures = 0
     local invalidatedFeatureCoordinates = {}
+    local alreadyAddedFeatures = {} --to handle a special case where the same feature can be merged by multiple separate features on the tile, in which case numTiles should only be increased once
     if features ~= nil then numSpecialFeatures = #features end
     local numFeatures = 12 + numSpecialFeatures
     for position=1, numFeatures do
@@ -151,7 +222,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                 targetFeatureList[newFeatureIndex].openingCoords = featureOpeningCoords
                 if nameOfFeature == 'Field' then
                     targetFeatureList[newFeatureIndex].numTiles = 0
-                else
+                elseif alreadyAddedFeatures[newFeatureIndex] ~= true then
                     targetFeatureList[newFeatureIndex].numTiles = featureList[newFeatureIndex].numTiles + 1
                 end
 
@@ -260,6 +331,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                         end
                     end
                 end
+                alreadyAddedFeatures[newFeatureIndex] = true
             else --this feature didn't merge with any existing one, so it is brand new and should be initialized and given a new feature number
                 if temp then
                     tempFeatureIndex = tempFeatureIndex + 1
@@ -380,13 +452,10 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
         end
     end
     AITileAdded(xIndex, zIndex, tile, rotation, temp)
-    local targetValidTileLocations
     local targetTileConnectionOdds
     if temp then
-        targetValidTileLocations = tempValidTileLocations
         targetTileConnectionOdds = tempTileConnectionOdds
     else
-        targetValidTileLocations = validTileLocations
         targetTileConnectionOdds = tileConnectionOdds
     end
     for openingCoord, _ in pairs(invalidatedFeatureCoordinates) do

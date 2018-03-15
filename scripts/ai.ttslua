@@ -1,26 +1,66 @@
--------------------------------------------------------------------
-
+--------------------------------------------------------------------------------
 --AI Code
+--------------------------------------------------------------------------------
+--The AI is designed to predict the performance of a player based on a combination
+--the current scores, the value of uncalculated points (ie. incomplete features),
+--and various penalties (ie. stuck followers). This "score" is calculated at the beginning of the turn
+--with AICalculateBaselineScores. The AI then simulates the placement of a tile and/or
+--figure at all possible locations, and calculates the difference between the two as
+--the "score" of that move
+--------------------------------------------------------------------------------
 
--------------------------------------------------------------------
+--COSMETIC CONSTS
+AI_DRAW_TILE_TIME = 1.0 --time delay to allow the drawn tile to travel to the AI player's hand
+AI_ANIMATIONS_ENABLED = false --will move pieces smoothly if true, otherwise the pieces will instantly move
+AI_DRAW_TILE_TO_HAND = false -- will move the pieces to the AI player's hand first. If false, pieces will be moved in front of their hand instead
 
+--SHARED CONSTS
 END_GAME_TRANSITION = 20 --when there are less than this number of tiles (per player), the AI will begin abandoning difficult to complete roads with inns and cities with cathedrals.
 SCORE_THREAT_THRESHOLD = 50 --players that are more than this many points behind are no longer considered a threat and won't be factored into the decisions
 FOLLOWER_SCORE_THRESHOLD = 0.75 --player won't use a figure to take a feature unless it is worth at least this much
 USED_FOLLOWER_PENALTY = 0.45 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
-OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
-BLOCK_PERCENTAGE_POWER_MODIFIER = 3 --take the block percentage to the power of this number, and multiply it by the score to get the adjusted score
+UNFINISHED_TRADE_TOKEN_VALUE = 1.0 --Extra value provided by having a trade token in your city (although it isn't actually worth anything, encouraging yourself and/or your opponents to finish the city could be seen as a benefit)
+
+--HARD MODE CONSTS
+NUMBER_OF_DRAWN_TILES_FOR_BLOCK_PERCENTAGE = 10 --calculate the odds that this tile position will be blocked for this many drawn tiles
+BLOCK_PERCENTAGE_POWER_MODIFIER = 2 --take the block percentage to the power of this number, and multiply it by the score to get the adjusted score
 STUCK_FOLLOWER_PENALTY = 0.3 --this penalty will be applied to each follower that is 100% stuck until the end of the game (including farmers). The penalty is multiplied by the number of tiles left. This penalty is also partially applied to followers that have a chance ot get stuck.
+STUCK_BIG_FOLLOWER_PENALTY = 0.45 --this penalty will be applied to each big follower that is 100% stuck until the end of the game (including farmers). The penalty is multiplied by the number of tiles left. This penalty is also partially applied to followers that have a chance ot get stuck.
+STUCK_BUILDER_PENALTY = 0.3 --this penalty will be applied to a builder that is 100% stuck until the end of the game. The penalty is multiplied by the number of tiles left. This penalty is also partially applied to followers that have a chance ot get stuck.
+BUILDER_EXTRA_TURN_VALUE = 1.0 --Extra value provided by adding to a feature with a builder
+
+--EASY MODE CONSTS
+OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
 FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being used too early in the game
-AI_DRAW_TILE_TIME = 1.0 --time delay to allow the drawn tile to travel to the AI player's hand
-AI_ANIMATIONS_ENABLED = false --will move pieces smoothly if true, otherwise the pieces will instantly move
-AI_DRAW_TILE_TO_HAND = false -- will move the pieces to the AI player's hand first. If false, pieces will be moved in front of their hand instead
-UNFINISHED_TRADE_TOKEN_VALUE = 1.0
 
 function AIStateHandler()
     --debugMessage(1, "AIStateHandler - " .. turnState)
     if turnState == 'awaiting tile placement' then
-        riverTileCheck()
+        if (controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5']) and not hasFinishedRiver() then
+            -- local itemRemoved = false
+            -- for _, obj_GUID in pairs({forkTile_GUID, riverBodyTiles_GUID, finalRiverTile_GUID, springTile_GUID, lakeTile_GUID}) do
+            --     if obj_GUID ~= nil then
+            --         local obj = getObjectFromGUID(obj_GUID)
+            --         if obj ~= nil then
+            --             itemRemoved = true
+            --             obj.destruct()
+            --         end
+            --     end
+            -- end
+            -- if itemRemoved then
+            --     gameNotification("River is already finished. Removing additional tiles.", NEUTRAL_COLOR, activePlayers[currentPlayer])
+            -- end
+            forkTile_GUID = nil
+            riverBodyTiles_GUID = nil
+            finalRiverTile_GUID = nil
+            springTile_GUID = nil
+            lakeTile_GUID = nil
+            -- local tileStack = getObjectFromGUID(tileStack_GUID)
+            -- if tileStack ~= nil then
+            --     tileStack.setLock(false)
+            --     tileStack.interactable = true
+            -- end
+        end
         gameNotification("AI player is calculating their move...", NEUTRAL_COLOR, activePlayers[currentPlayer])
         startLuaCoroutine(self, 'AIChooseTileLocation')
     elseif turnState == 'place gold on tile' then
@@ -77,16 +117,85 @@ function AIMemorizeCards(tileStack)
         anchor.setLuaScript(tile.lua_script)
         coroutine.yield(0)
         unusedTiles[tile.guid] = {}
+        -- unusedTiles[tile.guid].isStartingPiece = anchor.getVar('isStartingPiece')
         unusedTiles[tile.guid].sides = anchor.getTable("sides")
         unusedTiles[tile.guid].linkedQuadrants = anchor.getTable("linkedQuadrants")
         unusedTiles[tile.guid].linkedOctants = anchor.getTable("linkedOctants")
         --unusedTiles[tile.guid].specialFeatures = anchor.getTable("specialFeatures")
     end
+    -- if forkTile_GUID ~= nil then
+    --     local forkTile = getObjectFromGUID(forkTile_GUID)
+    --     if forkTile ~= nil then
+    --         unusedTiles[forkTile_GUID] = {}
+    --         unusedTiles[forkTile_GUID].isStartingPiece = anchor.getVar('isStartingPiece')
+    --         unusedTiles[forkTile_GUID].sides = forkTile.getTable("sides")
+    --         unusedTiles[forkTile_GUID].linkedQuadrants = forkTile.getTable("linkedQuadrants")
+    --         unusedTiles[forkTile_GUID].linkedOctants = forkTile.getTable("linkedOctants")
+    --         --unusedTiles[forkTile_GUID].specialFeatures = forkTile.getTable("specialFeatures")
+    --     end
+    -- end
+    -- if riverBodyTiles_GUID ~= nil then
+    --     local riverStack = getObjectFromGUID(riverBodyTiles_GUID)
+    --     if riverStack ~= nil then
+    --         for i, tile in ipairs(riverStack.getObjects()) do
+    --             anchor = anchor.reload()
+    --             anchor.setLuaScript(tile.lua_script)
+    --             coroutine.yield(0)
+    --             unusedTiles[tile.guid] = {}
+    --             unusedTiles[tile.guid].isStartingPiece = anchor.getVar('isStartingPiece')
+    --             unusedTiles[tile.guid].sides = anchor.getTable("sides")
+    --             unusedTiles[tile.guid].linkedQuadrants = anchor.getTable("linkedQuadrants")
+    --             unusedTiles[tile.guid].linkedOctants = anchor.getTable("linkedOctants")
+    --             --unusedTiles[tile.guid].specialFeatures = anchor.getTable("specialFeatures")
+    --         end
+    --     end
+    -- end
+    -- if finalRiverTile_GUID ~= nil then
+    --     local finalRiverTile = getObjectFromGUID(finalRiverTile_GUID)
+    --     if finalRiverTile ~= nil then
+    --         unusedTiles[finalRiverTile_GUID] = {}
+    --         unusedTiles[finalRiverTile_GUID].isStartingPiece = finalRiverTile.getVar('isStartingPiece')
+    --         unusedTiles[finalRiverTile_GUID].sides = finalRiverTile.getTable("sides")
+    --         unusedTiles[finalRiverTile_GUID].linkedQuadrants = finalRiverTile.getTable("linkedQuadrants")
+    --         unusedTiles[finalRiverTile_GUID].linkedOctants = finalRiverTile.getTable("linkedOctants")
+    --         --unusedTiles[finalRiverTile_GUID].specialFeatures = finalRiverTile.getTable("specialFeatures")
+    --     end
+    -- end
+    -- if springTile_GUID ~= nil then
+    --     local springTile = getObjectFromGUID(springTile_GUID)
+    --     if springTile ~= nil then
+    --         unusedTiles[springTile_GUID] = {}
+    --         unusedTiles[springTile_GUID].isStartingPiece = springTile.getVar('isStartingPiece')
+    --         unusedTiles[springTile_GUID].sides = springTile.getTable("sides")
+    --         unusedTiles[springTile_GUID].linkedQuadrants = springTile.getTable("linkedQuadrants")
+    --         unusedTiles[springTile_GUID].linkedOctants = springTile.getTable("linkedOctants")
+    --         --unusedTiles[springTile_GUID].specialFeatures = springTile.getTable("specialFeatures")
+    --     end
+    -- end
+    -- if lakeTile_GUID ~= nil then
+    --     local lakeTile = getObjectFromGUID(lakeTile_GUID)
+    --     if lakeTile ~= nil then
+    --         unusedTiles[lakeTile_GUID] = {}
+    --         unusedTiles[lakeTile_GUID].isStartingPiece = lakeTile.getVar('isStartingPiece')
+    --         unusedTiles[lakeTile_GUID].sides = lakeTile.getTable("sides")
+    --         unusedTiles[lakeTile_GUID].linkedQuadrants = lakeTile.getTable("linkedQuadrants")
+    --         unusedTiles[lakeTile_GUID].linkedOctants = lakeTile.getTable("linkedOctants")
+    --         --unusedTiles[tile.guid].specialFeatures = lakeTile.getTable("specialFeatures")
+    --     end
+    -- end
     anchor.setLuaScript("")
 end
 
+--validTileLocations keeps a list of valid tiles in each open position adjacent to at least one tile
+--tileConnectionOdds keeps a list of possible combinations that can be achieved using the current unusedTiles
+
+--AITileAdded is called after addTile has completed. It will
+--remove tiles from adjacent validTileLocations that have been invalidated by the move
+--It will then call AICalculateOdds to recompile the possible odds for those locations
+--For non-adjacent open locations, it will call AIRemoveTileOdds to more quickly recalculate the odds of those
+--locations by removing the connections of that single tile
 function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
-    --print("AITileAdded x:" .. xIndex .. " z:" .. zIndex)
+    --debugMessage(1, "AITileAdded x:" .. xIndex .. " z:" .. zIndex)
     local targetValidTileLocations
     local targetTileConnectionOdds
     if temp then
@@ -101,11 +210,36 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
             tileConnectionOdds[xIndex][zIndex] = nil
         end
     end
-    for x, columns in pairs(validTileLocations) do --iterate through all valid tile lists and remove the added tile
-        for z, tileTiles in pairs(columns) do
-            AIRemoveTileOdds(x, z, addedTile.getGUID(), targetTileConnectionOdds[x][z])
-            if not temp then
-                tileTiles[addedTile.getGUID()] = nil
+    if not temp then
+        tilesRemaining = 0
+        if getObjectFromGUID(tileStack_GUID) ~= nil then
+            tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
+        elseif finalTile_GUID ~= nil then
+            tilesRemaining = 1
+        end
+    end
+    if hasSmartAI == nil then
+        hasSmartAI = false
+        for _, player in ipairs(activePlayers) do
+            if getPlayerOwner(player) == 'AIHard (Beta)' then
+                hasSmartAI = true
+                break
+            end
+        end
+    end
+    if unusedTiles[addedTile.getGUID()] ~= nil then --don't modify the odds if tiles not from the tilestack are added (ie. starting tile)
+        for x, columns in pairs(validTileLocations) do --iterate through all valid tile lists and remove the added tile
+            if temp and tempValidTileLocations[x] == nil then
+                tempValidTileLocations[x] = {}
+            end
+            for z, tileTiles in pairs(columns) do
+                if temp and tempValidTileLocations[x][z] == nil then
+                    tempValidTileLocations[x][z] = table.shallow_copy(validTileLocations[x][z])
+                end
+                AIRemoveTileOdds(x, z, addedTile.getGUID(), targetTileConnectionOdds[x][z])
+                if not temp then
+                    tileTiles[addedTile.getGUID()] = nil
+                end
             end
         end
     end
@@ -122,66 +256,65 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
                 tempValidTileLocations[xIndex + sideDelta.x] = {}
                 tempTileConnectionOdds[xIndex + sideDelta.x] = {}
             end
-            if validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] == nil then --this is a new tile location
-                targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] = {}
-                for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
-                    if validTile_GUID ~= addedTile.getGUID() then
-                        for unusedTileRotation=1, 4 do
-                            if addedTile.getTable('sides')[(3 + side - rotation) % 4 + 1] == unusedTile.sides[(3 + side - unusedTileRotation + TILE_180_ROTATION) % 4 + 1] then
-                                if validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] == nil or validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] == nil then
-                                    targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] = {}
+            if (xIndex + sideDelta.x >= MIN_X and xIndex + sideDelta.x <= MAX_X and zIndex + sideDelta.z >= MIN_Z and zIndex + sideDelta.z <= MAX_Z) then
+                if validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] == nil then --this is a new tile location
+                    targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] = {}
+                    for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
+                        if unusedTile_GUID ~= addedTile.getGUID() then
+                            for unusedTileRotation=1, 4 do
+                                local isValid = true
+                                if addedTile.getTable('sides')[(3 + side - rotation) % 4 + 1] == unusedTile.sides[(3 + side - unusedTileRotation + TILE_180_ROTATION) % 4 + 1] then
+                                    if validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] == nil or validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] == nil then
+                                        targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] = {}
+                                    end
+                                    targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID][unusedTileRotation] = true
                                 end
-                                targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID][unusedTileRotation] = true
                             end
                         end
                     end
-                end
-            else --this tile location already exists. Filter it by the given tile
-                if temp then
-                    tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] = {}
-                end
-                for validTile_GUID, validTileRotations in pairs(validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z]) do
-                    if validTile_GUID ~= addedTile.getGUID() then
-                        local keptOne = false
-                        for validTileRotation, _ in pairs(validTileRotations) do
-                            if addedTile.getTable('sides')[(3 + side - rotation) % 4 + 1] == unusedTiles[validTile_GUID].sides[(3 + side - validTileRotation + TILE_180_ROTATION) % 4 + 1] then
-                                keptOne = true
-                                if temp then
-                                    if tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] == nil then tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] = {} end
-                                    tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID][validTileRotation] = true
+                else --this tile location already exists. Filter it by the given tile
+                    if temp then
+                        tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] = {}
+                    end
+                    for validTile_GUID, validTileRotations in pairs(validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z]) do
+                        if validTile_GUID ~= addedTile.getGUID() then
+                            local keptOne = false
+                            for validTileRotation, _ in pairs(validTileRotations) do
+                                if addedTile.getTable('sides')[(3 + side - rotation) % 4 + 1] == unusedTiles[validTile_GUID].sides[(3 + side - validTileRotation + TILE_180_ROTATION) % 4 + 1] then
+                                    keptOne = true
+                                    if temp then
+                                        if tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] == nil then tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] = {} end
+                                        tempValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID][validTileRotation] = true
+                                    end
+                                elseif not temp then
+                                    validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID][validTileRotation] = nil
                                 end
-                            elseif not temp then
-                                validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID][validTileRotation] = nil
                             end
+                            if (not keptOne) and (not temp) then
+                                validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] = nil
+                            end
+                        else --do not include the tile that was added
+                            targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] = nil
                         end
-                        if (not keptOne) and (not temp) then
-                            validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] = nil
-                        end
-                    else --do not include the tile that was added
-                        targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][validTile_GUID] = nil
                     end
                 end
+                --TODO: Need to add abbey valid moves when all 4 sides are filled in
+                --TODO: Need to invalidate cult tile conflicts
+                targetTileConnectionOdds[xIndex + sideDelta.x][zIndex + sideDelta.z] = AICalculateOdds(xIndex + sideDelta.x, zIndex + sideDelta.z, xIndex, zIndex, temp)
             end
-            --TODO: Need to add abbey valid moves when all 4 sides are filled in
-            --TODO: Need to invalidate cult tile conflicts
-            --TODO: Need to invalidate illegal river moves
-            targetTileConnectionOdds[xIndex + sideDelta.x][zIndex + sideDelta.z] = AICalculateOdds(xIndex + sideDelta.x, zIndex + sideDelta.z, xIndex, zIndex, temp)
         end
     end
 end
 
+--Calculate the possible combinations of connections or lack thereof
+--using the validTileLocations and unusedTiles data structures
 function AICalculateOdds(xIndex, zIndex, addedTileXIndex, addedTileZIndex, temp)
-    --print("calculating odds at x:" .. xIndex .. " z:" .. zIndex)
-    local hasSmartAI = false
-    for _, player in ipairs(activePlayers) do
-        if getPlayerOwner(player) == 'AIHard (Beta)' then
-            hasSmartAI = true
-            break
-        end
-    end
     if not hasSmartAI then return nil end
+    --debugMessage(1, "calculating odds at x:" .. xIndex .. " z:" .. zIndex)
     local connectionOdds = {}
-    connectionOdds["blocked"] = tilesRemaining - 1 --subtract 1 since the current tile should not be included
+    connectionOdds["blocked"] = tilesRemaining
+    connectionOdds["valid"] = 0
+    connectionOdds["totalValid"] = 0
     local validTiles
     if temp and tempValidTileLocations ~= nil and tempValidTileLocations[xIndex] ~= nil and tempValidTileLocations[xIndex][zIndex] ~= nil then
         validTiles = tempValidTileLocations[xIndex][zIndex]
@@ -190,11 +323,7 @@ function AICalculateOdds(xIndex, zIndex, addedTileXIndex, addedTileZIndex, temp)
     end
     for validTile_GUID, validTileRotations in pairs(validTiles) do
         for validTileRotation, _ in pairs(validTileRotations) do
-            if connectionOdds["totalValid"] == nil then
-                connectionOdds["totalValid"] = 1
-            else
-                connectionOdds["totalValid"] = connectionOdds["totalValid"] + 1
-            end
+            connectionOdds["totalValid"] = connectionOdds["totalValid"] + 1
             local visitedFeatures = {}
             for position=1, 12 do
                 local nameOfFeature
@@ -264,21 +393,21 @@ function AICalculateOdds(xIndex, zIndex, addedTileXIndex, addedTileZIndex, temp)
                             links = {{position}}
                         end
                     end
-                    if #connectedFeatures > 0 then
+                    if #connectedFeatures > 1 then
                         local key = ""
-                        if #connectedFeatures == 1 then -- this tile extends only 1 feature
-                            if featureOpenings == 0 then -- this piece closes the feature that is connected
-                                key = "close+" .. connectedFeatures[1]
-                            else -- this piece extends the feature that is connected
-                                key = "extend+" .. connectedFeatures[1]
-                            end
-                        else -- this tile combines more than 1 feature
+                        -- if #connectedFeatures == 1 then -- this tile extends only 1 feature
+                        --     if featureOpenings == 0 then -- this piece closes the feature that is connected
+                        --         key = "close+" .. connectedFeatures[1]
+                        --     else -- this piece extends the feature that is connected
+                        --         key = "extend+" .. connectedFeatures[1]
+                        --     end
+                        -- else -- this tile combines more than 1 feature
                             table.sort(connectedFeatures)
                             for _, featureNum in ipairs(connectedFeatures) do
                                 key = key .. featureNum .. "+"
                             end
                             key = key:sub(1, -2) --get rid of the last plus sign
-                        end
+                        -- end
                         if connectionOdds[key] == nil then
                             connectionOdds[key] = 1
                         else
@@ -289,11 +418,20 @@ function AICalculateOdds(xIndex, zIndex, addedTileXIndex, addedTileZIndex, temp)
             end
         end
         connectionOdds["blocked"] = connectionOdds["blocked"] - 1
+        connectionOdds["valid"] = connectionOdds["valid"] + 1
+    end
+
+    if connectionOdds["blocked"] + connectionOdds["valid"] ~= tilesRemaining then
+        print("ERROR: calculated odds incorrect at x:" .. xIndex .. " z:" .. zIndex .. " blocked:" .. connectionOdds["blocked"] .. " valid:" .. connectionOdds["valid"] .. " remaining:" .. tilesRemaining)
+        debugMessage(1, "ERROR: calculated odds incorrect at x:" .. xIndex .. " z:" .. zIndex .. " blocked:" .. connectionOdds["blocked"] .. " valid:" .. connectionOdds["valid"] .. " remaining:" .. tilesRemaining)
     end
     return connectionOdds
 end
 
+--Modify the connection odds of this position by subtracting the valid connections
+--of the removed tile
 function AIRemoveTileOdds(xIndex, zIndex, removedTile_GUID, connectionOdds)
+    if not hasSmartAI then return nil end
     if validTileLocations[xIndex][zIndex][removedTile_GUID] ~= nil then
         for validTileRotation, _ in pairs(validTileLocations[xIndex][zIndex][removedTile_GUID]) do
             connectionOdds["totalValid"] = connectionOdds["totalValid"] - 1
@@ -366,167 +504,224 @@ function AIRemoveTileOdds(xIndex, zIndex, removedTile_GUID, connectionOdds)
                             links = {{position}}
                         end
                     end
-                    if #connectedFeatures > 0 then
+                    if #connectedFeatures > 1 then
                         local key = ""
-                        if #connectedFeatures == 1 then -- this tile extends only 1 feature
-                            if featureOpenings == 0 then -- this piece closes the feature that is connected
-                                key = "close+" .. connectedFeatures[1]
-                            else -- this piece extends the feature that is connected
-                                key = "extend+" .. connectedFeatures[1]
-                            end
-                        else -- this tile combines more than 1 feature
+                        -- if #connectedFeatures == 1 then -- this tile extends only 1 feature
+                        --     if featureOpenings == 0 then -- this piece closes the feature that is connected
+                        --         key = "close+" .. connectedFeatures[1]
+                        --     else -- this piece extends the feature that is connected
+                        --         key = "extend+" .. connectedFeatures[1]
+                        --     end
+                        -- else -- this tile combines more than 1 feature
                             table.sort(connectedFeatures)
                             for _, featureNum in ipairs(connectedFeatures) do
                                 key = key .. featureNum .. "+"
                             end
                             key = key:sub(1, -2) --get rid of the last plus sign
-                        end
+                        -- end
                         if connectionOdds[key] ~= nil then
                             connectionOdds[key] = connectionOdds[key] - 1
+                            if connectionOdds[key] == 0 then
+                                connectionOdds[key] = nil
+                            end
                         end
                     end
                 end
             end
         end
+        connectionOdds["valid"] = connectionOdds["valid"] - 1
     else
         connectionOdds["blocked"] = connectionOdds["blocked"] - 1
     end
+
+    if connectionOdds["blocked"] + connectionOdds["valid"] ~= tilesRemaining then
+        print("ERROR: removed " .. removedTile_GUID .. " at x:" .. xIndex .. " z:" .. zIndex .. " blocked:" .. connectionOdds["blocked"] .. " valid:" .. connectionOdds["valid"] .. " remaining:" .. tilesRemaining)
+        debugMessage(1, "ERROR: removed " .. removedTile_GUID .. " at x:" .. xIndex .. " z:" .. zIndex .. " blocked:" .. connectionOdds["blocked"] .. " valid:" .. connectionOdds["valid"] .. " remaining:" .. tilesRemaining)
+    end
 end
 
+--AITileRemoved is called after removeTile has completed. It will
+--add tiles to adjacent validTileLocations that have been made once again valid by the move
+--It will then call AICalculateOdds to recompile the possible odds for those locations
+--For non-adjacent open locations, it will call AIAddTileOdds to more quickly recalculate the odds of those
+--locations by removing the connections of that single tile
 function AITileRemoved(xIndex, zIndex, removedTile)
     unusedTiles[removedTile.guid] = {}
     unusedTiles[removedTile.guid].sides = removedTile.getTable("sides")
     unusedTiles[removedTile.guid].linkedQuadrants = removedTile.getTable("linkedQuadrants")
     unusedTiles[removedTile.guid].linkedOctants = removedTile.getTable("linkedOctants")
     --unusedTiles[removedTile.guid].specialFeatures = removedTile.getTable("specialFeatures")
-    for x, columns in pairs(validTileLocations) do --iterate through all valid tile lists and remove the added tile
+    for x, columns in pairs(validTileLocations) do --iterate through all valid tile lists and add the removed tile
         for z, tileTiles in pairs(columns) do
-            -- for unusedTileRotation=1, 4 do
-            --     if addedTile.getTable('sides')[(3 + side - rotation) % 4 + 1] == unusedTile.sides[(3 + side - unusedTileRotation + TILE_180_ROTATION) % 4 + 1] then
-            --         if validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z] == nil or validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] == nil then
-            --             targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] = {}
-            --         end
-            --         targetValidTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID][unusedTileRotation] = true
-            --     end
-            -- end
-            -- if tileTiles[addedTile.getGUID()] ~= nil then
-            --     AIAddTileOdds()
-            --     tileTiles[addedTile.getGUID()] = nil
-            -- end
+            for tileRotation=1, 4 do
+                if isValidTileLocation(removedTile, tileRotation, x, z, false) then
+                    if tileTiles[removedTile.getGUID()] == nil then
+                        tileTiles[removedTile.getGUID()] = {}
+                    end
+                    tileTiles[removedTile.getGUID()][tileRotation] = true
+                end
+            end
+            AIAddTileOdds(x, z, removedTile.getGUID(), tileConnectionOdds[x][z])
+        end
+    end
+
+    validTileLocations[xIndex][zIndex] = {}
+    for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
+        for tileRotation=1, 4 do --rebuild validTileLocations at the location the tile was removed
+            if ((not tileGridOccupied(xIndex + 1, zIndex) or unusedTile.sides[(3 + 4 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid).getTable('sides')[(3 + 4 - tileGrid[xIndex + 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex - 1, zIndex) or unusedTile.sides[(3 + 2 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid).getTable('sides')[(3 + 2 - tileGrid[xIndex - 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex, zIndex + 1) or unusedTile.sides[(3 + 3 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[xIndex][zIndex + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex, zIndex - 1) or unusedTile.sides[(3 + 1 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[xIndex][zIndex - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
+                if validTileLocations[xIndex][zIndex][unusedTile_GUID] == nil then
+                    validTileLocations[xIndex][zIndex][unusedTile_GUID] = {}
+                end
+                validTileLocations[xIndex][zIndex][unusedTile_GUID][tileRotation] = true
+            end
+        end
+    end
+    --rebuild validTileLocations at the locations next to the removed tile
+    for side, sideDelta in ipairs(SIDE_DELTA) do
+        if not tileGridOccupied(xIndex + sideDelta.x, zIndex + sideDelta.z) then
+            local hasNeighbor = false
+            for nested_side, nested_sideDelta in ipairs(SIDE_DELTA) do
+                if tileGridOccupied(xIndex + sideDelta.x + nested_sideDelta.x, zIndex + sideDelta.z + nested_sideDelta.z) then
+                    hasNeighbor = true
+                    break
+                end
+            end
+            if hasNeighbor then
+                for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
+                    if validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] == nil then
+                        validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID] = {}
+                        for unusedTileRotation=1, 4 do
+                            if (unusedTile.sides[(3 + 4 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x + 1][zIndex + sideDelta.z].tile_guid).getTable('sides')[(3 + 4 - tileGrid[xIndex + sideDelta.x + 1][zIndex + sideDelta.z].rotation + TILE_180_ROTATION) % 4 + 1] and
+                                unusedTile.sides[(3 + 2 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x - 1][zIndex + sideDelta.z].tile_guid).getTable('sides')[(3 + 2 - tileGrid[xIndex + sideDelta.x - 1][zIndex + sideDelta.z].rotation + TILE_180_ROTATION) % 4 + 1] and
+                                unusedTile.sides[(3 + 3 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z + 1].rotation + TILE_180_ROTATION) % 4 + 1] and
+                                unusedTile.sides[(3 + 1 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z - 1].rotation + TILE_180_ROTATION) % 4 + 1]) then
+                                validTileLocations[xIndex + sideDelta.x][zIndex + sideDelta.z][unusedTile_GUID][unusedTileRotation] = true
+                            end
+                        end
+                    end
+                end
+            end
         end
     end
 end
 
-function AIAddTileOdds()
-    for validTileRotation, _ in pairs(validTileRotations) do
-        if connectionOdds["totalValid"] == nil then
-            connectionOdds["totalValid"] = 1
-        else
+function AIAddTileOdds(xIndex, zIndex, addedTile_GUID, connectionOdds)
+    if not hasSmartAI then return nil end
+    if validTileLocations[xIndex][zIndex][addedTile_GUID] ~= nil then
+        for validTileRotation, _ in pairs(validTileLocations[xIndex][zIndex][addedTile_GUID]) do
             connectionOdds["totalValid"] = connectionOdds["totalValid"] + 1
-        end
-        local visitedFeatures = {}
-        for position=1, 12 do
-            local nameOfFeature
-            if position < 5 then
-                nameOfFeature = unusedTiles[validTile_GUID].sides[position]
-            else--if position < 13 then
-                nameOfFeature = unusedTiles[validTile_GUID].sides[math.floor((position - 3) / 2)]
-            end
-            if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' or nameOfFeature == 'Abbey') and not visitedFeatures[position] then
-                local connectedFeatures = {}
-                local featureOpenings = 0
-                local links = nil
-
+            local visitedFeatures = {}
+            for position=1, 12 do
+                local nameOfFeature
                 if position < 5 then
-                    links = unusedTiles[validTile_GUID].linkedQuadrants
+                    nameOfFeature = unusedTiles[addedTile_GUID].sides[position]
                 else--if position < 13 then
-                    links = unusedTiles[validTile_GUID].linkedOctants
+                    nameOfFeature = unusedTiles[addedTile_GUID].sides[math.floor((position - 3) / 2)]
                 end
-                local visitedPosition = false
-                while not visitedPosition do
-                    if links ~= nil then
-                        for _, link in ipairs(links) do
-                            --HACK: Because quadrants and octants can't be linked, Abbeys create a scenario where they get different feature numbers.
-                            --The least hacky way I could fix it (without having to redo huge chunks of code) was as follows, in addition to linking all 12 positions to the 13th on the tiles...
-                            if nameOfFeature == 'Abbey' and position < 13 then
-                                link = {1,2,3,4,5,6,7,8,9,10,11,12}
-                            end
-                            if table.contains(link, position) then
-                                visitedPosition = true
-                                for _, nestedPosition in ipairs(link) do
-                                    visitedFeatures[nestedPosition] = true
-                                    if nestedPosition < 13 then
-                                        local connectedTilePosition
-                                        local connectedX, connectedZ
-                                        if nestedPosition < 5 then
-                                            local direction = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                            local sideDirection = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                            connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                            connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                            connectedTilePosition = (3 + nestedPosition + validTileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
-                                        else
-                                            local direction = (3 + nestedPosition + (validTileRotation * 2)) % 8 + 5
-                                            local sideDirection = math.floor(((3 + nestedPosition + (validTileRotation * 2)) % 8 + 5 - 3) / 2)
-                                            connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                            connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                            connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
-                                        end
-                                        if nameOfFeature ~= 'Abbey' then
-                                            if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
-                                                if not table.contains(connectedFeatures, tempFeatureMap[connectedTilePosition]) then
-                                                    table.insert(connectedFeatures, tempFeatureMap[connectedTilePosition])
-                                                end
-                                            elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedTilePosition] ~= nil then
-                                                if not table.contains(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition]) then
-                                                    table.insert(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition])
-                                                end
+                if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' or nameOfFeature == 'Abbey') and not visitedFeatures[position] then
+                    local connectedFeatures = {}
+                    local featureOpenings = 0
+                    local links = nil
+
+                    if position < 5 then
+                        links = unusedTiles[addedTile_GUID].linkedQuadrants
+                    else--if position < 13 then
+                        links = unusedTiles[addedTile_GUID].linkedOctants
+                    end
+                    local visitedPosition = false
+                    while not visitedPosition do
+                        if links ~= nil then
+                            for _, link in ipairs(links) do
+                                --HACK: Because quadrants and octants can't be linked, Abbeys create a scenario where they get different feature numbers.
+                                --The least hacky way I could fix it (without having to redo huge chunks of code) was as follows, in addition to linking all 12 positions to the 13th on the tiles...
+                                if nameOfFeature == 'Abbey' and position < 13 then
+                                    link = {1,2,3,4,5,6,7,8,9,10,11,12}
+                                end
+                                if table.contains(link, position) then
+                                    visitedPosition = true
+                                    for _, nestedPosition in ipairs(link) do
+                                        visitedFeatures[nestedPosition] = true
+                                        if nestedPosition < 13 then
+                                            local connectedTilePosition
+                                            local connectedX, connectedZ
+                                            if nestedPosition < 5 then
+                                                local direction = (3 + nestedPosition + validTileRotation) % 4 + 1
+                                                local sideDirection = (3 + nestedPosition + validTileRotation) % 4 + 1
+                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
+                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+                                                connectedTilePosition = (3 + nestedPosition + validTileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
                                             else
-                                                featureOpenings = featureOpenings + 1
+                                                local direction = (3 + nestedPosition + (validTileRotation * 2)) % 8 + 5
+                                                local sideDirection = math.floor(((3 + nestedPosition + (validTileRotation * 2)) % 8 + 5 - 3) / 2)
+                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
+                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+                                                connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
+                                            end
+                                            if nameOfFeature ~= 'Abbey' then
+                                                if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
+                                                    if not table.contains(connectedFeatures, tempFeatureMap[connectedTilePosition]) then
+                                                        table.insert(connectedFeatures, tempFeatureMap[connectedTilePosition])
+                                                    end
+                                                elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedTilePosition] ~= nil then
+                                                    if not table.contains(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition]) then
+                                                        table.insert(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition])
+                                                    end
+                                                else
+                                                    featureOpenings = featureOpenings + 1
+                                                end
                                             end
                                         end
                                     end
                                 end
                             end
                         end
-                    end
-                    if not visitedPosition then
-                        links = {{position}}
-                    end
-                end
-                if #connectedFeatures > 0 then
-                    local key = ""
-                    if #connectedFeatures == 1 then -- this tile extends only 1 feature
-                        if featureOpenings == 0 then -- this piece closes the feature that is connected
-                            key = "close+" .. connectedFeatures[1]
-                        else -- this piece extends the feature that is connected
-                            key = "extend+" .. connectedFeatures[1]
+                        if not visitedPosition then
+                            links = {{position}}
                         end
-                    else -- this tile combines more than 1 feature
-                        table.sort(connectedFeatures)
-                        for _, featureNum in ipairs(connectedFeatures) do
-                            key = key .. featureNum .. "+"
-                        end
-                        key = key:sub(1, -2) --get rid of the last plus sign
                     end
-                    if connectionOdds[key] == nil then
-                        connectionOdds[key] = 1
-                    else
-                        connectionOdds[key] = connectionOdds[key] + 1
+                    if #connectedFeatures > 1 then
+                        local key = ""
+                        -- if #connectedFeatures == 1 then -- this tile extends only 1 feature
+                        --     if featureOpenings == 0 then -- this piece closes the feature that is connected
+                        --         key = "close+" .. connectedFeatures[1]
+                        --     else -- this piece extends the feature that is connected
+                        --         key = "extend+" .. connectedFeatures[1]
+                        --     end
+                        -- else -- this tile combines more than 1 feature
+                            table.sort(connectedFeatures)
+                            for _, featureNum in ipairs(connectedFeatures) do
+                                key = key .. featureNum .. "+"
+                            end
+                            key = key:sub(1, -2) --get rid of the last plus sign
+                        -- end
+                        if connectionOdds[key] ~= nil then
+                            connectionOdds[key] = connectionOdds[key] + 1
+                            if connectionOdds[key] == 0 then
+                                connectionOdds[key] = nil
+                            end
+                        end
                     end
                 end
             end
         end
+        connectionOdds["valid"] = connectionOdds["valid"] + 1
+    else
+        connectionOdds["blocked"] = connectionOdds["blocked"] + 1
     end
-    connectionOdds["blocked"] = connectionOdds["blocked"] - 1
 end
 
 function AIChooseTileLocation()
     --debugMessage(2, "AI choosing tile location...")
     lastFrameTime = os.clock()
     local newTile = nil
+    local isRiverPiece = false
     local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
     if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
         if forkTile_GUID ~= nil and getObjectFromGUID(forkTile_GUID) ~= nil then
+            isRiverPiece = true
             newTile = getObjectFromGUID(forkTile_GUID)
             if AI_DRAW_TILE_TO_HAND then
                 newTile.setPositionSmooth(handPosition)
@@ -534,6 +729,7 @@ function AIChooseTileLocation()
                 dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
             end
         elseif riverBodyTiles_GUID ~= nil and getObjectFromGUID(riverBodyTiles_GUID) ~= nil then
+            isRiverPiece = true
             local riverStack = getObjectFromGUID(riverBodyTiles_GUID)
             if riverStack ~= nil then
                 if AI_DRAW_TILE_TO_HAND then
@@ -543,6 +739,7 @@ function AIChooseTileLocation()
                 end
             end
         elseif finalRiverTile_GUID ~= nil and getObjectFromGUID(finalRiverTile_GUID) ~= nil then
+            isRiverPiece = true
             newTile = getObjectFromGUID(finalRiverTile_GUID)
             if AI_DRAW_TILE_TO_HAND then
                 newTile.setPositionSmooth(handPosition)
@@ -550,6 +747,7 @@ function AIChooseTileLocation()
                 dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
             end
         elseif springTile_GUID ~= nil and getObjectFromGUID(springTile_GUID) ~= nil then
+            isRiverPiece = true
             newTile = getObjectFromGUID(springTile_GUID)
             if AI_DRAW_TILE_TO_HAND then
                 newTile.setPositionSmooth(handPosition)
@@ -557,6 +755,7 @@ function AIChooseTileLocation()
                 dealInFrontOfHand(newTile, handColor[activePlayers[currentPlayer]], false)
             end
         elseif lakeTile_GUID ~= nil and getObjectFromGUID(lakeTile_GUID) ~= nil then
+            isRiverPiece = true
             newTile = getObjectFromGUID(lakeTile_GUID)
             if AI_DRAW_TILE_TO_HAND then
                 newTile.setPositionSmooth(handPosition)
@@ -596,12 +795,13 @@ function AIChooseTileLocation()
 
     tilesRemaining = 0
     if getObjectFromGUID(tileStack_GUID) ~= nil then
-        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity() + 1
+        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
     elseif finalTile_GUID ~= nil then
         tilesRemaining = 1
     end
-    numRemainingMoves = math.floor(tilesRemaining + 1 / #activePlayers)
+    numRemainingMoves = math.floor(tilesRemaining / #activePlayers) --since the currently drawn tile isn't included, we'll need to add one on some calculations
 
+    tilesRemaining = tilesRemaining + 1 --baseline scores should take into account the drawn tile
     local CalculateLocationScoreFunction
     if getPlayerOwner(activePlayers[currentPlayer]) == "AIEasy" then
         CalculateLocationScoreFunction = AICalculateLocationScoreEasy
@@ -610,24 +810,48 @@ function AIChooseTileLocation()
         CalculateLocationScoreFunction = AICalculateTileLocationScore
         AICalculateBaselineScores()
     end
+    tilesRemaining = tilesRemaining - 1
 
     lastDrawnTile_GUID = newTile.getGUID()
     coroutine.yield(0)
 
     if startingTile_GUID ~= nil then
-        for x, tileColumn in pairs(validTileLocations) do
-            for z, tileTiles in pairs(tileColumn) do
-                if tileTiles[newTile.getGUID()] ~= nil then
-                    for tileRotation, _ in pairs(tileTiles[newTile.getGUID()]) do
-                        CalculateLocationScoreFunction(newTile, tileRotation, x, z)
+        if isRiverPiece then
+            local tileConfigurations = {}
+            for x, tileColumn in pairs(tileGrid) do
+                for z, tileLocation in pairs(tileColumn) do
+                    for side, sideDelta in pairs(SIDE_DELTA) do
+                        if not tileGridOccupied(x + sideDelta.x, z + sideDelta.z) then
+                            if tileConfigurations[x + sideDelta.x] == nil then
+                                tileConfigurations[x + sideDelta.x] = {}
+                            end
+                            if tileConfigurations[x + sideDelta.x][z + sideDelta.z] == nil then
+                                tileConfigurations[x + sideDelta.x][z + sideDelta.z] = true
+                                for tileRotation=1, 4 do
+                                    if isValidTileLocation(newTile, tileRotation, x + sideDelta.x, z + sideDelta.z, false) then
+                                        CalculateLocationScoreFunction(newTile, tileRotation, x + sideDelta.x, z + sideDelta.z)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            for x, tileColumn in pairs(validTileLocations) do
+                for z, tileTiles in pairs(tileColumn) do
+                    if tileTiles[newTile.getGUID()] ~= nil then
+                        for tileRotation, _ in pairs(tileTiles[newTile.getGUID()]) do
+                            CalculateLocationScoreFunction(newTile, tileRotation, x, z)
+                        end
                     end
                 end
             end
         end
     else
-        highestScoreX = 20
-        highestScoreZ = 20
-        highestScoreRot = 4
+        highestScoreX = MIDDLE_X_OFFSET
+        highestScoreZ = MIDDLE_Z_OFFSET
+        highestScoreRot = TILE_STANDARD_ROTATION
     end
 
     local posText = highestScorePos
@@ -636,7 +860,10 @@ function AIChooseTileLocation()
     if highestScoreFigure == nil then figureText = "None" end
     if highestScoreX ~= nil then
         debugMessage(1, "highest score: " .. highestScore .. " at x:" .. highestScoreX .. " z:" .. highestScoreZ .. " rot:" .. highestScoreRot .. " pos:" .. posText .. " figure: " .. figureText)
-        print("Calculation complete in: " .. os.clock() - calculationStart .. " seconds.")
+        debugMessage(1, "Calculation complete in: " .. os.clock() - calculationStart .. " seconds.")
+        if highestScore > 40 then
+            --allGameMessage(getPlayerOwner(activePlayers[currentPlayer]) .. ": " .. RGBToBracketedHex(WHITE_COLOR) .. "Hehehehe...", player_color_tints[activePlayers[currentPlayer]])
+        end
         AIMoveTileToLocation(newTile, highestScoreX, highestScoreZ, highestScoreRot)
     else
         allGameMessage("AI could not find a location for the tile. It will be reshuffled into the tile stack, and a new tile drawn.", NEUTRAL_COLOR, nil)
@@ -674,7 +901,7 @@ function AICalculateBaselineScoresEasy()
     --     if figures.specialFigures ~= nil then
     --         numFigures = #figures.specialFigures
     --     end
-    --     print("feature " .. featureNum .. " has " .. numFollowers .. " followers, " .. numFigures .. " special figures.")
+    --     debugMessage(1, "feature " .. featureNum .. " has " .. numFollowers .. " followers, " .. numFigures .. " special figures.")
     -- end
 
     --since we haven't joined any features yet, the currently active figures can be used
@@ -764,19 +991,19 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
     for _, player in ipairs(activePlayers) do
         scoreChange[player] = activeScores[player] - baselineScores[player]
         spareFollowerCounts[player] = followerCountChange[player] + baselineFollowerCounts[player]
-        --print(player .. " score of " .. baselineScores[player] .. " changed to " .. activeScores[player] .. " difference of " .. scoreChange[player])
-        --print(player .. " spare followers: " .. baselineFollowerCounts[player] .. " changed to " .. spareFollowerCounts[player] .. " difference of " .. followerCountChange[player])
+        --debugMessage(1, player .. " score of " .. baselineScores[player] .. " changed to " .. activeScores[player] .. " difference of " .. scoreChange[player])
+        --debugMessage(1, player .. " spare followers: " .. baselineFollowerCounts[player] .. " changed to " .. spareFollowerCounts[player] .. " difference of " .. followerCountChange[player])
     end
     for _, player in ipairs(activePlayers) do
         if player == activePlayers[currentPlayer] then
             moveScore = moveScore + scoreChange[player] + followerCountChange[player] * USED_FOLLOWER_PENALTY
-            --print("score change of " .. scoreChange[player] .. " follower adjusted by " .. followerCountChange[player] * USED_FOLLOWER_PENALTY .. " final move score: " .. moveScore)
+            --debugMessage(1, "score change of " .. scoreChange[player] .. " follower adjusted by " .. followerCountChange[player] * USED_FOLLOWER_PENALTY .. " final move score: " .. moveScore)
         elseif #activePlayers <= 2 then
             moveScore = moveScore - scoreChange[player] - followerCountChange[player] * USED_FOLLOWER_PENALTY
         elseif activeScores[activePlayers[currentPlayer]] - activeScores[player] < SCORE_THREAT_THRESHOLD then
             -- if this opponent is SCORE_THREAT_THRESHOLD points behind (after this move), then we don't care about their score change
             moveScore = moveScore - (scoreChange[player] * (SCORE_THREAT_THRESHOLD - (activeScores[activePlayers[currentPlayer]] + followerCountChange[player] * USED_FOLLOWER_PENALTY) + activeScores[player]) / SCORE_THREAT_THRESHOLD) / (#activePlayers - 1)
-            --print(player .. ":subtract score of " .. scoreChange[player] * (SCORE_THREAT_THRESHOLD - (activeScores[activePlayers[currentPlayer]] + followerCountChange[player] * USED_FOLLOWER_PENALTY)) .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
+            --debugMessage(1, player .. ":subtract score of " .. scoreChange[player] * (SCORE_THREAT_THRESHOLD - (activeScores[activePlayers[currentPlayer]] + followerCountChange[player] * USED_FOLLOWER_PENALTY)) .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
         end
     end
 
@@ -825,7 +1052,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
             local featureScore, featureOpenings, nameOfFeature = AICalculateFeatureScoreEasy(featureNum, featureFigures)
             local score
 
-            if numRemainingMoves > spareFollowerCounts[activePlayers[currentPlayer]] and (featureOpenings > 0 or nameOfFeature == 'Field') then
+            if numRemainingMoves + 1 > spareFollowerCounts[activePlayers[currentPlayer]] and (featureOpenings > 0 or nameOfFeature == 'Field') then
                 score = featureScore + moveScore + spareFollowerAdjustment
                 if nameOfFeature ~= 'Field' and nameOfFeature ~= 'Cloister' then
                     score = score - featureOpenings * OPEN_FEATURE_PENALTY
@@ -856,7 +1083,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                         end
                     end
                 end
-                if not fieldHasBarn and (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]]['Big Follower']) and (numRemainingMoves <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
+                if not fieldHasBarn and (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]]['Big Follower']) and (numRemainingMoves + 1 <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
                     if score == highestScore then
                         --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                         numIdenticalScore = numIdenticalScore + 1
@@ -1398,8 +1625,9 @@ function AICalculateFeatureScoreEasy(featureNum, figures)
     return score, featureOpenings, nameOfFeature
 end
 
---initialize this so it will compile correctly
+--get the base score at the beginning of the turn
 function AICalculateBaselineScores()
+    debugMessage(1, "AICalculateBaselineScores")
     highestScore = -999
     highestScoreX = nil
     highestScoreZ = nil
@@ -1408,19 +1636,15 @@ function AICalculateBaselineScores()
     highestScoreFigure = nil
     numIdenticalScore = 1
 
-    getActiveFigures()
+    tempLinkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
+    tempValidTileLocations = {}
+    tempTileConnectionOdds = {}
+    tempFeatureMap = {}
+    tempFeatureIndex = featureIndex
+    tempFeatureList = {}
+    tempJoinedFeature = {}
 
-    -- for featureNum, figures in pairs(activeFigures) do
-    --     local numFollowers = 0
-    --     local numFigures = 0
-    --     if figures.followers ~= nil then
-    --         numFollowers = #figures.followers
-    --     end
-    --     if figures.specialFigures ~= nil then
-    --         numFigures = #figures.specialFigures
-    --     end
-    --     print("feature " .. featureNum .. " has " .. numFollowers .. " followers, " .. numFigures .. " special figures.")
-    -- end
+    getActiveFigures()
 
     --since we haven't joined any features yet, the currently active figures can be used
     joinedActiveFigures = {}
@@ -1437,7 +1661,7 @@ function AICalculateBaselineScores()
             table.insert(joinedActiveFigures[featureNum].followers, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner'), tile_guid=tileGrid[followerXIndex][followerZIndex].tile_guid})
         end
         for _, figure in ipairs(figureList.specialFigures) do
-            table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner')})
+            table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName=figure.getVar('figureName'), owner=figure.getVar('owner')})
         end
     end
     tempFeatureList = featureList
@@ -1446,6 +1670,9 @@ function AICalculateBaselineScores()
     tokenCounts = {}
     for _, tradeGoodType in ipairs(TRADE_GOOD_TYPES) do
         tokenCounts[tradeGoodType] = {}
+        for _, player in ipairs(activePlayers) do
+            tokenCounts[tradeGoodType][player] = 0
+        end
     end
     if controlPanelSettings['TnBTradeGoods'] then
         for _, player in ipairs(activePlayers) do
@@ -1455,11 +1682,7 @@ function AICalculateBaselineScores()
                 if table.contains(TRADE_GOOD_TYPES, tokenName) then
                     local quantity = obj.getQuantity()
                     if quantity == -1 then quantity = 1 end
-                    if tokenCounts[tokenName][player] == nil then
-                        tokenCounts[tokenName][player] = quantity
-                    else
-                        tokenCounts[tokenName][player] = tokenCounts[tokenName][player] + quantity
-                    end
+                    tokenCounts[tokenName][player] = tokenCounts[tokenName][player] + quantity
                 end
             end
         end
@@ -1468,10 +1691,10 @@ function AICalculateBaselineScores()
     AICalculateActiveScores()
 
     baselineScores = {}
-    --debugMessage(1, "baseline scores:")
+    debugMessage(1, "baseline scores:")
     for _, player in ipairs(activePlayers) do
         baselineScores[player] = activeScores[player]
-        --debugMessage(1, " " .. player .. ": " .. baselineScores[player])
+        debugMessage(1, " " .. player .. ": " .. baselineScores[player])
     end
 end
 
@@ -1501,18 +1724,18 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
             table.insert(joinedActiveFigures[featureNum].followers, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner'), tile_guid=tileGrid[followerXIndex][followerZIndex].tile_guid})
         end
         for _, figure in ipairs(figureList.specialFigures) do
-            table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner')})
+            table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName=figure.getVar('figureName'), owner=figure.getVar('owner')})
         end
     end
     AICalculateActiveScores(xIndex, zIndex)
-    local moveScore = AICalculateCurrentPlayerScoreBenefit(scoreChange)
-    print("moveScore:" .. moveScore)
+    local moveScore = AICalculateCurrentPlayerScoreBenefit()
+    debugMessage(1, "moveScore:" .. moveScore)
 
     local currentPlayerSpareFollowers = currentPlayerFollowerCountChange + baselineFollowerCounts[activePlayers[currentPlayer]]
 
     local highestUnusedFeature = 0
     local spareFollowerAdjustment
-    if numRemainingMoves <= currentPlayerSpareFollowers then
+    if numRemainingMoves + 1 <= currentPlayerSpareFollowers then
         spareFollowerAdjustment = 0
     else
         spareFollowerAdjustment = (-7 * USED_FOLLOWER_PENALTY) + (currentPlayerSpareFollowers * USED_FOLLOWER_PENALTY) - FOLLOWER_SCORE_THRESHOLD
@@ -1616,11 +1839,11 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     if baselineFollowerCounts[activePlayers[currentPlayer]] > 0 then
                         table.insert(joinedActiveFigures[featureNum].followers, {figureName="Follower", owner=activePlayers[currentPlayer], tile_guid=newTile.getGUID()})
                         AICalculateActiveScores(xIndex, zIndex)
-                        local followerScore = AICalculateCurrentPlayerScoreBenefit(scoreChange)
+                        local followerScore = AICalculateCurrentPlayerScoreBenefit()
                         if featureOpenings > 0 or nameOfFeature == 'Field' then
                             followerScore = followerScore + spareFollowerAdjustment
                         end
-                        print("followerScore at feature " .. featureNum .. ":" .. followerScore)
+                        debugMessage(1, "followerScore at feature " .. featureNum .. ":" .. followerScore)
                         if followerScore == highestScore then
                             --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                             numIdenticalScore = numIdenticalScore + 1
@@ -1644,11 +1867,11 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     if baselineFigures[activePlayers[currentPlayer]]['Big Follower'] then
                         table.insert(joinedActiveFigures[featureNum].followers, {figureName="Big Follower", owner=activePlayers[currentPlayer], tile_guid=newTile.getGUID()})
                         AICalculateActiveScores(xIndex, zIndex)
-                        local followerScore = AICalculateCurrentPlayerScoreBenefit(scoreChange)
+                        local followerScore = AICalculateCurrentPlayerScoreBenefit()
                         if featureOpenings > 0 then
                             followerScore = followerScore + spareFollowerAdjustment
                         end
-                        print("bigFollowerScore at feature " .. featureNum .. ":" .. followerScore)
+                        debugMessage(1, "bigFollowerScore at feature " .. featureNum .. ":" .. followerScore)
                         if followerScore == highestScore then
                             --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                             numIdenticalScore = numIdenticalScore + 1
@@ -1679,8 +1902,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
             elseif playerHasFollower and nameOfFeature == 'Field' and baselineFigures[activePlayers[currentPlayer]]['Pig'] then
                 table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName="Pig", owner=activePlayers[currentPlayer], tile_guid=newTile.getGUID()})
                 AICalculateActiveScores(xIndex, zIndex)
-                local pigScore = AICalculateCurrentPlayerScoreBenefit(scoreChange)
-                print("pigScore at feature " .. featureNum .. ":" .. followerScore)
+                local pigScore = AICalculateCurrentPlayerScoreBenefit()
+                debugMessage(1, "pigScore at feature " .. featureNum .. ":" .. pigScore)
                 if pigScore > highestScore then
                     --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                     --debugMessage(1, "moveScore:".. moveScore .. " spareFollowerAdjustment:" .. spareFollowerAdjustment .. " openFeaturePenalty:" .. featureOpenings * OPEN_FEATURE_PENALTY .. " featureScore:" .. featureScore)
@@ -1700,7 +1923,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     --debugMessage(1, "found identical builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                     numIdenticalScore = numIdenticalScore + 1
                 end
-                print("builderScore at feature " .. featureNum .. ":" .. followerScore)
+                debugMessage(1, "builderScore at feature " .. featureNum .. ":" .. builderScore)
                 if builderScore > highestScore or (math.random(numIdenticalScore) == 1 and builderScore == highestScore) then -- this is to lessen the bias towards one side of the play area
                     --debugMessage(1, "found new best builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                     if builderScore > highestScore then
@@ -1796,7 +2019,7 @@ function AICalculateActiveScores(newXIndex, newZIndex)
                             if specialFigure.figureName == 'Shepherd' then
                                 --TODO: implement
                             elseif specialFigure.figureName == 'Builder' and not hasAlreadyTakenBuilderTile then
-                                activeScores[activePlayers[currentPlayer]] = activeScores[activePlayers[currentPlayer]] + 1
+                                activeScores[activePlayers[currentPlayer]] = activeScores[activePlayers[currentPlayer]] + BUILDER_EXTRA_TURN_VALUE
                             end
                         end
                     end
@@ -1860,9 +2083,9 @@ function AICalculateActiveScores(newXIndex, newZIndex)
                 for _, player in ipairs(activePlayers) do
                     if tokenCount[player] == highestNumTokens and highestNumTokens - secondHighestTokens <= numRemainingTokens then -- the player is guaranteed to win
                         activeScores[player] = activeScores[player] + 10
-                    elseif highestNumTokens == tokenCounts[player] then -- the player is ahead, but another player can still catch up
+                    elseif highestNumTokens == tokenCount[player] then -- the player is ahead, but another player can still catch up
                         activeScores[player] = activeScores[player] + 10 --i don't know how to calculate this yet
-                    elseif highestNumTokens - tokenCounts[player] <= numRemainingTokens then -- the player is behind, but still has a chance to catch up
+                    elseif highestNumTokens - tokenCount[player] <= numRemainingTokens then -- the player is behind, but still has a chance to catch up
                         activeScores[player] = activeScores[player] + 10 / (numRemainingTokens + 1) --not sure how to calculate this yet
                     end
                 end
@@ -1887,13 +2110,15 @@ function AICalculateActiveScores(newXIndex, newZIndex)
 
         for _, player in ipairs(activePlayers) do
             activeScores[player] = activeScores[player] + featureScore[player]
+            if featureScore[player] ~= 0 and ((newXIndex == 20 and newZIndex == 10) or newXIndex == nil) then
+                debugMessage(1, "player: " .. player .. "feature:" .. featureNum .. " score:" .. featureScore[player])
+            end
         end
     end
 end
 
 function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, specialFeatures, featureOpenings, openingCoords, numTiles, featureLocation, featureFigures)
     --debugMessage(3, "AICalculateFeatureScore")
-
     local featureScore = {}
     for _, player in ipairs(activePlayers) do
         featureScore[player] = 0
@@ -1920,10 +2145,21 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
                     connectionOdds = tileConnectionOdds[x][z]
                 end
                 if connectionOdds ~= nil then --if it is still nil, this is probably a "proximity feature" that doesn't have neighbors yet
-                    if connectionOdds["blocked"] > tilesRemaining then
-                        print("ERROR: x:" .. x .. " z:" .. z .. " blocked:" .. connectionOdds["blocked"] .. " remaining:" .. tilesRemaining)
+                    local numCards
+                    if NUMBER_OF_DRAWN_TILES_FOR_BLOCK_PERCENTAGE < numRemainingMoves then
+                        numCards = NUMBER_OF_DRAWN_TILES_FOR_BLOCK_PERCENTAGE
+                    else
+                        numCards = numRemainingMoves
                     end
-                    blockPercentage = 1 - ((1 - blockPercentage) * (1 - (connectionOdds["blocked"] / tilesRemaining) ^ BLOCK_PERCENTAGE_POWER_MODIFIER))
+                    if connectionOdds["blocked"] > tilesRemaining then
+                        print("ERROR:x:" .. x .. " z:" .. z .. " block%:" .. blockPercentage .. " blockOdds:" .. connectionOdds["blocked"] .. " tilesRemaining:" .. tilesRemaining)
+                        debugMessage(1, "ERROR:x:" .. x .. " z:" .. z .. " block%:" .. blockPercentage .. " blockOdds:" .. connectionOdds["blocked"] .. " tilesRemaining:" .. tilesRemaining)
+                        blockPercentage = 1
+                    elseif tilesRemaining == 0 then
+                        blockPercentage = 1
+                    else
+                        blockPercentage = 1 - ((1 - blockPercentage) * (1 - (connectionOdds["blocked"] / tilesRemaining) ^ numCards))
+                    end
                     if #featureFigures.followers ~= 0 then -- don't use neighbors if we are just checking for the unused value
                         for connectionStat, odds in pairs(connectionOdds) do
                             local features = string.split(connectionStat, "+")
@@ -1935,8 +2171,7 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
                                 end
                             end
                             if featureNumPresent then
-                                --print(connectionStat)
-                                if connectionStat ~= "close+" .. featureNum and connectionStat ~= "extend+" .. featureNum then
+                                -- if connectionStat ~= "close+" .. featureNum and connectionStat ~= "extend+" .. featureNum then
                                     local joinedFeatureFigures = {}
                                     joinedFeatureFigures.followers = {}
                                     joinedFeatureFigures.specialFigures = {}
@@ -1955,11 +2190,15 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
 
                                             local joinedFeature = tempFeatureList[joinedFeatureNum]
                                             if joinedFeature == nil then joinedFeature = featureList[joinedFeatureNum] end
-                                            for _,v in ipairs(joinedFeature.specialFeatures) do table.insert(joinedSpecialFeatures, v) end
-                                            for k,v in pairs(joinedFeature.openingCoords) do joinedOpeningCoords[k] = v end
+                                            if joinedFeature ~= nil then
+                                                for _,v in ipairs(joinedFeature.specialFeatures) do table.insert(joinedSpecialFeatures, v) end
+                                                for k,v in pairs(joinedFeature.openingCoords) do joinedOpeningCoords[k] = v end
 
-                                            joinedNumTiles = joinedNumTiles + joinedFeature.numTiles
-                                            joinedOpenings = joinedOpenings + joinedFeature.openings - 1
+                                                joinedNumTiles = joinedNumTiles + joinedFeature.numTiles --worth noting that this will inflate the value of features which re-use the same tile. No easy way to fix this, but I don't think it will make a huge difference.
+                                                joinedOpenings = joinedOpenings + joinedFeature.openings - 1
+                                            else
+                                                print("ERROR: featureNum " .. joinedFeatureNum .. " does not exist! connectionStat:" .. connectionStat .. " Please report this to the dev.")
+                                            end
                                         end
                                     end
                                     local joinedFeatureBeforeFiguresScore = AICalculateFeatureScore(traversedOpenings, joinedFeatureNums, nameOfFeature, joinedSpecialFeatures, joinedOpenings, joinedOpeningCoords, joinedNumTiles, nil, joinedFeatureFigures)
@@ -1975,14 +2214,14 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
                                         --     joinedFeatureScoreDifference = joinedFeatureScore[player] - joinedFeatureBeforeFiguresScore
                                         end
                                         if joinedFeatureScoreDifference ~= 0 then
-                                            featureScore[player] = joinedFeatureScoreDifference * odds / connectionOdds["totalValid"]
+                                            featureScore[player] = joinedFeatureScoreDifference * odds / connectionOdds["totalValid"] / #activePlayers
                                             noScoreChange = false
                                         end
                                     end
                                     if not noScoreChange then
-                                        joinPercentage = 1 - ((1 - joinPercentage) * (1 - (odds / connectionOdds["totalValid"])))
+                                        joinPercentage = 1 - ((1 - joinPercentage) * (1 - (odds / connectionOdds["totalValid"] / #activePlayers)))
                                     end
-                                end
+                                -- end
                             end
                         end
                     end
@@ -2113,15 +2352,7 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
         if containsPigHerd and #featureFigures.followers > 0 then -- CAR pg 67 ref 194
             scoreMultiplier = scoreMultiplier + 1
         end
-        -- if tilesRemaining > END_GAME_TRANSITION * 2 then
-        --     scoreMultiplier = scoreMultiplier - 2
-        -- else
-        --     scoreMultiplier = scoreMultiplier - (tilesRemaining / END_GAME_TRANSITION)
-        -- end
         score = (numCities * scoreMultiplier)
-        -- if tilesRemaining > END_GAME_TRANSITION then
-        --     score = score - FIELD_PENALTY
-        -- end
     elseif nameOfFeature == 'Road' and not controlPanelSettings['BaseDisableRoads'] then
         score = numTiles
         local containsInn = false
@@ -2148,17 +2379,44 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
         score = 1
         for x=-1, 1 do
             for z=-1, 1 do
-                if not (x == 0 and z == 0) and tileGridOccupied(featureLocation.x + x, featureLocation.z + z) then
-                    score = score + 1
-                    if controlPanelSettings['HnSVineyards'] then
-                        local specialFeatures = getObjectFromGUID(tileGrid[featureLocation.x + x][featureLocation.z + z].tile_guid).getTable('specialFeatures')
-                        if specialFeatures ~= nil then
-                            for _, feature in ipairs(specialFeatures) do
-                                if feature == 'Vineyard' then
-                                    if featureComplete then
-                                        score = score + 3
-                                    elseif numRemainingMoves > featureOpenings then
-                                        score = score + 3 * (1 - blockPercentage)
+                if not (x == 0 and z == 0) then
+                    if tileGridOccupied(featureLocation.x + x, featureLocation.z + z) then
+                        score = score + 1
+                        if controlPanelSettings['HnSVineyards'] then
+                            local specialFeatures = getObjectFromGUID(tileGrid[featureLocation.x + x][featureLocation.z + z].tile_guid).getTable('specialFeatures')
+                            if specialFeatures ~= nil then
+                                for _, feature in ipairs(specialFeatures) do
+                                    if feature == 'Vineyard' then
+                                        if featureComplete then
+                                            score = score + 3
+                                        elseif numRemainingMoves > featureOpenings then
+                                            score = score + 3 * (1 - blockPercentage)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    else
+                        local connectionOdds = nil
+                        if tempTileConnectionOdds ~= nil and tempTileConnectionOdds[featureLocation.x + x] ~= nil and tempTileConnectionOdds[featureLocation.x + x][featureLocation.z + z] ~= nil then
+                            connectionOdds = tempTileConnectionOdds[featureLocation.x + x][featureLocation.z + z]
+                        elseif tileConnectionOdds[featureLocation.x + x] ~= nil and tileConnectionOdds[featureLocation.x + x][featureLocation.z + z] ~= nil then
+                            connectionOdds = tileConnectionOdds[featureLocation.x + x][featureLocation.z + z]
+                        end
+                        if connectionOdds ~= nil then
+                            local extendingFeatures = {}
+                            for connectionStat, odds in pairs(connectionOdds) do
+                                local features = string.split(connectionStat, "+")
+                                local featureNumPresent = false
+                                for _, value in ipairs(features) do
+                                    if value ~= "close" and value ~= "extend" and value ~= "blocked" and value ~= "totalValid" then
+                                        if extendingFeatures[value] == nil then
+                                            if joinedActiveFigures[value] ~= nil and #joinedActiveFigures[value].followers > 0 then
+                                                score = score + 0.3
+                                                break
+                                            end
+                                            extendingFeatures[value] = true
+                                        end
                                     end
                                 end
                             end
@@ -2241,14 +2499,17 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
                 currentPlayerFollowerCountChange = currentPlayerFollowerCountChange + 1
             end
         end
-        if numRemainingMoves > baselineFollowerCounts[follower.owner] and (featureOpenings > 0 or nameOfFeature == 'Field') then
-            local movesWithoutFollowers = numRemainingMoves - baselineFollowerCounts[follower.owner]
+        if numRemainingMoves + 1 > baselineFollowerCounts[follower.owner] and (featureOpenings > 0 or nameOfFeature == 'Field') then
+            local movesWithoutFollowers = numRemainingMoves + 1 - baselineFollowerCounts[follower.owner]
             local blockPenalty = STUCK_FOLLOWER_PENALTY * movesWithoutFollowers
+            if follower.figureName == 'Big Follower' then
+                blockPenalty = STUCK_BIG_FOLLOWER_PENALTY * movesWithoutFollowers
+            end
             if nameOfFeature ~= 'Field' then
-                blockPenalty = blockPenalty * blockPercentage
+                blockPenalty = blockPenalty * blockPercentage ^ BLOCK_PERCENTAGE_POWER_MODIFIER
             end
             score = score - blockPenalty
-            --print("score:" .. score .. " blockPenalty:" .. blockPenalty .. " blockPercentage:" .. blockPercentage)
+            --debugMessage(1, "score:" .. score .. " blockPenalty:" .. blockPenalty .. " blockPercentage:" .. blockPercentage)
         end
         local weight = 0
         if follower.figureName == 'Follower' or follower.figureName == 'Wagon' or follower.figureName == 'Abbot' then weight = 1
@@ -2274,6 +2535,16 @@ function AICalculateFeatureScore(traversedOpenings, featureNums, nameOfFeature, 
             followerCounts[follower.owner] = weight
         else
             followerCounts[follower.owner] = followerCounts[follower.owner] + weight
+        end
+    end
+    --add extra penalty for special figures that are stuck
+    for _, specialFigure in ipairs(featureFigures.specialFigures) do
+        if featureOpenings > 0 then
+            local movesWithoutFigure = numRemainingMoves
+            local blockPenalty = STUCK_BUILDER_PENALTY * movesWithoutFigure
+            blockPenalty = blockPenalty * blockPercentage ^ BLOCK_PERCENTAGE_POWER_MODIFIER
+            score = score - blockPenalty
+            --debugMessage(1, "score:" .. score .. " blockPenalty:" .. blockPenalty .. " blockPercentage:" .. blockPercentage)
         end
     end
     --add hill weight if there is a hill, find top weight for the feature
@@ -2330,11 +2601,11 @@ function dealInFrontOfHand(obj, player_color, is_a_deck)
   if is_a_deck then
     local params = {}
     params.position = tempPosition
-    params.rotation = {obj.getRotation().x, handTransform.rotation.y, obj.getRotation().z}
+    params.rotation = {obj.getRotation().x + 180, handTransform.rotation.y, obj.getRotation().z}
     return obj.takeObject(params)
   else
     obj.setPositionSmooth(tempPosition)
-    obj.setRotationSmooth({obj.getRotation().x, handTransform.rotation.y, obj.getRotation().z})
+    obj.setRotationSmooth({obj.getRotation().x + 180, handTransform.rotation.y, obj.getRotation().z})
   end
 end
 
@@ -2343,54 +2614,7 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
         wait(AI_DRAW_TILE_TIME - (os.clock() - calculationStart))
     end
 
-    --if the newest tile is at the edge of the play area, then shift it if there is room
-    --https://stackoverflow.com/a/1252776
-    local next = next
-    if xIndex == MIN_X and (tileGrid[MAX_X] == nil or next(tileGrid[MAX_X]) == nil) then
-        shiftPlayArea(1, 0)
-        xIndex = xIndex + 1
-    end
-    if xIndex == MAX_X and (tileGrid[MIN_X] == nil or next(tileGrid[MIN_X]) == nil) then
-        shiftPlayArea(-1, 0)
-        xIndex = xIndex - 1
-    end
-    if zIndex == MIN_Z and (tileGrid[MAX_Z] == nil or next(tileGrid[MAX_Z]) == nil) then
-        shiftPlayArea(0, 1)
-        zIndex = zIndex + 1
-    end
-    if zIndex == MAX_Z and (tileGrid[MIN_Z] == nil or next(tileGrid[MIN_Z]) == nil) then
-        shiftPlayArea(0, -1)
-        zIndex = zIndex - 1
-    end
-    if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
-    tileGrid[xIndex][zIndex] = {}
-    tileGrid[xIndex][zIndex].tile_guid = newTile.getGUID()
-    tileGrid[xIndex][zIndex].rotation = tileRotation
-    if newTile.getGUID() == finalTile_GUID then
-        finalTile_GUID = nil
-    end
-    if newTile.getGUID() == finalRiverTile_GUID then
-        finalRiverTile_GUID = nil
-    end
-    if newTile.getGUID() == forkTile_GUID then
-        forkTile_GUID = nil
-    end
-    if newTile.getGUID() == springTile_GUID then
-        springTile_GUID = nil
-    end
-    if newTile.getGUID() == lakeTile_GUID then
-        lakeTile_GUID = nil
-    end
-    lastPlacedTileX = xIndex
-    lastPlacedTileZ = zIndex
-
     addTile(xIndex, zIndex, newTile, tileRotation, false)
-    if startingTile_GUID == nil and newTile.getVar('isStartingPiece') then
-        startingTile_GUID = newTile.getGUID()
-    end
-    if startingRiverTile_GUID == nil and newTile.getVar('isStartingPiece') then
-        startingRiverTile_GUID = newTile.getGUID()
-    end
 
     if AI_ANIMATIONS_ENABLED then
         setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})

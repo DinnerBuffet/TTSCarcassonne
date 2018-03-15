@@ -32,6 +32,7 @@ function onload(save_state)
         if saved_data.flierDie_GUID ~= nil then flierDie_GUID = saved_data.flierDie_GUID end
         if saved_data.lastPlacedTileX ~= nil then lastPlacedTileX = saved_data.lastPlacedTileX end
         if saved_data.lastPlacedTileZ ~= nil then lastPlacedTileZ = saved_data.lastPlacedTileZ end
+        if saved_data.lastPlacedPlayerTiles ~= nil then lastPlacedPlayerTiles = saved_data.lastPlacedPlayerTiles end
         if saved_data.scores ~= nil then
             for player, score in pairs(saved_data.scores) do
                 local scoreCounter = getObjectFromGUID(score_counter_guids[player])
@@ -110,6 +111,7 @@ function onload(save_state)
         buttonBoard.createButton(debugButtonParam)
         buttonBoard.createButton(showTraversalParam)
         buttonBoard.createButton(showFeatureMapParam)
+        buttonBoard.createButton(showTileOddsParam)
     end
     --setLocalizedObjectNames()
 
@@ -137,17 +139,11 @@ function onload(save_state)
       --     getObjectFromGUID(figurepad_GUIDs[player]).createInput(button_parameters)
       -- end
     end
-    tilesRemaining = 0
-    if getObjectFromGUID(tileStack_GUID) ~= nil then
-        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
-    elseif finalTile_GUID ~= nil then
-        tilesRemaining = 1
-    end
-    numRemainingMoves = math.floor(tilesRemaining / #activePlayers) + 1
     progressPartiallyCompleteStates()
     if turnState ~= nil then
 		if turnState ~= 'game over - scoring' then
 			createRansomButtons()
+            highlightLastPlacedTiles()
 		end
         if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
             return AIStateHandler()
@@ -207,6 +203,7 @@ function onSave()
         --the most recent tile position placed
         lastPlacedTileX = lastPlacedTileX,
         lastPlacedTileZ = lastPlacedTileZ,
+        lastPlacedPlayerTiles = lastPlacedPlayerTiles,
         scores = scores,
         figurePositions = figurePositions,
         gameover = gameover,

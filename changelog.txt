@@ -1,4 +1,15 @@
-﻿v1.19.6 - 20170112
+﻿v1.19.7 - 20180228
+[*]Added support for custom model followers. Simply add your custom model to the game (only custom models supported. Asset bundles, figurines, ect. not supported at this time). The tint and scale of this model will also be used. It will also be reused for the Big Follower (with a 20% increase). However, the collision model for the default meeple will be used, to avoid issues with oversized models (though since the collision model scales with the model, the same problem will still occur if the scale is too large)
+[*]Hint markers no longer make a sound when spawning. Score markers also will not, and a sound effect has been added to replace the missing sound.
+[*]When hint markers are turned on, each player's last move is now highlighted.
+[*]The original AI is now dubbed as "Easy AI". Once I work out the kinks, a new Beta Hard AI will be released.
+[*]The game will no longer make the tile stack uninteractable while placing River tiles. It also will no longer delete remaining tiles when the river is finished.
+[*]It is no longer required to place the river first, although it is recommended to follow the rules since it will best avoid stuck situations.
+[*]Along with the above, it is now possible to start a second river after the first has been finished (if desired). However, the AI will stop placing river tiles after the first river has finished.
+[*]Fixed AI not using the last body tile of the river (due to a change in 18.1) (Thanks to Abominablesnowman for reporting!)
+[*]Fixed a bug where placing a piece that has 2 separate features that each merge with the same existing feature would then have the wrong number of tiles (and points). (due to a change in 1.18)
+
+v1.19.6 - 20180112
 [*]Fixed Shepherd not working correctly when a wolf is drawn. This is either caused by the takeObject changes in TTS v10.2, or perhaps it has simply gone unnoticed since my change to using embedded variables in v18.1 (Thanks to TheLimeyDragon for reporting!)
 
 v1.19.5 - 20171227
@@ -21,7 +32,7 @@ v1.19.2 - 20171119
 [*]Fixed base starting tile not being disabled if the wheel was enabled from page 4 of the control panel
 
 v1.19.1 - 20171114
-[*]Fixed Count not being moveable (due to a change in 1.18.1) (Thanks to ScoreCount for reporting!)
+[*]Fixed Count not being movable (due to a change in 1.18.1) (Thanks to ScoreCount for reporting!)
 [*]Fixed trade tokens not being counted (due to a change in 1.18.1) (Thanks to Scruxx for reporting!)
 
 v1.19 - 20171031
@@ -30,7 +41,7 @@ v1.19 - 20171031
 [*]Removed some unnecessary delays from starting tile setup. It should be several times faster now.
 [*]Incorrect tooltips on the control panel have been corrected. Also, tile buttons now have tooltips showing the number of tiles in each expansion.
 [*]Coat of Arms has been renamed to Pennant, to be in line with CAR. I believe this change is only in code and won't affect the user experience.
-[*]AI will once again draw tiles to in front of their hand, to avoid a persistant rubberbanding bug.
+[*]AI will once again draw tiles to in front of their hand, to avoid a persistent rubberbanding bug.
 
 v1.18.1 - 20171021
 [*]The first 4 pages of tiles have been color-corrected by MsFairyViolet so that the grass matches better. This includes most of the major expansions used. Thanks!
@@ -69,7 +80,7 @@ v1.17.11 - 20170910
 [*]Fixed AI breaking when shrines are used (Thanks Calloused!)
 
 v1.17.10 - 20170907
-[*]Fixed an error that occured each time the builder was used (Thanks Kharnax!)
+[*]Fixed an error that occurred each time the builder was used (Thanks Kharnax!)
 [*]Fixed fields around City of Carcassonne so that they now can have a farmer placed in them
 
 v1.17.9 - 20170905
@@ -100,12 +111,12 @@ v1.17.6 - 20170804
 [*]Fixed tile feature markers not being transparent (Thanks to MrStump for helping me with the model!)
 [*]Fixed cloisters not being valid places to move a wagon to (Thanks TheLimeyDragon!)
 [*]Added a button anchor under the table that can be used to put buttons in arbitrary positions. This should help fix button warping issues for the standard figure placement buttons. The rest will need a different solution later.
-[*]Implemented a new function for moving cards from hands to a position smoothly. Shouldn't be too much noticable difference.
+[*]Implemented a new function for moving cards from hands to a position smoothly. Shouldn't be too much noticeable difference.
 [*]If the score counters are updated manually, the scoreboard on the note section will be updated at the end of each turn.
 
 v1.17.5 - 20170711
 [*]Turned off snapping to snap points for Carcassonne v2 tiles (Thanks Jokru!)
-[*]Fixed tile being considered valid despite it being rotated along the x-axis. This was especially noticable if a figure blocked the placement of a tile.
+[*]Fixed tile being considered valid despite it being rotated along the x-axis. This was especially noticeable if a figure blocked the placement of a tile.
 
 v1.17.4 - 20170629
 [*]Added tiles for Crop Circles, Crop Circles II, and both Monastaries expansions (Thanks TheLimeyDragon!)
@@ -177,7 +188,7 @@ v1.15.3 - 20170311
 [*]AI now supports City of Carcassonne
 [*]You can no longer place the first river tile such that it doesn't connect with the City of Carcassonne (if it's being used)
 [*]AI no longer selects the incorrect tile order when playing with the river without the River II spring tile
-[*]Added option to disable Inn and Cathedral features. This is intended to fix discrepency in the rules where the Inn in The River II shouldn't be used if Inns & Cathedrals isn't included. Of course, users can still choose to enable the Inn without including the Inns & Cathedrals tiles.
+[*]Added option to disable Inn and Cathedral features. This is intended to fix discrepancy in the rules where the Inn in The River II shouldn't be used if Inns & Cathedrals isn't included. Of course, users can still choose to enable the Inn without including the Inns & Cathedrals tiles.
 [*]Added houserule option for The River II to disable the pig-herd
 
 v1.15.2 - 20170310
@@ -191,7 +202,7 @@ v1.15.1 - 20170228
 
 v1.15 - 20170221
 [*]Implemented AI for the Big Follower, Builder, Trade Tokens, and Pig
-[*]Implemented new button normalizing, which should fix the ugly stretching and inconsistencies (most noticable with the Dragon). Gold from goldmines and seducing knights still use the old method, but those should be somewhat consistent at least.
+[*]Implemented new button normalizing, which should fix the ugly stretching and inconsistencies (most noticeable with the Dragon). Gold from goldmines and seducing knights still use the old method, but those should be somewhat consistent at least.
 [*]Fixed Dragon being broken due to change in v1.14
 [*]Fixed issue with player possessions being skipped at the end of the game (probably broken since v1.12)
 [*]Fixed issue with AI getting stuck if a follower was on a field that was "completed"
@@ -224,7 +235,7 @@ v1.12.2 - 20170202
 
 v1.12.1 - 20170121
 [*]Tile markers are now correct for The River
-[*]Improved the code so that there shouldn't be a descrepency between tile markers and tile validation anymore
+[*]Improved the code so that there shouldn't be a discrepancy between tile markers and tile validation anymore
 
 v1.12 - 20170121
 [*]Added custom color functionality
@@ -239,7 +250,7 @@ v1.10 - 20170114
 [*]Implemented Carcassonne II base game. Not yet implemented in the control panel.
 [*]Tile markers are now enabled by default. This can of course be changed with the button at the corner, but I at least wanted people to notice that it's an option.
 [*]Fixed bug where flier would get stuck if a mayor was used and the destination tile had a cloister.
-[*]Increased the size of the play area scripting zone to accomodate the entire table, so that players no longer get errors when they get near the edge.
+[*]Increased the size of the play area scripting zone to accommodate the entire table, so that players no longer get errors when they get near the edge.
 [*]Changed the Yellow player to Pink, since Yellow can be quite difficult to see at times.
 
 v1.09 - 20170108

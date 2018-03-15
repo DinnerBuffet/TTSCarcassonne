@@ -1,4 +1,5 @@
-
+--these functions are typically used when a player picks up an object to be placed. They will create
+--a temporary object wherever a legal move can be made, which will be deleted when the object is released.
 
 function showTileMarkers(newTile)
     local tileMarkers = {}
@@ -30,6 +31,7 @@ function showTileMarkers(newTile)
                 params.scale = {0.75, 1.2, 0.75}
                 params.callback_owner = Global
                 params.callback = "identifyFeature"
+                params.sound = false
                 local newObject = spawnObject(params)
                 table.insert(featureMarkers, newObject)
 
@@ -286,6 +288,7 @@ function showFeatureMarkers()
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback_owner = Global
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                         hasFigureLocation = true
@@ -399,6 +402,7 @@ function showTowerMarkers()
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback_owner = Global
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                         hasFigureLocation = true
@@ -529,6 +533,7 @@ function showWagonFeatureMarkers(newFigure)
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback_owner = Global
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                         hasFigureLocation = true
@@ -605,6 +610,7 @@ function showFlierFeatureMarkers(newFigure)
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback_owner = Global
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                         hasFigureLocation = true
@@ -689,6 +695,7 @@ function showToCoCFeatureMarkers(newFigure)
                     params.scale = {0.25, 0.25, 0.25}
                     params.callback_owner = Global
                     params.callback = "identifyFeature"
+                    params.sound = false
                     local newObject = spawnObject(params)
                     table.insert(featureMarkers, newObject)
                     hasFigureLocation = true
@@ -878,6 +885,7 @@ function showFromCoCFeatureMarkers()
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback_owner = Global
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                         hasFigureLocation = true

@@ -31,7 +31,7 @@ function onLoad()
 
 --Rivers/River II
     createExpansionLabel(ROW_1 - ROW_SPACING * 2, 'The River')
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, true, 'RiverMixAll', "Mix\nall tiles", {x=0, z=LABEL_SEPARATION}, 1, "If checked, all river tiles, including end pieces, will be mixed. Extra pieces left-over when the river is finished will be deleted.")
+    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, true, 'RiverMixAll', "Mix\nall tiles", {x=0, z=LABEL_SEPARATION}, 1, "If checked, all river tiles, including end pieces, will be mixed. Extra pieces left-over when the river is finished can be discarded.")
     initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, true, 'RIIDisablePigherd', "Disable\npig-herd", {x=0, z=LABEL_SEPARATION}, 1, "If checked, this will disable the pig-herd, which gives an extra point per city to farmers.")
 
 --City of Carcassonne

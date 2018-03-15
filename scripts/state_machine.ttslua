@@ -207,6 +207,7 @@ function stateHandler()
         newBarn = nil
         lastPlacedTileX = nil
         printScoreToNotes()
+        highlightLastPlacedTiles()
         createRansomButtons()
         return nextState('next')
     elseif turnState == 'reward fairy' then
@@ -215,9 +216,9 @@ function stateHandler()
         return nextState('next')
     elseif turnState == 'awaiting tile placement' then
         earnedPointsThisTile = {}
-        riverTileCheck()
         return
     elseif turnState == 'check added tile features' then
+        highlightLastPlacedTiles()
         buriedTile = nil
         tileHasVolcano = false
         tileHasMagicPortal = false

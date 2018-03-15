@@ -1,3 +1,5 @@
+--these tables allow the strings in the game to be translated to any number of other languages
+
 function translate(params)
   local msg
   if currentLanguage == 'en-us' or LOCALIZED_STRINGS[currentLanguage] == nil or LOCALIZED_STRINGS[currentLanguage][params[1]] == nil or LOCALIZED_STRINGS[currentLanguage][params[1]] == "" then

@@ -1,3 +1,5 @@
+--these functions check if the move being made is valid. This is also used by hint_markers to show legal moves
+
 function checkFigure(params)
     if params.time ~= lastDroppedTime then return end
     dropLock = false
@@ -572,65 +574,6 @@ function checkTile(params)
                 if tileRotation == 0 then tileRotation = 4 end
                 --debugMessage(2, "piece rotation: " .. tileRotation .. " piece indexes: x: " .. xIndex .. " z: " .. zIndex)
                 if isValidTileLocation(newTile, tileRotation, xIndex, zIndex, true) then
-                    --if the newest tile is at the edge of the play area, then shift it if there is room
-                    --https://stackoverflow.com/a/1252776
-                    local next = next
-                    if xIndex == MIN_X and (tileGrid[MAX_X] == nil or next(tileGrid[MAX_X]) == nil) then
-                        shiftPlayArea(1, 0)
-                        xIndex = xIndex + 1
-                    end
-                    if xIndex == MAX_X and (tileGrid[MIN_X] == nil or next(tileGrid[MIN_X]) == nil) then
-                        shiftPlayArea(-1, 0)
-                        xIndex = xIndex - 1
-                    end
-                    if zIndex == MIN_Z then
-                        local atEdge = false;
-                        for _, tileColumn in pairs(tileGrid) do
-                            if tileColumn[MAX_Z] ~= nil then
-                                atEdge = true;
-                                break;
-                            end
-                        end
-                        if not atEdge then
-                            shiftPlayArea(0, 1)
-                            zIndex = zIndex + 1
-                        end
-                    end
-                    if zIndex == MAX_Z then
-                        local atEdge = false;
-                        for _, tileColumn in pairs(tileGrid) do
-                            if tileColumn[MIN_Z] ~= nil then
-                                atEdge = true;
-                                break;
-                            end
-                        end
-                        if not atEdge then
-                            shiftPlayArea(0, -1)
-                            zIndex = zIndex - 1
-                        end
-                    end
-                    if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
-                    tileGrid[xIndex][zIndex] = {}
-                    tileGrid[xIndex][zIndex].tile_guid = newTile.getGUID()
-                    tileGrid[xIndex][zIndex].rotation = tileRotation
-                    lastPlacedTileX = xIndex
-                    lastPlacedTileZ = zIndex
-                    if newTile.getGUID() == finalTile_GUID then
-                        finalTile_GUID = nil
-                    end
-                    if newTile.getGUID() == finalRiverTile_GUID then
-                        finalRiverTile_GUID = nil
-                    end
-                    if newTile.getGUID() == forkTile_GUID then
-                        forkTile_GUID = nil
-                    end
-                    if newTile.getGUID() == springTile_GUID then
-                        springTile_GUID = nil
-                    end
-                    if newTile.getGUID() == lakeTile_GUID then
-                        lakeTile_GUID = nil
-                    end
-
                     newTile.setPosition({xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
                     newTile.setRotation({0, tileRotation * 90, 0})
 
@@ -638,12 +581,6 @@ function checkTile(params)
                         newTile.setLock(true)
                     end
                     addTile(xIndex, zIndex, newTile, tileRotation, false)
-                    if startingTile_GUID == nil and newTile.getVar('isStartingPiece') then
-                        startingTile_GUID = newTile.getGUID()
-                    end
-                    if startingRiverTile_GUID == nil and newTile.getVar('isStartingPiece') then
-                        startingRiverTile_GUID = newTile.getGUID()
-                    end
                     return nextState('tile placed')
                 end
             else
@@ -655,18 +592,18 @@ function checkTile(params)
     end
 end
 
-function isValidTileLocation(newTile, tileRotation, xIndex, zIndex, verbose)
-    local isStartingPiece = newTile.getVar('isStartingPiece')
+function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
+    local isStartingPiece = tile.getVar('isStartingPiece')
     if not tileGridOccupied(xIndex, zIndex) then
         if (startingTile_GUID == nil and isStartingPiece) or
         tileGridOccupied(xIndex + 1, zIndex) or tileGridOccupied(xIndex - 1, zIndex) or
         tileGridOccupied(xIndex, zIndex + 1) or tileGridOccupied(xIndex, zIndex - 1) then
             if (xIndex >= MIN_X and xIndex <= MAX_X and zIndex >= MIN_Z and zIndex <= MAX_Z) then
-                if ((not tileGridOccupied(xIndex + 1, zIndex) or tileConnectsToSide(newTile, tileRotation, 4, getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid), tileGrid[xIndex + 1][zIndex].rotation)) and
-                (not tileGridOccupied(xIndex - 1, zIndex) or tileConnectsToSide(newTile, tileRotation, 2, getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid), tileGrid[xIndex - 1][zIndex].rotation)) and
-                (not tileGridOccupied(xIndex, zIndex + 1) or tileConnectsToSide(newTile, tileRotation, 3, getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid), tileGrid[xIndex][zIndex + 1].rotation)) and
-                (not tileGridOccupied(xIndex, zIndex - 1) or tileConnectsToSide(newTile, tileRotation, 1, getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid), tileGrid[xIndex][zIndex - 1].rotation))) then
-                    if newTile.getTable('sides')[1] == 'Abbey' and
+                if ((not tileGridOccupied(xIndex + 1, zIndex) or tileConnectsToSide(tile, tileRotation, 4, getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid), tileGrid[xIndex + 1][zIndex].rotation)) and
+                (not tileGridOccupied(xIndex - 1, zIndex) or tileConnectsToSide(tile, tileRotation, 2, getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid), tileGrid[xIndex - 1][zIndex].rotation)) and
+                (not tileGridOccupied(xIndex, zIndex + 1) or tileConnectsToSide(tile, tileRotation, 3, getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid), tileGrid[xIndex][zIndex + 1].rotation)) and
+                (not tileGridOccupied(xIndex, zIndex - 1) or tileConnectsToSide(tile, tileRotation, 1, getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid), tileGrid[xIndex][zIndex - 1].rotation))) then
+                    if tile.getTable('sides')[1] == 'Abbey' and
                     ((not tileGridOccupied(xIndex + 1, zIndex)) or (not tileGridOccupied(xIndex - 1, zIndex)) or (not tileGridOccupied(xIndex, zIndex + 1)) or (not tileGridOccupied(xIndex, zIndex - 1))) then
                         if verbose then allErrorMessage("Invalid Location: Abbey must be surrounded by tiles on all 4 sides", activePlayers[currentPlayer]) end
                         return false
@@ -674,7 +611,7 @@ function isValidTileLocation(newTile, tileRotation, xIndex, zIndex, verbose)
                     if controlPanelSettings['CultTiles'] then
                         local challengerTile = nil
                         local challengedTile = nil
-                        local specialFeatures = newTile.getTable('specialFeatures')
+                        local specialFeatures = tile.getTable('specialFeatures')
                         if specialFeatures ~= nil then
                             for _, feature in ipairs(specialFeatures) do
                                 if feature[1] == 'Cloister' or feature[1] == 'Shrine' then challengerTile = feature[1] end
@@ -732,7 +669,7 @@ function isValidTileLocation(newTile, tileRotation, xIndex, zIndex, verbose)
                         local hasRiver = false
                         local riverHasConnection = false
                         for i=1, 4 do
-                            if newTile.getTable('sides')[(3 + i - tileRotation) % 4 + 1] == 'River' then
+                            if tile.getTable('sides')[(3 + i - tileRotation) % 4 + 1] == 'River' then
                                 hasRiver = true
                                 local diff = 0
                                 local x = xIndex
@@ -740,21 +677,21 @@ function isValidTileLocation(newTile, tileRotation, xIndex, zIndex, verbose)
                                 if i > 2 then diff = 1 else diff = -1 end
                                 if i % 2 == 0 then x = x + diff else z = z + diff end
                                 --if it has a river, then the following must be true for at least one of the sides
-                                if tileGridOccupied(x, z) and tileConnectsToSide(newTile, tileRotation, i, getObjectFromGUID(tileGrid[x][z].tile_guid), tileGrid[x][z].rotation) then
+                                if tileGridOccupied(x, z) and tileConnectsToSide(tile, tileRotation, i, getObjectFromGUID(tileGrid[x][z].tile_guid), tileGrid[x][z].rotation) then
                                     riverHasConnection = true
                                     --the following checks to see if this tile would create a "U-turn" such that the river folds back on itself
                                     --this is illegal and can easily lead to issues
                                     --Though technically illegal, it is possible to still make a river that folds back on itself.
                                     --TODO: In the future, consider checking n number of tiles in the direction of the new rivers direction (with a width of 3 tiles) to see if there are any pieces in the way
-                                    if ((newTile.getTable('sides')[(3 + i + 1 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 1 - tileGrid[x][z].rotation) % 4 + 1] == 'River') or
-                                    (newTile.getTable('sides')[(3 + i + 3 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 3 - tileGrid[x][z].rotation) % 4 + 1] == 'River')) then
+                                    if ((tile.getTable('sides')[(3 + i + 1 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 1 - tileGrid[x][z].rotation) % 4 + 1] == 'River') or
+                                    (tile.getTable('sides')[(3 + i + 3 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 3 - tileGrid[x][z].rotation) % 4 + 1] == 'River')) then
                                         if verbose then allErrorMessage("Invalid Location: U-turns are not allowed on rivers", activePlayers[currentPlayer]) end
                                         return false
                                     end
                                 end
                             end
                         end
-                        if startingRiverTile_GUID ~= nil and hasRiver and not riverHasConnection then
+                        if hasRiver and startingRiverTile_GUID ~= nil and hasOpenRiver() and not riverHasConnection then
                             if verbose then allErrorMessage("Invalid Location: Tile must continue the already placed river", activePlayers[currentPlayer]) end
                             return false
                         end

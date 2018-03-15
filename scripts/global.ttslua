@@ -1,3 +1,7 @@
+--STOP RIGHT THERE! If you're trying to read this script as one big ugly file, you're doing it wrong.
+--Go here for instructions on proper viewing: https://github.com/DinnerBuffet/TTSCarcassonne
+
+----#include !\TTSCarcassonne\scripts\global
 -- Carcassonne and all expansions w/ automated scripting
 -- Scripting by Sancho
 -- The rules are based on the contents of Carcassonne Annotated Rules (CAR) v7.4.
@@ -33,8 +37,8 @@
 --                  'Garden' - specifies the location of a garden. Links are not used for this feature.
 
 
-DEBUG_BUTTONS = true
-debugLevel = 1
+DEBUG_BUTTONS = false
+debugLevel = 0
 --debugLogTabIndex = -1
 
 AUTOLOCK = true
@@ -82,6 +86,8 @@ TRADE_TOKEN_COUNTS = {
 }
 TRADE_GOOD_TYPES = {'Wine', 'Wheat', 'Cloth'}
 
+PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}
+
 arbitraryButtonAnchors = {}
 
 FLOATING_BUTTON_HEIGHT = 2.0
@@ -98,9 +104,10 @@ FRAME_TIME = 0.01667 --time that coroutine can run before it should yield to the
 PLAY_AREA_SCRIPTING_ZONE_GUID = '799064'
 CONTROL_PANEL_GUID = '45460c'
 BUTTON_ANCHOR_GUID = '07fd9a'
+SOUNDBOARD_GUID = '9c8d01'
 EXPANSION_TABLE_GUID = 'f01594'
 
-CURRRENT_PLAYER_MARKER = "➡ " -- symbol(s) that should be printed on the scoreboard before the current player
+CURRENT_PLAYER_MARKER = "➡ " -- symbol(s) that should be printed on the scoreboard before the current player
 
 tileStack_GUID = '16d9db'
 startingTile_GUID = 'c107f0'
@@ -208,6 +215,11 @@ showTraversalParam = {
 showFeatureMapParam = {
    index = 5, label = 'Show\nFeature\nMap', click_function = 'debugShowFeatureMap',
    position = {3.8, 0.1, 1.6}, width = 1000, height=500, font_size = 150, function_owner = nil
+}
+
+showTileOddsParam = {
+   index = 6, label = 'Show\nConnection\nOdds', click_function = 'debugShowTileOdds',
+   position = {6.1, 0.1, 1.6}, width = 1000, height=500, font_size = 150, function_owner = nil
 }
 
 expansionBags = {
@@ -452,11 +464,9 @@ spamLock = false
 scoring = false
 gameover = true
 
---wagonLocations = {}
 wagonFeatures = {}
---hasAvailableWagonFeature = {}
---used when the player order must be traversed within someone's turn
-currentMiniTurn = nil
+
+currentMiniTurn = nil --used when the player order must be iterated within someone's turn
 
 traversedGrid = {}
 traversedFeaturePositions = {}
@@ -479,6 +489,8 @@ longestRoad = 0
 scoreSummary = {}
 activePlayers = {}
 currentPlayer = nil
+
+lastPlacedPlayerTiles = {}
 
 shepherdAwaitingAction = nil
 newBarn = nil
@@ -821,7 +833,7 @@ function printScoreToNotes()
             end
             local currentPlayerMarker = ""
             if not gameover and playerNum == currentPlayer then
-                currentPlayerMarker = CURRRENT_PLAYER_MARKER
+                currentPlayerMarker = CURRENT_PLAYER_MARKER
             end
             scoreBoard = scoreBoard .. stringToBracketedHex(color) .. currentPlayerMarker .. translate({"{n1} points - {p1}", {'{n1}', highscore}, {'{p1}', steam_name}}) .. "\n"
         else
@@ -2353,6 +2365,9 @@ function clearArbitraryButtons(alsoClearHighlights)
             end
         end
     end
+    if alsoClearHighlights then
+        highlightLastPlacedTiles()
+    end
     if lastPlacedTileX ~= nil then
         getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).clearButtons()
     end
@@ -2371,6 +2386,15 @@ function clearArbitraryButtons(alsoClearHighlights)
         buttonAnchor.destruct()
     end
     arbitraryButtonAnchors = {}
+end
+
+function highlightLastPlacedTiles()
+    for player, coordinates in pairs(lastPlacedPlayerTiles) do
+        if tileGridOccupied(coordinates.x, coordinates.z) then
+            local tile = getObjectFromGUID(tileGrid[coordinates.x][coordinates.z].tile_guid)
+            tile.highlightOn(player_color_tints[player])
+        end
+    end
 end
 
 function promptShepherd()
@@ -2710,10 +2734,15 @@ end
 
 --makes the winning shepherds spin and marks the features that were scored
 function praiseShepherdCoroutine()
+    local hasWinner = false
     for _, figure in ipairs(removedFigures) do
         if figure.winner then
+            hasWinner = true
             getObjectFromGUID(figure.guid).addTorque({0,25,0}, 4)
         end
+    end
+    if hasWinner then
+        getObjectFromGUID(SOUNDBOARD_GUID).AssetBundle.playTriggerEffect(0)
     end
     if showMarkers == 'Scoring' or showMarkers == 'Both' then
         for _, traversedTileCoord in ipairs(traversedTileCoords) do
@@ -2730,6 +2759,7 @@ function praiseShepherdCoroutine()
                         params.position = {(x * TILE_SPACING) + (traversedTileCoord.x * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (traversedTileCoord.z * TILE_SPACING) - MIDDLE_OFFSET.z}
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                     end
@@ -3718,41 +3748,28 @@ function fairyClosestFollower()
     return closestFollower
 end
 
-function riverTileCheck()
-    if controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
-        local riverFinished = false
-        for featureKey, feature in pairs(featureList) do
-            if feature.nameOfFeature == 'River' then
-                if feature.openings == 0 then
-                    riverFinished = true
-                end
-                break
-            end
-        end
-        if riverFinished then
-            local itemRemoved = false
-            for i, obj_GUID in pairs({forkTile_GUID, riverBodyTiles_GUID, finalRiverTile_GUID, springTile_GUID, lakeTile_GUID}) do
-                local obj = getObjectFromGUID(obj_GUID)
-                if obj ~= nil then
-                    itemRemoved = true
-                    obj.destruct()
-                end
-            end
-            if itemRemoved then
-                gameNotification("River is already finished. Removing additional tiles.", NEUTRAL_COLOR, activePlayers[currentPlayer])
-            end
-            forkTile_GUID = nil
-            riverBodyTiles_GUID = nil
-            finalRiverTile_GUID = nil
-            springTile_GUID = nil
-            lakeTile_GUID = nil
-            local tileStack = getObjectFromGUID(tileStack_GUID)
-            if tileStack ~= nil then
-                tileStack.setLock(false)
-                tileStack.interactable = true
+function hasOpenRiver()
+    local hasOpenRiver = false
+    for featureKey, feature in pairs(featureList) do
+        if feature.nameOfFeature == 'River' then
+            if feature.openings ~= 0 then
+                hasOpenRiver = true
             end
         end
     end
+    return hasOpenRiver
+end
+
+function hasFinishedRiver()
+    local riverFinished = false
+    for featureKey, feature in pairs(featureList) do
+        if feature.nameOfFeature == 'River' then
+            if feature.openings == 0 then
+                riverFinished = true
+            end
+        end
+    end
+    return riverFinished
 end
 
 function rewardGold()
@@ -4077,10 +4094,15 @@ end
 
 --makes the winning followers spin and marks the features that were scored
 function praiseFiguresCoroutine()
+    local hasWinner = false
     for _, figure in ipairs(removedFigures) do
         if figure.winner then
+            hasWinner = true
             getObjectFromGUID(figure.guid).addTorque({0,25,0}, 4)
         end
+    end
+    if hasWinner then
+        getObjectFromGUID(SOUNDBOARD_GUID).AssetBundle.playTriggerEffect(0)
     end
     if showMarkers == 'Scoring' or showMarkers == 'Both' then
         for _, traversedTileCoord in ipairs(traversedTileCoords) do
@@ -4099,6 +4121,7 @@ function praiseFiguresCoroutine()
                         params.position = {(x * TILE_SPACING) + (traversedTileCoord.x * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (traversedTileCoord.z * TILE_SPACING) - MIDDLE_OFFSET.z}
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                     end
@@ -4273,6 +4296,7 @@ function debugShowTraversal()
                         params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback = "identifyFeature"
+                        params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
                     end
@@ -4294,6 +4318,7 @@ function debugShowTraversal()
                     params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
                     params.scale = {0.25, 0.25, 0.25}
                     params.callback = "identifyFeature"
+                    params.sound = false
                     local newObject = spawnObject(params)
                     table.insert(featureMarkers, newObject)
                 end
@@ -4438,6 +4463,9 @@ function debugShowFeatureMap()
         printLine = printLine:gsub("1", "L")
         print(printLine)
     end
+end
+
+function debugShowTileOdds()
     print("printing connection odds...")
     for x, columns in pairs(tileConnectionOdds) do --iterate through all valid tile lists and remove the added tile
         for z, tileOdds in pairs(columns) do

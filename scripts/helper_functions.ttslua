@@ -1,8 +1,7 @@
 --Helper Functions
 --These are general purpose helpers to make coding in TTS easier
 
-PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}
-
+WHITE_COLOR = {r=1,g=1,b=1}
 NEUTRAL_COLOR = {r=0.5,g=0.5,b=0.5}
 ERROR_COLOR = {r=1,g=0,b=0}
 
@@ -102,7 +101,8 @@ function debugMessage(messageDebugLevel, msg)
         -- params.index = debugLogTabIndex
         -- params.body = notes[debugLogTabIndex].body .. "\n" .. msg
         -- editNotebookTab(params)
-        print(msg)
+
+        log(msg)
     end
 end
 

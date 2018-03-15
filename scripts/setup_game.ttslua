@@ -112,6 +112,8 @@ playerFigureSettings = {
     ['BCnBBridges'] = {name = 'Bridge', figurepad_offset = {x = -11.15, z = 0.0}, use_snap_points = true, save_figurepad_location = false, num = 'BCnBNumBridges', color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255}, object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}
 }
 
+substituteFigureSettings = {}
+
 --[<steam_id>] = {['Intro'] = <intro string>, [<figure name>] = {<custom figure settings>}}
 vipFigureSettings = {
     -- ['76561197962338210'] = {
@@ -122,10 +124,10 @@ vipFigureSettings = {
     --     ['Intro'] = "You are being joined by %s, contributor to the Carcassonne mod.",
     --    ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXd0RzVC1ndlBDanM', scale = {0.15, 0.15, 0.15} }
     -- },
-    ['9999999999999999999'] = {
-        ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
-        ['BaseFollower'] = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} },
-    }
+    -- ['9999999999999999999'] = {
+    --     ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
+    --     ['BaseFollower'] = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} },
+    -- }
 }
 
 --figures that can be generated in code
@@ -183,8 +185,8 @@ function startGame()
     end
     if not hasPlayer then return 1 end
     for _, player_color in ipairs(PLAYER_COLORS) do
+        --HACK: The below won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
         --player_color_tints[player_color] = stringColorToRGB(player_color)
-        --HACK: The above won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
         player_color_tints[player_color] = {}
         player_color_tints[player_color]['r'] = stringColorToRGB(player_color)['r']
         player_color_tints[player_color]['g'] = stringColorToRGB(player_color)['g']
@@ -214,21 +216,49 @@ function startGame()
             zoneObj.setScale({x_scale, PLAYER_POSSESSION_ZONE_HEIGHT, z_scale})
             local newColor = player_color
             coroutine.yield(0)
+            playerPossessionScriptingZones[player_color] = zoneObj.getGUID()
             local objs = zoneObj.getObjects()
             for _, obj in pairs(objs) do
                 if obj.getName() == 'Follower' then
                     newColor = obj.getDescription()
+                    --HACK: The below won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
                     --player_color_tints[newColor] = obj.getColorTint()
-                    --HACK: The above won't work because TTS has a bug where it won't save the variable correctly in onSave(). Omitting the numbered indexes seems to work around this
                     player_color_tints[newColor] = {}
                     player_color_tints[newColor]['r'] = obj.getColorTint()['r']
                     player_color_tints[newColor]['g'] = obj.getColorTint()['g']
                     player_color_tints[newColor]['b'] = obj.getColorTint()['b']
-                    allGameMessage({"{c1} has substituted their color for {c2}", {'{c1}', player_color}, {'{c2}', RGBToBracketedHex(player_color_tints[newColor]) .. newColor, player_color_tints[player_color]}})
+                    allGameMessage({"{c1} has substituted their color for {c2}", {'{c1}', player_color}, {'{c2}', RGBToBracketedHex(player_color_tints[newColor]) .. newColor}}, player_color_tints[player_color])
                     break
                 end
             end
-            playerPossessionScriptingZones[player_color] = zoneObj.getGUID()
+            substituteFigureSettings[newColor] = {}
+            for _, obj in pairs(objs) do
+                local customObject = obj.getCustomObject()
+                if customObject.mesh ~= nil then
+                    local figureSettingName = nil
+                    if obj.getName() == 'Follower' then figureSettingName = 'BaseFollower' end
+                    -- it is possible to put additional figure types here, but I decided not too since it would make the game too confusing
+                    if figureSettingName ~= nil and customObject.mesh ~= playerFigureSettings[figureSettingName].custom_object_params.mesh then
+                        substituteFigureSettings[newColor][figureSettingName] = {}
+                        substituteFigureSettings[newColor][figureSettingName].object_params = {type = 'Custom_model'}
+                        substituteFigureSettings[newColor][figureSettingName].object_params.scale = obj.getScale()
+                        substituteFigureSettings[newColor][figureSettingName].custom_object_params = customObject
+                        substituteFigureSettings[newColor][figureSettingName].custom_object_params.collider = playerFigureSettings[figureSettingName].custom_object_params.mesh
+                        allGameMessage({"{c1} has substituted their {s1} model for a custom one", {'{c1}', newColor}, {'{s1}', obj.getName()}}, player_color_tints[player_color])
+                    end
+                end
+            end
+            --re-use the same model for the Big Follower
+            if substituteFigureSettings[newColor]['BaseFollower'] ~= nil then
+                substituteFigureSettings[newColor]['InCBigFollower'] = {}
+                substituteFigureSettings[newColor]['InCBigFollower'].object_params = {type = 'Custom_model'}
+                substituteFigureSettings[newColor]['InCBigFollower'].object_params.scale = {}
+                for key, value in pairs(substituteFigureSettings[newColor]['BaseFollower'].object_params.scale) do
+                    substituteFigureSettings[newColor]['InCBigFollower'].object_params.scale[key] = value * 1.2
+                end
+                substituteFigureSettings[newColor]['InCBigFollower'].custom_object_params = table.shallow_copy(substituteFigureSettings[newColor]['BaseFollower'].custom_object_params)
+                substituteFigureSettings[newColor]['InCBigFollower'].custom_object_params.collider = playerFigureSettings['BaseFollower'].custom_object_params.mesh
+            end
             if newColor ~= player_color then
                 controllingPlayer = player_color
                 if controlPanelSettings[controllingPlayer .. 'Control'] ~= nil then
@@ -335,15 +365,17 @@ function startGame()
             end
         end
     end
+    --HACK: in cases where the game is setup automatically, the starting tile should not be highlighted
+    lastPlacedPlayerTiles[activePlayers[currentPlayer]] = nil
     tileStack.shuffle()
     if controlPanelSettings['StartingTileRiverII'] then
         allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the fork should be the first tile placed, followed by the facedown tiles until they are gone, then the spring, and lastly the lake piece.", NEUTRAL_COLOR)
-        tileStack.setLock(true)
-        tileStack.interactable = false
+        -- tileStack.setLock(true)
+        -- tileStack.interactable = false
     elseif controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
         allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the spring should be the first tile placed, followed by the facedown tiles until they are gone, and then the lake.", NEUTRAL_COLOR)
-        tileStack.setLock(true)
-        tileStack.interactable = false
+        -- tileStack.setLock(true)
+        -- tileStack.interactable = false
     end
     allGameMessage("Game started. Good luck!", NEUTRAL_COLOR)
     allGameMessage(activePlayers[currentPlayer] .. " was randomly chosen as the first player.", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
@@ -395,6 +427,10 @@ function preparePlayerStartingItems()
             if controlPanelSettings[figure] then
                 if getPlayerOwner(player) == player and Player[player].seated and vipFigureSettings[Player[player].steam_id] ~= nil and vipFigureSettings[Player[player].steam_id][figure] ~= nil then
                     figureSettingCopy.custom_object_params = vipFigureSettings[Player[player].steam_id][figure]
+                end
+                if substituteFigureSettings[player][figure] ~= nil then
+                    figureSettingCopy.custom_object_params = substituteFigureSettings[player][figure].custom_object_params
+                    figureSettingCopy.object_params = substituteFigureSettings[player][figure].object_params
                 end
                 local num
                 if figureSettingCopy.num ~= nil then num = controlPanelSettings[figureSettingCopy.num] else num = 1 end

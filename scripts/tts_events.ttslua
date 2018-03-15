@@ -55,9 +55,6 @@ end
 function onObjectDestroyed(dying_object)
     local rad = 0.01
     if dying_object.getGUID() == tileStack_GUID or dying_object.getGUID() == riverBodyTiles_GUID then
-        if dying_object.getGUID() == riverBodyTiles_GUID then
-            riverBodyTiles_GUID = nil
-        end
         local allObjects = getAllObjects()
         for _, obj in ipairs(allObjects) do
             if tostring(obj) == 'Card(Clone) (LuaGameObjectScript)' then
@@ -73,6 +70,9 @@ function onObjectDestroyed(dying_object)
                     end
                 end
             end
+        end
+        if dying_object.getGUID() == riverBodyTiles_GUID then
+            riverBodyTiles_GUID = nil
         end
     end
 end
