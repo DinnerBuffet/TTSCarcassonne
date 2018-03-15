@@ -956,40 +956,41 @@ function getActiveFigures()
     end
 end
 
-function getActiveNeutralFigures()
-    activeNeutralFigures = {}
-
-    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
-        if obj.getVar('figureName') == GOLD_BAR_NAME then
-            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-            if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                xPosition = xPosition - xIndex
-                zPosition = zPosition - zIndex
-                local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
-                local rotation = tileGrid[xIndex][zIndex].rotation
-                local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, false)
-                local featureNum = featureMap[xIndex][zIndex][closestPosition]
-
-                if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
-                    if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
-                        featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
-                    end
-                end
-                --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
-                if activeNeutralFigures[featureNum] == nil then
-                    activeNeutralFigures[featureNum] = {}
-                    activeNeutralFigures[featureNum].goldBars = {}
-                end
-                if obj.getVar('figureName') == GOLD_BAR_NAME then
-                    table.insert(activeNeutralFigures[featureNum].goldBars, obj)
-                end
-            end
-        end
-    end
-end
+-- function getActiveNeutralFigures()
+--     activeNeutralFigures = {}
+--
+--     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
+--         if obj.getVar('figureName') == GOLD_BAR_NAME then
+--             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+--             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+--             if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
+--                 local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+--                 local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+--                 xPosition = xPosition - xIndex
+--                 zPosition = zPosition - zIndex
+--                 local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+--                 local rotation = tileGrid[xIndex][zIndex].rotation
+--                 local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, false)
+--                 local featureNum = featureMap[xIndex][zIndex][closestPosition]
+--
+--                 if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
+--                     if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
+--                         featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
+--                     end
+--                 end
+--                 --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
+--                 if activeNeutralFigures[featureNum] == nil then
+--                     activeNeutralFigures[featureNum] = {}
+--                     activeNeutralFigures[featureNum].goldBars = {}
+--                 end
+--                 if obj.getVar('figureName') == GOLD_BAR_NAME then
+--                     print("added gold bar at x:" .. xIndex .. " z:" .. zIndex)
+--                     table.insert(activeNeutralFigures[featureNum].goldBars, obj)
+--                 end
+--             end
+--         end
+--     end
+-- end
 
 #include !\TTSCarcassonne\scripts\hint_markers
 
@@ -1817,6 +1818,7 @@ function checkAddedTileFeatureExtensions()
         if awardToken ~= nil then
             awardToken.setPositionSmooth({player_possession_areas[activePlayers[currentPlayer]].x + x, 2, player_possession_areas[activePlayers[currentPlayer]].z + z})
             awardToken.setRotationSmooth({0,  player_possession_areas[activePlayers[currentPlayer]].rotation * -90, 0})
+            awardToken.setDescription(longestRoad .. " tiles")
             allGameMessage(activePlayers[currentPlayer] .. " has been awarded the Robber Baron token for completing the longest road (" .. longestRoad .. " tiles)", player_color_tints[activePlayers[currentPlayer]])
         else
             allErrorMessage("Error: Robber Baron token missing! The token needs to remain out in order to awarded")
@@ -1829,6 +1831,7 @@ function checkAddedTileFeatureExtensions()
         if awardToken ~= nil then
             awardToken.setPositionSmooth({player_possession_areas[activePlayers[currentPlayer]].x + x, 2, player_possession_areas[activePlayers[currentPlayer]].z + z})
             awardToken.setRotationSmooth({0,  player_possession_areas[activePlayers[currentPlayer]].rotation * -90, 0})
+            awardToken.setDescription(largestCity .. " tiles")
             allGameMessage(activePlayers[currentPlayer] .. " has been awarded the King token for completing the biggest city (" .. largestCity .. " tiles)", player_color_tints[activePlayers[currentPlayer]])
         else
             allErrorMessage("Error: King token missing! The token needs to remain out in order to awarded")
@@ -3166,7 +3169,7 @@ function scoreFeatures()
                         end
                         if featureNum ~= nil then
                             getActiveFigures()
-                            getActiveNeutralFigures()
+                            -- getActiveNeutralFigures()
                             local nameOfFeature = featureList[featureNum].nameOfFeature
 
                             --debugMessage(2, "figure closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " position: " .. closestPosition .. " name: " .. nameOfFeature)
@@ -3183,11 +3186,6 @@ function scoreFeatures()
                             if activeFigures[featureNum] ~= nil then
                                 featureFollowers = activeFigures[featureNum].followers
                                 featureSpecialFigures = activeFigures[featureNum].specialFigures
-                            end
-
-                            local featureGoldBars = {}
-                            if activeNeutralFigures[featureNum] ~= nil then
-                                featureGoldBars = activeNeutralFigures[featureNum].goldBars
                             end
 
                             local followerCounts = {}
@@ -3434,6 +3432,8 @@ function scoreFeatures()
                             end
                             if nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,8) ~= 'Quarter-' and string.sub(nameOfFeature,1,6) ~= 'Crown-' and nameOfFeature ~= 'Tower Foundation' then
                                 if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn) then
+                                    --The following is only used to check for traversedGoldBars
+                                    getFeatureComponents(xIndex, zIndex, closestPosition, 2, true)
                                     for _, follower in ipairs(featureFollowers) do
                                         local closestFollower = fairyClosestFollower()
                                         if closestFollower == follower then
@@ -3445,9 +3445,9 @@ function scoreFeatures()
                                         end
                                         local winner = false
                                         if topWeight > 0 and followerCounts[follower.getVar('owner')] >= topWeight and score > 0 then winner = true end
-                                        if winner and nameOfFeature ~= 'Field' and #featureGoldBars > 0 then
+                                        if winner and nameOfFeature ~= 'Field' and #traversedGoldBars > 0 then
                                             if scoringRewards['Gold'] == nil then scoringRewards['Gold'] = {} end
-                                            for _, gold in ipairs(featureGoldBars) do
+                                            for _, gold in ipairs(traversedGoldBars) do
                                                 if scoringRewards['Gold'][gold.getGUID()] == nil then scoringRewards['Gold'][gold.getGUID()] = {} end
                                                 if not table.contains(scoringRewards['Gold'][gold.getGUID()], follower.getVar('owner')) then
                                                     table.insert(scoringRewards['Gold'][gold.getGUID()], follower.getVar('owner'))
@@ -4653,7 +4653,7 @@ function getFigureComponents()
             local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
             --debugMessage(2, "Object on tile: x: " .. xIndex .. " z: " .. zIndex)
             if obj.getVar('figureName') == GOLD_BAR_NAME and table.contains(traversedTileCoords, {x=xIndex, z=zIndex}) then
-                --debugMessage(2, obj.getVar('tokenName') .. " added to traversedGoldBars table")
+                --debugMessage(2, obj.getVar('figureName') .. " added to traversedGoldBars table")
                 table.insert(traversedGoldBars, obj)
             elseif traversedFeaturePositions[xIndex] ~= nil and traversedFeaturePositions[xIndex][zIndex] ~= nil then
                 local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING

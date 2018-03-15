@@ -1,4 +1,9 @@
-﻿v1.19.8 - 20180302
+﻿v1.19.9 - 20180307
+[*]King and Robber tiles now contain the largest city and road, respectively, in the description. (Thanks to Cruise Elroy for the suggestion!)
+[*]Fixed gold not being awarded properly (due to a change in 1.18) (Thanks to Cruise Elroy for reporting!)
+[*]Fixed tiles not shifting correctly (due to a change in 1.19.7) (Thanks to Cruise Elroy for reporting!)
+
+v1.19.8 - 20180302
 [*]Fixed removing tiles breaking the game (Thanks to JoeysRattata for reporting!)
 [*]Fixed AI being broken with the river if the AI makes the first move (Thanks to JoeysRattata and davewood5555 for reporting!)
 

@@ -697,6 +697,7 @@ function removeTile(xIndex, zIndex, removedTile)
 end
 
 --This function will completely shift all objects on the table, along with the stored metadata, by the given deltas
+--This function will completely shift all objects on the table, along with the stored metadata, by the given deltas
 function shiftPlayArea(delta_x, delta_z)
     allGameMessage("Play area is being shifted to make room for more tiles.", NEUTRAL_COLOR)
     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
@@ -729,13 +730,24 @@ function shiftPlayArea(delta_x, delta_z)
                 tileConnectionOdds[x + delta_x] = tileConnectionOdds[x]
                 tileConnectionOdds[x] = nil
             end
+        end
+        if delta_x < 0 then
+            start = MIN_X
+            last = MAX_X
+        else
+            start = MAX_X
+            last = MIN_X
+        end
+        for x=start, last, -delta_x do
             for _, feature in pairs(featureList) do
-                if feature.openingCoords[connectedX .. "-" .. connectedZ] ~= nil then
+                for openingCoord, _ in pairs(feature.openingCoords) do
                     local coord = string.split(openingCoord, "-")
                     local oldX = tonumber(coord[1])
                     local oldZ = tonumber(coord[2])
-                    feature.openingCoords[oldX + delta_x .. "-" .. oldZ] = true
-                    feature.openingCoords[oldX .. "-" .. oldZ] = nil
+                    if (oldX == x) then
+                        feature.openingCoords[oldX + delta_x .. "-" .. oldZ] = true
+                        feature.openingCoords[oldX .. "-" .. oldZ] = nil
+                    end
                 end
             end
         end
@@ -762,13 +774,21 @@ function shiftPlayArea(delta_x, delta_z)
                     tileConnectionOdds[x][z + delta_z] = tileConnectionOdds[x][z]
                     tileConnectionOdds[x][z] = nil
                 end
+            end
+        end
+        if delta_z < 0 then
+            start = MIN_Z
+            last = MAX_Z
+        else
+            start = MAX_Z
+            last = MIN_Z
+        end
+        for x=MIN_X, MAX_X, 1 do
+            for z=start, last, -delta_z do
                 for _, feature in pairs(featureList) do
-                    if feature.openingCoords[connectedX .. "-" .. connectedZ] ~= nil then
-                        local coord = string.split(openingCoord, "-")
-                        local oldX = tonumber(coord[1])
-                        local oldZ = tonumber(coord[2])
-                        feature.openingCoords[oldX .. "-" .. oldZ + delta_z] = true
-                        feature.openingCoords[oldX .. "-" .. oldZ] = nil
+                    if feature.openingCoords[x .. "-" .. z] ~= nil then
+                        feature.openingCoords[x .. "-" .. z + delta_z] = true
+                        feature.openingCoords[x .. "-" .. z] = nil
                     end
                 end
             end
