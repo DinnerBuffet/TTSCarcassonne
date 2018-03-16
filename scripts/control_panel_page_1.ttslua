@@ -2,6 +2,9 @@
 
 NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
 
+EASY_AI_COLOR = {r=0.5,g=1.0,b=0.5}
+HARD_AI_COLOR = {r=1,g=0.3,b=0.3}
+
 HOTSEAT_ROW = 7.3
 ROW_1 = 3.7
 ROW_2 = 1.65
@@ -45,14 +48,23 @@ function initializeHotseatButton(x, z, color)
     if Global.getVar('gameover') then
         if Player[color].seated then
             button_parameters.label = 'X'
+            button_parameters.color = stringColorToRGB(color)
         elseif Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
-            if Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,2) == 'AI' then
+            local hotseatOwner = Global.call('getControlPanelState', {key = color .. 'Control'})
+            if hotseatOwner:sub(1,2) == 'AI' then
+                if hotseatOwner == 'AI (Easy)' then
+                    button_parameters.color = EASY_AI_COLOR
+                else
+                    button_parameters.color = HARD_AI_COLOR
+                end
                 button_parameters.label = 'AI'
             else
-                button_parameters.label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)
+                button_parameters.label = hotseatOwner:sub(1,1)
+                button_parameters.color = stringColorToRGB(hotseatOwner)
             end
         else
             button_parameters.label = ''
+            button_parameters.color = WHITE_COLOR
         end
     else --if the game has already started, then display the saved player information
         if table.contains(Global.getTable('activePlayers'), color) then
@@ -60,9 +72,11 @@ function initializeHotseatButton(x, z, color)
                 button_parameters.label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)
             else
                 button_parameters.label = 'X'
+                button_parameters.color = stringColorToRGB(color)
             end
         else
             button_parameters.label = ''
+            button_parameters.color = WHITE_COLOR
         end
     end
     button_parameters.click_function = 'on' .. color .. 'HotseatPressed'
@@ -83,14 +97,17 @@ function onHotseatButtonPressed(sPlayer, color, data_key, button_key)
     local passedcurrentPlayerControl = false
     if currentPlayerControl == nil or currentPlayerControl == 'AIEasy' then --and i == #bots then
         local newDifficulty
+        local background_color
         if currentPlayerControl == nil then
             newDifficulty = 'Easy'
+            background_color = EASY_AI_COLOR
         else
             newDifficulty = 'Hard (Beta)'
+            background_color = HARD_AI_COLOR
         end
         Global.call('setControlPanelState', {key = data_key, value = 'AI' .. newDifficulty})--player})
         allGameMessage(color .. " has been set to an AI player of difficulty: " .. newDifficulty, stringColorToRGB(color), nil)
-        self.editButton({index = btnIDs[button_key], label = 'AI'})
+        self.editButton({index = btnIDs[button_key], label = 'AI', color = background_color})
         numPlayersChanged = true
     else
         if currentPlayerControl == 'AIHard (Beta)' then
@@ -103,11 +120,11 @@ function onHotseatButtonPressed(sPlayer, color, data_key, button_key)
                 if Player[player].seated then
                     Global.call('setControlPanelState', {key = data_key, value = player})
                     allGameMessage({"{c1} has been set to a hotseat player of {p1}", {'{c1}', color}, {'{p1}', stringToBracketedHex(player) .. player}}, stringColorToRGB(color), player)
-                    self.editButton({index = btnIDs[button_key], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)})
+                    self.editButton({index = btnIDs[button_key], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1), color = stringColorToRGB(player)})
                 else
                     Global.call('setControlPanelState', {key = data_key, value = nil})
                     allGameMessage({"{c1} is no longer a hotseat player", {'{c1}', color}}, NEUTRAL_COLOR)
-                    self.editButton({index = btnIDs[button_key], label = ''})
+                    self.editButton({index = btnIDs[button_key], label = '', color=WHITE_COLOR})
                     numPlayersChanged = true
                 end
                 break
@@ -134,15 +151,16 @@ function onPlayerChangedColor(player)
     if not Global.getVar('gameover') then return end
     for _, color in ipairs(PLAYER_COLORS) do
         if Player[color].seated then
-            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'X'})
+            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'X', color=stringColorToRGB(color)})
         elseif Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
             if Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,2) == 'AI' then
-                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(3,3)})
+                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'AI'})
             else
-                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)})
+                local player = Global.call('getControlPanelState', {key = color .. 'Control'})
+                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = player:sub(1,1), color = stringColorToRGB(player)})
             end
         else
-            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = ''})
+            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = '', color=WHITE_COLOR})
         end
     end
 end

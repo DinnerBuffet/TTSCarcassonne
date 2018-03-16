@@ -122,7 +122,7 @@ function onload(save_state)
             allGameMessage({"Game loaded. It is now {p1}'s turn on state: {s1}.", {'{p1}', activePlayers[currentPlayer]}, {'{s1}', turnState}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
             allGameMessage({"{p1} is controlled by {c1}", {'{p1}', activePlayers[currentPlayer]}, {'{c1}', stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Control']) .. getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], nil)
         end
-        allGameMessage({"Please note that rewinds are not supported. You may need to clean some things up if the state was saved while the script was running."}, NEUTRAL_COLOR)
+        allGameMessage({"Please note that rewinds are only partially supported. You may need to clean some things up if the state was saved while the script was running."}, NEUTRAL_COLOR)
     else
       -- for i, player in ipairs(getSeatedPlayers()) do
       --   local button_parameters = {}

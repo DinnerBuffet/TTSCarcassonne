@@ -13,6 +13,16 @@ function translate(params)
   return msg
 end
 
+LOCALIZED_TAUNTS = {
+    ['en-us'] = {
+        "Hehehehe...",
+        ":)",
+        "Let's see if you can handle this.",
+        "You've just been served, son.",
+        "Let me guess, you're gonna whine about how I cheat now."
+    }
+}
+
 LOCALIZED_STRINGS = {
   ['zh-tw'] = {
     --Player Colors
@@ -140,7 +150,7 @@ LOCALIZED_STRINGS = {
     ["-------{c1} is controlled by {c2}------"] = "-------{c1}被{c2}控制------",
     ["{c1} gets another turn for laying down the volcano lake tile."] = "因為放了火山河牌{c1}可以再行駛一次動作",
     ["Cannot start a game without a starting tileset."] = "沒有任何版本牌組，遊戲無法開始",
-    ["Cannot start an AI game with incompatible expansion: {s1}."] = "人工智慧玩家還沒學會{s1}版本，遊戲無法開始",
+    ["Cannot start an AI game with incompatible expansions: {s1}."] = "人工智慧玩家還沒學會{s1}版本，遊戲無法開始",
     ["{c1} has substituted their color for {c2}"] = "{c1}把顏色換成{c2}",
     ["{n1} points - {p1}"] = "{n1}分 - {p1}", --this is displayed as a line for each player on the scoreboard
     ["#{n1} - {n2} points - {c1} - {p1}"] = "#{n1} - {n2}分 - {c1} - {p1}", --this is displayed as a line for each player when printing the scores at the end of the game

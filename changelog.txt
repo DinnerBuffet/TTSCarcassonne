@@ -1,4 +1,11 @@
-﻿v1.19.9 - 20180307
+﻿v1.20.0 - 20180316
+[*]Hard AI has been implemented. This AI is more advanced and can try to block their opponent and/or steal their features away. It takes quite a bit longer to calculate each move, but should be under 10 seconds most of the time (will be significantly longer if playing with many expansions). This is a work in progress and will need to be tuned over the next coming updates. Currently it is compatible with the same expansions as before (Inns & Cathedrals + Traders & Builders, Hills & Sheep (without shepherd), but will work with all tiles if the expansion's tile features are off).
+[*]The AIs will occasionally taunt the players when they think they have made a very good move.
+[*]Button colors have been added to the color panel to more obvious what the current AI/hotseat setting is.
+[*]All incompatible AI expansions are now printed at the same time.
+[*]Fixed cosmetic bug: control panel changes AI button text when changing seats. (bug has existed since 1.14)
+
+v1.19.9 - 20180307
 [*]King and Robber tiles now contain the largest city and road, respectively, in the description. (Thanks to Cruise Elroy for the suggestion!)
 [*]Fixed gold not being awarded properly (due to a change in 1.18) (Thanks to Cruise Elroy for reporting!)
 [*]Fixed tiles not shifting correctly (due to a change in 1.19.7) (Thanks to Cruise Elroy for reporting!)

@@ -1,7 +1,3 @@
---STOP RIGHT THERE! If you're trying to read this script as one big ugly file, you're doing it wrong.
---Go here for instructions on proper viewing: https://github.com/DinnerBuffet/TTSCarcassonne
-
-----#include !\TTSCarcassonne\scripts\global
 -- Carcassonne and all expansions w/ automated scripting
 -- Scripting by Sancho
 -- The rules are based on the contents of Carcassonne Annotated Rules (CAR) v7.4.
@@ -710,11 +706,18 @@ function gameToggleButton(object, sPlayer)
             end
             for _, player_color in ipairs(PLAYER_COLORS) do
                 if controlPanelSettings[player_color .. 'Control'] ~= nil and controlPanelSettings[player_color .. 'Control']:sub(1,2) == 'AI' then
+                    local illegalExpansion = false
+                    local illegalExpansionList = ""
                     for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
                         if settingOn and table.contains({'StartingTileCoC', 'PnDDragon', 'TowerTowers', 'AnMAbbey', 'AnMWagon', 'WoFPlague', 'FlierFlier', 'GoldminesGold'}, controlPanelSetting) then
-                            allErrorMessage({"Cannot start an AI game with incompatible expansion: {s1}.", {'{s1}', controlPanelSetting}}, sPlayer)
-                            return
+                            illegalExpansion = true
+                            illegalExpansionList = illegalExpansionList .. controlPanelSetting .. ", "
                         end
+                    end
+                    if illegalExpansion then
+                        illegalExpansionList = illegalExpansionList:sub(1, -3) --get rid of the last comma and space
+                        allErrorMessage({"Cannot start an AI game with incompatible expansions: {s1}.", {'{s1}', illegalExpansionList}}, sPlayer)
+                        return
                     end
                     break
                 end
@@ -4467,11 +4470,9 @@ end
 
 function debugShowTileOdds()
     print("printing connection odds...")
-    for x, columns in pairs(tileConnectionOdds) do --iterate through all valid tile lists and remove the added tile
-        for z, tileOdds in pairs(columns) do
-            for key, numChances in pairs(tileOdds) do
-                print("x:" .. x .. " z:" .. z .. " " .. key .. ":" .. numChances)
-            end
+    for openingCoord, tileOdds in pairs(tileConnectionOdds) do --iterate through all valid tile lists and remove the added tile
+        for key, numChances in pairs(tileOdds) do
+            print(openingCoord .. " " .. key .. ":" .. numChances)
         end
     end
 end

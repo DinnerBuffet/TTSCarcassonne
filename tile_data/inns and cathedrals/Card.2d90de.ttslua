@@ -1,3 +1,4 @@
+symmetry = 2
 sides = {'Road', 'Field', 'Road', 'Field'}
 linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}}
 specialFeatures = {{'Cloister', nil, {0.0,0.0}}, {'Road Intersection', {1, 13}, nil}, {'Road Intersection', {3, 13}, nil}}
