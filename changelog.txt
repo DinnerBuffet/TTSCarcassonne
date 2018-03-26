@@ -1,4 +1,14 @@
-﻿v1.20.0 - 20180316
+﻿v1.20.1 - 20180326
+[*]Hard AI will now consider tokens in blocked cities when calculating remaining tokens.
+[*]Added limit to join percentages for hard AI so that it will still value connections that have not yet been completed.
+[*]Hard AI will now recursively calculate a penalty for features it leaves unoccupied. This should reduce the likelihood that it will set itself up for a steal from a neighboring feature. However, the AI may now prefer to occupy these features unnecessarily. This will need more work later.
+[*]The connecting tile will now be considered in the block percentages. Previously this was making nearly impossible to complete feature combinations highly valuable.
+[*]Fixed AI being broken for the river (Thanks to Knisspel for reporting!)
+[*]Fixed AI being able to place tiles next to tiles that had been removed, even if those locations were illegal.
+[*]Fixed Easy AI being broken whenever a special figure is used.
+[*]Fixed opening locations with multiple feature connections giving strong preference to the earlier connections in order. The new solution messes up the join percentages, so it will need to be revisited later.
+
+v1.20.0 - 20180316
 [*]Hard AI has been implemented. This AI is more advanced and can try to block their opponent and/or steal their features away. It takes quite a bit longer to calculate each move, but should be under 10 seconds most of the time (will be significantly longer if playing with many expansions). This is a work in progress and will need to be tuned over the next coming updates. Currently it is compatible with the same expansions as before (Inns & Cathedrals + Traders & Builders, Hills & Sheep (without shepherd), but will work with all tiles if the expansion's tile features are off).
 [*]The AIs will occasionally taunt the players when they think they have made a very good move.
 [*]Button colors have been added to the color panel to more obvious what the current AI/hotseat setting is.

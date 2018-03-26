@@ -32,6 +32,7 @@ STUCK_BUILDER_PENALTY = 0.3 --this penalty will be applied to a builder that is 
 STUCK_PIG_PENALTY = 0.15 --this penalty will be applied to a pig that is 100% stuck until the end of the game. The penalty is multiplied by the number of tiles left. This penalty is also partially applied to pigs that have a chance ot get stuck.
 BUILDER_BONUS_VALUE = 0.5 --Extra value for having a feature with a builder (this is needed to give incentive for the AI to place it, since the stuck penalty will make it highly unfavored)
 BUILDER_EXTRA_TURN_VALUE = 1.0 --Extra value provided by adding to a feature with a builder
+MAX_JOIN_PERCENTAGE = 0.8 --connections with very high join percentages tend to screw up the AI's decisions since it will already get 99% of the score benefit from a connection that hasn't even been made. Therefore, use this limit so that there is incentive to finish the connection.
 
 --EASY MODE CONSTS
 OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
@@ -609,6 +610,7 @@ function AITileRemoved(xIndex, zIndex, removedTile)
     for side, sideDelta in ipairs(SIDE_DELTA) do
         local nestedX = xIndex + sideDelta.x
         local nestedZ = zIndex + sideDelta.z
+        local openingCoord = nestedX .. '-' .. nestedZ
         if not tileGridOccupied(nestedX, nestedZ) then
             local hasNeighbor = false
             for nested_side, nested_sideDelta in ipairs(SIDE_DELTA) do
@@ -618,7 +620,6 @@ function AITileRemoved(xIndex, zIndex, removedTile)
                 end
             end
             if hasNeighbor then
-                local openingCoord = nestedX .. '-' .. nestedZ
                 for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
                     if validTileLocations[openingCoord][unusedTile_GUID] == nil then
                         validTileLocations[openingCoord][unusedTile_GUID] = {}
@@ -635,6 +636,9 @@ function AITileRemoved(xIndex, zIndex, removedTile)
                     end
                 end
                 tileConnectionOdds[openingCoord] = AICalculateOdds(openingCoord, nestedX, nestedZ, xIndex, zIndex, false)
+            else
+                validTileLocations[openingCoord] = nil
+                tileConnectionOdds[openingCoord] = nil
             end
         end
     end
@@ -854,9 +858,9 @@ function AIChooseTileLocation()
             local tileConfigurations = {}
             for xIndex, tileColumn in pairs(tileGrid) do
                 for zIndex, tileLocation in pairs(tileColumn) do
-                    local nestedX = xIndex + sideDelta.x
-                    local nestedZ = zIndex + sideDelta.z
                     for side, sideDelta in pairs(SIDE_DELTA) do
+                        local nestedX = xIndex + sideDelta.x
+                        local nestedZ = zIndex + sideDelta.z
                         if not tileGridOccupied(nestedX, nestedZ) then
                             if tileConfigurations[nestedX] == nil then
                                 tileConfigurations[nestedX] = {}
@@ -1020,7 +1024,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
             table.insert(joinedActiveFigures[featureNum].followers, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner'), tile_guid=tileGrid[followerXIndex][followerZIndex].tile_guid})
         end
         for _, figure in ipairs(figureList.specialFigures) do
-            table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner')})
+            table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName=figure.getVar('figureName'), owner=figure.getVar('owner')})
         end
     end
     AICalculateActiveScoresEasy(xIndex, zIndex)
@@ -1706,9 +1710,13 @@ function AICalculateBaselineScores()
     --tempFeatureList = featureList
     --tempLinkedFeatures = linkedFeatures
 
+    AICalculateFeatureJoinPercentages()
+
     tokenCounts = {}
+    blockedTokens = {}
     for _, tradeGoodType in ipairs(TRADE_GOOD_TYPES) do
         tokenCounts[tradeGoodType] = {}
+        blockedTokens[tradeGoodType] = 0
         for _, player in ipairs(activePlayers) do
             tokenCounts[tradeGoodType][player] = 0
         end
@@ -1725,9 +1733,48 @@ function AICalculateBaselineScores()
                 end
             end
         end
+        local numCards
+        if NUMBER_OF_DRAWN_TILES_FOR_BLOCK_PERCENTAGE < numRemainingMoves then
+            numCards = NUMBER_OF_DRAWN_TILES_FOR_BLOCK_PERCENTAGE
+        else
+            numCards = numRemainingMoves
+        end
+        for featureNum, feature in pairs(featureList) do
+            if feature.openings > 0 and feature.nameOfFeature == 'City' then
+                local containsToken = false
+                for _, specialFeature in ipairs(feature.specialFeatures) do
+                    if table.contains(TRADE_GOOD_TYPES, specialFeature) then
+                        containsToken = true
+                        break
+                    end
+                end
+                if containsToken then
+                    local blockPercentage
+                    if featureBlockPercentages["" .. featureNum] ~= nil then
+                        blockPercentage = featureBlockPercentages["" .. featureNum]
+                    else
+                        blockPercentage = 0
+                        for openingCoord, _ in pairs(feature.openingCoords) do
+                            local connectionOdds = tileConnectionOdds[openingCoord]
+                            if connectionOdds ~= nil then --if it is still nil, this is probably a "proximity feature" that doesn't have neighbors yet
+                                if connectionOdds["blocked"] > tilesRemaining or tilesRemaining == 0 then
+                                    blockPercentage = 1
+                                else
+                                    blockPercentage = 1 - ((1 - blockPercentage) * (1 - (connectionOdds["blocked"] / tilesRemaining) ^ numCards))
+                                end
+                            end
+                        end
+                    end
+                    for _, specialFeature in ipairs(feature.specialFeatures) do
+                        if table.contains(TRADE_GOOD_TYPES, specialFeature) then
+                            blockedTokens[specialFeature] = blockedTokens[specialFeature] + blockPercentage
+                        end
+                    end
+                end
+            end
+        end
     end
 
-    AICalculateFeatureJoinPercentages()
     AICalculateActiveScores()
 
     baselineScores = {}
@@ -1736,12 +1783,12 @@ function AICalculateBaselineScores()
         baselineScores[player] = activeScores[player]
         --debugMessage(1, " " .. player .. ": " .. baselineScores[player])
     end
-    --print("baseline finished")
+    -- print("baseline finished")
 end
 
 --calculate the gain in value from placing the tile here, in addition to possibly using a figure
 function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
-    --debugMessage(1, "AICalculateTileLocationScore at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
+    debugMessage(1, "AICalculateTileLocationScore at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
     --temporarily insert this tile into the grid
     if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
     tileGrid[xIndex][zIndex] = {}
@@ -1771,7 +1818,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
     AICalculateFeatureJoinPercentages()
     AICalculateActiveScores(xIndex, zIndex, tileRotation)
     local moveScore = AICalculateCurrentPlayerScoreBenefit()
-    --debugMessage(1, "moveScore:" .. moveScore)
+    debugMessage(1, "moveScore:" .. moveScore)
 
     local currentPlayerSpareFollowers = currentPlayerFollowerCountChange + baselineFollowerCounts[activePlayers[currentPlayer]] + (baselineFigures[activePlayers[currentPlayer]]['Big Follower'] and 1 or 0)
 
@@ -1820,17 +1867,17 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
         if featureNum ~= nil and featureVisited[featureNum] ~= true then
             local tempFeatureJoinPercentages = table.shallow_copy(featureJoinPercentages)
             local tempFeatureBlockPercentages = table.shallow_copy(featureBlockPercentages)
+            local featureNumKey = "" .. featureNum
             if joinedActiveFigures[featureNum] == nil then
                 local traversedOpenings = {}
-                local featureKey = "" .. featureNum
                 local feature = tempFeatureList[featureNum]
                 if feature == nil then feature = featureList[featureNum] end
                 local openingCoords = table.shallow_copy(feature.openingCoords)
-                featureJoinPercentages[featureKey] = {}
-                featureJoinPercentages[featureKey].percentage = 1
-                featureJoinPercentages[featureKey].openings = {}
+                featureJoinPercentages[featureNumKey] = {}
+                featureJoinPercentages[featureNumKey].percentage = 1
+                featureJoinPercentages[featureNumKey].openings = {}
 
-                AICalculateFeatureJoinPercentage(traversedOpenings, {featureNum}, featureKey, openingCoords, featureJoinPercentages, featureBlockPercentages)
+                AICalculateFeatureJoinPercentage(traversedOpenings, {featureNum}, featureNumKey, openingCoords, featureJoinPercentages, 1, featureBlockPercentages)
             end
             local featureFigures = joinedActiveFigures[featureNum]
             if featureFigures == nil then
@@ -1850,17 +1897,6 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
             local openingCoords = feature.openingCoords
             local numTiles = feature.numTiles
             local featureLocation = feature.featureLocation
-
-            -- if numRemainingMoves > currentPlayerSpareFollowers and (featureOpenings > 0 or nameOfFeature == 'Field') then
-            --     score = featureScore + moveScore + spareFollowerAdjustment
-            --     if nameOfFeature ~= 'Field' and nameOfFeature ~= 'Cloister' then
-            --         score = score - featureOpenings * OPEN_FEATURE_PENALTY
-            --     elseif nameOfFeature == 'Cloister' then
-            --         --TODO: I think cloister needs a slight penalty
-            --     end
-            -- else
-            --     score = featureScore + moveScore
-            -- end
 
             local playerHasFollower = false
             for _, follower in ipairs(featureFigures.followers) do
@@ -1884,7 +1920,6 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                 end
                 traversedOpenings = {}
 
-                local featureScore = AICalculateFeatureScore(0, {featureNum}, nameOfFeature, specialFeatures, featureOpenings, openingCoords, numTiles, featureLocation, featureFigures)
                 local usedFeature = false
                 local fieldHasBarn = false
                 if (nameOfFeature == 'Field' and #featureFigures.specialFigures > 0) then
@@ -1902,7 +1937,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                         if featureOpenings > 0 or nameOfFeature == 'Field' then
                             followerScore = followerScore + spareFollowerAdjustment
                         end
-                        --debugMessage(1, "followerScore at feature " .. featureNum .. ":" .. followerScore)
+                        debugMessage(1, "followerScore at feature " .. featureNum .. ":" .. followerScore)
                         if followerScore == highestScore then
                             --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                             numIdenticalScore = numIdenticalScore + 1
@@ -1930,7 +1965,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                         if featureOpenings > 0 then
                             followerScore = followerScore + spareFollowerAdjustment
                         end
-                        --debugMessage(1, "bigFollowerScore at feature " .. featureNum .. ":" .. followerScore)
+                        debugMessage(1, "bigFollowerScore at feature " .. featureNum .. ":" .. followerScore)
                         if followerScore == highestScore then
                             --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                             numIdenticalScore = numIdenticalScore + 1
@@ -1952,17 +1987,55 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                         table.remove(joinedActiveFigures[featureNum].followers)
                     end
                 end
-                if not usedFeature and nameOfFeature ~= 'Field' and nameOfFeature ~= 'Cloister' and featureScore > highestUnusedFeature then
-                    highestUnusedFeature = featureScore
-                end
                 if unoccupiedFeature then --get rid of temporary figures
                     joinedActiveFigures[featureNum] = nil
+                end
+                if not usedFeature and nameOfFeature ~= 'Field' and nameOfFeature ~= 'Cloister' then
+                    local featureScore = 0
+                    for featureKey, joinPercentage in pairs(featureJoinPercentages) do
+                        local features = string.split(featureKey, "+")
+
+                        if table.contains(features, featureNumKey) then
+                            local featureLocation = nil
+                            local joinedFeatureFigures = {}
+                            joinedFeatureFigures.followers = {}
+                            joinedFeatureFigures.specialFigures = {}
+                            local joinedSpecialFeatures = {}
+                            local joinedNumTiles = 0
+                            local joinedOpenings = 1
+                            local joinedOpeningCoords = {}
+                            local joinedFeatureNums = {}
+
+                            for _, joinedFeatureNum in ipairs(features) do
+                                table.insert(joinedFeatureNums, joinedFeatureNum)
+
+                                local joinedFeature = tempFeatureList[joinedFeatureNum]
+                                if joinedFeature == nil then joinedFeature = featureList[joinedFeatureNum] end
+                                if joinedFeature ~= nil then
+                                    for _,v in ipairs(joinedFeature.specialFeatures) do table.insert(joinedSpecialFeatures, v) end
+                                    for k,v in pairs(joinedFeature.openingCoords) do joinedOpeningCoords[k] = v end
+
+                                    joinedNumTiles = joinedNumTiles + joinedFeature.numTiles --worth noting that this will inflate the value of features which re-use the same tile. No easy way to fix this, but I don't think it will make a huge difference.
+                                    joinedOpenings = joinedOpenings + joinedFeature.openings - 1
+                                end
+                            end
+                            local featureJoinPercentage = joinPercentage.percentage
+                            if featureJoinPercentage > MAX_JOIN_PERCENTAGE then featureJoinPercentage = MAX_JOIN_PERCENTAGE end
+                            local connectedFeature = AICalculateFeatureScore(featureBlockPercentages[featureKey], joinedFeatureNums, nameOfFeature, joinedSpecialFeatures, joinedOpenings, joinedOpeningCoords, joinedNumTiles, featureLocation, featureFigures)
+
+                            featureScore = featureScore + featureJoinPercentage * connectedFeature
+                        end
+                    end
+                    if featureScore > highestUnusedFeature then
+                        debugMessage(1, "new highest unused featureNum: " .. featureNum .. " :" .. featureScore)
+                        highestUnusedFeature = featureScore
+                    end
                 end
             elseif playerHasFollower and nameOfFeature == 'Field' and baselineFigures[activePlayers[currentPlayer]]['Pig'] then
                 table.insert(joinedActiveFigures[featureNum].specialFigures, {figureName="Pig", owner=activePlayers[currentPlayer], tile_guid=newTile.getGUID()})
                 AICalculateActiveScores(xIndex, zIndex, tileRotation, featureNum)
                 local pigScore = AICalculateCurrentPlayerScoreBenefit()
-                --debugMessage(1, "pigScore at feature " .. featureNum .. ":" .. pigScore)
+                debugMessage(1, "pigScore at feature " .. featureNum .. ":" .. pigScore)
                 if pigScore > highestScore then
                     --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                     --debugMessage(1, "moveScore:".. moveScore .. " spareFollowerAdjustment:" .. spareFollowerAdjustment .. " openFeaturePenalty:" .. featureOpenings * OPEN_FEATURE_PENALTY .. " featureScore:" .. featureScore)
@@ -1991,7 +2064,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     --debugMessage(1, "found identical builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                     numIdenticalScore = numIdenticalScore + 1
                 end
-                --debugMessage(1, "builderScore at feature " .. featureNum .. ":" .. builderScore)
+                debugMessage(1, "builderScore at feature " .. featureNum .. ":" .. builderScore)
                 if builderScore > highestScore or (math.random(numIdenticalScore) == 1 and builderScore == highestScore) then -- this is to lessen the bias towards one side of the play area
                     --debugMessage(1, "found new best builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
                     if builderScore > highestScore then
@@ -2011,7 +2084,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
             featureBlockPercentages = tempFeatureBlockPercentages
         end
     end
-    moveScore = moveScore - highestUnusedFeature * 0.02 -- meant to slightly disourage from building a feature for someone else to take
+    moveScore = moveScore - highestUnusedFeature * 0.3 -- meant to slightly disourage from building a feature for someone else to take
+    debugMessage(1, "adjusting score for highest unused feature: " .. highestUnusedFeature)
     if moveScore == highestScore then
         --debugMessage(1, "found identical tile score: " .. moveScore .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
         numIdenticalScore = numIdenticalScore + 1
@@ -2042,9 +2116,10 @@ function AICalculateCurrentPlayerScoreBenefit()
         if player == activePlayers[currentPlayer] then
             moveScore = moveScore + scoreChange[player]
         elseif #activePlayers <= 2 then
+            -- in 1-on-1 games, lowering our opponent's score is exactly equal to gaining points in all cases
             moveScore = moveScore - scoreChange[player]
         elseif activeScores[activePlayers[currentPlayer]] - activeScores[player] < SCORE_THREAT_THRESHOLD then
-            -- if this opponent is SCORE_THREAT_THRESHOLD points behind (after this move), then we don't care about their score change
+            -- if this opponent is within SCORE_THREAT_THRESHOLD points behind (after this move), then their gain in points hurts our position, so subtract a portion of those points
             moveScore = moveScore - (scoreChange[player] * (SCORE_THREAT_THRESHOLD - activeScores[activePlayers[currentPlayer]] + activeScores[player]) / SCORE_THREAT_THRESHOLD) / (#activePlayers - 1)
         end
     end
@@ -2140,7 +2215,7 @@ function AICalculateActiveScores(newXIndex, newZIndex, tileRotation, featureNum)
                     tokenCount[activePlayers[currentPlayer]] = tokenCount[activePlayers[currentPlayer]] + 1
                 end
             end
-            local numRemainingTokens = TRADE_TOKEN_COUNTS[tokenType]
+            local numRemainingTokens = TRADE_TOKEN_COUNTS[tokenType] - blockedTokens[tokenType]
             --find the highest count for this token
             for _, player in ipairs(activePlayers) do
                 if tokenCount[player] ~= nil and tokenCount[player] >= highestNumTokens then
@@ -2204,8 +2279,11 @@ function AICalculateActiveScores(newXIndex, newZIndex, tileRotation, featureNum)
         -- if ((newXIndex == 12 and newZIndex == 19 and tileRotation == 3 and featureNum == '57') or newXIndex == nil) then
         --     print("feature:" .. featureKey .. " type:" .. nameOfFeature .. " join%:" .. joinPercentage.percentage .. " block%:" .. featureBlockPercentages[featureKey])
         -- end
+        local featureJoinPercentage = joinPercentage.percentage
+        if featureJoinPercentage > MAX_JOIN_PERCENTAGE then featureJoinPercentage = MAX_JOIN_PERCENTAGE end
+
         for _, player in ipairs(activePlayers) do
-            activeScores[player] = activeScores[player] + joinedFeatureScore[player] * joinPercentage.percentage
+            activeScores[player] = activeScores[player] + joinedFeatureScore[player] * featureJoinPercentage
             -- if joinedFeatureScore[player] ~= 0 and ((newXIndex == 12 and newZIndex == 19 and tileRotation == 3 and featureNum == '57') or newXIndex == nil) then
             --     print("feature:" .. featureKey .. " player: " .. player .. " score:" .. joinedFeatureScore[player] * joinPercentage.percentage)
             -- end
@@ -2213,6 +2291,8 @@ function AICalculateActiveScores(newXIndex, newZIndex, tileRotation, featureNum)
     end
 end
 
+--Calculate the "rough" percentages that different features will connect to each other. Note that right now, these numbers don't mean too much and
+--don't expect expect anything to add up to 100%
 function AICalculateFeatureJoinPercentages()
     featureJoinPercentages = {}
     featureBlockPercentages = {}
@@ -2231,11 +2311,11 @@ function AICalculateFeatureJoinPercentages()
         featureJoinPercentages[featureKey].percentage = 1
         featureJoinPercentages[featureKey].openings = {}
 
-        AICalculateFeatureJoinPercentage(traversedOpenings, {featureNum}, featureKey, openingCoords, featureJoinPercentages, featureBlockPercentages)
+        AICalculateFeatureJoinPercentage(traversedOpenings, {featureNum}, featureKey, openingCoords, featureJoinPercentages, 1, featureBlockPercentages)
     end
 end
 
-function AICalculateFeatureJoinPercentage(traversedJoinOpenings, joinedFeatureNums, joinedFeaturesKey, joinedOpeningCoords, featureJoinPercentages, featureBlockPercentages)
+function AICalculateFeatureJoinPercentage(traversedJoinOpenings, joinedFeatureNums, joinedFeaturesKey, joinedOpeningCoords, featureJoinPercentages, prevJoinPercentage, featureBlockPercentages)
     --debugMessage(1, "start: " .. joinedFeaturesKey)
     local traversedBlockOpenings = {}
     if featureBlockPercentages[joinedFeaturesKey] == nil then
@@ -2270,7 +2350,7 @@ function AICalculateFeatureJoinPercentage(traversedJoinOpenings, joinedFeatureNu
                                 end
                             end
                             if featureNumPresent then
-                                if connectionStat ~= "close+" .. featureNum and connectionStat ~= "extend+" .. featureNum then
+                                --if connectionStat ~= "close+" .. featureNum and connectionStat ~= "extend+" .. featureNum then
                                     local nestedJoinedFeatureNums = table.shallow_copy(joinedFeatureNums)
                                     local nestedJoinedOpeningCoords = table.shallow_copy(joinedOpeningCoords)
                                     local foundNewFeatureNum = false
@@ -2283,38 +2363,37 @@ function AICalculateFeatureJoinPercentage(traversedJoinOpenings, joinedFeatureNu
                                         end
                                     end
                                     if foundNewFeatureNum then
-                                    local key = ""
-                                    for _, featureNum in ipairs(nestedJoinedFeatureNums) do
-                                        key = key .. featureNum .. "+"
-                                    end
-                                    key = key:sub(1, -2) --get rid of the last plus sign
-                                    if key ~= joinedFeaturesKey then
-                                        --the following makes the assumption that exactly 1 player would want to do this move if given the chance
-                                        local joinPercentage = odds / connectionOdds["totalValid"] * (1 - (1 - (1 / #activePlayers)) ^ odds)
-                                        if featureJoinPercentages[key] == nil then
-                                            local nestedTraversedJoinOpenings = table.shallow_copy(traversedJoinOpenings)
-
-                                            --don't use the opening when calculating block percentage
-                                            --HACK: there is a slight flaw in that if there are multiple ways to connect these features, the block percentage of only
-                                            --one of them will be used. Presumably this should be fairly rare, though. For now, it is good enough.
-                                            nestedJoinedOpeningCoords[openingCoord] = nil
-                                            --debugMessage(1, "connected to " .. key .. " with joinPercentage:" .. joinPercentage .. " prevPercentage:" .. featureJoinPercentages[joinedFeaturesKey].percentage)
-                                            featureJoinPercentages[key] = {}
-                                            featureJoinPercentages[key].percentage = joinPercentage * featureJoinPercentages[joinedFeaturesKey].percentage
-                                            featureJoinPercentages[key].openings = {}
-                                            featureJoinPercentages[key].openings[openingCoord] = true
-                                            AICalculateFeatureJoinPercentage(nestedTraversedJoinOpenings, nestedJoinedFeatureNums, key, nestedJoinedOpeningCoords, featureJoinPercentages, featureBlockPercentages)
-                                        elseif featureJoinPercentages[key].openings[openingCoord] == nil then
-                                            --debugMessage(1, "reconnected to " .. key .. " with joinPercentage:" .. joinPercentage .. " prevPercentage:" .. featureJoinPercentages[key].percentage)
-                                            featureJoinPercentages[key].openings[openingCoord] = true
-                                            featureJoinPercentages[key].percentage = 1 - ((1 - featureJoinPercentages[key].percentage) * (1 - (joinPercentage * featureJoinPercentages[joinedFeaturesKey].percentage)))
+                                        local key = ""
+                                        for _, featureNum in ipairs(nestedJoinedFeatureNums) do
+                                            key = key .. featureNum .. "+"
                                         end
-                                        if featureJoinPercentages[joinedFeaturesKey].openings[openingCoord] == nil then
-                                            featureJoinPercentages[joinedFeaturesKey].openings[openingCoord] = true
-                                            featureJoinPercentages[joinedFeaturesKey].percentage = featureJoinPercentages[joinedFeaturesKey].percentage * (1 - joinPercentage)
+                                        key = key:sub(1, -2) --get rid of the last plus sign
+                                        if key ~= joinedFeaturesKey then
+                                            --the following makes the assumption that exactly 1 player would want to do this move if given the chance
+                                            local joinPercentage = odds / connectionOdds["totalValid"] * (1 - (1 - (1 / #activePlayers)) ^ odds)
+                                            if featureJoinPercentages[key] == nil then
+                                                local nestedTraversedJoinOpenings = table.shallow_copy(traversedJoinOpenings)
+                                                --debugMessage(1, "connected to " .. key .. " with joinPercentage:" .. joinPercentage .. " prevJoinPercentage:" .. prevJoinPercentage)
+                                                featureJoinPercentages[key] = {}
+                                                featureJoinPercentages[key].percentage = joinPercentage * prevJoinPercentage
+                                                featureJoinPercentages[key].openings = {}
+                                                featureJoinPercentages[key].openings[openingCoord] = true
+                                                featureJoinPercentages[joinedFeaturesKey].openings[openingCoord] = true
+                                                featureJoinPercentages[joinedFeaturesKey].percentage = featureJoinPercentages[joinedFeaturesKey].percentage * (1 - joinPercentage)
+                                                AICalculateFeatureJoinPercentage(nestedTraversedJoinOpenings, nestedJoinedFeatureNums, key, nestedJoinedOpeningCoords, featureJoinPercentages, joinPercentage, featureBlockPercentages)
+                                            elseif featureJoinPercentages[key].openings[openingCoord] == nil then
+                                                --debugMessage(1, "reconnected to " .. key .. " with joinPercentage:" .. joinPercentage .. " prevJoinPercentage:" .. prevJoinPercentage)
+                                                featureJoinPercentages[key].openings[openingCoord] = true
+                                                featureJoinPercentages[key].percentage = 1 - ((1 - featureJoinPercentages[key].percentage) * (1 - (joinPercentage * prevJoinPercentage)))
+                                                featureJoinPercentages[joinedFeaturesKey].openings[openingCoord] = true
+                                                featureJoinPercentages[joinedFeaturesKey].percentage = featureJoinPercentages[joinedFeaturesKey].percentage * (1 - joinPercentage)
+                                            end
+                                            if featureJoinPercentages[joinedFeaturesKey].openings[openingCoord] == nil then
+                                                featureJoinPercentages[joinedFeaturesKey].openings[openingCoord] = true
+                                                featureJoinPercentages[joinedFeaturesKey].percentage = featureJoinPercentages[joinedFeaturesKey].percentage * (1 - joinPercentage)
+                                            end
                                         end
-                                    end
-                                    end
+                                    --end
                                 end
                             end
                         --end
@@ -2351,7 +2430,6 @@ function AICalculateFeatureScore(blockPercentage, featureNums, nameOfFeature, sp
     for _, player in ipairs(activePlayers) do
         featureScore[player] = 0
     end
-
     if nameOfFeature == 'River' or nameOfFeature == 'Carcassonne' then --ensure illegal moves are never chosen
         featureScore[activePlayers[currentPlayer]] = -1000
     end

@@ -4471,9 +4471,12 @@ end
 function debugShowTileOdds()
     print("printing connection odds...")
     for openingCoord, tileOdds in pairs(tileConnectionOdds) do --iterate through all valid tile lists and remove the added tile
+        local printLine = openingCoord .. ": "
         for key, numChances in pairs(tileOdds) do
-            print(openingCoord .. " " .. key .. ":" .. numChances)
+            printLine = printLine .. key .. ":" .. numChances .. ", "
         end
+        printLine = printLine:sub(1, -3) --get rid of the last comma and space
+        print(printLine)
     end
 end
 
