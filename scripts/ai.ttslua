@@ -13,7 +13,7 @@
 AI_DRAW_TILE_TIME = 1.0 --time delay to allow the drawn tile to travel to the AI player's hand
 AI_ANIMATIONS_ENABLED = false --will move pieces smoothly if true, otherwise the pieces will instantly move
 AI_DRAW_TILE_TO_HAND = false -- will move the pieces to the AI player's hand first. If false, pieces will be moved in front of their hand instead
-AI_TAUNT_THRESHOLD = 25 -- a move that nets a gain of more than this many points will prompt the AI to taunt the opponents
+AI_TAUNT_THRESHOLD = 20 -- a move that nets a gain of more than this many points will prompt the AI to taunt the opponents
 
 --SHARED CONSTS
 END_GAME_TRANSITION = 20 --when there are less than this number of tiles (per player), the AI will begin abandoning difficult to complete roads with inns and cities with cathedrals.
@@ -117,6 +117,7 @@ unusedTiles = {}
 
 function AIMemorizeCards(tileStack)
     --allGameMessage("Please wait while the AI memorizes the tiles...", NEUTRAL_COLOR)
+    unusedTiles = {}
     local anchor = getObjectFromGUID(BUTTON_ANCHOR_GUID) --I use the anchor as a temporary placeholder for the script because it is a spare object that players shouldn't interact with. There's no other real reason.
     for i, tile in ipairs(tileStack.getObjects()) do
         anchor = anchor.reload()
@@ -198,7 +199,7 @@ end
 
 --AITileAdded is called after addTile has completed. It will
 --remove tiles from adjacent validTileLocations that have been invalidated by the move
---It will then call AICalculateOdds to recompile the possible odds for those locations
+--It will then call AICalculateLocationOdds to recompile the possible odds for those locations
 --For non-adjacent open locations, it will call AIRemoveTileOdds to more quickly recalculate the odds of those
 --locations by removing the connections of that single tile
 function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
@@ -219,12 +220,7 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
         end
     end
     if not temp then
-        tilesRemaining = 0
-        if getObjectFromGUID(tileStack_GUID) ~= nil then
-            tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
-        elseif finalTile_GUID ~= nil then
-            tilesRemaining = 1
-        end
+        tilesRemaining = tilesRemaining - 1
     end
     if hasSmartAI == nil then
         hasSmartAI = false
@@ -303,7 +299,7 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
                 end
                 --TODO: Need to add abbey valid moves when all 4 sides are filled in
                 --TODO: Need to invalidate cult tile conflicts
-                targetTileConnectionOdds[openingCoord] = AICalculateOdds(openingCoord, nestedX, nestedZ, xIndex, zIndex, temp)
+                targetTileConnectionOdds[openingCoord] = AICalculateLocationOdds(openingCoord, nestedX, nestedZ, xIndex, zIndex, temp)
             end
         end
     end
@@ -311,7 +307,7 @@ end
 
 --Calculate the possible combinations of connections or lack thereof
 --using the validTileLocations and unusedTiles data structures
-function AICalculateOdds(openingCoord, xIndex, zIndex, addedTileXIndex, addedTileZIndex, temp)
+function AICalculateLocationOdds(openingCoord, xIndex, zIndex, addedTileXIndex, addedTileZIndex, temp)
     if not hasSmartAI then return nil end
     --debugMessage(1, "calculating odds at x:" .. xIndex .. " z:" .. zIndex)
     local connectionOdds = {}
@@ -541,7 +537,7 @@ end
 
 --AITileRemoved is called after removeTile has completed. It will
 --add tiles to adjacent validTileLocations that have been made once again valid by the move
---It will then call AICalculateOdds to recompile the possible odds for those locations
+--It will then call AICalculateLocationOdds to recompile the possible odds for those locations
 --For non-adjacent open locations, it will call AIAddTileOdds to more quickly recalculate the odds of those
 --locations by removing the connections of that single tile
 function AITileRemoved(xIndex, zIndex, removedTile)
@@ -563,13 +559,8 @@ function AITileRemoved(xIndex, zIndex, removedTile)
             end
         end
     end
-    tilesRemaining = 1
-    if getObjectFromGUID(tileStack_GUID) ~= nil then
-        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity() + 1
-    elseif finalTile_GUID ~= nil then
-        tilesRemaining = 2
-    end
-    numRemainingMoves = math.floor(tilesRemaining / #activePlayers) --since the currently drawn tile isn't included, we'll need to add one on some calculations
+
+    tilesRemaining = tilesRemaining + 1
 
     for openingCoord, tileTiles in pairs(validTileLocations) do --iterate through all valid tile lists and add the removed tile
         local validRotations = symmetry
@@ -605,7 +596,7 @@ function AITileRemoved(xIndex, zIndex, removedTile)
             end
         end
     end
-    tileConnectionOdds[removedTileCoord] = AICalculateOdds(removedTileCoord, xIndex, zIndex, nil, nil, false)
+    tileConnectionOdds[removedTileCoord] = AICalculateLocationOdds(removedTileCoord, xIndex, zIndex, nil, nil, false)
     --rebuild validTileLocations at the locations next to the removed tile
     for side, sideDelta in ipairs(SIDE_DELTA) do
         local nestedX = xIndex + sideDelta.x
@@ -635,7 +626,7 @@ function AITileRemoved(xIndex, zIndex, removedTile)
                         end
                     end
                 end
-                tileConnectionOdds[openingCoord] = AICalculateOdds(openingCoord, nestedX, nestedZ, xIndex, zIndex, false)
+                tileConnectionOdds[openingCoord] = AICalculateLocationOdds(openingCoord, nestedX, nestedZ, nil, nil, false)
             else
                 validTileLocations[openingCoord] = nil
                 tileConnectionOdds[openingCoord] = nil
@@ -744,8 +735,57 @@ function AIAddTileOdds(openingCoord, xIndex, zIndex, addedTile_GUID, connectionO
     end
 end
 
+--iterate through all openings and recalculate valid tiles and odds from scratch
+function AIRecalculateOdds()
+    if hasSmartAI == nil then
+        hasSmartAI = false
+        for _, player in ipairs(activePlayers) do
+            if getPlayerOwner(player) == 'AIHard (Beta)' then
+                hasSmartAI = true
+                break
+            end
+        end
+    end
+    for openingCoord, _ in pairs(validTileLocations) do --iterate through all valid tile lists and add the removed tile
+        validTileLocations[openingCoord] = {}
+        local coord = string.split(openingCoord, "-")
+        local xIndex = tonumber(coord[1])
+        local zIndex = tonumber(coord[2])
+        for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
+            validTileLocations[openingCoord][unusedTile_GUID] = {}
+            local validRotations = unusedTile.symmetry
+            if validRotations == nil then validRotations = 4 end
+            for unusedTileRotation=1, validRotations do
+                if ((not tileGridOccupied(xIndex + 1, zIndex) or unusedTile.sides[(3 + 4 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid).getTable('sides')[(3 + 4 - tileGrid[xIndex + 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                    (not tileGridOccupied(xIndex - 1, zIndex) or unusedTile.sides[(3 + 2 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid).getTable('sides')[(3 + 2 - tileGrid[xIndex - 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                    (not tileGridOccupied(xIndex, zIndex + 1) or unusedTile.sides[(3 + 3 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[xIndex][zIndex + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                    (not tileGridOccupied(xIndex, zIndex - 1) or unusedTile.sides[(3 + 1 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[xIndex][zIndex - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
+                    validTileLocations[openingCoord][unusedTile_GUID][unusedTileRotation] = true
+                end
+            end
+        end
+        tileConnectionOdds[openingCoord] = AICalculateLocationOdds(openingCoord, xIndex, zIndex, nil, nil, false)
+    end
+end
+
 function AIChooseTileLocation()
     --debugMessage(2, "AI choosing tile location...")
+    actualTilesRemaining = 0
+    if getObjectFromGUID(tileStack_GUID) ~= nil then
+        actualTilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
+    elseif finalTile_GUID ~= nil then
+        actualTilesRemaining = 1
+    end
+    numRemainingMoves = math.floor(actualTilesRemaining / #activePlayers) --since the currently drawn tile isn't included, we'll need to add one on some calculations
+
+    if actualTilesRemaining ~= tilesRemaining then
+        allGameMessage("ERROR: The number of tiles in the stack is different than expected. This can happen if someone draws a tiles out of turn. Re-calculating odds...", ERROR_COLOR, nil)
+        tilesRemaining = actualTilesRemaining
+        AIMemorizeCards(getObjectFromGUID(tileStack_GUID))
+        AIRecalculateOdds()
+        allGameMessage("Finished re-calculating odds. AI will now calculate a move.", ERROR_COLOR, nil)
+    end
+
     local newTile = nil
     local isRiverPiece = false
     local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
@@ -826,15 +866,6 @@ function AIChooseTileLocation()
     calculationStart = os.clock()
     lastFrameTime = os.clock()
 
-    tilesRemaining = 0
-    if getObjectFromGUID(tileStack_GUID) ~= nil then
-        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
-    elseif finalTile_GUID ~= nil then
-        tilesRemaining = 1
-    end
-    numRemainingMoves = math.floor(tilesRemaining / #activePlayers) --since the currently drawn tile isn't included, we'll need to add one on some calculations
-
-    tilesRemaining = tilesRemaining + 1 --baseline scores should take into account the drawn tile
     local CalculateLocationScoreFunction
     if getPlayerOwner(activePlayers[currentPlayer]) == "AIEasy" then
         CalculateLocationScoreFunction = AICalculateLocationScoreEasy
@@ -843,7 +874,6 @@ function AIChooseTileLocation()
         CalculateLocationScoreFunction = AICalculateTileLocationScore
         AICalculateBaselineScores()
     end
-    tilesRemaining = tilesRemaining - 1
 
     lastDrawnTile_GUID = newTile.getGUID()
     coroutine.yield(0)

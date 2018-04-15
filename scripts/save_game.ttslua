@@ -15,6 +15,7 @@ function onload(save_state)
         unusedTiles = saved_data.unusedTiles
         validTileLocations = saved_data.validTileLocations
         tileConnectionOdds = saved_data.tileConnectionOdds
+        tilesRemaining = saved_data.tilesRemaining
         --I'm not exactly sure if all of these nil checks are necessary. Leaving them just in case
         if saved_data.controlPanelSettings ~= nil then controlPanelSettings = saved_data.controlPanelSettings end
         if saved_data.showMarkers ~= nil then showMarkers = saved_data.showMarkers end
@@ -188,6 +189,7 @@ function onSave()
         unusedTiles = unusedTiles,
         validTileLocations = validTileLocations,
         tileConnectionOdds = tileConnectionOdds,
+        tilesRemaining = tilesRemaining,
         --keep track of these tiles to control the order that the AI places them
         startingRiverTile_GUID = startingRiverTile_GUID,
         forkTile_GUID = forkTile_GUID,

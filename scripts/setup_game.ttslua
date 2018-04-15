@@ -326,11 +326,18 @@ function startGame()
     end
     wait(1.0) --I don't remember what this wait is for but I recall a problem if you don't use it
     local tileStack = getObjectFromGUID(tileStack_GUID)
+    tilesRemaining = 0
+    if getObjectFromGUID(tileStack_GUID) ~= nil then
+        tilesRemaining = getObjectFromGUID(tileStack_GUID).getQuantity()
+    elseif finalTile_GUID ~= nil then
+        tilesRemaining = 1
+    end
     AIMemorizeCards(tileStack)
     if controlPanelSettings['StartingTileBase'] then
         local newTile = startingTile_GUID
         startingTile_GUID = nil
         addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(newTile), 2, false)
+        tilesRemaining = tilesRemaining + 1
     end
     --shuffle and lock starting tiles
     for rule_id, rule in pairs(startingTileSettings) do
@@ -357,6 +364,7 @@ function startGame()
                                     if tileRotation == 0 then tileRotation = 4 end
                                     tileGrid[xIndex][zIndex].rotation = tileRotation
                                     addTile(xIndex, zIndex, getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid), tileRotation, false)
+                                    tilesRemaining = tilesRemaining + 1
                                 end
                             end
                         end

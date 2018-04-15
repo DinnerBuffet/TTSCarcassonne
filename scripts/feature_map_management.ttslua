@@ -464,7 +464,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             local x = tonumber(coord[1])
             local z = tonumber(coord[2])
 
-            targetTileConnectionOdds[openingCoord] = AICalculateOdds(openingCoord, x, z, xIndex, zIndex, temp)
+            targetTileConnectionOdds[openingCoord] = AICalculateLocationOdds(openingCoord, x, z, xIndex, zIndex, temp)
         end
     end
 end

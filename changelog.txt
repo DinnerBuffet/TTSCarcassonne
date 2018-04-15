@@ -1,4 +1,8 @@
-﻿v1.20.1 - 20180326
+﻿v1.20.2 - 20180415
+[*]Drawing a tile while the AI is calculating will no longer slightly mess up the calculations
+[*]If the size of the stack changes unexpectantly, the AI will recalculate all pre-calculated odds. This will allow players to manipulate the tiles (ie. add new ones) while not breaking the game. Unfortunately this will also happen if a player draws a tile out of turn, so players should wait for the AI to draw before pre-drawing.
+
+v1.20.1 - 20180326
 [*]Hard AI will now consider tokens in blocked cities when calculating remaining tokens.
 [*]Added limit to join percentages for hard AI so that it will still value connections that have not yet been completed.
 [*]Hard AI will now recursively calculate a penalty for features it leaves unoccupied. This should reduce the likelihood that it will set itself up for a steal from a neighboring feature. However, the AI may now prefer to occupy these features unnecessarily. This will need more work later.
