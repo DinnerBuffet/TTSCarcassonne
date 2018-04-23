@@ -3287,15 +3287,17 @@ function scoreFeatures()
                                 --do not nerf cities that were completed by an abbey, or incomplete cities
                                 if lastPlacedTileX ~= nil and getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).getTable('sides')[1] ~= 'Abbey' and
                                    featureComplete and controlPanelSettings['BaseNerfSmallCity'] and score == 4 then score = 2 end
-                            elseif nameOfFeature == 'Field' and linkedFeatures['City-Field'][featureNum] ~= nil then
-                                for connectedFeatureNum, _ in pairs(linkedFeatures['City-Field'][featureNum]) do
-                                    if featureList[connectedFeatureNum].openings == 0 then
-                                        score = score + 1
+                            elseif nameOfFeature == 'Field' then
+                                if linkedFeatures['City-Field'][featureNum] ~= nil then
+                                    for connectedFeatureNum, _ in pairs(linkedFeatures['City-Field'][featureNum]) do
+                                        if featureList[connectedFeatureNum].openings == 0 then
+                                            score = score + 1
+                                        end
                                     end
-                                end
-                                for _, feature in ipairs(featureList[featureNum].specialFeatures) do
-                                    if feature == 'Pig-herd' and not controlPanelSettings['RIIDisablePigherd'] then
-                                        containsPigHerd = true
+                                    for _, feature in ipairs(featureList[featureNum].specialFeatures) do
+                                        if feature == 'Pig-herd' and not controlPanelSettings['RIIDisablePigherd'] then
+                                            containsPigHerd = true
+                                        end
                                     end
                                 end
                                 featureComplete = false --so that this feature won't be scored before the end of the game

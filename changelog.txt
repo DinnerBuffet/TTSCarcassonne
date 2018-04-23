@@ -1,4 +1,7 @@
-﻿v1.20.2 - 20180415
+﻿v1.20.3 - 20180423
+[*]Followers in fields are no longer scored/removed when their field is no longer has any openings and there are no cities touching it. (due to a change in 1.18) (Thanks to Urchin for reporting!)
+
+v1.20.2 - 20180415
 [*]Drawing a tile while the AI is calculating will no longer slightly mess up the calculations
 [*]If the size of the stack changes unexpectantly, the AI will recalculate all pre-calculated odds. This will allow players to manipulate the tiles (ie. add new ones) while not breaking the game. Unfortunately this will also happen if a player draws a tile out of turn, so players should wait for the AI to draw before pre-drawing.
 
