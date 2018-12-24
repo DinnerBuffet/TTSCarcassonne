@@ -1,0 +1,80 @@
+<Defaults>
+    <Panel class="ControlPanelPage" width="1820" height="2600" position="0.0 0.0 -11.0" rectAlignment="MiddleCenter"/>
+    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelExpansionLabel" fontSize="72" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelPageLabel" fontSize="34" color="#000000"/>
+    <Text class="ControlPanelItemLabel" fontSize="60" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <TableLayout class="ControlPanelPageLayout" width="1820" height="2300" padding="0 0 380 0" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <TableLayout class="ControlPanelHouseRulesLayout" width="1820" height="256" columnWidths="39 368 338 338 338 338" useGlobalCellPadding="false" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <Row class="CategoryRow" preferredHeight="124" />
+    <Row class="ControlPanelHouseRulesRow" preferredHeight="264" />
+    <Row class="ControlPanelHouseRulesLabelRow" preferredHeight="115" />
+</Defaults>
+
+<Panel id="ControlPanelPg2" class="ControlPanelPage">
+    <TableLayout class="ControlPanelPageLayout">
+        <Row class="CategoryRow">
+          <Text id="HouseRulesLabel" text="House Rules" class="ControlPanelCategoryLabel" offsetXY="0 24"></Text>
+        </Row>
+        <!-- Base Game -->
+        <Row class="ControlPanelHouseRulesLabelRow">
+            <Text id="BaseGameHouseRulesLabel" text="Base Game" class="ControlPanelExpansionLabel"></Text>
+            <Text text="__________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelHouseRulesRow">
+          <TableLayout class="ControlPanelHouseRulesLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="BaseDisableRoadsLabel" class="ControlPanelItemLabel" text="Disable Roads"></Text></Cell>
+                  <Cell><Text id="BaseDisableCitiesLabel" class="ControlPanelItemLabel" text="Disable Cities"></Text></Cell>
+                  <Cell><Text id="BaseDisableCloistersLabel" class="ControlPanelItemLabel" text="Disable Cloisters"></Text></Cell>
+                  <Cell><Text id="BaseDisableFarmsLabel" class="ControlPanelItemLabel" text="Disable Farms"></Text></Cell>
+                  <Cell><Text id="BaseNerfSmallCityLabel" class="ControlPanelItemLabel" text="Nerf Small Cities"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- The Tower -->
+        <Row class="ControlPanelHouseRulesLabelRow">
+          <Text id="TowerExpansionLabel" text="The Tower" class="ControlPanelExpansionLabel"></Text>
+          <Text text="__________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelHouseRulesRow">
+          <TableLayout class="ControlPanelHouseRulesLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="TowerNerfTowersLabel" class="ControlPanelItemLabel" text="Reduce tower capture range"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- The River -->
+        <Row class="ControlPanelHouseRulesLabelRow">
+          <Text id="RiverHouseRulesLabel" text="The River" class="ControlPanelExpansionLabel"></Text>
+          <Text text="________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelHouseRulesRow">
+          <TableLayout class="ControlPanelHouseRulesLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="RiverMixAllLabel" class="ControlPanelItemLabel" text="Mix all river tiles"></Text></Cell>
+                  <Cell><Text id="RIIDisablePigherdLabel" class="ControlPanelItemLabel" text="Disable pig-herd"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- City of Carcassonne -->
+        <Row class="ControlPanelHouseRulesLabelRow">
+          <Text id="CoCHouseRulesLabel" text="City of Carcassonne" class="ControlPanelExpansionLabel"></Text>
+          <Text text="________________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelHouseRulesRow">
+          <TableLayout class="ControlPanelHouseRulesLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="CoCNoCountLabel" class="ControlPanelItemLabel" text="Disable The Count"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+    </TableLayout>
+
+    <Text class="ControlPanelPageLabel" id="PreviousPageLabel" text="Previous Page" rectAlignment="LowerLeft"
+           width="300" height="100" offsetXY="158 8"></Text>
+</Panel>

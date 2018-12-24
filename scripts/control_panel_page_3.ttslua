@@ -13,43 +13,77 @@ COLUMN_5 = -3.75
 COLUMN_6 = -7.1
 
 function onLoad()
+    Timer.create({identifier='' .. os.clock(), function_name='initializeControlPanelPage', function_owner=nil, parameters=nil, delay=0.0001})
+end
+
+function initializeControlPanelPage()
+    self.UI.setAttribute("AnMExpansionLabel", "text", "5. " .. translate("Abbey & Mayor"))
+    self.UI.setAttribute("AnMTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("AnMAbbeyLabel", "text", translate("Abbey"))
+    self.UI.setAttribute("AnMMayorLabel", "text", translate("Mayor"))
+    self.UI.setAttribute("AnMWagonLabel", "text", translate("Wagon"))
+    self.UI.setAttribute("AnMBarnLabel", "text", translate("Barn"))
+    self.UI.setAttribute("CKnRExpansionLabel", "text", "6. " .. translate("Count, King, & Robber"))
+    self.UI.setAttribute("KnRBTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("StartingTileCoCLabel", "text", translate("City"))
+    self.UI.setAttribute("KnRBKingLabel", "text", translate("King"))
+    self.UI.setAttribute("KnRBRobberLabel", "text", translate("Robber"))
+    self.UI.setAttribute("CultTilesLabel", "text", translate("Shrines"))
+    self.UI.setAttribute("CatapultExpansionLabel", "text", "7. " .. translate("The Catapult"))
+    self.UI.setAttribute("CatapultTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("CatapultKnockOutLabel", "text", translate("Knock Out"))
+    self.UI.setAttribute("CatapultSeductionLabel", "text", translate("Seduction"))
+    self.UI.setAttribute("CatapultTargetLabel", "text", translate("Target"))
+    self.UI.setAttribute("CatapultCatchLabel", "text", translate("Catch"))
+    self.UI.setAttribute("BCnBExpansionLabel", "text", "8 . " .. translate("Bridges, Castles, & Bazaars"))
+    self.UI.setAttribute("BCnBTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("BCnBBridgesLabel", "text", translate("Bridges"))
+    self.UI.setAttribute("BCnBCastlesLabel", "text", translate("Castles"))
+    self.UI.setAttribute("BCnBBazaarsLabel", "text", translate("Bazaars"))
+    self.UI.setAttribute("HnSExpansionLabel", "text", "9. " .. translate("Hills & Sheep"))
+    self.UI.setAttribute("HnSTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("HnSShepherdLabel", "text", translate("Shepherd"))
+    self.UI.setAttribute("HnSHillsLabel", "text", translate("Hills"))
+    self.UI.setAttribute("HnSVineyardsLabel", "text", translate("Vineyards"))
+    self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
+    self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
 --Abbey & Mayor
-    initializeAllCheckbox(COLUMN_1, ROW_1, 'AnMAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_1, 'AnMTiles', "12 tiles")
-    initializeCheckbox(COLUMN_3, ROW_1, 'AnMAbbey', "The Abbey is a special tile that can be used instead of drawing a random tile from the stack. The abbey can only be placed if it is surrounded on all 4 sides by tiles. The abbey completes all features (road, city, field) that it connects to. A follower can be placed in the abbey as a cloister.")
-    initializeCheckbox(COLUMN_4, ROW_1, 'AnMMayor', "Follower - The Mayor can only be placed on cities. It's strength is the equivalent of 1 normal follower per Pennant in the city.")
-    initializeCheckbox(COLUMN_5, ROW_1, 'AnMWagon', "Follower - The Wagon can only be placed on cities, roads, and cloisters. It is scored exactly the same as a normal follower. Once scored, though, the wagon can be moved to any connected feature. A feature is considered connected if it DIRECTLY touches a road. Please see the rules for more details.")
-    initializeCheckbox(COLUMN_6, ROW_1, 'AnMBarn', "Special Figure - The Barn can only be placed in the corner of 4 tiles, where the corner contains only fields. Any followers in this field are immediately scored and removed. Any followers in fields that are later connected to this field are also removed, but for fewer points. At the end of the game, the barn scores 4 points per completed city in the field. Please see the rules for more details.")
+    initializeAllCheckbox(COLUMN_1, ROW_1, 'AnMAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_1, 'AnMTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 12}}))
+    initializeCheckbox(COLUMN_3, ROW_1, 'AnMAbbey', translate("TOOLTIP_ABBEY"))
+    initializeCheckbox(COLUMN_4, ROW_1, 'AnMMayor', translate("TOOLTIP_MAYOR"))
+    initializeCheckbox(COLUMN_5, ROW_1, 'AnMWagon', translate("TOOLTIP_WAGON"))
+    initializeCheckbox(COLUMN_6, ROW_1, 'AnMBarn', translate("TOOLTIP_BARN"))
 
 --Count, King, and Robber
-    initializeAllCheckbox(COLUMN_1, ROW_2, 'CKnRAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_2, 'KnRBTiles', "5 tiles")
-    initializeCheckbox(COLUMN_3, ROW_2, 'StartingTileCoC', "The City of Carcassonne starting tiles. Can be used to store followers whenever you score points for others. These followers can be snuck into features after they are finished, but before they are scored.")
-    initializeCheckbox(COLUMN_4, ROW_2, 'KnRBKing', "The King token is awarded to the player that completes the largest city (most tiles). The token is then moved if anyone completes an even bigger city. At the end of the game, the player with the token is awarded 1 point per completed city (anywhere in play).")
-    initializeCheckbox(COLUMN_5, ROW_2, 'KnRBRobber', "The Robber Baron token is awarded to the player that completes the longest road (most tiles). The token is then moved if anyone completes an even longer road. At the end of the game, the player with the token is awarded 1 point per completed road (anywhere in play).")
-    initializeCheckbox(COLUMN_6, ROW_2, 'CultTiles', "6 shrine tiles. Claiming a shrine next to a cloister will challenge that cloister, or vice verca. The first to be completed between the two will score points, while the other will not.")
+    initializeAllCheckbox(COLUMN_1, ROW_2, 'CKnRAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_2, 'KnRBTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 5}}))
+    initializeCheckbox(COLUMN_3, ROW_2, 'StartingTileCoC', translate("The City of Carcassonne starting tiles. Whenever you place a tile that scores points for others, you can store a follower here. These followers can be snuck into features after they are finished, but before they are scored."))
+    initializeCheckbox(COLUMN_4, ROW_2, 'KnRBKing', translate("TOOLTIP_KING"))
+    initializeCheckbox(COLUMN_5, ROW_2, 'KnRBRobber', translate("TOOLTIP_ROBBER_BARON"))
+    initializeCheckbox(COLUMN_6, ROW_2, 'CultTiles', translate("TOOLTIP_SHRINE"))
 
 --The Catapult
-    -- initializeAllCheckbox(COLUMN_1, ROW_3, 'CatapultAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_3, 'CatapultTiles', "12 tiles")
+    -- initializeAllCheckbox(COLUMN_1, ROW_3, 'CatapultAll', "BUTTON_TOOLTIP_ENABLE_ALL")
+    initializeCheckbox(COLUMN_2, ROW_3, 'CatapultTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 12}}))
     -- initializeCheckbox(COLUMN_3, ROW_3, 'CatapultKnockOut', nil)
     -- initializeCheckbox(COLUMN_4, ROW_3, 'CatapultSeduction', nil)
     -- initializeCheckbox(COLUMN_5, ROW_3, 'CatapultTarget', nil)
     -- initializeCheckbox(COLUMN_6, ROW_3, 'CatapultCatch', nil)
 
 --Bridges, Castles, and Bazaars
-    -- initializeAllCheckbox(COLUMN_1, ROW_4, 'BCnBAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_4, 'BCnBTiles', "12 tiles")
+    -- initializeAllCheckbox(COLUMN_1, ROW_4, 'BCnBAll', "BUTTON_TOOLTIP_ENABLE_ALL")
+    initializeCheckbox(COLUMN_2, ROW_4, 'BCnBTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 12}}))
     -- initializeCheckbox(COLUMN_3, ROW_4, 'BCnBBridges', nil)
     -- initializeCheckbox(COLUMN_4, ROW_4, 'BCnBCastles', nil)
     -- initializeCheckbox(COLUMN_5, ROW_4, 'BCnBBazaars', nil)
 
 --Hills & Sheep
-    initializeAllCheckbox(COLUMN_1, ROW_5, 'HnSAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_5, 'HnSTiles', "18 tiles")
-    initializeCheckbox(COLUMN_3, ROW_5, 'HnSShepherd', "Special Figure - The Shepherd can be placed in a field. When placed, the player will draw a random sheep token and add it to the field. Each time the shepherd owner adds a tile to the field, they may draw another token, or herd them for 1 point per sheep. If the player draws a wolf, then all sheep are lost and the shepherd is returned to the supply. See rules for more details.")
-    initializeCheckbox(COLUMN_4, ROW_5, 'HnSHills', "The Hill is a feature on some Hills and Sheep tiles. When a player places a follower on any feature on that tile (not the hill itself), that player will break any scoring ties in their favor. See rules for more details. Disabling this option will not prevent tiles containing this feature from being included (it will also not prevent a tile from being 'buried' underneath). Disabling this option will also not prevent tiles containing this feature from being included.")
-    initializeCheckbox(COLUMN_5, ROW_5, 'HnSVineyards', "The Vineyard is a feature on some Hills and Sheep tiles. When a cloister is finished that includes one of these tiles, it will get an additional 3 points per vineyard. This does not apply if the cloister is not finished. See rules for more details. Disabling this option will not prevent tiles containing this feature from being included.")
+    initializeAllCheckbox(COLUMN_1, ROW_5, 'HnSAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_5, 'HnSTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 18}}))
+    initializeCheckbox(COLUMN_3, ROW_5, 'HnSShepherd', translate("TOOLTIP_SHEPHERD"))
+    initializeCheckbox(COLUMN_4, ROW_5, 'HnSHills', translate("TOOLTIP_HILL"))
+    initializeCheckbox(COLUMN_5, ROW_5, 'HnSVineyards', translate("TOOLTIP_VINEYARD"))
 end
 
 function initializeAllCheckbox(x, z, key, description)
@@ -132,7 +166,7 @@ function onAllButtonToggle(sPlayer, button_key)
         if key == 'StartingTileCoC' then
             if not Global.call('getControlPanelState', {key = 'StartingTileCoC'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
                 Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
-                printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+                printToColor(translate("MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_COC"), sPlayer, ERROR_COLOR)
             end
         end
         self.editButton({index = btnIDs['btn' .. key .. 'Toggle'], label = label})
@@ -176,7 +210,7 @@ end
 function onStartingTileCoCToggle(Object, sPlayer)
     if not Global.call('getControlPanelState', {key = 'StartingTileCoC'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
         Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
-        printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+        printToColor(translate("MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_COC"), sPlayer, ERROR_COLOR)
     end
     onCheckboxToggle(sPlayer, 'StartingTileCoC', 'btnStartingTileCoCToggle')
 end

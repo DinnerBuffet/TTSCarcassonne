@@ -135,7 +135,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                         --HACK: Because quadrants and octants can't be linked, Abbeys create a scenario where they get different feature numbers.
                         --The least hacky way I could fix it (without having to redo huge chunks of code) was as follows, in addition to linking all 12 positions to the 13th on the tiles...
                         if nameOfFeature == 'Abbey' and position < 13 then
-                            link = {1,2,3,4,5,6,7,8,9,10,11,12}
+                            link = {1,2,3,4,5,6,7,8,9,10,11,12,13}
                         end
                         if table.contains(link, position) then
                             visitedPosition = true
@@ -436,8 +436,8 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
         local neighborX = xIndex + offset.x
         local neighborZ = zIndex + offset.z
         if tileGridOccupied(neighborX, neighborZ) then
-            for _, neighborFeatureNum in pairs(featureMap[neighborX][neighborZ]) do
-                if table.contains(PROXIMITY_FEATURES, featureList[neighborFeatureNum].nameOfFeature) then
+            for neighborPositionNum, neighborFeatureNum in pairs(featureMap[neighborX][neighborZ]) do
+                if table.contains(PROXIMITY_FEATURES, featureList[neighborFeatureNum].nameOfFeature) and neighborPositionNum > 12 then --HACK: Only consider positions over 12 so that abbeys aren't counted multiple times
                     if temp then
                         tempFeatureList[neighborFeatureNum] = table.deep_copy(featureList[neighborFeatureNum])
                     end
@@ -673,8 +673,8 @@ function removeTile(xIndex, zIndex, removedTile)
         local neighborX = xIndex + offset.x
         local neighborZ = zIndex + offset.z
         if tileGridOccupied(neighborX, neighborZ) then
-            for _, neighborFeatureNum in pairs(featureMap[neighborX][neighborZ]) do
-                if table.contains(PROXIMITY_FEATURES, featureList[neighborFeatureNum].nameOfFeature) then
+            for neighborPositionNum, neighborFeatureNum in pairs(featureMap[neighborX][neighborZ]) do
+                if table.contains(PROXIMITY_FEATURES, featureList[neighborFeatureNum].nameOfFeature) and neighborPositionNum > 12 then --HACK: Only consider positions over 12 so that abbeys aren't counted multiple times
                     featureList[neighborFeatureNum].numTiles = featureList[neighborFeatureNum].numTiles - 1
                     featureList[neighborFeatureNum].openings = featureList[neighborFeatureNum].openings + 1
                     featureList[neighborFeatureNum].openingCoords[xIndex .. "-" .. zIndex] = true
@@ -695,7 +695,7 @@ end
 
 --This function will completely shift all objects on the table, along with the stored metadata, by the given deltas
 function shiftPlayArea(delta_x, delta_z)
-    allGameMessage("Play area is being shifted to make room for more tiles.", NEUTRAL_COLOR)
+    allGameMessage(({"MESSAGE_PLAY_AREA_SHIFTING"}), NEUTRAL_COLOR)
     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if obj.getGUID() ~= CONTROL_PANEL_GUID then
             local objPos = obj.getPosition()

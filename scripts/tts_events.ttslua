@@ -35,31 +35,47 @@ function onPlayerChangedColor(player)
             numPlayers = numPlayers + 1
         end
         if Player[color].seated and controlPanelSettings[color .. 'Control'] ~= nil then
-            allGameMessage({"{c1}'s hotseat, {c2}, has been taken.", {'{c1}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. controlPanelSettings[color .. 'Control'] .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', stringToBracketedHex(color) .. color .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
+            allGameMessage({"MESSAGE_HOTSEAT_TAKEN", {'{c1}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. translate(controlPanelSettings[color .. 'Control']) .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', stringToBracketedHex(color) .. translate(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
             controlPanelSettings[color .. 'Control'] = value
         end
         if controlPanelSettings[color .. 'Control'] ~= nil and controlPanelSettings[color .. 'Control']:sub(1,2) ~= 'AI' and not Player[controlPanelSettings[color .. 'Control']].seated then
-            allGameMessage({"{c1}'s hotseat owner, {c2}, has left the table or moved.", {'{c1}', stringToBracketedHex(color) .. color .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. controlPanelSettings[color .. 'Control'] .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
+            allGameMessage({"MESSAGE_HOTSEAT_OWNER_MOVED", {'{c1}', stringToBracketedHex(color) .. translate(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. translate(controlPanelSettings[color .. 'Control']) .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
             controlPanelSettings[color .. 'Control'] = nil
         end
     end
     controlPanelSettings['TowerNumTowers'] = NUM_TOWERS_PER_PLAYER[numPlayers]
     if controlPanelSettings['TowerTowers'] then
-        allGameMessage({"Warning: Tower count has changed to {c1} due to a player joining or leaving the table.", {'{c1}', NUM_TOWERS_PER_PLAYER[numPlayers]}}, NEUTRAL_COLOR, nil)
+        allGameMessage({"MESSAGE_TOWER_COUNT_CHANGED", {'{n1}', NUM_TOWERS_PER_PLAYER[numPlayers]}}, NEUTRAL_COLOR, nil)
     end
 end
 
---when the 2nd to last card in the deck is drawn, the deck is destroyed, even though one card remains
---this causes an issue when a script needs to draw the last card and doesn't know where it is
---this code is meant to work around that problem
+function onObjectSpawn(spawned_object)
+    --This is intended to be called when a tile is drawn from the stack.
+    if tostring(spawned_object) == 'Card(Clone) (LuaGameObjectScript)' then
+        local specialFeatures = spawned_object.getTable('specialFeatures')
+        if specialFeatures ~= nil then
+            for _, specialFeature in ipairs(specialFeatures) do
+                if controlPanelSettings['PnDDragon'] and specialFeature[1] == "Dragon" then
+                    if not dragonHasAwaken then
+                        gameNotification({"MESSAGE_DRAGON_TILE_DRAWN_BEFORE_AWAKENED"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
+                    end
+                end
+            end
+        end
+    end
+end
+
 function onObjectDestroyed(dying_object)
-    local rad = 0.01
+    --when the 2nd to last card in the deck is drawn, the deck is destroyed, even though one card remains
+    --this causes an issue when a script needs to draw the last card and doesn't know where it is
+    --this code is meant to work around that problem
     if dying_object.getGUID() == tileStack_GUID or dying_object.getGUID() == riverBodyTiles_GUID then
         local allObjects = getAllObjects()
         for _, obj in ipairs(allObjects) do
             if tostring(obj) == 'Card(Clone) (LuaGameObjectScript)' then
                 local dX = dying_object.getPosition().x - obj.getPosition().x
                 local dZ = dying_object.getPosition().z - obj.getPosition().z
+                local rad = 0.01
                 if dX<rad and dX>-rad and dZ<rad and dZ>-rad then
                     if obj.held_by_color == nil and obj.getGUID() ~= lastDrawnTile_GUID then
                         if dying_object.getGUID() == tileStack_GUID then
@@ -88,13 +104,13 @@ function onFlierDiceRolled(params)
                 if dieValue > 3 then dieValue = 7 - dieValue end
                 flierOffset = {x=DIAGONAL_DELTA[flierDirection].x * dieValue, z=DIAGONAL_DELTA[flierDirection].z * dieValue}
                 --debugMessage(1, "Flier direction: " .. flierDirection .. " Flier destination offset: x: " .. flierOffset.x .. " z: " .. flierOffset.z)
-                allGameMessage({"{p1} rolled a {n1}", {'{p1}', activePlayers[currentPlayer]}, {'{n1}', dieValue}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+                allGameMessage({"MESSAGE_FLIER_DIE_ROLL", {'{p1}', activePlayers[currentPlayer]}, {'{n1}', dieValue}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
                 return nextState('die rolled')
             else
                 --allErrorMessage("It is currently not allowed to roll the flier die. You are only allowed to roll the die after you've placed a follower on the flier feature. Current state: " .. turnState, params.sPlayer)
             end
         else
-            playerErrorMessage({"ERROR: It is not currently your turn OR you rolled the die without picking it up."}, params.sPlayer)
+            playerErrorMessage({"MESSAGE_FLIER_WRONG_PLAYER_ROLLED"}, params.sPlayer)
         end
     end
 end
@@ -115,11 +131,11 @@ function onObjectDrop(player, droppedObject)
                 -- Checks if the dropped object was a single 'card' (tile)
                 if tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' then
                     if turnState == 'awaiting tile placement' then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkTile', function_owner=nil, parameters={time=lastDroppedTime}, delay=1})
+                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkTile', function_owner=nil, parameters={time=lastDroppedTime}, delay=TILE_PLACEMENT_DELAY})
                     else
                         dropLock = false
                         if not spamLock then
-                            allErrorMessage("It is currently not allowed to place a tile. You are only allowed to place a tile at the beginning of your turn. Current state: " .. turnState, player)
+                            allErrorMessage({"MESSAGE_TILE_NOT_ALLOWED", {'{s1}', turnState}}, player)
                             spamLock = true
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
                         end
@@ -128,22 +144,26 @@ function onObjectDrop(player, droppedObject)
                     if (currentMiniTurn ~= nil and (droppedObject.getVar('owner') == activePlayers[currentMiniTurn])) or
                         (currentMiniTurn == nil and (droppedObject.getVar('owner') == activePlayers[currentPlayer])) then
                         if turnState == 'awaiting figure decision' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                         elseif turnState == 'replace finished wagons' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkWagon', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
-                        elseif turnState == 'awaiting flier decision' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFlier', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkWagon', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+                        elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFlier', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+                        elseif turnState == 'awaiting phantom decision' then
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkPhantom', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                         elseif turnState == 'prompt moving to carcassonne' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkToCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkToCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                         elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFromCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFromCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                         else
                             dropLock = false
                             if not spamLock then
                                 if droppedObject.getVar('figureName') == 'Tower' then
-                                    allErrorMessage("It is currently not allowed to place a tower. You are only allowed to place a tower after placing a tile. Current state: " .. turnState, player)
+                                    allErrorMessage({"MESSAGE_TOWER_NOT_ALLOWED", {'{s1}', turnState}}, player)
+                                elseif droppedObject.getVar('figureName') == 'Phantom' then
+                                    allErrorMessage({"MESSAGE_PHANTOM_NOT_ALLOWED", {'{s1}', turnState}}, player)
                                 else
-                                    allErrorMessage("It is currently not allowed to place a figure. You are typically only allowed to place a figure after a tile. Current state: " .. turnState, player)
+                                    allErrorMessage({"MESSAGE_FIGURE_NOT_ALLOWED", {'{s1}', turnState}}, player)
                                 end
                                 spamLock = true
                                 Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
@@ -153,9 +173,9 @@ function onObjectDrop(player, droppedObject)
                         dropLock = false
                         if not spamLock then
                             if droppedObject.getVar('figureName') == 'Tower' then
-                                playerErrorMessage("This tower doesn't belong to you. Make sure you check the color in the description.", player)
+                                playerErrorMessage({"MESSAGE_TOWER_WRONG_OWNER"}, player)
                             else
-                                playerErrorMessage("Incorrect colored figure was dropped. Are you sure it is yours?", player)
+                                playerErrorMessage({"MESSAGE_FIGURE_WRONG_OWNER"}, player)
                             end
 
                             spamLock = true
@@ -164,7 +184,7 @@ function onObjectDrop(player, droppedObject)
                     end
                 elseif droppedObject.getVar('figureName') == 'Fairy' then
                     if turnState == 'awaiting figure decision' then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                         if highlightedTiles ~= nil then
                             for x, highlightedColumn in pairs(highlightedTiles) do
                                 for z, _ in pairs(highlightedColumn) do
@@ -175,18 +195,18 @@ function onObjectDrop(player, droppedObject)
                     else
                         dropLock = false
                         if not spamLock then
-                            allErrorMessage("It is currently not allowed to place the fairy. You are only allowed to place the fairy after placing a tile. Current state: " .. turnState, player)
+                            allErrorMessage({"MESSAGE_FAIRY_NOT_ALLOWED", {'{s1}', turnState}}, player)
                             spamLock = true
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
                         end
                     end
                 elseif droppedObject.getVar('figureName') == 'Count' then
                     if turnState == 'prompt moving count' then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkToCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=2})
+                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkToCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                     else
                         dropLock = false
                         if not spamLock then
-                            allErrorMessage("It is currently not allowed to place the count. You are only allowed to move the count after placing a follower in the city of carcassonne. Current state: " .. turnState, player)
+                            allErrorMessage({"MESSAGE_COUNT_NOT_ALLOWED", {'{s1}', turnState}}, player)
                             spamLock = true
                             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
                         end
@@ -196,21 +216,21 @@ function onObjectDrop(player, droppedObject)
                 end
             else
                 if not spamLock then
-                    allErrorMessage("Multiple pieces dropped too fast, please wait.", player)
+                    allErrorMessage({"MESSAGE_DROP_SPAM"}, player)
                     spamLock = true
                     Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
                 end
             end
         else
             if not spamLock then
-                playerErrorMessage("It is currently not your turn. Dropped pieces will not count.", player)
+                playerErrorMessage({"MESSAGE_DROP_WRONG_PLAYER"}, player)
                 spamLock = true
                 Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
             end
         end
     elseif tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' then
         if not spamLock then
-            playerErrorMessage("Game over or not yet started. Press the start game button and re-lay tile", player)
+            playerErrorMessage({"MESSAGE_DROP_GAME_NOT_STARTED"}, player)
             spamLock = true
             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
         end
@@ -247,7 +267,7 @@ function onObjectPickUp(player, pickedUpObject)
             end
             lastPlacedTileX = nil
             removeTile(xIndex, zIndex, pickedUpObject)
-            allGameMessage("Tile removed from grid", NEUTRAL_COLOR)
+            allGameMessage({"MESSAGE_TILE_REMOVED"}, NEUTRAL_COLOR)
             clearArbitraryButtons(true)
             turnState = 'awaiting tile placement'
             if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
@@ -283,6 +303,8 @@ function onObjectPickUp(player, pickedUpObject)
                 showWagonFeatureMarkers(pickedUpObject)
             elseif turnState == 'awaiting flier decision' then
                 showFlierFeatureMarkers(pickedUpObject)
+            elseif turnState == 'awaiting phantom decision' then
+                startLuaCoroutine(self, 'showFeatureMarkers')
             elseif turnState == 'prompt moving to carcassonne' then
                 showToCoCFeatureMarkers(pickedUpObject)
             elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then

@@ -20,49 +20,95 @@ COLUMN_2_6 = -3.025
 COLUMN_2_7 = -6.6
 
 function onLoad()
+    Timer.create({identifier='' .. os.clock(), function_name='initializeControlPanelPage', function_owner=nil, parameters=nil, delay=0.0001})
+end
+
+function initializeControlPanelPage()
+    self.UI.setAttribute("WoFExpansionLabel", "text", translate("Wheel of Fortune"))
+    self.UI.setAttribute("WoFTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("StartingTileWoFLabel", "text", translate("LABEL_WHEEL"))
+    self.UI.setAttribute("WoFCrownsLabel", "text", translate("Crown"))
+    self.UI.setAttribute("WoFFortuneLabel", "text", translate("Fortune"))
+    self.UI.setAttribute("WoFTaxesLabel", "text", translate("Taxes"))
+    self.UI.setAttribute("WoFWheelTilesLabel", "text", translate("LABEL_WHEEL_TILES"))
+    self.UI.setAttribute("WoFFamineLabel", "text", translate("Famine"))
+    self.UI.setAttribute("WoFStormLabel", "text", translate("Storm"))
+    self.UI.setAttribute("WoFInquisitionLabel", "text", translate("Inquisition"))
+    self.UI.setAttribute("WoFPlagueLabel", "text", translate("Plague"))
+
+    self.UI.setAttribute("MiniExpansionsLabel", "text", translate("LABEL_MINI_EXPANSIONS"))
+
+    self.UI.setAttribute("FlierExpansionLabel", "text", "1. " .. translate("The Flier"))
+    self.UI.setAttribute("FlierTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("FlierFlierLabel", "text", translate("Fliers"))
+
+    self.UI.setAttribute("MessagesExpansionLabel", "text", "2. " .. translate("The Messages"))
+    self.UI.setAttribute("MessagesMessagesLabel", "text", translate("Messages"))
+    self.UI.setAttribute("MessagesMessengerLabel", "text", translate("Messenger"))
+
+    self.UI.setAttribute("FerriesExpansionLabel", "text", "3 . " .. translate("The Ferries"))
+    self.UI.setAttribute("FerriesTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("FerriesFerriesLabel", "text", translate("Ferries"))
+
+    self.UI.setAttribute("GoldminesExpansionLabel", "text", "4. " .. translate("The Goldmines"))
+    self.UI.setAttribute("GoldminesTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("GoldminesGoldLabel", "text", translate("Gold"))
+
+    self.UI.setAttribute("MnWExpansionLabel", "text", "5 . " .. translate("Mage & Witch"))
+    self.UI.setAttribute("MnWTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("MnWMageLabel", "text", translate("Mage"))
+    self.UI.setAttribute("MnWWitchLabel", "text", translate("Witch"))
+
+    self.UI.setAttribute("RobbersExpansionLabel", "text", "6. " .. translate("The Robbers"))
+    self.UI.setAttribute("RobbersTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("RobbersRobbersLabel", "text", translate("Robbers"))
+
+    self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
+    self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
+
 --Wheel of Fortune
-    initializeAllCheckbox(COLUMN_1_1, ROW_1, 'WoFAll', "Enable all")
-    initializeCheckbox(COLUMN_1_2, ROW_1, 'WoFTiles', "52 tiles")
-    initializeCheckbox(COLUMN_1_3, ROW_1, 'StartingTileWoF', "The starting wheel piece.")
-    initializeCheckbox(COLUMN_1_4, ROW_1, 'WoFCrowns', "Players may choose to place followers on the crown spaces instead of a tile, awarding points when the pig lands on them.")
-    initializeCheckbox(COLUMN_1_5, ROW_1, 'WoFFortune', "When the pig lands on the Fortune event, the current player will be awarded 3 points.")
-    initializeCheckbox(COLUMN_1_6, ROW_1, 'WoFTaxes', "When the pig lands on the Tax event, each knight will score 1 point for every knight (included itself) and pennant in their city.")
-    initializeCheckbox(COLUMN_1_2, ROW_2, 'WoFWheelTiles', "19 tiles containing Wheel of Fortune icons, which spin the wheel")
-    initializeCheckbox(COLUMN_1_3, ROW_2, 'WoFFamine', "When the pig lands on the Famine event, every farmer will score 1 point per completed city touching their field.")
-    initializeCheckbox(COLUMN_1_4, ROW_2, 'WoFStorm', "When the pig lands on the Storm event, every player will be awarded 1 point for each unused follower in their supply.")
-    initializeCheckbox(COLUMN_1_5, ROW_2, 'WoFInquisition', "When the pig lands on the Inquisition event, every player will receive 2 points for each monk.")
-    initializeCheckbox(COLUMN_1_6, ROW_2, 'WoFPlague', "When the pig lands on the Plague event, each player must return 1 follower from a land tile.")
+    initializeAllCheckbox(COLUMN_1_1, ROW_1, 'WoFAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_1_2, ROW_1, 'WoFTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 52}}))
+    initializeCheckbox(COLUMN_1_3, ROW_1, 'StartingTileWoF', translate("TOOLTIP_WHEEL_OF_FORTUNE"))
+    initializeCheckbox(COLUMN_1_4, ROW_1, 'WoFCrowns', translate("TOOLTIP_WHEEL_CROWN"))
+    initializeCheckbox(COLUMN_1_5, ROW_1, 'WoFFortune', translate("TOOLTIP_WHEEL_FORTUNE"))
+    initializeCheckbox(COLUMN_1_6, ROW_1, 'WoFTaxes', translate("TOOLTIP_WHEEL_TAX"))
+    initializeCheckbox(COLUMN_1_2, ROW_2, 'WoFWheelTiles', translate("TOOLTIP_WHEEL_TILES"))
+    initializeCheckbox(COLUMN_1_3, ROW_2, 'WoFFamine', translate("TOOLTIP_WHEEL_FAMINE"))
+    initializeCheckbox(COLUMN_1_4, ROW_2, 'WoFStorm', translate("TOOLTIP_WHEEL_STORM"))
+    initializeCheckbox(COLUMN_1_5, ROW_2, 'WoFInquisition', translate("TOOLTIP_WHEEL_INQUISITION"))
+    initializeCheckbox(COLUMN_1_6, ROW_2, 'WoFPlague', translate("TOOLTIP_WHEEL_PLAGUE"))
 
 --The Flier
-    initializeAllCheckbox(COLUMN_2_1, ROW_3, 'FlierAll', "Enable all")
-    initializeCheckbox(COLUMN_2_2, ROW_3, 'FlierTiles', "8 tiles")
-    initializeCheckbox(COLUMN_2_3, ROW_3, 'FlierFlier', "The Flier may have a follower placed on it. When done so, a die is rolled to see how far the follower will fly. The player must then place the follower on this tile, if possible, and can even place on a feature that is already occupied (even a cloister). Fields are not allowed.")
+    initializeAllCheckbox(COLUMN_2_1, ROW_3, 'FlierAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2_2, ROW_3, 'FlierTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 8}}))
+    initializeCheckbox(COLUMN_2_3, ROW_3, 'FlierFlier', translate("TOOLTIP_FLIER"))
 
 --The Messages
-    -- initializeAllCheckbox(COLUMN_2_5, ROW_3, 'MessagesAll', button_parameters)
-    -- initializeCheckbox(COLUMN_2_6, ROW_3, 'MessagesMessages', button_parameters)
-    -- initializeCheckbox(COLUMN_2_7, ROW_3, 'MessagesMessenger', button_parameters)
+    -- initializeAllCheckbox(COLUMN_2_5, ROW_3, 'MessagesAll', "")
+    -- initializeCheckbox(COLUMN_2_6, ROW_3, 'MessagesMessages', "")
+    -- initializeCheckbox(COLUMN_2_7, ROW_3, 'MessagesMessenger', "")
 
 --The Ferries
-    -- initializeAllCheckbox(COLUMN_2_1, ROW_4, 'FerriesAll', button_parameters)
-    -- initializeCheckbox(COLUMN_2_2, ROW_4, 'FerriesTiles', button_parameters)
-    -- initializeCheckbox(COLUMN_2_3, ROW_4, 'FerriesFerries', button_parameters)
+    -- initializeAllCheckbox(COLUMN_2_1, ROW_4, 'FerriesAll', "")
+    initializeCheckbox(COLUMN_2_2, ROW_4, 'FerriesTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 8}}))
+    -- initializeCheckbox(COLUMN_2_3, ROW_4, 'FerriesFerries', "")
 
 --The Goldmines
-    initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', "Enable all")
-    initializeCheckbox(COLUMN_2_6, ROW_4, 'GoldminesTiles', "8 tiles")
-    initializeCheckbox(COLUMN_2_7, ROW_4, 'GoldminesGold', "A tile placed with a gold icon will receive a gold bar, along with a neighboring tile. Any player that completes a feature on these tiles will be rewarded the gold, which is worth points at the end of the game.")
+    initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2_6, ROW_4, 'GoldminesTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 8}}))
+    initializeCheckbox(COLUMN_2_7, ROW_4, 'GoldminesGold', translate("TOOLTIP_GOLD"))
 
 --Mage & Witch
-    -- initializeAllCheckbox(COLUMN_2_1, ROW_5, 'MnWAll', button_parameters)
-    -- initializeCheckbox(COLUMN_2_2, ROW_5, 'MnWTiles', button_parameters)
-    -- initializeCheckbox(COLUMN_2_3, ROW_5, 'MnWMage', button_parameters)
-    -- initializeCheckbox(COLUMN_2_4, ROW_5, 'MnWWitch', button_parameters)
+    -- initializeAllCheckbox(COLUMN_2_1, ROW_5, 'MnWAll', "")
+    -- initializeCheckbox(COLUMN_2_2, ROW_5, 'MnWTiles', "")
+    -- initializeCheckbox(COLUMN_2_3, ROW_5, 'MnWMage', "")
+    -- initializeCheckbox(COLUMN_2_4, ROW_5, 'MnWWitch', "")
 
 --The Robbers
-    -- initializeAllCheckbox(COLUMN_2_5, ROW_5, 'RobbersAll', button_parameters)
-    -- initializeCheckbox(COLUMN_2_6, ROW_5, 'RobbersTiles', button_parameters)
-    -- initializeCheckbox(COLUMN_2_7, ROW_5, 'RobbersRobbers', button_parameters)
+    -- initializeAllCheckbox(COLUMN_2_5, ROW_5, 'RobbersAll', "")
+    -- initializeCheckbox(COLUMN_2_6, ROW_5, 'RobbersTiles', "")
+    -- initializeCheckbox(COLUMN_2_7, ROW_5, 'RobbersRobbers', "")
 end
 
 function initializeAllCheckbox(x, z, key, description)
@@ -152,7 +198,7 @@ function onAllButtonToggle(sPlayer, button_key)
         if key == 'StartingTileWoF' then
             if not Global.call('getControlPanelState', {key = 'StartingTileWoF'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
                 Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
-                printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+                printToColor(translate("MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_WOF"), sPlayer, ERROR_COLOR)
             end
         end
 
@@ -178,72 +224,46 @@ function onStartingTileWoFToggle(Object, sPlayer)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
         Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
-        printToColor("The base starting tile cannot be combined with the wheel. Removing base tile.", sPlayer, ERROR_COLOR)
+        printToColor(translate("MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_WOF"), sPlayer, ERROR_COLOR)
     end
     onCheckboxToggle(sPlayer, 'StartingTileWoF', 'btnStartingTileWoFToggle')
 end
 
 function onWoFCrownsToggle(Object, sPlayer)
-    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
-    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
-        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
-        return
-    end
-    onCheckboxToggle(sPlayer, 'WoFCrowns', 'btnWoFCrownsToggle')
+    onWoFOptionToggle(sPlayer, 'WoFCrowns')
 end
 
 function onWoFFortuneToggle(Object, sPlayer)
-    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
-    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
-        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
-        return
-    end
-    onCheckboxToggle(sPlayer, 'WoFFortune', 'btnWoFFortuneToggle')
+    onWoFOptionToggle(sPlayer, 'WoFFortune')
 end
 
 function onWoFTaxesToggle(Object, sPlayer)
-    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
-    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
-        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
-        return
-    end
-    onCheckboxToggle(sPlayer, 'WoFTaxes', 'btnWoFTaxesToggle')
+    onWoFOptionToggle(sPlayer, 'WoFTaxes')
 end
 
 function onWoFFamineToggle(Object, sPlayer)
-    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
-    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
-        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
-        return
-    end
-    onCheckboxToggle(sPlayer, 'WoFFamine', 'btnWoFFamineToggle')
+    onWoFOptionToggle(sPlayer, 'WoFFamine')
 end
 
 function onWoFStormToggle(Object, sPlayer)
-    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
-    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
-        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
-        return
-    end
-    onCheckboxToggle(sPlayer, 'WoFStorm', 'btnWoFStormToggle')
+    onWoFOptionToggle(sPlayer, 'WoFStorm')
 end
 
 function onWoFInquisitionToggle(Object, sPlayer)
-    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
-    if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
-        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
-        return
-    end
-    onCheckboxToggle(sPlayer, 'WoFInquisition', 'btnWoFInquisitionToggle')
+    onWoFOptionToggle(sPlayer, 'WoFInquisition')
 end
 
 function onWoFPlagueToggle(Object, sPlayer)
+    onWoFOptionToggle(sPlayer, 'WoFPlague')
+end
+
+function onWoFOptionToggle(sPlayer, option)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     if Global.call('getControlPanelState', {key = 'StartingTileWoF'}) == false then
-        printToColor("This option cannot be enabled when the wheel is disabled.", sPlayer, ERROR_COLOR)
+        printToColor(translate("MESSAGE_WHEEL_DISABLED"), sPlayer, ERROR_COLOR)
         return
     end
-    onCheckboxToggle(sPlayer, 'WoFPlague', 'btnWoFPlagueToggle')
+    onCheckboxToggle(sPlayer, option, 'btn' .. option .. 'Toggle')
 end
 
 function onFlierAllToggle(Object, sPlayer)

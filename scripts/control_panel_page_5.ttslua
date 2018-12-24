@@ -10,32 +10,62 @@ COLUMN_1 = 6.75
 COLUMN_SPACING = 3.4
 
 function onLoad()
-    category_label_parameters.position = {0, BUTTON_HEIGHT, CATEGORY}
-    category_label_parameters.label = 'Micro Expansions'
-    self.createButton( category_label_parameters )
-    index = index + 1
+    Timer.create({identifier='' .. os.clock(), function_name='initializeControlPanelPage', function_owner=nil, parameters=nil, delay=0.0001})
+end
 
-    initializeLabeledCheckbox(COLUMN_1, ROW_1, false, 'BesiegersTiles', 'Besiegers', {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1, false, 'CiGTiles', 'Castles in\nGermany', {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1, false, 'CatharsTiles', 'Cathars', {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1, false, 'CropCirclesTiles', 'Crop\nCircles', {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1, false, 'CropCirclesIITiles', 'Crop\nCircles II', {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, false, 'DarmstadtTiles', "Darmstadt", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING, false, 'FestivalTiles', "Festival", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING, true, 'GamesQuarterlyTiles', "Games\nQuarterly", {x=0, z=LABEL_SEPARATION}, 1, "10 unique tiles to add to the base tile set, along with a special spring tile for river sets which divides the field with a road.")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING, false, 'HalflingsTiles', "Halflings", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING, false, 'HalflingsIITiles', "Halflings II", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, false, 'LaPorxadaTiles', "La Porxada", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, false, 'LittleBuildings', "Little\nBuildings", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 2, false, 'MiGTiles', "Monasteries\nin Germany", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 2, false, 'MiNBTiles', "Monasteries\nin Netherlands\n& Belgium", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 2, false, 'Phantoms', "Phantoms", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, false, 'Plague', "Plague", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 3, false, 'Robbers', "Robbers", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 3, false, 'SiegeTiles', "Siege", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 3, true, 'SpielPromoTiles', "Spiel Promo", {x=0, z=LABEL_SEPARATION}, 1, "A single city piece. No frills.")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 3, false, 'Tunnel', "Tunnel", {x=0, z=LABEL_SEPARATION}, 1, "")
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 4, true, 'RussianPromoTiles', "We go to\nCarcassonne", {x=0, z=LABEL_SEPARATION}, 1, "2 unique tiles. Baba Yaga's hut is like a cloister, except its value starts at 10 and decreases by 1 point each adjacent tile. The Choice of Bogatyr is a 4-way road piece with a continuous 3-way road section with a 4th road at an intersection.")
+function initializeControlPanelPage()
+    self.UI.setAttribute("MicroExpansionsLabel", "text", translate("LABEL_MICRO_EXPANSIONS"))
+
+    self.UI.setAttribute("BesiegersLabel", "text", translate("Besiegers"))
+    self.UI.setAttribute("CastlesInGermanyLabel", "text", translate("Castles\nIn Germany"))
+    self.UI.setAttribute("CatharsLabel", "text", translate("Cathars"))
+    self.UI.setAttribute("CropCirclesILabel", "text", translate("Crop Circles I"))
+    self.UI.setAttribute("CropCirclesIILabel", "text", translate("Crop Circles II"))
+
+    self.UI.setAttribute("DarmstadtLabel", "text", translate("Darmstadt"))
+    self.UI.setAttribute("FestivalLabel", "text", translate("Festival"))
+    self.UI.setAttribute("GamesQuarterlyLabel", "text", translate("Games\nQuarterly"))
+    self.UI.setAttribute("HalflingsILabel", "text", translate("Halflings I"))
+    self.UI.setAttribute("HalflingsIILabel", "text", translate("Halflings II"))
+
+    self.UI.setAttribute("LaPorxadaLabel", "text", translate("La Porxada"))
+    self.UI.setAttribute("LittleBuildingsLabel", "text", translate("Little Buildings"))
+    self.UI.setAttribute("MiGLabel", "text", translate("Monasteries\nin Germany"))
+    self.UI.setAttribute("MiNBLabel", "text", translate("Monasteries\nin Netherlands\n& Belgium"))
+    self.UI.setAttribute("PhantomsLabel", "text", translate("Phantoms"))
+
+    self.UI.setAttribute("PlagueLabel", "text", translate("Plague"))
+    self.UI.setAttribute("RobbersLabel", "text", translate("Robbers"))
+    self.UI.setAttribute("SiegeLabel", "text", translate("Siege"))
+    self.UI.setAttribute("SpielPromoLabel", "text", translate("Spiel Promo"))
+    self.UI.setAttribute("TunnelLabel", "text", translate("Tunnel"))
+
+    self.UI.setAttribute("RussianPromoLabel", "text", translate("We go to\nCarcassonne"))
+
+    self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
+    self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
+
+    -- initializeCheckbox(COLUMN_1, ROW_1, 'BesiegersTiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1, 'CiGTiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1, 'CatharsTiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1, 'CropCirclesITiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1, 'CropCirclesIITiles', "")
+    -- initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, 'DarmstadtTiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING, 'FestivalTiles', "")
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING, 'GamesQuarterlyTiles', translate("TOOLTIP_GAMES_QUARTERLY"))
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING, 'HalflingsITiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING, 'HalflingsIITiles', "")
+    -- initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, 'LaPorxadaTiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, 'LittleBuildings', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 2, 'MiGTiles', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 2, 'MiNBTiles', "")
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 2, 'Phantoms', translate("TOOLTIP_PHANTOMS"))
+    -- initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, 'Plague', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 3, 'Robbers', "")
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 3, 'SiegeTiles', "")
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 3, 'SpielPromoTiles', translate("TOOLTIP_SPIEL_PROMO"))
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 3, 'Tunnel', "")
+    initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 4, 'RussianPromoTiles', translate("TOOLTIP_WE_GO_TO_CARCASSONNE"))
 end
 
 --This is required so that we can use onCheckboxToggle
@@ -54,8 +84,8 @@ function onCatharsTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'CatharsTiles', 'btnCatharsTilesToggle')
 end
 
-function onCropCirclesTilesToggle(Object, sPlayer)
-    onCheckboxToggle(sPlayer, 'CropCirclesTiles', 'btnCropCirclesTilesToggle')
+function onCropCirclesITilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'CropCirclesITiles', 'btnCropCirclesITilesToggle')
 end
 
 function onCropCirclesIITilesToggle(Object, sPlayer)
@@ -74,8 +104,8 @@ function onGamesQuarterlyTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'GamesQuarterlyTiles', 'btnGamesQuarterlyTilesToggle')
 end
 
-function onHalflingsTilesToggle(Object, sPlayer)
-    onCheckboxToggle(sPlayer, 'HalflingsTiles', 'btnHalflingsTilesToggle')
+function onHalflingsITilesToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'HalflingsITiles', 'btnHalflingsITilesToggle')
 end
 
 function onHalflingsIITilesToggle(Object, sPlayer)

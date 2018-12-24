@@ -3,7 +3,7 @@
 function checkFigure(params)
     if params.time ~= lastDroppedTime then return end
     dropLock = false
-    if lastDroppedObject_GUID ~= nil then --makes sure object still exists
+    if lastDroppedObject_GUID ~= nil and getObjectFromGUID(lastDroppedObject_GUID) ~= nil then --makes sure object still exists
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
         local newFigure = getObjectFromGUID(lastDroppedObject_GUID)
@@ -26,7 +26,7 @@ function checkFigure(params)
                             end
                         end
                     end
-                    allErrorMessage("Invalid Location: Fairy must be placed on a tile containing a follower owned by you.", activePlayers[currentPlayer])
+                    allErrorMessage({"MESSAGE_INVALID_LOCATION_FAIRY"}, activePlayers[currentPlayer])
                     return
                 end
                 local tile, tileRotation
@@ -56,7 +56,7 @@ function checkFigure(params)
                    featureNum = featureMap[xIndex][zIndex][(direction * 2) + 3]
                 end
                 if featureNum == nil then
-                    allErrorMessage("Invalid Location: The middle of this side is not valid. You must put the figure on one side of the feature or the other.", activePlayers[currentPlayer])
+                    allErrorMessage({"MESSAGE_INVALID_LOCATION_MIDDLE"}, activePlayers[currentPlayer])
                     return
                 end
                 local nameOfFeature = featureList[featureNum].nameOfFeature
@@ -68,7 +68,8 @@ function checkFigure(params)
                         flierDirection = flierDirection + ((tileRotation - TILE_STANDARD_ROTATION) * 2)
                         if flierDirection > 8 then flierDirection = flierDirection - 8 end
                         if flierDirection < 1 then flierDirection = flierDirection + 8 end
-                        allGameMessage(newFigure.getDescription() .. (newFigure.getDescription() ~= "" and " " or "") .. newFigure.getName() .. " placed on a flier", player_color_tints[newFigure.getVar('owner')])
+                        allGameMessage({"MESSAGE_FLIER_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}}, player_color_tints[newFigure.getVar('owner')])
+                        hasAlreadyUsedFlier = true
                         return nextState('placed flier')
                     end
                     if AUTOLOCK then
@@ -95,16 +96,16 @@ function checkFigure(params)
                             end
                         end
                         if numberActiveTowers == 1 then
-                            allGameMessage("Tower started on a Tower Foundation", player_color_tints[activePlayers[currentPlayer]])
+                            allGameMessage(({"MESSAGE_TOWER_PLACED"}), player_color_tints[activePlayers[currentPlayer]])
                         else
-                            allGameMessage("The tower has been increased by one level.", player_color_tints[activePlayers[currentPlayer]])
+                            allGameMessage(({"MESSAGE_TOWER_INCREASED"}), player_color_tints[activePlayers[currentPlayer]])
                         end
                         return nextState('placed tower')
                     end
                     if nameOfFeature == 'Tower Foundation' then
                         nameOfFeature = 'a tower'
                     end
-                    allGameMessage(newFigure.getDescription() .. (newFigure.getDescription() ~= "" and " " or "") .. newFigure.getName() .. " placed on " .. nameOfFeature, player_color_tints[newFigure.getVar('owner')])
+                    allGameMessage({"MESSAGE_FIGURE_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, player_color_tints[newFigure.getVar('owner')])
                     if table.contains(CLOISTER_FEATURES, nameOfFeature) then
                         local challengerTile, challengedTile
                         if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
@@ -135,7 +136,7 @@ function checkFigure(params)
                                                             zPosition = zPosition - objectZIndex
                                                             local closestPosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), tileRotation, true)
                                                             if closestPosition == i + 12 then
-                                                                allGameMessage(object.getDescription() .. (object.getDescription() ~= "" and " " or "") .. object.getName() .. " on " .. feature[1] .. " has been challenged!", player_color_tints[object.getVar('owner')])
+                                                                allGameMessage({"MESSAGE_SHRINE_CHALLENGED", {'{c1}', object.getDescription()}, {'{f1}', object.getName()}, {'{s2}', translate({feature[1]})}}, player_color_tints[object.getVar('owner')])
                                                             end
                                                         end
                                                     end
@@ -150,7 +151,7 @@ function checkFigure(params)
                     local pieceRotation = 0
                     if closestPosition < 5 then pieceRotation = (closestPosition - 1) * 90
                     elseif closestPosition < 13 then pieceRotation = math.floor((closestPosition - 5) / 2) * 90 end
-                    if (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') and nameOfFeature == 'Field' then
+                    if table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) and nameOfFeature == 'Field' then
                         --lay the Follower down
                         if closestPosition < 13 then
                             newFigure.setRotation({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
@@ -172,14 +173,17 @@ function checkFigure(params)
                         shepherdAwaitingAction = newFigure.getGUID()
                         return nextState('placed shepherd')
                     else
+                        if not (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) then
+                            hasAlreadyUsedMagicPortal = true
+                        end
                         return nextState('placed figure')
                     end
                 end
             else
-                allErrorMessage("You must place a tile before placing a figure.", activePlayers[currentPlayer])
+                allErrorMessage({"MESSAGE_FIGURE_PLACED_BEFORE_TILE"}, activePlayers[currentPlayer])
             end
         else
-            allErrorMessage("Figure picked up before validation. Please replace figure.", activePlayers[currentPlayer])
+            allErrorMessage({"MESSAGE_FIGURE_PICKED_UP"}, activePlayers[currentPlayer])
         end
     end
 end
@@ -250,12 +254,12 @@ end
 function checkWagon(params)
     if params.time ~= lastDroppedTime then return end
     dropLock = false
-    if lastDroppedObject_GUID ~= nil then --makes sure object still exists
+    if lastDroppedObject_GUID ~= nil and getObjectFromGUID(lastDroppedObject_GUID) ~= nil then --makes sure object still exists
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
         local newFigure = getObjectFromGUID(lastDroppedObject_GUID)
         if newFigure.getVar('figureName') ~= 'Wagon' then
-            allErrorMessage("Error: You are only allowed to place the wagon at this time.", activePlayers[currentMiniTurn])
+            allErrorMessage({"MESSAGE_WAGON_ILLEGAL_FIGURE"}, activePlayers[currentMiniTurn])
             return
         end
         if newFigure.held_by_color == nil then
@@ -285,7 +289,7 @@ function checkWagon(params)
                         end
                         local nameOfFeature = featureList[featureNum].nameOfFeature
                         clearArbitraryButtons()
-                        allGameMessage(newFigure.getDescription() .. (newFigure.getDescription() ~= "" and " " or "") .. newFigure.getName() .. " placed on " .. nameOfFeature, player_color_tints[newFigure.getVar('owner')])
+                        allGameMessage({"MESSAGE_FIGURE_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, player_color_tints[newFigure.getVar('owner')])
                         local pieceRotation = 0
                         if closestPosition < 5 then pieceRotation = (closestPosition - 1) * 90
                         elseif closestPosition < 13 then pieceRotation = math.floor((closestPosition - 5) / 2) * 90 end
@@ -294,11 +298,11 @@ function checkWagon(params)
                         return nextState('placed figure')
                     end
                 else
-                    allErrorMessage("Invalid Location: No tile found.", activePlayers[currentMiniTurn])
+                    --allErrorMessage("Invalid Location: Figure was not placed on a tile", activePlayers[currentPlayer])
                 end
             end
         else
-            allErrorMessage("Figure picked up before validation. Please replace figure.", activePlayers[currentMiniTurn])
+            allErrorMessage({"MESSAGE_FIGURE_PICKED_UP"}, activePlayers[currentMiniTurn])
         end
     end
 end
@@ -306,7 +310,7 @@ end
 function checkFlier(params)
     if params.time ~= lastDroppedTime then return end
     dropLock = false
-    if lastDroppedObject_GUID ~= nil then --makes sure object still exists
+    if lastDroppedObject_GUID ~= nil and getObjectFromGUID(lastDroppedObject_GUID) ~= nil then --makes sure object still exists
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
         if flier == lastDroppedObject_GUID then
@@ -349,7 +353,7 @@ function checkFlier(params)
                                 end
                             end
                             if not hasLink then
-                                allErrorMessage("Invalid Location: You must put the flier on one side of the feature or the other.", activePlayers[currentPlayer])
+                                allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_MIDDLE"}, activePlayers[currentPlayer])
                                 return
                             end
                         end
@@ -361,7 +365,7 @@ function checkFlier(params)
                         if AUTOLOCK then
                             newFigure.setLock(true)
                         end
-                        allGameMessage(newFigure.getDescription() .. (newFigure.getDescription() ~= "" and " " or "") .. newFigure.getName() .. " placed on " .. nameOfFeature, player_color_tints[newFigure.getVar('owner')])
+                        allGameMessage({"MESSAGE_FIGURE_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, player_color_tints[newFigure.getVar('owner')])
                         if table.contains(CLOISTER_FEATURES, nameOfFeature) then
                             local challengerTile, challengedTile
                             if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
@@ -392,7 +396,7 @@ function checkFlier(params)
                                                                 zPosition = zPosition - objectZIndex
                                                                 local closestPosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), tileRotation, true)
                                                                 if closestPosition == i + 12 then
-                                                                    allGameMessage(object.getDescription() .. (object.getDescription() ~= "" and " " or "") .. object.getName() .. " on " .. feature[1] .. " has been challenged!", player_color_tints[object.getVar('owner')])
+                                                                    allGameMessage({"MESSAGE_SHRINE_CHALLENGED", {'{c1}', object.getDescription()}, {'{f1}', object.getName()}, {'{s2}', translate({feature[1]})}}, player_color_tints[object.getVar('owner')])
                                                                 end
                                                             end
                                                         end
@@ -412,14 +416,29 @@ function checkFlier(params)
                         return nextState('placed flier')
                     end
                 else
-                    allErrorMessage("Invalid Location: You must place the figure on the tile corresponding to the flier dice roll.", activePlayers[currentPlayer])
+                    allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_WRONG_TILE"}, activePlayers[currentPlayer])
                 end
             else
-                allErrorMessage("Figure picked up before validation. Please replace figure.", activePlayers[currentPlayer])
+                allErrorMessage({"MESSAGE_FIGURE_PICKED_UP"}, activePlayers[currentPlayer])
             end
         else
-            allErrorMessage("Can only place the follower that was used on the flier.", activePlayers[currentPlayer])
+            allErrorMessage({"MESSAGE_FLIER_WRONG_FIGURE"}, activePlayers[currentPlayer])
         end
+    end
+end
+
+function checkPhantom(params)
+    if params.time ~= lastDroppedTime then return end
+    dropLock = false
+    if lastDroppedObject_GUID ~= nil and getObjectFromGUID(lastDroppedObject_GUID) ~= nil then --makes sure object still exists
+        --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
+        --if lastDroppedObject.resting then
+        local newFigure = getObjectFromGUID(lastDroppedObject_GUID)
+        if newFigure.getVar('figureName') ~= 'Phantom' then
+            allErrorMessage({"Error: You are only allowed to place the phantom at this time."}, activePlayers[currentPlayer])
+            return
+        end
+        return checkFigure(params)
     end
 end
 
@@ -461,9 +480,9 @@ function checkToCoC(params)
                 end
                 local nameOfFeature = featureList[featureNum].nameOfFeature
                 if newFigure.getVar('figureName') == 'Count' then
-                    allGameMessage(newFigure.getName() .. " placed on " .. nameOfFeature, newFigure.getColorTint())
+                    allGameMessage({"MESSAGE_COUNT_PLACED", {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, newFigure.getColorTint())
                 else
-                    allGameMessage(newFigure.getDescription() .. (newFigure.getDescription() ~= "" and " " or "") .. newFigure.getName() .. " placed on " .. nameOfFeature, player_color_tints[newFigure.getVar('owner')])
+                    allGameMessage({"MESSAGE_FIGURE_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, player_color_tints[newFigure.getVar('owner')])
                 end
                 local pieceRotation = 0
                 if closestPosition < 5 then pieceRotation = (closestPosition - 1) * 90
@@ -473,7 +492,7 @@ function checkToCoC(params)
                 return nextState('placed figure')
             end
         else
-            allErrorMessage("Figure picked up before validation. Please replace figure.", activePlayers[currentPlayer])
+            allErrorMessage({"MESSAGE_FIGURE_PICKED_UP"}, activePlayers[currentPlayer])
         end
     end
 end
@@ -515,11 +534,11 @@ function checkFromCoC(params)
                     newFigure.setLock(true)
                 end
                 local nameOfFeature = featureList[featureNum].nameOfFeature
-                allGameMessage(newFigure.getDescription() .. (newFigure.getDescription() ~= "" and " " or "") .. newFigure.getName() .. " placed on " .. nameOfFeature, player_color_tints[newFigure.getVar('owner')])
+                allGameMessage({"MESSAGE_FIGURE_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, player_color_tints[newFigure.getVar('owner')])
                 local pieceRotation = 0
                 if closestPosition < 5 then pieceRotation = (closestPosition - 1) * 90
                 elseif closestPosition < 13 then pieceRotation = math.floor((closestPosition - 5) / 2) * 90 end
-                if (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') and nameOfFeature == 'Field' then
+                if table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) and nameOfFeature == 'Field' then
                     --lay the Follower down
                     newFigure.setRotation({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
                 else
@@ -538,7 +557,7 @@ function checkFromCoC(params)
                 return nextState('placed figure')
             end
         else
-            allErrorMessage("Figure picked up before validation. Please replace figure.", activePlayers[currentPlayer])
+            allErrorMessage({"MESSAGE_FIGURE_PICKED_UP"}, activePlayers[currentPlayer])
         end
     end
 end
@@ -553,7 +572,7 @@ function checkTile(params)
         local newTile = getObjectFromGUID(lastDroppedObject_GUID)
         if newTile ~= nil and newTile.held_by_color == nil then
             if newTile.getTable('sides') == nil then
-                allErrorMessage("Error: This tile has no script data. Most likely this expansion hasn't yet been implemented.")
+                allErrorMessage({"MESSAGE_ERROR_NO_SCRIPT_DATA"})
                 return
             end
             local xPosition = (newTile.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
@@ -584,10 +603,10 @@ function checkTile(params)
                     return nextState('tile placed')
                 end
             else
-                allErrorMessage("Invalid Location: Tile not aligned with the grid", activePlayers[currentPlayer])
+                allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_NOT_ALIGNED"}, activePlayers[currentPlayer])
             end
         else
-            allErrorMessage("Tile picked up before validation. Please replace tile", activePlayers[currentPlayer])
+            allErrorMessage({"MESSAGE_TILE_PICKED_UP"}, activePlayers[currentPlayer])
         end
     end
 end
@@ -605,7 +624,7 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
                 (not tileGridOccupied(xIndex, zIndex - 1) or tileConnectsToSide(tile, tileRotation, 1, getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid), tileGrid[xIndex][zIndex - 1].rotation))) then
                     if tile.getTable('sides')[1] == 'Abbey' and
                     ((not tileGridOccupied(xIndex + 1, zIndex)) or (not tileGridOccupied(xIndex - 1, zIndex)) or (not tileGridOccupied(xIndex, zIndex + 1)) or (not tileGridOccupied(xIndex, zIndex - 1))) then
-                        if verbose then allErrorMessage("Invalid Location: Abbey must be surrounded by tiles on all 4 sides", activePlayers[currentPlayer]) end
+                        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_ABBEY"}, activePlayers[currentPlayer]) end
                         return false
                     end
                     if controlPanelSettings['CultTiles'] then
@@ -659,7 +678,7 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
                                 end
                             end
                             if numChallenged > 1 or numChallenger > 1 then
-                                if verbose then allErrorMessage("Invalid Location: Cannot place a tile such that more than one cloister is next to a shrine or vice versa.", activePlayers[currentPlayer]) end
+                                if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_SHRINE_CLOISTER"}, activePlayers[currentPlayer]) end
                                 return false
                             end
                         end
@@ -685,29 +704,29 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
                                     --TODO: In the future, consider checking n number of tiles in the direction of the new rivers direction (with a width of 3 tiles) to see if there are any pieces in the way
                                     if ((tile.getTable('sides')[(3 + i + 1 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 1 - tileGrid[x][z].rotation) % 4 + 1] == 'River') or
                                     (tile.getTable('sides')[(3 + i + 3 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 3 - tileGrid[x][z].rotation) % 4 + 1] == 'River')) then
-                                        if verbose then allErrorMessage("Invalid Location: U-turns are not allowed on rivers", activePlayers[currentPlayer]) end
+                                        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_RIVER_U_TURN"}, activePlayers[currentPlayer]) end
                                         return false
                                     end
                                 end
                             end
                         end
                         if hasRiver and startingRiverTile_GUID ~= nil and hasOpenRiver() and not riverHasConnection then
-                            if verbose then allErrorMessage("Invalid Location: Tile must continue the already placed river", activePlayers[currentPlayer]) end
+                            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_RIVER"}, activePlayers[currentPlayer]) end
                             return false
                         end
                     end
                     return true
                 else
-                    if verbose then allErrorMessage("Invalid Location: Adjacent tiles do not match", activePlayers[currentPlayer]) end
+                    if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_FEATURES_DONT_MATCH"}, activePlayers[currentPlayer]) end
                 end
             else
-                if verbose then allErrorMessage("Invalid Location: Tile must be placed in the blue play area", activePlayers[currentPlayer]) end
+                if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_OUT_OF_BOUNDS"}, activePlayers[currentPlayer]) end
             end
         else
-            if verbose then allErrorMessage("Invalid Location: Must be adjacent to at least one tile", activePlayers[currentPlayer]) end
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_NOT_ADJACENT"}, activePlayers[currentPlayer]) end
         end
     else
-        if verbose then allErrorMessage("Invalid Location: Space already occupied by another tile", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_LOCATION_TAKEN"}, activePlayers[currentPlayer]) end
     end
     return false
 end
@@ -715,42 +734,54 @@ end
 function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, newFigureInTranversal, verbose)
     local nameOfFeature = featureList[featureNum].nameOfFeature
     local featureOpenings = featureList[featureNum].openings
-    if not ((xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) or (tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName'))) or newFigure.getVar('figureName') == 'Barn' or nameOfFeature == 'Tower Foundation' or string.sub(nameOfFeature,1,6) == 'Crown-') then
-        if verbose then allErrorMessage("Invalid Location: You must place the figure on the tile you had just placed.", activePlayers[currentPlayer]) end
-        return
+    if not (
+        (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) or
+        (tileHasMagicPortal and not hasAlreadyUsedMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName'))) or
+        newFigure.getVar('figureName') == 'Barn' or nameOfFeature == 'Tower Foundation' or string.sub(nameOfFeature,1,6) == 'Crown-'
+        ) then
+        if tileHasMagicPortal and hasAlreadyUsedMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_MAGIC_PORTAL_USAGE_EXCEEDED"}, activePlayers[currentPlayer]) end
+            return
+        else
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FIGURE_WRONG_TILE"}, activePlayers[currentPlayer]) end
+            return
+        end
     end
     local dragon = getObjectFromGUID(dragon_GUID)
     if controlPanelSettings['PnDDragon'] and dragon ~= nil and newFigure.getVar('figureName') ~= 'Barn' and (table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, newFigure.getVar('figureName'))) then
         if xIndex == math.floor((dragon.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING) and
            zIndex == math.floor((dragon.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING) then
-            if verbose then allErrorMessage("Invalid Location: Cannot place a figure on the tile containing the dragon.", activePlayers[currentPlayer]) end
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FIGURE_ON_DRAGON"}, activePlayers[currentPlayer]) end
             return false
         end
     end
     if nameOfFeature == 'River' then
-        if verbose then allErrorMessage("Invalid Location: You can't occupy a river.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FIGURE_ON_RIVER"}, activePlayers[currentPlayer]) end
         return false
     end
     if nameOfFeature == 'Carcassonne' or string.sub(nameOfFeature,1,8) == 'Quarter-' then
-        if verbose then allErrorMessage("Invalid Location: You cannot place a figure in the City of Carcassonne at this stage in the game.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_NOT_ALLOWED"}, activePlayers[currentPlayer]) end
         return false
     end
     if string.sub(nameOfFeature,1,6) == 'Flier-' then
         if controlPanelSettings['FlierFlier'] then
-            if table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
+            if hasAlreadyUsedFlier then
+                if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_USAGE_EXCEEDED"}, activePlayers[currentPlayer]) end
+                return false
+            elseif table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
                 return true
             else
-                if verbose then allErrorMessage("Invalid Location: Only a follower can be placed on a flier. Valid followers: Follower, Big Follower, Wagon, Mayor.", activePlayers[currentPlayer]) end
+                if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_ILLEGAL_FIGURE"}, activePlayers[currentPlayer]) end
                 return false
             end
         else
-            if verbose then allErrorMessage("The Flier was disabled in the control panel. You may not place anything on the flier.", activePlayers[currentPlayer]) end
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_DISABLED"}, activePlayers[currentPlayer]) end
             return false
         end
     end
     if nameOfFeature == 'Tower Foundation' then
-        if newFigure.getVar('figureName') ~= 'Follower' and newFigure.getVar('figureName') ~= 'Big Follower' and newFigure.getVar('figureName') ~= 'Tower' then
-            if verbose then allErrorMessage("Invalid Location: Only towers can be placed on tower foundations. Only additional towers, normal followers, and big followers can be placed on towers.", activePlayers[currentPlayer]) end
+        if not table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) and newFigure.getVar('figureName') ~= 'Tower' then
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TOWER_ILLEGAL_FIGURE"}, activePlayers[currentPlayer]) end
             return false
         else
             local hasTower = false
@@ -772,8 +803,8 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
                     zPosition = zPosition - zIndex
                     local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, true)
                     if closestPosition == position and obj.getGUID() ~= newFigure.getGUID() then
-                        if obj.getVar('figureName') == 'Follower' or obj.getVar('figureName') == 'Big Follower' then
-                            if verbose then allErrorMessage("Invalid Location: This tower already has a follower on it.", activePlayers[currentPlayer]) end
+                        if table.contains(MEEPLE_TYPES, obj.getVar('figureName')) then
+                            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TOWER_ALREADY_OCCUPIED"}, activePlayers[currentPlayer]) end
                             return false
                         elseif obj.getVar('figureName') == 'Tower' then
                             hasTower = true
@@ -786,69 +817,60 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
                     end
                 end
             end
-            if (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') and not hasTower then
-                if verbose then allErrorMessage("Invalid Location: Followers cannot be placed on tower foundations.", activePlayers[currentPlayer]) end
+            if table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) and not hasTower then
+                if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TOWER_FIGURE_BEFORE_TOWER"}, activePlayers[currentPlayer]) end
                 return false
             end
             return true
         end
     end
-    if string.sub(nameOfFeature,1,6) == 'Crown-' and newFigure.getVar('figureName') ~= 'Follower' and newFigure.getVar('figureName') ~= 'Big Follower' then
-        if verbose then allErrorMessage("Invalid Location: Only followers can be placed on Crown spaces.", activePlayers[currentPlayer]) end
+    if string.sub(nameOfFeature,1,6) == 'Crown-' and not table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) then
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WHEEL_CROWN"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Shepherd' and nameOfFeature ~= 'Field' then
-        if verbose then allErrorMessage("Invalid Location: Shepherd can only be placed on fields.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_SHEPHERD"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Abbot' and not (nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey') then
-        if verbose then allErrorMessage("Invalid Location: An abbot can only be placed on a garden or cloister.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_ABBOT"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') ~= 'Abbot' and nameOfFeature == 'Garden' then
-        if verbose then allErrorMessage("Invalid Location: Only an abbot can be placed on a garden.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_GARDEN"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Builder' and nameOfFeature ~= 'Road' and nameOfFeature ~= 'City' then
-        if verbose then allErrorMessage("Invalid Location: A builder can only be placed on roads and cities.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_BUILDER"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Pig' and nameOfFeature ~= 'Field' then
-        if verbose then allErrorMessage("Invalid Location: A pig can only be placed on fields.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_PIG"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Mayor' and nameOfFeature ~= 'City' then
-        if verbose then allErrorMessage("Invalid Location: A mayor can only occupy a city.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_MAYOR"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Wagon' and nameOfFeature == 'Field' then
-        if verbose then allErrorMessage("Invalid Location: A wagon cannot occupy a field.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WAGON"}, activePlayers[currentPlayer]) end
         return false
     end
-    if nameOfFeature == 'Road' and controlPanelSettings['BaseDisableRoads'] then
-        if verbose then allErrorMessage("Invalid Location: Roads are disabled via the house rules.", activePlayers[currentPlayer]) end
-        return false
-    end
-    if nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities'] then
-        if verbose then allErrorMessage("Invalid Location: Cities are disabled via the house rules.", activePlayers[currentPlayer]) end
-        return false
-    end
-    if nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters'] then
-        if verbose then allErrorMessage("Invalid Location: Cloisters are disabled via the house rules.", activePlayers[currentPlayer]) end
-        return false
-    end
-    if nameOfFeature == 'Field' and newFigure.getVar('figureName') ~= 'Shepherd' and controlPanelSettings['BaseDisableFarms'] then
-        if verbose then allErrorMessage("Invalid Location: Farms are disabled via the house rules.", activePlayers[currentPlayer]) end
+    if (nameOfFeature == 'Road' and controlPanelSettings['BaseDisableRoads']) or
+        (nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities']) or
+        (nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters']) or
+        (nameOfFeature == 'Field' and newFigure.getVar('figureName') ~= 'Shepherd' and controlPanelSettings['BaseDisableFarms']) then
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FEATURE_DISABLED", {'{s1}', translate({nameOfFeature})}}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Barn' then
         if nameOfFeature ~= 'Field' or not checkBarn(position, xIndex, zIndex) then
-            if verbose then allErrorMessage("Invalid Location: A barn can only be placed on a corner of fields.", activePlayers[currentPlayer]) end
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_BARN"}, activePlayers[currentPlayer]) end
             return false
         end
     end
     if featureOpenings == 0 and not (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) and not string.sub(nameOfFeature,1,6) == 'Crown-' and newFigure.getVar('figureName') ~= 'Barn' then
-        if verbose then allErrorMessage("Invalid Location: You may not use the magic portal to place a follower on a completed feature.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_MAGIC_PORTAL"}, activePlayers[currentPlayer]) end
         return false
     end
 
@@ -879,11 +901,11 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
         end
     end
     if newFigure.getVar('figureName') == 'Builder' and numCurrentPlayerFollowers == 0 then
-        if verbose then allErrorMessage("Invalid Location: A builder can only be placed on a road/city containing at least one of your followers.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_BUILDER_NO_PARENT"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Pig' and numCurrentPlayerFollowers == 0 then
-        if verbose then allErrorMessage("Invalid Location: A pig can only be placed on a field containing at least one of your followers.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_PIG_NO_PARENT"}, activePlayers[currentPlayer]) end
         return false
     end
     if (table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) and numFollowers == 0 and numBarns == 0) or
@@ -892,7 +914,7 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, position, featureNum, 
          newFigure.getVar('figureName') == 'Builder' or newFigure.getVar('figureName') == 'Pig' then
         return true
     else
-        if verbose then allErrorMessage("Invalid Location: Feature already occupied.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FEATURE_ALREADY_OCCUPIED"}, activePlayers[currentPlayer]) end
     end
     return false
 end
@@ -901,45 +923,34 @@ function isValidWagonLocation(newFigure, featureNum, verbose)
     local nameOfFeature = featureList[featureNum].nameOfFeature
     local featureOpenings = featureList[featureNum].openings
     if nameOfFeature == 'River' then
-        if verbose then allErrorMessage("Invalid Location: You can't occupy a river.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FIGURE_ON_RIVER"}, activePlayers[currentMiniTurn]) end
         return false
     end
     if nameOfFeature == 'Carcassonne' or string.sub(nameOfFeature,1,8) == 'Quarter-' then
-        if verbose then allErrorMessage("Invalid Location: You cannot place a figure in the City of Carcassonne at this stage in the game.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_NOT_ALLOWED"}, activePlayers[currentMiniTurn]) end
         return false
     end
     if nameOfFeature == 'Field' then
-        if verbose then allErrorMessage("Invalid Location: A wagon cannot occupy a field.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WAGON"}, activePlayers[currentMiniTurn]) end
         return false
     end
     if nameOfFeature == 'Road' and controlPanelSettings['BaseDisableRoads'] then
-        if verbose then allErrorMessage("Invalid Location: Roads are disabled via the house rules.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"Invalid Location: Roads are disabled via the house rules."}, activePlayers[currentMiniTurn]) end
         return false
     end
     if nameOfFeature == 'City' and controlPanelSettings['BaseDisableCities'] then
-        if verbose then allErrorMessage("Invalid Location: Cities are disabled via the house rules.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"Invalid Location: Cities are disabled via the house rules."}, activePlayers[currentMiniTurn]) end
         return false
     end
     if nameOfFeature == 'Cloister' and controlPanelSettings['BaseDisableCloisters'] then
-        if verbose then allErrorMessage("Invalid Location: Cloisters are disabled via the house rules.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"Invalid Location: Cloisters are disabled via the house rules."}, activePlayers[currentMiniTurn]) end
         return false
     end
 
     local wagonFeatureNum = wagonFeatures[activePlayers[currentMiniTurn]]
     if linkedFeatures['Road Intersection'][wagonFeatureNum] == nil or linkedFeatures['Road Intersection'][wagonFeatureNum][featureNum] ~= true then
-        if verbose then allErrorMessage("Invalid Location: Not connected to the previous feature by road.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WAGON_NOT_CONNECTED"}, activePlayers[currentMiniTurn]) end
         return false
-    end
-
-    if table.contains(CLOISTER_FEATURES, nameOfFeature) then
-        featureOpenings = 8
-        for x=-1, 1 do
-            for z=-1, 1 do
-                if not (x == 0 and z == 0) and tileGridOccupied(featureList[featureNum].featureLocation.x + x, featureList[featureNum].featureLocation.z + z) then
-                    featureOpenings = featureOpenings - 1
-                end
-            end
-        end
     end
 
     if featureOpenings > 0 then
@@ -964,7 +975,7 @@ function isValidWagonLocation(newFigure, featureNum, verbose)
                     end
 
                     if followerFeatureNum == featureNum then
-                        if verbose then allErrorMessage("Invalid Location: Feature already occupied.", activePlayers[currentMiniTurn]) end
+                        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FEATURE_ALREADY_OCCUPIED"}, activePlayers[currentMiniTurn]) end
                         return false
                     end
                 end
@@ -972,25 +983,25 @@ function isValidWagonLocation(newFigure, featureNum, verbose)
         end
         return true
     end
-    if verbose then allErrorMessage("Invalid Location: Feature already finished. You must place the wagon in an incomplete feature", activePlayers[currentMiniTurn]) end
+    if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WAGON_ALREADY_COMPLETE"}, activePlayers[currentMiniTurn]) end
     return false
 end
 
 function isValidFlierLocation(newFigure, xIndex, zIndex, position, nameOfFeature, featureOpenings, verbose)
     if newFigure.getVar('figureName') == 'Abbot' and nameOfFeature ~= 'Garden' and nameOfFeature ~= 'Cloister' and nameOfFeature ~= 'Abbey' then
-        if verbose then allErrorMessage("Invalid Location: An abbot can only be placed on a garden or cloister.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_ABBOT"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Mayor' and nameOfFeature ~= 'City' then
-        if verbose then allErrorMessage("Invalid Location: A mayor can only occupy a city.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_MAYOR"}, activePlayers[currentPlayer]) end
         return
     end
     if nameOfFeature ~= 'City' and nameOfFeature ~= 'Road' and nameOfFeature ~= 'Cloister' then
-        if verbose then allErrorMessage("Invalid Location: A flier can only be placed on a city, road, or cloister.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER"}, activePlayers[currentPlayer]) end
         return
     end
     if featureOpenings == 0 then
-        if verbose then allErrorMessage("Invalid Location: You may only place the flier on an incomplete feature.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_ALREADY_COMPLETE"}, activePlayers[currentPlayer]) end
         return false
     end
     return true
@@ -1000,43 +1011,43 @@ function isValidCoCLocation(newFigure, xIndex, zIndex, position, featureNum, new
     local nameOfFeature = featureList[featureNum].nameOfFeature
 
     if not (table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) or newFigure.getVar('figureName') == 'Count') then
-        if verbose then allErrorMessage("Invalid Location: Only a follower can be placed at this stage of the game. Valid followers: Follower, Big Follower, Wagon, Mayor.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_ILLEGAL_FIGURE"}, activePlayers[currentPlayer]) end
         return false
     end
     if nameOfFeature == 'Carcassonne' then
-        if verbose then allErrorMessage("Invalid Location: The figure must be placed in one of four specific quarters within the city.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_NOT_A_QUARTER"}, activePlayers[currentPlayer]) end
         return false
     end
     if string.sub(nameOfFeature,1,8) ~= 'Quarter-' then
-        if verbose then allErrorMessage("Invalid Location: A figure can only be placed within the City of Carcassonne at this stage of the game.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Abbot' and nameOfFeature ~= 'Quarter-Cathedral' then
-        if verbose then allErrorMessage("Invalid Location: An abbot can only be placed in the cathedral quarter.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_ABBOT"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Mayor' and nameOfFeature ~= 'Quarter-Castle' then
-        if verbose then allErrorMessage("Invalid Location: A mayor can only be placed in the castle quarter.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_MAYOR"}, activePlayers[currentPlayer]) end
         return false
     end
     if newFigure.getVar('figureName') == 'Wagon' and nameOfFeature == 'Quarter-Market' then
-        if verbose then allErrorMessage("Invalid Location: A wagon cannot be placed in the market quarter.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_WAGON"}, activePlayers[currentPlayer]) end
         return false
     end
     if nameOfFeature == 'Quarter-Blacksmith' and controlPanelSettings['BaseDisableRoads'] then
-        if verbose then allErrorMessage("Invalid Location: Roads are currently disabled in the house rules. Cannot use the Blacksmith Quarter.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_ROADS_DISABLED"}, activePlayers[currentPlayer]) end
         return false
     end
     if nameOfFeature == 'Quarter-Castle' and controlPanelSettings['BaseDisableCities'] then
-        if verbose then allErrorMessage("Invalid Location: Cities are currently disabled in the house rules. Cannot use the Castle Quarter.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_CITIES_DISABLED"}, activePlayers[currentPlayer]) end
         return false
     end
     if nameOfFeature == 'Quarter-Market' and controlPanelSettings['BaseDisableFields'] then
-        if verbose then allErrorMessage("Invalid Location: Fields are currently disabled in the house rules. Cannot use the Market Quarter.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_FIELDS_DISABLED"}, activePlayers[currentPlayer]) end
         return false
     end
     if nameOfFeature == 'Quarter-Cathedral' and controlPanelSettings['BaseDisableCloisters'] then
-        if verbose then allErrorMessage("Invalid Location: Cloisters are currently disabled in the house rules. Cannot use the Cathedral Quarter.", activePlayers[currentPlayer]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_CLOISTERS_DISABLED"}, activePlayers[currentPlayer]) end
         return false
     end
     return true
@@ -1046,7 +1057,7 @@ function isValidLocationFromCoC(newFigure, featureNum, newFigureInTranversal, ve
     local nameOfFeature = featureList[featureNum].nameOfFeature
     local openings = featureList[featureNum].openings
     if carcassonneFigures[newFigure.getVar('owner')] == nil or carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] == nil then
-        if verbose then allErrorMessage("Error: Only followers from the City of Carcassonne can be placed now.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_COC_FROM_CITY_ILLEGAL_FIGURE"}, activePlayers[currentMiniTurn]) end
         return false
     end
 
@@ -1069,16 +1080,16 @@ function isValidLocationFromCoC(newFigure, featureNum, newFigureInTranversal, ve
     end
 
     if nameOfFeature ~= validFeature then
-        if verbose then allErrorMessage("Invalid Location: This figure was in the " .. carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] .. " Quarter and can only be placed on a completed " .. validFeature, activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_FROM_WRONG_QUARTER", {'{f1}', carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()]}, {'{s1}', validFeature}}, activePlayers[currentMiniTurn]) end
         return false
     end
 
     if openings ~= 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and not gameover then
-        if verbose then allErrorMessage("Invalid Location: Followers from the City of Carcassonne can only be placed on completed features.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_COMPLETED_ONLY"}, activePlayers[currentMiniTurn]) end
         return false
     end
     if openings == 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and gameover then
-        if verbose then allErrorMessage("Invalid Location: Followers from the City of Carcassonne can only be placed on incomplete features at the end of the game.", activePlayers[currentMiniTurn]) end
+        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_INCOMPLETE_END_GAME_ONLY"}, activePlayers[currentMiniTurn]) end
         return false
     end
 
@@ -1163,6 +1174,6 @@ function isValidLocationFromCoC(newFigure, featureNum, newFigureInTranversal, ve
         end
     end
 
-    if verbose then allErrorMessage("Invalid Location: Followers from the City of Carcassonne can only be placed on features that were completed with the last tile.", activePlayers[currentMiniTurn]) end
+    if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_LAST_TILE_ONLY"}, activePlayers[currentMiniTurn]) end
     return false
 end

@@ -16,8 +16,39 @@ NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
 numPlayers = 1
 
 function onLoad()
+    Timer.create({identifier='' .. os.clock(), function_name='initializeControlPanelPage', function_owner=nil, parameters=nil, delay=0.0001})
+end
+
+function initializeControlPanelPage()
+    self.UI.setAttribute("BaseGameExpansionLabel", "text", translate("LABEL_BASE_GAME"))
+    self.UI.setAttribute("BaseTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("BaseFollowersLabel", "text", translate("Followers"))
+    self.UI.setAttribute("MajorExpansionsLabel", "text", translate("LABEL_MAJOR_EXPANSIONS"))
+    self.UI.setAttribute("InCExpansionLabel", "text", "1. " .. translate("Inns & Cathedrals"))
+    self.UI.setAttribute("InCTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("InCBigFollowerLabel", "text", translate("Big Follower"))
+    self.UI.setAttribute("InCInnsLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("InCCathedralsLabel", "text", translate("Cathedrals"))
+    self.UI.setAttribute("TnBExpansionLabel", "text", "2. " .. translate("Traders & Builders"))
+    self.UI.setAttribute("TnBTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("TnBBuilderLabel", "text", translate("Builder"))
+    self.UI.setAttribute("TnBPigLabel", "text", translate("Pig"))
+    self.UI.setAttribute("TnBTradeGoodsLabel", "text", translate("Trade Goods"))
+    self.UI.setAttribute("PnDExpansionLabel", "text", "3 . " .. translate("The Princess & The Dragon"))
+    self.UI.setAttribute("PnDTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("PnDDragonLabel", "text", translate("Dragon"))
+    self.UI.setAttribute("PnDFairyLabel", "text", translate("Fairy"))
+    self.UI.setAttribute("PnDPortalsLabel", "text", translate("Portals"))
+    self.UI.setAttribute("PnDPrincessLabel", "text", translate("Princess"))
+    self.UI.setAttribute("TowerExpansionLabel", "text", "4. " .. translate("The Tower"))
+    self.UI.setAttribute("TowerTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("TowerTowersLabel", "text", translate("Towers"))
+    self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
+    self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
+
     button_parameters.click_function = 'onBaseFollowerDecr'
     button_parameters.label = '-'
+    button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_1}
     self.createButton( button_parameters )
     btnIDs['btnBaseFollowerDecr'] = index
@@ -25,7 +56,7 @@ function onLoad()
 
     button_parameters.click_function = 'onBaseFollowerToggle'
     button_parameters.position = {COLUMN_3, BUTTON_HEIGHT, ROW_1}
-    button_parameters.tooltip = "Follower - The Follower is the basic piece of the player. It can be placed on cities, roads, fields, or cloisters (churches) to take control of that feature."
+    button_parameters.tooltip = translate("TOOLTIP_FOLLOWER")
     button_parameters.label = '7'
     self.createButton( button_parameters )
     btnIDs['btnBaseFollowerToggle'] = index
@@ -33,42 +64,44 @@ function onLoad()
 
     button_parameters.click_function = 'onBaseFollowerIncr'
     button_parameters.label = '+'
+    button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 - 1, BUTTON_HEIGHT, ROW_1}
     self.createButton( button_parameters )
     btnIDs['btnBaseFollowerIncr'] = index
     index = index + 1
 
 -- Base game
-    initializeCheckbox(COLUMN_2, ROW_1, 'BaseTiles', "71 tiles")
+    initializeCheckbox(COLUMN_2, ROW_1, 'BaseTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 71}}))
 
 --Inns & Cathedrals
-    initializeAllCheckbox(COLUMN_1, ROW_2, 'InCAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_2, 'InCTiles', "18 tiles")
-    initializeCheckbox(COLUMN_3, ROW_2, 'InCBigFollower', "Follower - The Big Follower has the same weight as 2 normal followers. This means that only 1 big follower is needed to steal a feature controlled by a player with only 1 normal follower. Even if the player had 2 normal followers, the points would still be shared.")
-    initializeCheckbox(COLUMN_4, ROW_2, 'InCInns', "Roads with inns are granted double points when they are finished, but are given no points if they do not finish.")
-    initializeCheckbox(COLUMN_5, ROW_2, 'InCCathedrals', "Cities with cathedrals are granted triple points when they are finished (instead of double), but are given no points if they do not finish.")
+    initializeAllCheckbox(COLUMN_1, ROW_2, 'InCAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_2, 'InCTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 18}}))
+    initializeCheckbox(COLUMN_3, ROW_2, 'InCBigFollower', translate("TOOLTIP_BIG_FOLLOWER"))
+    initializeCheckbox(COLUMN_4, ROW_2, 'InCInns', translate("TOOLTIP_INN"))
+    initializeCheckbox(COLUMN_5, ROW_2, 'InCCathedrals', translate("TOOLTIP_CATHEDRAL"))
 
 --Traders & Builders
-    initializeAllCheckbox(COLUMN_1, ROW_3, 'TnBAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_3, 'TnBTiles', "24 tiles")
-    initializeCheckbox(COLUMN_3, ROW_3, 'TnBBuilder', "Special Figure - The builder can be placed on any road or city which already has one of your followers. Once placed, anytime the owner of the builder adds to this feature, they will be able to draw an additional tile.")
-    initializeCheckbox(COLUMN_4, ROW_3, 'TnBPig', "Special Figure - The pig can be placed on any field that already has one of your followers. At the end of the game, any field containing the pig (that scored points for the player) will score an additional 1 point per city")
-    initializeCheckbox(COLUMN_5, ROW_3, 'TnBTradeGoods', "Trade goods icons are present in some cities on Traders and Builders tiles. When a player completes the city (regardless if it was controlled by that player), they will be awarded a token. The player with the most of each type of token will be awarded 10 points at the end of the game. Disabling this does not prevent tiles with trade token icons from being included, but it will prevent the tokens from being awarded.")
+    initializeAllCheckbox(COLUMN_1, ROW_3, 'TnBAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_3, 'TnBTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 24}}))
+    initializeCheckbox(COLUMN_3, ROW_3, 'TnBBuilder', translate("TOOLTIP_BUILDER"))
+    initializeCheckbox(COLUMN_4, ROW_3, 'TnBPig', translate("TOOLTIP_PIG"))
+    initializeCheckbox(COLUMN_5, ROW_3, 'TnBTradeGoods', translate("TOOLTIP_TRADE_GOODS"))
 
 --The Princess & The Dragon
-    initializeAllCheckbox(COLUMN_1, ROW_4, 'PnDAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_4, 'PnDTiles', "30 tiles")
-    initializeCheckbox(COLUMN_3, ROW_4, 'PnDDragon', "Neutral Figure - The Dragon will be summoned when a tile with a volcano is drawn. Afterwards, each time a tile with a dragon icon is drawn, the dragon is moved by the players 6 times. The dragon eats most figures on each tile it is moved to. See rules for more details.")
-    initializeCheckbox(COLUMN_4, ROW_4, 'PnDFairy', "Neutral Figure - The fairy can be moved instead of placing a follower on one's turn. The fairy does 3 things: gives 1 point to the follower next to it at the beginning of that follower's turn, gives 3 points when that follower's feature gets finished, and protects the tile from the dragon.")
-    initializeCheckbox(COLUMN_5, ROW_4, 'PnDMagicPortal', "When a tile with a magic portal is drawn, the next follower may be placed on that tile or any other tile already played. The usual rules on follower placement must still be followed.")
-    initializeCheckbox(COLUMN_6, ROW_4, 'PnDPrincess', "Placing a city with the princess will allow the placing player to remove one knight (follower) from the connected city, instead of placing a follower.")
+    initializeAllCheckbox(COLUMN_1, ROW_4, 'PnDAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_4, 'PnDTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 30}}))
+    initializeCheckbox(COLUMN_3, ROW_4, 'PnDDragon', translate("TOOLTIP_DRAGON"))
+    initializeCheckbox(COLUMN_4, ROW_4, 'PnDFairy', translate("TOOLTIP_FAIRY"))
+    initializeCheckbox(COLUMN_5, ROW_4, 'PnDMagicPortal', translate("TOOLTIP_MAGIC_PORTAL"))
+    initializeCheckbox(COLUMN_6, ROW_4, 'PnDPrincess', translate("TOOLTIP_PRINCESS"))
 
 --The Tower
-    initializeAllCheckbox(COLUMN_1, ROW_5, 'TowerAll', "Enable all")
-    initializeCheckbox(COLUMN_2, ROW_5, 'TowerTiles', "18 tiles")
+    initializeAllCheckbox(COLUMN_1, ROW_5, 'TowerAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_5, 'TowerTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 18}}))
 
     button_parameters.click_function = 'onTowerDecr'
     button_parameters.label = '-'
+    button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_5}
     self.createButton( button_parameters )
     btnIDs['btnTowerDecr'] = index
@@ -77,7 +110,7 @@ function onLoad()
     button_parameters.click_function = 'onTowerTowersToggle'
     button_parameters.label = '0'
     button_parameters.position = {COLUMN_3, BUTTON_HEIGHT, ROW_5}
-    button_parameters.tooltip = "Tower - A tower can be placed on a Tower foundation or another tower to capture a follower. The taller a tower is built, the further its range."
+    button_parameters.tooltip = translate("TOOLTIP_TOWER")
     if Global.call('getControlPanelState', {key = 'TowerTowers'}) then
         button_parameters.label = '' .. Global.call('getControlPanelState', {key = 'TowerNumTowers'})
     end
@@ -87,6 +120,7 @@ function onLoad()
 
     button_parameters.click_function = 'onTowerIncr'
     button_parameters.label = '+'
+    button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 - 1, BUTTON_HEIGHT, ROW_5}
     self.createButton( button_parameters )
     btnIDs['btnTowerIncr'] = index
@@ -193,7 +227,7 @@ function onBaseFollowerDecr(Object, sPlayer)
     numFollowers = numFollowers - 1
     if numFollowers < 0 then numFollowers = 0 end
     if numFollowers == 6 then
-        printToColor("Warning: It is strongly recommended to leave the number of followers at 7", sPlayer, {1,0,0})
+        printToColor(translate("MESSAGE_FOLLOWER_COUNT_WARNING"), sPlayer, {1,0,0})
     end
     Global.call('setControlPanelState', {key = 'BaseNumFollowers', value = numFollowers})
     self.editButton({index = btnIDs['btnBaseFollowerToggle'], label = '' .. numFollowers})
@@ -205,7 +239,7 @@ function onBaseFollowerIncr(Object, sPlayer)
     numFollowers = numFollowers + 1
     if numFollowers > 16 then numFollowers = 16 end
     if numFollowers == 8 then
-        printToColor("Warning: It is strongly recommended to leave the number of followers at 7", sPlayer, {1,0,0})
+        printToColor(translate("MESSAGE_FOLLOWER_COUNT_WARNING"), sPlayer, {1,0,0})
     end
     Global.call('setControlPanelState', {key = 'BaseNumFollowers', value = numFollowers})
     self.editButton({index = btnIDs['btnBaseFollowerToggle'], label = '' .. numFollowers})
@@ -216,7 +250,7 @@ function onBaseFollowerToggle(Object, sPlayer)
     if Global.call('getControlPanelState', {key = 'BaseFollower'}) then
         Global.call('setControlPanelState', {key = 'BaseFollower', value = false})
         self.editButton({index = btnIDs['btnBaseFollowerToggle'], label = '0'})
-        printToColor("Warning: It is strongly recommended not to turn off followers", sPlayer, {1,0,0})
+        printToColor(translate("MESSAGE_FOLLOWER_DISABLED_WARNING"), sPlayer, {1,0,0})
     else
         Global.call('setControlPanelState', {key = 'BaseFollower', value = true})
         self.editButton({index = btnIDs['btnBaseFollowerToggle'], label = '' .. Global.call('getControlPanelState', {key = 'BaseNumFollowers'})})
@@ -300,9 +334,9 @@ function onTowerDecr(Object, sPlayer)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local numTowers = Global.call('getControlPanelState', {key = 'TowerNumTowers'})
     numTowers = numTowers - 1
-    if numTowers < 0 then numTowers = 0 end
-    if numFollowers == NUM_TOWERS_PER_PLAYER[numPlayers] - 1 then
-        printToColor("Warning: It is strongly recommended to leave the number of towers at the default number", sPlayer, {1,0,0})
+    if numTowers < 1 then numTowers = 1 end
+    if numTowers == NUM_TOWERS_PER_PLAYER[numPlayers] - 1 then
+        printToColor(translate("MESSAGE_TOWER_COUNT_WARNING"), sPlayer, {1,0,0})
     end
     Global.call('setControlPanelState', {key = 'TowerNumTowers', value = numTowers})
     self.editButton({index = btnIDs['btnTowerTowersToggle'], label = '' .. numTowers})
@@ -313,8 +347,8 @@ function onTowerIncr(Object, sPlayer)
     local numTowers = Global.call('getControlPanelState', {key = 'TowerNumTowers'})
     numTowers = numTowers + 1
     if numTowers > 30 then numTowers = 30 end
-    if numFollowers == NUM_TOWERS_PER_PLAYER[numPlayers] + 1 then
-        printToColor("Warning: It is strongly recommended to leave the number of towers at the default number", sPlayer, {1,0,0})
+    if numTowers == NUM_TOWERS_PER_PLAYER[numPlayers] + 1 then
+        printToColor(translate("MESSAGE_TOWER_COUNT_WARNING"), sPlayer, {1,0,0})
     end
     Global.call('setControlPanelState', {key = 'TowerNumTowers', value = numTowers})
     self.editButton({index = btnIDs['btnTowerTowersToggle'], label = '' .. numTowers})

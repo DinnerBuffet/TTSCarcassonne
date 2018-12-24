@@ -19,6 +19,7 @@ tileSettings = {
     ['HnSTiles'] = {['HnS'] = {['HnSTiles'] = {}}},
     ['WoFTiles'] = {['WoF'] = {['WoFTiles'] = {}}},
     ['WoFWheelTiles'] = {['WoF'] = {['WoFWheelTiles'] = {}}},
+    ['FerriesTiles'] = {['Ferries'] = {['FerriesTiles'] = {}}},
     ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}},
     ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {['GamesQuarterlyTiles'] = {}}},
     ['GoldminesTiles'] = {['Goldmines'] = {['GoldminesTiles'] = {}}},
@@ -43,17 +44,17 @@ startingTileSettings = {
         ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 1}
     }},
     ['StartingTileRiverBB5'] = {['RiverBB5'] = {
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=3.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
         ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 2},
         ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 2}
     }},
     ['StartingTileRiver'] = {['River'] = {
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=4.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
         ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 3},
         ['RiverLakeTile'] = {position = {x=0.0, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 3}
     }},
     ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {
-        ['RiverBodyTiles'] = {position = {x=3.18, y=2.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
+        ['RiverBodyTiles'] = {position = {x=3.18, y=5.32, z=14.31}, rotation = {x=0,y=180,z=180}, shuffle = true, lock = false},
         ['RiverSpringTile'] = {position = {x=-1.59, y=2.32, z=14.31}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = false, priority = 0}
     }},
     ['StartingTileCoC'] = {['CoC'] = {
@@ -107,7 +108,8 @@ playerFigureSettings = {
     ['AnMWagon'] = {name = 'Wagon', figurepad_offset = {x = -3.7, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
     ['AnMBarn'] = {name = 'Barn', figurepad_offset = {x = -3.7, z = -0.5}, use_snap_points = false, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
     ['HnSShepherd'] = {name = 'Shepherd', figurepad_offset = {x = -5.15, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['CIIAbbot'] = {name = 'Abbot', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    ['Phantoms'] = {name = 'Phantom', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQndSR0hlQWhXeFk', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
+    --['CIIAbbot'] = {name = 'Abbot', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
     ['TowerTowers'] = {name = 'Tower', figurepad_offset = {x = -9.15, z = 0.0}, use_snap_points = true, save_figurepad_location = false, num = 'TowerNumTowers', color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255}, object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}}, custom_object_params = {type=5, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTUR2R1doUW5NOGc', collider='https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdUtJZ3dSdkppa1E', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
     ['BCnBBridges'] = {name = 'Bridge', figurepad_offset = {x = -11.15, z = 0.0}, use_snap_points = true, save_figurepad_location = false, num = 'BCnBNumBridges', color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255}, object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}
 }
@@ -227,7 +229,7 @@ function startGame()
                     player_color_tints[newColor]['r'] = obj.getColorTint()['r']
                     player_color_tints[newColor]['g'] = obj.getColorTint()['g']
                     player_color_tints[newColor]['b'] = obj.getColorTint()['b']
-                    allGameMessage({"{c1} has substituted their color for {c2}", {'{c1}', player_color}, {'{c2}', RGBToBracketedHex(player_color_tints[newColor]) .. newColor}}, player_color_tints[player_color])
+                    allGameMessage({"MESSAGE_SETUP_COLOR_SUBSTITUTION", {'{c1}', translate(player_color)}, {'{c2}', RGBToBracketedHex(player_color_tints[newColor]) .. translate(newColor)}}, player_color_tints[player_color])
                     break
                 end
             end
@@ -244,7 +246,7 @@ function startGame()
                         substituteFigureSettings[newColor][figureSettingName].object_params.scale = obj.getScale()
                         substituteFigureSettings[newColor][figureSettingName].custom_object_params = customObject
                         substituteFigureSettings[newColor][figureSettingName].custom_object_params.collider = playerFigureSettings[figureSettingName].custom_object_params.mesh
-                        allGameMessage({"{c1} has substituted their {s1} model for a custom one", {'{c1}', newColor}, {'{s1}', obj.getName()}}, player_color_tints[player_color])
+                        allGameMessage({"MESSAGE_SETUP_MODEL_SUBSTITUTION", {'{c1}', translate(newColor)}, {'{f1}', translate(obj.getName())}}, player_color_tints[player_color])
                     end
                 end
             end
@@ -332,12 +334,15 @@ function startGame()
     elseif finalTile_GUID ~= nil then
         tilesRemaining = 1
     end
+    if controlPanelSettings['HnSHills'] then
+        buriedTiles = {}
+        buriedTileCount = 0
+    end
     AIMemorizeCards(tileStack)
     if controlPanelSettings['StartingTileBase'] then
         local newTile = startingTile_GUID
         startingTile_GUID = nil
         addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(newTile), 2, false)
-        tilesRemaining = tilesRemaining + 1
     end
     --shuffle and lock starting tiles
     for rule_id, rule in pairs(startingTileSettings) do
@@ -364,7 +369,6 @@ function startGame()
                                     if tileRotation == 0 then tileRotation = 4 end
                                     tileGrid[xIndex][zIndex].rotation = tileRotation
                                     addTile(xIndex, zIndex, getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid), tileRotation, false)
-                                    tilesRemaining = tilesRemaining + 1
                                 end
                             end
                         end
@@ -377,23 +381,16 @@ function startGame()
     lastPlacedPlayerTiles[activePlayers[currentPlayer]] = nil
     tileStack.shuffle()
     if controlPanelSettings['StartingTileRiverII'] then
-        allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the fork should be the first tile placed, followed by the facedown tiles until they are gone, then the spring, and lastly the lake piece.", NEUTRAL_COLOR)
+        allGameMessage({"MESSAGE_SETUP_RIVER_II_NOTIFICATION"}, NEUTRAL_COLOR)
         -- tileStack.setLock(true)
         -- tileStack.interactable = false
     elseif controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5'] then
-        allGameMessage("You are currently playing with the river. Please place a river tile, then you may add more to it. According to the rules, the spring should be the first tile placed, followed by the facedown tiles until they are gone, and then the lake.", NEUTRAL_COLOR)
+        allGameMessage({"MESSAGE_SETUP_RIVER_NOTIFICATION"}, NEUTRAL_COLOR)
         -- tileStack.setLock(true)
         -- tileStack.interactable = false
     end
-    allGameMessage("Game started. Good luck!", NEUTRAL_COLOR)
-    allGameMessage(activePlayers[currentPlayer] .. " was randomly chosen as the first player.", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-
-    if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] == nil then
-        allGameMessage("-----------It is now " .. getPlayerOwnerName(activePlayers[currentPlayer]) .. "'s turn-----------", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-    else
-        allGameMessage("-----------It is now " .. activePlayers[currentPlayer] .. "'s turn-----------", player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-        allGameMessage("-------" .. activePlayers[currentPlayer] .. " is controlled by " .. stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Control']) .. getPlayerOwnerName(activePlayers[currentPlayer]) .. stringToBracketedHex(activePlayers[currentPlayer]) .. "------", player_color_tints[activePlayers[currentPlayer]], nil)
-    end
+    allGameMessage({"MESSAGE_SETUP_START"}, NEUTRAL_COLOR)
+    allGameMessage({"MESSAGE_SETUP_FIRST_PLAYER", {'{c1}', translate(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
 
     gameover = false
     turnState = 'begin turn'
@@ -461,9 +458,9 @@ function preparePlayerStartingItems()
 
                     local custom_object_params = table.shallow_copy(figureSettingCopy.custom_object_params)
                     obj.setCustomObject(custom_object_params)
-                    obj.setName(translate({figureSettingCopy.name}))
+                    obj.setName(translate(figureSettingCopy.name))
                     if not figureSettingCopy.hide_owner then
-                        obj.setDescription(translate({player}))
+                        obj.setDescription(translate(player))
                     end
                     if figureSettingCopy.color ~= nil then
                         obj.setColorTint(figureSettingCopy.color)
@@ -709,7 +706,7 @@ function prepareNeutralItems()
 
                 local custom_object_params = table.shallow_copy(figureSettingCopy.custom_object_params)
                 obj.setCustomObject(custom_object_params)
-                obj.setName(translate({figureSettingCopy.name}))
+                obj.setName(translate(figureSettingCopy.name))
                 if figureSettingCopy.color ~= nil then
                     obj.setColorTint(figureSettingCopy.color)
                 end

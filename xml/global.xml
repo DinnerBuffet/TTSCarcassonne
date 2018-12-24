@@ -1,0 +1,12 @@
+<Panel id="AIProgressPanel"
+    width="1000"
+    height="70"
+    active="false"
+    offsetXY="0 -50"
+    rectAlignment="UpperCenter">
+
+    <Text id="AICalculationLabel" text="AI Calculating Move..." rectAlignment="UpperCenter" color="#FFFFFF"
+            alignment="LowerCenter" fontSize="18" width="230" height="40"></Text>
+    <ProgressBar id="AIProgressBar" alignment="MiddleCenter"
+            rectAlignment="UpperCenter" width="1000" height="20" offsetXY="0 -50"> </ProgressBar>
+</Panel>

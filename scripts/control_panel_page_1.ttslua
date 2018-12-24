@@ -1,5 +1,7 @@
 #include !\TTSCarcassonne\scripts\control_panel_common
 
+LANGUAGE_ICONS = {['en-us'] = "UK/US Flag", ['zh-tw'] = "TW Flag"}
+
 NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
 
 EASY_AI_COLOR = {r=0.5,g=1.0,b=0.5}
@@ -22,7 +24,58 @@ COLUMN_4 = -1.4
 COLUMN_5 = -4.0
 COLUMN_6 = -6.6
 
-function onLoad()
+--Runs whenever game is saved/autosaved
+function onSave()
+    local data_to_save = {rt=dropDownToggle}
+    saved_data = JSON.encode(data_to_save)
+    --saved_data = "" --Remove -- at start + save to clear save data
+    return saved_data
+end
+
+function onLoad(saved_data)
+    --Loads the tracking for if the game has started yet
+    --This recalls the state of the "toggle"
+    if saved_data ~= "" then
+        local loaded_data = JSON.decode(saved_data)
+        dropDownToggle = loaded_data.rt
+    else
+        dropDownToggle = false
+    end
+    Timer.create({identifier='' .. os.clock(), function_name='initializeControlPanelPage', function_owner=nil, parameters=nil, delay=0.0001})
+end
+
+function initializeControlPanelPage()
+    btnIDs = {}
+    index = 0
+    --This hides the roll buttons on launch if the tool was toggled off
+    if dropDownToggle then
+        self.UI.setAttribute("dropDownList", "active", true)
+    end
+
+    --WORK-AROUND: icons are not displayed correctly for UIs on objects. Bug here: http://www.berserk-games.com/forums/showthread.php?5239-UI-Issues&p=22632#post22632
+    --work-around is to set the icon again in onLoad()
+    local currentLanguage = Global.call('getControlPanelState', {key = 'currentLanguage'})
+    self.UI.setAttribute("currentLanguageButton", "icon", LANGUAGE_ICONS[currentLanguage])
+    self.UI.setAttribute("en-us", "icon", "UK/US Flag")
+    self.UI.setAttribute("zh-tw", "icon", "TW Flag")
+
+    self.UI.setAttribute("AI/Hotseat", "text", translate("AI/Hotseat"))
+    self.UI.setAttribute("Green", "text", translate("Green"))
+    self.UI.setAttribute("Purple", "text", translate("Purple"))
+    self.UI.setAttribute("White", "text", translate("White"))
+    self.UI.setAttribute("Blue", "text", translate("Blue"))
+    self.UI.setAttribute("Red", "text", translate("Red"))
+    self.UI.setAttribute("Pink", "text", translate("Pink"))
+    self.UI.setAttribute("Starting Tiles", "text", translate("Starting Tiles"))
+    self.UI.setAttribute("Base Starting Tile", "text", translate("Base Starting Tile"))
+    self.UI.setAttribute("The River", "text", translate("The River"))
+    self.UI.setAttribute("The River II", "text", translate("The River II"))
+    self.UI.setAttribute("The River (Big Box 5)", "text", translate("The River (Big Box 5)"))
+    self.UI.setAttribute("City of Carcassonne", "text", translate("City of Carcassonne"))
+    self.UI.setAttribute("Wheel of Fortune", "text", translate("Wheel of Fortune"))
+    self.UI.setAttribute("School", "text", translate("School"))
+    self.UI.setAttribute("Wind Roses", "text", translate("Wind Roses"))
+    self.UI.setAttribute("Next Page", "text", translate("LABEL_NEXT_PAGE"))
     --Hot seats
     initializeHotseatButton(COLUMN_1, HOTSEAT_ROW, 'Green')
     initializeHotseatButton(COLUMN_2, HOTSEAT_ROW, 'Purple')
@@ -31,12 +84,12 @@ function onLoad()
     initializeHotseatButton(COLUMN_5, HOTSEAT_ROW, 'Red')
     initializeHotseatButton(COLUMN_6, HOTSEAT_ROW, 'Pink')
     --Starting tiles
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', "Basic starting tile.")
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', "12 river tiles that create a winding river before adding normal tiles.")
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', "12 river tiles that feature a fork, dividing the river into 3 parts, and a pig-herd for extra points to farmers.")
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', "12 river tiles that feature permanent extra sheep for shepherds.")
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', "A city where players can store followers whenever they score points for other players (without getting any points themselves). These followers can be snuck into features after they are finished, but before they are scored.")
-    initializeCheckbox(STARTING_TILE_COLUMN, ROW_6, 'StartingTileWoF', "Draw tiles to spin the wheel for an extra element of chance.")
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', translate("TOOLTIP_BASE_STARTING_TILE"))
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', translate("TOOLTIP_RIVER"))
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', translate("TOOLTIP_RIVER_II"))
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', translate("TOOLTIP_RIVER_BB5"))
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', translate("TOOLTIP_CITY_OF_CARCASSONNE"))
+    initializeCheckbox(STARTING_TILE_COLUMN, ROW_6, 'StartingTileWoF', translate("TOOLTIP_WHEEL_OF_FORTUNE"))
     -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', 'Base Starting Tile', {x=-LABEL_SEPARATION, z=0}, 2)
     -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', 'The River', {x=-LABEL_SEPARATION, z=0}, 2)
     -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', 'The River II', {x=-LABEL_SEPARATION, z=0}, 2)
@@ -44,40 +97,54 @@ function onLoad()
     -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', 'City of Carcassonne', {x=-LABEL_SEPARATION, z=0}, 2)
 end
 
+function selectedLanguage(sPlayer, option, id)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer.color}) == false then return end
+    self.UI.setAttribute("dropDownList", "active", false)
+    self.UI.hide("dropDownList")
+    Global.call('setControlPanelState', {key = 'currentLanguage', value = id})
+    Global.call('languageChanged')
+    self.UI.setAttribute("currentLanguageButton", "icon", LANGUAGE_ICONS[id])
+    dropDownToggle = false
+    self.clearButtons()
+    initializeControlPanelPage()
+end
+
+--This toggles showing or hiding the roll buttons
+function toggleDropDown(sPlayer, option, id)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer.color}) == false then return end
+    if not dropDownToggle then
+        self.UI.setAttribute("dropDownList", "active", true)
+        self.UI.show("dropDownList")
+    else
+        self.UI.setAttribute("dropDownList", "active", false)
+        self.UI.hide("dropDownList")
+    end
+    dropDownToggle = not dropDownToggle
+end
+
 function initializeHotseatButton(x, z, color)
-    if Global.getVar('gameover') then
-        if Player[color].seated then
-            button_parameters.label = 'X'
-            button_parameters.color = stringColorToRGB(color)
-        elseif Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
-            local hotseatOwner = Global.call('getControlPanelState', {key = color .. 'Control'})
-            if hotseatOwner:sub(1,2) == 'AI' then
-                if hotseatOwner == 'AI (Easy)' then
-                    button_parameters.color = EASY_AI_COLOR
-                else
-                    button_parameters.color = HARD_AI_COLOR
-                end
-                button_parameters.label = 'AI'
+    if Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
+        local hotseatOwner = Global.call('getControlPanelState', {key = color .. 'Control'})
+        if hotseatOwner:sub(1,2) == 'AI' then
+            if hotseatOwner == 'AIEasy' then
+                button_parameters.color = EASY_AI_COLOR
             else
-                button_parameters.label = hotseatOwner:sub(1,1)
-                button_parameters.color = stringColorToRGB(hotseatOwner)
+                button_parameters.color = HARD_AI_COLOR
             end
+            button_parameters.label = 'AI'
         else
-            button_parameters.label = ''
-            button_parameters.color = WHITE_COLOR
+            button_parameters.label = hotseatOwner:sub(1,1)
+            button_parameters.color = stringColorToRGB(hotseatOwner)
         end
-    else --if the game has already started, then display the saved player information
-        if table.contains(Global.getTable('activePlayers'), color) then
-            if Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
-                button_parameters.label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1)
-            else
-                button_parameters.label = 'X'
-                button_parameters.color = stringColorToRGB(color)
-            end
-        else
-            button_parameters.label = ''
-            button_parameters.color = WHITE_COLOR
-        end
+        button_parameters.tooltip = translate("TOOLTIP_AI_HOTSEAT_TOGGLE")
+    elseif (Global.getVar('gameover') and Player[color].seated) or table.contains(Global.getTable('activePlayers'), color) then
+        button_parameters.label = 'X'
+        button_parameters.tooltip = Player[color].steam_name
+        button_parameters.color = stringColorToRGB(color)
+    else
+        button_parameters.label = ''
+        button_parameters.tooltip = translate("TOOLTIP_AI_HOTSEAT_TOGGLE")
+        button_parameters.color = WHITE_COLOR
     end
     button_parameters.click_function = 'on' .. color .. 'HotseatPressed'
     button_parameters.position = {x, BUTTON_HEIGHT, z}
@@ -86,16 +153,16 @@ function initializeHotseatButton(x, z, color)
     index = index + 1
 end
 
-function onHotseatButtonPressed(sPlayer, color, data_key, button_key)
+function onHotseatButtonPressed(sPlayer, color_pressed, data_key, button_key)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local numPlayersChanged = false
-    if Player[color].seated then
-        printToColor(translate({"There is already a player sitting at this seat. Cannot create a hotseat player here."}), sPlayer, ERROR_COLOR)
+    if Player[color_pressed].seated then
+        printToColor(translate("MESSAGE_SEAT_OCCUPIED"), sPlayer, ERROR_COLOR)
         return
     end
     local currentPlayerControl = Global.call('getControlPanelState', {key = data_key})
-    local passedcurrentPlayerControl = false
-    if currentPlayerControl == nil or currentPlayerControl == 'AIEasy' then --and i == #bots then
+    local passedCurrentPlayerControl = false
+    if currentPlayerControl == nil or currentPlayerControl == 'AIEasy' then
         local newDifficulty
         local background_color
         if currentPlayerControl == nil then
@@ -105,25 +172,25 @@ function onHotseatButtonPressed(sPlayer, color, data_key, button_key)
             newDifficulty = 'Hard (Beta)'
             background_color = HARD_AI_COLOR
         end
-        Global.call('setControlPanelState', {key = data_key, value = 'AI' .. newDifficulty})--player})
-        allGameMessage(color .. " has been set to an AI player of difficulty: " .. newDifficulty, stringColorToRGB(color), nil)
+        Global.call('setControlPanelState', {key = data_key, value = 'AI' .. newDifficulty})
+        allGameMessage({"MESSAGE_SEAT_ASSIGNED_TO_AI", {'{c1}', translate(color_pressed)}, {'{s1}', translate(newDifficulty)}}, stringColorToRGB(color_pressed), nil)
         self.editButton({index = btnIDs[button_key], label = 'AI', color = background_color})
         numPlayersChanged = true
     else
         if currentPlayerControl == 'AIHard (Beta)' then
-            passedcurrentPlayerControl = true
+            passedCurrentPlayerControl = true
         end
-        for i, player in ipairs(PLAYER_COLORS) do
-            if player == currentPlayerControl then
-                passedcurrentPlayerControl = true
-            elseif passedcurrentPlayerControl and (Player[player].seated or i == #PLAYER_COLORS) then
-                if Player[player].seated then
-                    Global.call('setControlPanelState', {key = data_key, value = player})
-                    allGameMessage({"{c1} has been set to a hotseat player of {p1}", {'{c1}', color}, {'{p1}', stringToBracketedHex(player) .. player}}, stringColorToRGB(color), player)
-                    self.editButton({index = btnIDs[button_key], label = Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,1), color = stringColorToRGB(player)})
+        for i, color in ipairs(PLAYER_COLORS) do
+            if color == currentPlayerControl then
+                passedCurrentPlayerControl = true
+            elseif passedCurrentPlayerControl and (Player[color].seated or i == #PLAYER_COLORS) then
+                if Player[color].seated then
+                    Global.call('setControlPanelState', {key = data_key, value = color})
+                    allGameMessage({"MESSAGE_SEAT_ASSIGNED_TO_HOTSEAT", {'{c1}', translate(color_pressed)}, {'{c2}', stringToBracketedHex(color) .. translate(color)}}, stringColorToRGB(color_pressed), color)
+                    self.editButton({index = btnIDs[button_key], label = Global.call('getControlPanelState', {key = color_pressed .. 'Control'}):sub(1,1), color = stringColorToRGB(color)})
                 else
                     Global.call('setControlPanelState', {key = data_key, value = nil})
-                    allGameMessage({"{c1} is no longer a hotseat player", {'{c1}', color}}, NEUTRAL_COLOR)
+                    allGameMessage({"MESSAGE_HOTSEAT_REMOVED", {'{c1}', translate(color_pressed)}}, NEUTRAL_COLOR)
                     self.editButton({index = btnIDs[button_key], label = '', color=WHITE_COLOR})
                     numPlayersChanged = true
                 end
@@ -141,7 +208,7 @@ function onHotseatButtonPressed(sPlayer, color, data_key, button_key)
         end
         Global.call('setControlPanelState', {key = 'TowerNumTowers', value = NUM_TOWERS_PER_PLAYER[numPlayers]})
         if Global.call('getControlPanelState', {key = 'TowerTowers'}) then
-            allGameMessage({"Warning: Tower count has changed to {n1} due to a hotseat/AI player being added/removed.", {'{n1}', NUM_TOWERS_PER_PLAYER[numPlayers]}}, NEUTRAL_COLOR, nil)
+            allGameMessage({"MESSAGE_TOWER_COUNT_CHANGED", {'{n1}', NUM_TOWERS_PER_PLAYER[numPlayers]}}, NEUTRAL_COLOR, nil)
         end
     end
 end
@@ -151,16 +218,16 @@ function onPlayerChangedColor(player)
     if not Global.getVar('gameover') then return end
     for _, color in ipairs(PLAYER_COLORS) do
         if Player[color].seated then
-            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'X', color=stringColorToRGB(color)})
+            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'X', tooltip = Player[color].steam_name, color=stringColorToRGB(color)})
         elseif Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
             if Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,2) == 'AI' then
-                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'AI'})
+                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'AI', tooltip = translate("TOOLTIP_AI_HOTSEAT_TOGGLE")})
             else
                 local player = Global.call('getControlPanelState', {key = color .. 'Control'})
-                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = player:sub(1,1), color = stringColorToRGB(player)})
+                self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = player:sub(1,1), tooltip = translate("TOOLTIP_AI_HOTSEAT_TOGGLE"), color = stringColorToRGB(player)})
             end
         else
-            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = '', color=WHITE_COLOR})
+            self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = '', tooltip = translate("TOOLTIP_AI_HOTSEAT_TOGGLE"), color=WHITE_COLOR})
         end
     end
 end
@@ -172,7 +239,7 @@ function onStartingCheckboxToggle(sPlayer, data_key, button_key)
         self.editButton({index = btnIDs[button_key], label = ''})
     else
         if data_key == 'StartingTileBase' and hasIncompatibleStartingTiles() then
-            printToColor("You cannot enable the base starting tile while other starting tiles are enabled.", sPlayer, ERROR_COLOR)
+            printToColor(translate("MESSAGE_BASE_STARTING_TILE_NOT_ALLOWED"), sPlayer, ERROR_COLOR)
             return
         end
         Global.call('setControlPanelState', {key = data_key, value = true})
@@ -180,7 +247,7 @@ function onStartingCheckboxToggle(sPlayer, data_key, button_key)
         if Global.call('getControlPanelState', {key = 'StartingTileBase'}) and hasIncompatibleStartingTiles() then
             Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
             self.editButton({index = btnIDs['btnStartingTileBaseToggle'], label = ''})
-            printToColor("The base starting tile cannot be combined with this starting tile set. Removing base tile.", sPlayer, ERROR_COLOR)
+            printToColor(translate("MESSAGE_BASE_STARTING_TILE_REMOVED"), sPlayer, ERROR_COLOR)
         end
     end
 end

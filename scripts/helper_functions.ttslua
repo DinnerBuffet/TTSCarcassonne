@@ -46,15 +46,15 @@ function allGameMessage(msg, rgb, target_color)
             end
         end
     end
-    -- local params = {}
-    -- notes = getNotebookTabs()
-    --
-    -- params.index = gameLogTabIndex
-    -- params.body = notes[gameLogTabIndex].body .. "\n" .. msg
-    -- editNotebookTab(params)
+    local params = {}
+    notes = Notes.getNotebookTabs()
+
+    params.index = gameLogTabIndex
+    params.body = notes[gameLogTabIndex].body .. "\n" .. msg
+    Notes.editNotebookTab(params)
 end
 
---will print an error message to all players
+--will print an error message to all players, broadcasting to target_color if it is not null
 function allErrorMessage(msg, target_color)
     if type(msg) == 'table' then
       msg = translate(msg)

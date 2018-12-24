@@ -1,0 +1,107 @@
+<Defaults>
+    <Panel class="ControlPanelPage" width="1820" height="2600" position="0.0 0.0 -11.0" rectAlignment="MiddleCenter"/>
+    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="Bold" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelSubCategoryLabel" fontSize="72" fontStyle="Bold" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelPageLabel" fontSize="34" color="#000000"/>
+    <Panel class="ControlPanelStartingTileItemPanel" width="1400" height="100" rectAlignment="UpperLeft"/>
+    <Toggle class="StandardToggle" rectAlignment="UpperLeft" color="#eeeeee"/>
+    <Text class="ControlPanelStartingTileText" fontSize="64" rectAlignment="UpperLeft" alignment="UpperLeft" color="#000000"/>
+    <Text class="ControlPanelPlayerText" fontSize="64" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Button class="HotseatButton" height="64" width="64" rectAlignment="MiddleCenter"/>
+    <Button class="LanguageButton" onClick="selectedLanguage" width="144" height="144" iconWidth="144.0" colors="#00000000|#00000000|#00000000|rgba(0.78,0.78,0.78,0.5)" />
+    <Row class="ExpansionRow" preferredHeight="154" />
+</Defaults>
+
+<Panel id="ControlPanelPg1" class="ControlPanelPage">
+    <!--<Dropdown id="LanguageSelection" onValueChanged="selectedLanguage" rectAlignment="UpperRight" alignment="UpperRight" offsetXY="-100 -100" width="150" height="30">
+       <Option selected="true">English</Option>
+       <Option>中文</Option>
+    </Dropdown>-->
+    <Button id="currentLanguageButton"
+        onClick="toggleDropDown" class="LanguageButton" rectAlignment="UpperRight" icon="UK/US Flag"
+        tooltip="Change Language" tooltipPosition="Above" offsetXY="-150 -150">
+    </Button>
+    <VerticalLayout
+        id="dropDownList"
+        rectAlignment="UpperRight"
+        height="288"
+        width="144"
+        active="false"
+        showAnimation="SlideIn_Top"
+        hideAnimation="SlideOut_Top"
+        offsetXY="-6 -210">
+        <Button id="en-us" class="LanguageButton" tooltip="English (US)" tooltipPosition="Above" icon="UK/US Flag"></Button>
+        <Button id="zh-tw" class="LanguageButton" tooltip="Chinese (Traditional)" tooltipPosition="Above" icon="TW Flag"></Button>
+    </VerticalLayout>
+    <!-- AI/Hotseats -->
+    <Text id="AI/Hotseat" text="AI/Hotseat" class="ControlPanelSubCategoryLabel"
+           width="1200" height="100" offsetXY="0 -330"></Text>
+    <Text text="_________" class="ControlPanelSubCategoryLabel"
+          width="1200" height="100" offsetXY="0 -330"></Text>
+    <TableLayout width="1570" height="256" padding="8 0 440 0" autoCalculateHeight="true" alignment="UpperCenter" rectAlignment="UpperCenter" cellBackgroundColor="0 0 0 0">
+        <Row preferredHeight="128">
+            <Cell><Text id="Green" class="ControlPanelPlayerText" text="Green"></Text></Cell>
+            <Cell><Text id="Purple" class="ControlPanelPlayerText" text="Purple"></Text></Cell>
+            <Cell><Text id="White" class="ControlPanelPlayerText" text="White"></Text></Cell>
+            <Cell><Text id="Blue" class="ControlPanelPlayerText" text="Blue"></Text></Cell>
+            <Cell><Text id="Red" class="ControlPanelPlayerText" text="Red"></Text></Cell>
+            <Cell><Text id="Pink" class="ControlPanelPlayerText" text="Pink"></Text></Cell>
+        </Row>
+        <!--<Row preferredHeight="128">
+            <Cell><Button class="HotseatButton" onClick="onGreenHotseatPressed"></Button></Cell>
+            <Cell><Button class="HotseatButton" onClick="onPurpleHotseatPressed"></Button></Cell>
+            <Cell><Button class="HotseatButton" onClick="onWhiteHotseatPressed"></Button></Cell>
+            <Cell><Button class="HotseatButton" onClick="onBlueHotseatPressed"></Button></Cell>
+            <Cell><Button class="HotseatButton" onClick="onRedHotseatPressed"></Button></Cell>
+            <Cell><Button class="HotseatButton" onClick="onPinkHotseatPressed"></Button></Cell>
+        </Row>-->
+    </TableLayout>
+    <!-- Starting Tiles -->
+    <Text id="Starting Tiles" text="Starting Tiles" class="ControlPanelCategoryLabel"
+           width="1200" height="100" offsetXY="0 -700"></Text>
+    <TableLayout width="1128" height="1100" padding="100 0 894 0" cellSpacing="50" columnWidths="128 1000" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0 0">
+        <!-- Base Starting Tile -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text id="Base Starting Tile" class="ControlPanelStartingTileText" text="Base Starting Tile"></Text></Cell>
+        </Row>
+        <!-- The River -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text class="ControlPanelStartingTileText" id="The River" text="The River"></Text></Cell>
+        </Row>
+        <!-- The River II -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text class="ControlPanelStartingTileText" id="The River II" text="The River II"></Text></Cell>
+        </Row>
+        <!-- The River II -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text class="ControlPanelStartingTileText" id="The River (Big Box 5)" text="The River (Big Box 5)"></Text></Cell>
+        </Row>
+        <!-- City of Carcassonne -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text class="ControlPanelStartingTileText" id="City of Carcassonne" text="City of Carcassonne"></Text></Cell>
+        </Row>
+        <!-- City of Carcassonne -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text class="ControlPanelStartingTileText" id="Wheel of Fortune" text="Wheel of Fortune"></Text></Cell>
+        </Row>
+        <!-- School -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text class="ControlPanelStartingTileText" id="School" text="School"></Text></Cell>
+        </Row>
+        <!-- Wind Roses -->
+        <Row class="ExpansionRow">
+            <Cell><!--<Toggle class="StandardToggle"></Toggle>--></Cell>
+            <Cell><Text class="ControlPanelStartingTileText" id="Wind Roses" text="Wind Roses"></Text></Cell>
+        </Row>
+    </TableLayout>
+
+    <Text class="ControlPanelPageLabel" id="Next Page" text="Next Page" rectAlignment="LowerRight"
+           width="200" height="100" offsetXY="-152 8"></Text>
+</Panel>

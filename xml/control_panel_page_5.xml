@@ -1,0 +1,85 @@
+<Defaults>
+    <Panel class="ControlPanelPage" width="1820" height="2600" position="0.0 0.0 -11.0" rectAlignment="MiddleCenter"/>
+    <Text class="ControlPanelCategory" fontSize="88" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelExpansionLabel" fontSize="72" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelPageLabel" fontSize="34" color="#000000"/>
+    <Text class="ControlPanelMicroItemLabel" fontSize="48" rectAlignment="MiddleCenter" alignment="MiddleCenter" color="#000000"/>
+    <TableLayout class="ControlPanelPageLayout" width="1820" height="2300" padding="0 0 440 0" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <TableLayout class="ControlPanelMicroExpansionLayout" width="1820" height="170" cellSpacing="20" columnWidths="54 320 320 320 320 320" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <Row class="CategoryRow" preferredHeight="64" />
+    <Row class="ControlPanelMicroExpansionRow" preferredHeight="170" />
+    <Row class="ControlPanelMicroExpansionRowGap" preferredHeight="110" />
+</Defaults>
+
+<Panel id="ControlPanelPg5" class="ControlPanelPage">
+    <TableLayout class="ControlPanelPageLayout">
+        <Row class="CategoryRow">
+          <Text id="MicroExpansionsLabel" text="Micro Expansions" class="ControlPanelCategory" offsetXY="0 52"></Text>
+        </Row>
+        <Row class="ControlPanelMicroExpansionRow">
+          <TableLayout class="ControlPanelMicroExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="BesiegersLabel" class="ControlPanelMicroItemLabel" text="Besiegers"></Text></Cell>
+                  <Cell><Text id="CastlesInGermanyLabel" class="ControlPanelMicroItemLabel" text="Castles In Germany"></Text></Cell>
+                  <Cell><Text id="CatharsLabel" class="ControlPanelMicroItemLabel" text="Cathars"></Text></Cell>
+                  <Cell><Text id="CropCirclesILabel" class="ControlPanelMicroItemLabel" text="Crop Circles I"></Text></Cell>
+                  <Cell><Text id="CropCirclesIILabel" class="ControlPanelMicroItemLabel" text="Crop Circles II"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <Row class="ControlPanelMicroExpansionRowGap"/>
+        <Row class="ControlPanelMicroExpansionRow">
+          <TableLayout class="ControlPanelMicroExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="DarmstadtLabel" class="ControlPanelMicroItemLabel" text="Darmstadt"></Text></Cell>
+                  <Cell><Text id="FestivalLabel" class="ControlPanelMicroItemLabel" text="Festival"></Text></Cell>
+                  <Cell><Text id="GamesQuarterlyLabel" class="ControlPanelMicroItemLabel" text="Games Quarterly"></Text></Cell>
+                  <Cell><Text id="HalflingsILabel" class="ControlPanelMicroItemLabel" text="Halflings I"></Text></Cell>
+                  <Cell><Text id="HalflingsIILabel" class="ControlPanelMicroItemLabel" text="Halflings II"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <Row class="ControlPanelMicroExpansionRowGap"/>
+        <Row class="ControlPanelMicroExpansionRow">
+          <TableLayout class="ControlPanelMicroExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="LaPorxadaLabel" class="ControlPanelMicroItemLabel" text="La Porxada"></Text></Cell>
+                  <Cell><Text id="LittleBuildingsLabel" class="ControlPanelMicroItemLabel" text="Little Buildings"></Text></Cell>
+                  <Cell><Text id="MiGLabel" class="ControlPanelMicroItemLabel" text="Monasteries&#10;&#13;in Germany"></Text></Cell>
+                  <Cell><Text id="MiNBLabel" class="ControlPanelMicroItemLabel" text="Monasteries&#10;&#13;in Netherlands &amp; Belgium"></Text></Cell>
+                  <Cell><Text id="PhantomsLabel" class="ControlPanelMicroItemLabel" text="Phantoms"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <Row class="ControlPanelMicroExpansionRowGap"/>
+        <Row class="ControlPanelMicroExpansionRow">
+          <TableLayout class="ControlPanelMicroExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="PlagueLabel" class="ControlPanelMicroItemLabel" text="Plague"></Text></Cell>
+                  <Cell><Text id="RobbersLabel" class="ControlPanelMicroItemLabel" text="Robbers"></Text></Cell>
+                  <Cell><Text id="SiegeLabel" class="ControlPanelMicroItemLabel" text="Siege"></Text></Cell>
+                  <Cell><Text id="SpielPromoLabel" class="ControlPanelMicroItemLabel" text="Spiel Promo"></Text></Cell>
+                  <Cell><Text id="TunnelLabel" class="ControlPanelMicroItemLabel" text="Tunnel"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <Row class="ControlPanelMicroExpansionRowGap"/>
+        <Row class="ControlPanelMicroExpansionRow">
+          <TableLayout class="ControlPanelMicroExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="RussianPromoLabel" class="ControlPanelMicroItemLabel" text="We go to Carcassonne"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+    </TableLayout>
+
+    <Text class="ControlPanelPageLabel" id="PreviousPageLabel" text="Previous Page" rectAlignment="LowerLeft"
+           width="300" height="100" offsetXY="158 8"></Text>
+    <Text class="ControlPanelPageLabel" id="NextPageLabel" text="Next Page" rectAlignment="LowerRight"
+           width="200" height="100" offsetXY="-152 8"></Text>
+</Panel>

@@ -1,0 +1,135 @@
+<Defaults>
+    <Panel class="ControlPanelPage" width="1820" height="2600" position="0.0 0.0 -11.0" rectAlignment="MiddleCenter"/>
+    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelExpansionLabel" fontSize="72" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelPageLabel" fontSize="34" color="#000000"/>
+    <Text class="ControlPanelItemLabel" fontSize="60" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <TableLayout class="ControlPanelPageLayout" width="1820" height="2300" padding="0 0 440 0" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <TableLayout class="ControlPanelExpansionLayout" width="1820" height="256" columnWidths="109 335 335 335 335 335" useGlobalCellPadding="false" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <TableLayout class="ControlPanelMiniExpansionLayout" width="1820" height="256" columnWidths="178 230 230 230 162 358 358" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <Row class="CategoryRow" preferredHeight="90" />
+    <Row class="ControlPanelExpansionRow" preferredHeight="294" />
+    <Row class="ControlPanelExpansionLabelRow" preferredHeight="115" />
+</Defaults>
+
+<Panel id="ControlPanelPg4" class="ControlPanelPage">
+    <TableLayout class="ControlPanelPageLayout">
+        <!-- Wheel of Fortune -->
+        <Row class="ControlPanelExpansionLabelRow">
+            <Text id="WoFExpansionLabel" text="Wheel of Fortune" class="ControlPanelExpansionLabel"></Text>
+            <Text text="_______________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row preferredHeight="588">
+          <TableLayout class="ControlPanelExpansionLayout">
+              <Row class="ControlPanelExpansionRow">
+                  <Cell></Cell>
+                  <Cell><Text id="WoFTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="StartingTileWoFLabel" class="ControlPanelItemLabel" text="Wheel"></Text></Cell>
+                  <Cell><Text id="WoFCrownsLabel" class="ControlPanelItemLabel" text="Crown"></Text></Cell>
+                  <Cell><Text id="WoFFortuneLabel" class="ControlPanelItemLabel" text="Fortune"></Text></Cell>
+                  <Cell><Text id="WoFTaxesLabel" class="ControlPanelItemLabel" text="Taxes"></Text></Cell>
+              </Row>
+              <Row class="ControlPanelExpansionRow">
+                  <Cell></Cell>
+                  <Cell><Text id="WoFWheelTilesLabel" class="ControlPanelItemLabel" text="Wheel Tiles"></Text></Cell>
+                  <Cell><Text id="WoFFamineLabel" class="ControlPanelItemLabel" text="Famine"></Text></Cell>
+                  <Cell><Text id="WoFStormLabel" class="ControlPanelItemLabel" text="Storm"></Text></Cell>
+                  <Cell><Text id="WoFInquisitionLabel" class="ControlPanelItemLabel" text="Inquisition"></Text></Cell>
+                  <Cell><Text id="WoFPlagueLabel" class="ControlPanelItemLabel" text="Plague"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <Row class="CategoryRow">
+          <Text id="MiniExpansionsLabel" text="Mini Expansions" class="ControlPanelCategoryLabel" offsetXY="0 26"></Text>
+        </Row>
+        <!-- The Flier + The Messages -->
+        <Row class="ControlPanelExpansionLabelRow">
+          <Cell>
+            <TableLayout>
+              <Text id="FlierExpansionLabel" text="1. The Flier" class="ControlPanelExpansionLabel"></Text>
+              <Text text="_________" class="ControlPanelExpansionLabel"></Text>
+            </TableLayout>
+          </Cell>
+          <Cell>
+            <TableLayout>
+              <Text id="MessagesExpansionLabel" text="2. The Messages" class="ControlPanelExpansionLabel"></Text>
+              <Text text="_______________" class="ControlPanelExpansionLabel"></Text>
+            </TableLayout>
+          </Cell>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelMiniExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="FlierTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="FlierFlierLabel" class="ControlPanelItemLabel" text="Fliers"></Text></Cell>
+                  <Cell></Cell>
+                  <Cell></Cell>
+                  <Cell><Text id="MessagesMessagesLabel" class="ControlPanelItemLabel" text="Messages"></Text></Cell>
+                  <Cell><Text id="MessagesMessengerLabel" class="ControlPanelItemLabel" text="Messenger"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- The Ferries + The Goldmines -->
+        <Row class="ControlPanelExpansionLabelRow">
+          <Cell>
+            <TableLayout>
+              <Text id="FerriesExpansionLabel" text="3. The Ferries" class="ControlPanelExpansionLabel"></Text>
+              <Text text="____________" class="ControlPanelExpansionLabel"></Text>
+            </TableLayout>
+          </Cell>
+          <Cell>
+            <TableLayout>
+              <Text id="GoldminesExpansionLabel" text="4. The Goldmines" class="ControlPanelExpansionLabel"></Text>
+              <Text text="_______________" class="ControlPanelExpansionLabel"></Text>
+            </TableLayout>
+          </Cell>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelMiniExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="FerriesTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="FerriesFerriesLabel" class="ControlPanelItemLabel" text="Ferries"></Text></Cell>
+                  <Cell></Cell>
+                  <Cell></Cell>
+                  <Cell><Text id="GoldminesTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="GoldminesGoldLabel" class="ControlPanelItemLabel" text="Gold"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- The Ferries + The Goldmines -->
+        <Row class="ControlPanelExpansionLabelRow">
+          <Cell>
+            <TableLayout>
+              <Text id="MnWExpansionLabel" text="5. Mage &amp; Witch" class="ControlPanelExpansionLabel"></Text>
+              <Text text="______________" class="ControlPanelExpansionLabel"></Text>
+            </TableLayout>
+          </Cell>
+          <Cell>
+            <TableLayout>
+              <Text id="RobbersExpansionLabel" text="6. The Robbers" class="ControlPanelExpansionLabel"></Text>
+              <Text text="_______________" class="ControlPanelExpansionLabel"></Text>
+            </TableLayout>
+          </Cell>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelMiniExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="MnWTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="MnWMageLabel" class="ControlPanelItemLabel" text="Mage"></Text></Cell>
+                  <Cell><Text id="MnWWitchLabel" class="ControlPanelItemLabel" text="Witch"></Text></Cell>
+                  <Cell></Cell>
+                  <Cell><Text id="RobbersTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="RobbersRobbersLabel" class="ControlPanelItemLabel" text="Robbers"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+    </TableLayout>
+
+    <Text class="ControlPanelPageLabel" id="PreviousPageLabel" text="Previous Page" rectAlignment="LowerLeft"
+           width="300" height="100" offsetXY="158 8"></Text>
+    <Text class="ControlPanelPageLabel" id="NextPageLabel" text="Next Page" rectAlignment="LowerRight"
+           width="200" height="100" offsetXY="-152 8"></Text>
+</Panel>

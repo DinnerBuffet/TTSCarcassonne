@@ -8,35 +8,51 @@ COLUMN_1 = 6.75
 COLUMN_SPACING = 3.4
 
 function onLoad()
-    category_label_parameters.position = {0, BUTTON_HEIGHT, CATEGORY}
-    category_label_parameters.label = 'House Rules'
-    self.createButton( category_label_parameters )
-    index = index + 1
+    Timer.create({identifier='' .. os.clock(), function_name='initializeControlPanelPage', function_owner=nil, parameters=nil, delay=0.0001})
+end
+
+function initializeControlPanelPage()
+    self.UI.setAttribute("HouseRulesLabel", "text", translate("LABEL_HOUSE_RULES"))
+
+    self.UI.setAttribute("BaseGameHouseRulesLabel", "text", translate("LABEL_BASE_GAME"))
+    self.UI.setAttribute("BaseDisableRoadsLabel", "text", translate({"LABEL_DISABLE_FEATURE", {'{s1}', translate('Roads')}}))
+    self.UI.setAttribute("BaseDisableCitiesLabel", "text", translate({"LABEL_DISABLE_FEATURE", {'{s1}', translate('Cities')}}))
+    self.UI.setAttribute("BaseDisableCloistersLabel", "text", translate({"LABEL_DISABLE_FEATURE", {'{s1}', translate('Cloisters')}}))
+    self.UI.setAttribute("BaseDisableFarmsLabel", "text", translate({"LABEL_DISABLE_FEATURE", {'{s1}', translate('Farms')}}))
+    self.UI.setAttribute("BaseNerfSmallCityLabel", "text", translate("LABEL_NERF_SMALL_CITIES"))
+
+    self.UI.setAttribute("TowerExpansionLabel", "text", translate("The Tower"))
+    self.UI.setAttribute("TowerNerfTowersLabel", "text", translate("LABEL_REDUCE_TOWER_RANGE"))
+
+    self.UI.setAttribute("RiverHouseRulesLabel", "text", translate("The River"))
+    self.UI.setAttribute("RiverMixAllLabel", "text", translate("LABEL_MIX_RIVER_TILES"))
+    self.UI.setAttribute("RIIDisablePigherdLabel", "text", translate("LABEL_MIX_RIVER_TILES"))
+
+    self.UI.setAttribute("CoCHouseRulesLabel", "text", translate("City of Carcassonne"))
+    self.UI.setAttribute("CoCNoCountLabel", "text", translate("LABEL_MIX_RIVER_TILES"))
+
+    self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
 
 --Base game
-    createExpansionLabel(ROW_1, 'Base Game')
-    initializeLabeledCheckbox(COLUMN_1, ROW_1, true, 'BaseDisableRoads', 'Disable\nRoads', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a Road")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1, true, 'BaseDisableCities', 'Disable\nCities', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a City")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1, true, 'BaseDisableCloisters', 'Disable\nCloisters', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a Cloister")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1, true, 'BaseDisableFarms', 'Disable\nFarms', {x=0, z=LABEL_SEPARATION}, 1, "It will no longer be allowed to place a follower on a Field")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1, true, 'BaseNerfSmallCity', 'Nerf Small\nCities', {x=0, z=LABEL_SEPARATION}, 1, "Changes scoring so that completed cities containing only 2 tiles are worth only 2 points. This is the same as the original Carcassonne release.")
+    initializeCheckbox(COLUMN_1, ROW_1, 'BaseDisableRoads', translate({"TOOLTIP_DISABLE_FEATURE", {'{s1}', translate("Road")}}))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1, 'BaseDisableCities', translate({"TOOLTIP_DISABLE_FEATURE", {'{s1}', translate("City")}}))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1, 'BaseDisableCloisters', translate({"TOOLTIP_DISABLE_FEATURE", {'{s1}', translate("Cloister")}}))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1, 'BaseDisableFarms', translate({"TOOLTIP_DISABLE_FEATURE", {'{s1}', translate("Field")}}))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1, 'BaseNerfSmallCity', translate("TOOLTIP_NERF_SMALL_CITIES"))
 
 --The Tower
-    createExpansionLabel(ROW_1 - ROW_SPACING, 'The Tower')
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, true, 'TowerNerfTowers', "Reduce tower\ncapture range", {x=0, z=LABEL_SEPARATION}, 1, "If checked, the tower range will start with just the tile it is placed on, and increase from there.")
+    initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, 'TowerNerfTowers', translate("TOOLTIP_REDUCE_TOWER_RANGE"))
 
 --Hills & Sheep
     -- createExpansionLabel(ROW_1 - ROW_SPACING, 'Hills & Sheep')
     -- initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, 'HnSDoNotBuryHills', "Don't bury\nhills", "If checked, this will not 'bury' a tile underneath a hill.")
 
 --Rivers/River II
-    createExpansionLabel(ROW_1 - ROW_SPACING * 2, 'The River')
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, true, 'RiverMixAll', "Mix\nall tiles", {x=0, z=LABEL_SEPARATION}, 1, "If checked, all river tiles, including end pieces, will be mixed. Extra pieces left-over when the river is finished will be deleted.")
-    initializeLabeledCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, true, 'RIIDisablePigherd', "Disable\npig-herd", {x=0, z=LABEL_SEPARATION}, 1, "If checked, this will disable the pig-herd, which gives an extra point per city to farmers.")
+    initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, 'RiverMixAll', translate("TOOLTIP_MIX_RIVER_TILES"))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, 'RIIDisablePigherd', translate("TOOLTIP_DISABLE_PIG_HERD"))
 
 --City of Carcassonne
-    createExpansionLabel(ROW_1 - ROW_SPACING * 3, 'City of Carcassonne')
-    initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, true, 'CoCNoCount', "Disable\nThe Count", {x=0, z=LABEL_SEPARATION}, 1, "If checked, this will disable the Count.")
+    initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, 'CoCNoCount', translate("TOOLTIP_DISABLE_COUNT"))
 end
 
 function checkAllCheckboxes()

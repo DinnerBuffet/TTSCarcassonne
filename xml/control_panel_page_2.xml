@@ -1,0 +1,104 @@
+<Defaults>
+    <Panel class="ControlPanelPage" width="1820" height="2600" position="0.0 0.0 -11.0" rectAlignment="MiddleCenter"/>
+    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelExpansionLabel" fontSize="72" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelPageLabel" fontSize="34" color="#000000"/>
+    <Text class="ControlPanelItemLabel" fontSize="60" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <TableLayout class="ControlPanelPageLayout" width="1820" height="2300" padding="0 0 330 0" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <TableLayout class="ControlPanelExpansionLayout" width="1820" height="256" columnWidths="109 335 335 335 335 335" useGlobalCellPadding="false" autoCalculateHeight="true" alignment="UpperLeft" rectAlignment="UpperLeft" cellBackgroundColor="0 0 0"/>
+    <Row class="CategoryRow" preferredHeight="124" />
+    <Row class="ControlPanelExpansionRow" preferredHeight="294" />
+    <Row class="ControlPanelExpansionLabelRow" preferredHeight="115" />
+</Defaults>
+
+<Panel id="ControlPanelPg2" class="ControlPanelPage">
+    <TableLayout class="ControlPanelPageLayout">
+        <!-- Base Game -->
+        <Row class="ControlPanelExpansionLabelRow">
+            <Text id="BaseGameExpansionLabel" text="Base Game" class="ControlPanelExpansionLabel"></Text>
+            <Text text="__________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="BaseTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="BaseFollowersLabel" class="ControlPanelItemLabel" text="Followers"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <Row class="CategoryRow">
+          <Text id="MajorExpansionsLabel" text="Major Expansions" class="ControlPanelCategoryLabel" offsetXY="0 24"></Text>
+        </Row>
+        <!-- Inns & Cathedrals -->
+        <Row class="ControlPanelExpansionLabelRow">
+          <Text id="InCExpansionLabel" text="1. Inns &amp; Cathedrals" class="ControlPanelExpansionLabel"></Text>
+          <Text text="__________________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="InCTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="InCBigFollowerLabel" class="ControlPanelItemLabel" text="Big Follower"></Text></Cell>
+                  <Cell><Text id="InCInnsLabel" class="ControlPanelItemLabel" text="Inns"></Text></Cell>
+                  <Cell><Text id="InCCathedralsLabel" class="ControlPanelItemLabel" text="Cathedrals"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- Traders & Builders -->
+        <Row class="ControlPanelExpansionLabelRow">
+          <Text id="TnBExpansionLabel" text="2. Traders &amp; Builders" class="ControlPanelExpansionLabel"></Text>
+          <Text text="___________________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="TnBTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="TnBBuilderLabel" class="ControlPanelItemLabel" text="Builder"></Text></Cell>
+                  <Cell><Text id="TnBPigLabel" class="ControlPanelItemLabel" text="Pig"></Text></Cell>
+                  <Cell padding="-100 -100 0 0">
+                    <Text id="TnBTradeGoodsLabel" class="ControlPanelItemLabel" text="Trade Goods"></Text>
+                  </Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- The Princess & The Dragon -->
+        <Row class="ControlPanelExpansionLabelRow">
+          <Text id="PnDExpansionLabel" text="3. The Princess &amp; The Dragon" class="ControlPanelExpansionLabel"></Text>
+          <Text text="__________________________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="PnDTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="PnDDragonLabel" class="ControlPanelItemLabel" text="Dragon"></Text></Cell>
+                  <Cell><Text id="PnDFairyLabel" class="ControlPanelItemLabel" text="Fairy"></Text></Cell>
+                  <Cell><Text id="PnDPortalsLabel" class="ControlPanelItemLabel" text="Portals"></Text></Cell>
+                  <Cell><Text id="PnDPrincessLabel" class="ControlPanelItemLabel" text="Princess"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+        <!-- The Tower -->
+        <Row class="ControlPanelExpansionLabelRow">
+          <Text id="TowerExpansionLabel" text="4. The Tower" class="ControlPanelExpansionLabel"></Text>
+          <Text text="____________" class="ControlPanelExpansionLabel"></Text>
+        </Row>
+        <Row class="ControlPanelExpansionRow">
+          <TableLayout class="ControlPanelExpansionLayout">
+              <Row>
+                  <Cell></Cell>
+                  <Cell><Text id="TowerTilesLabel" class="ControlPanelItemLabel" text="Tiles"></Text></Cell>
+                  <Cell><Text id="TowerTowersLabel" class="ControlPanelItemLabel" text="Towers"></Text></Cell>
+              </Row>
+          </TableLayout>
+        </Row>
+    </TableLayout>
+
+    <Text class="ControlPanelPageLabel" id="PreviousPageLabel" text="Previous Page" rectAlignment="LowerLeft"
+           width="300" height="100" offsetXY="158 8"></Text>
+    <Text class="ControlPanelPageLabel" id="NextPageLabel" text="Next Page" rectAlignment="LowerRight"
+           width="200" height="100" offsetXY="-152 8"></Text>
+</Panel>

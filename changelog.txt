@@ -1,5 +1,24 @@
-﻿v1.20.3 - 20180423
-[*]Followers in fields are no longer scored/removed when their field is no longer has any openings and there are no cities touching it. (due to a change in 1.18) (Thanks to Urchin for reporting!)
+﻿v1.21 - 20181223
+[*]Implemented mini-expansion: The Phantoms
+[*]Added AI support for the Shepherd. This completes AI support for Hills & Sheep!
+[*]Added localization support. Traditional Chinese is implemented.
+[*]Added tiles for The Ferries. Note that the ferries themselves are not yet implemented. For now, a lake will simply end a road. (Thanks to TheLimeyDragon for implementing the tile data!)
+[*]Fixed error + script breaking when a shrine/cloister finishes (Thanks to [J4F] Sentinel for reporting!)
+[*]Fixed river body tiles not being used by AI sometimes (Thanks to 【ツ】rando for reporting!)
+[*]Fixed abbey not working correctly when a meeple is placed on it but not in the middle (Broken since 1.18)
+[*]AI no longer re-calculates every time a hill tile is used, and is no longer aware of what tiles were buried. (due to change made in 2.20.2)
+[*]AI no longer re-calculates every time a river piece is used.
+[*]There is now a progress bar for Hard AI calculations.
+[*]The hidden button anchor is no longer interactable.
+[*]Fairy now correctly awards all followers that are on the same tile instead of just one. (ie. if another follower flies in on a flier)
+[*]AI now always applies a 100% stuck penalty to a pig, rather than being based on the block percentage of a field, since the pig should always be 100% "stuck". This should result in the pig being used more consistently toward the later stage of the game.
+[*]AI will no longer break if the number of expected tiles changes when the draw pile is destroyed.
+[*]AI optimized slightly. Unknown how much this will improve calculation time.
+[*]Fixed AI/hotseat buttons being the wrong colors after changing pages/loading the game
+[*]Fixed a few bad tooltips in the control panel
+
+v1.20.3 - 20180423
+[*]Followers in fields are no longer scored/removed when their field no longer has any openings and there are no cities touching it. (due to a change in 1.18) (Thanks to Urchin for reporting!)
 
 v1.20.2 - 20180415
 [*]Drawing a tile while the AI is calculating will no longer slightly mess up the calculations
@@ -18,7 +37,7 @@ v1.20.1 - 20180326
 v1.20.0 - 20180316
 [*]Hard AI has been implemented. This AI is more advanced and can try to block their opponent and/or steal their features away. It takes quite a bit longer to calculate each move, but should be under 10 seconds most of the time (will be significantly longer if playing with many expansions). This is a work in progress and will need to be tuned over the next coming updates. Currently it is compatible with the same expansions as before (Inns & Cathedrals + Traders & Builders, Hills & Sheep (without shepherd), but will work with all tiles if the expansion's tile features are off).
 [*]The AIs will occasionally taunt the players when they think they have made a very good move.
-[*]Button colors have been added to the color panel to more obvious what the current AI/hotseat setting is.
+[*]Button colors have been added to the color panel to more obviously display what the current AI/hotseat setting is.
 [*]All incompatible AI expansions are now printed at the same time.
 [*]Fixed cosmetic bug: control panel changes AI button text when changing seats. (bug has existed since 1.14)
 

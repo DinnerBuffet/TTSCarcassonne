@@ -1,0 +1,3 @@
+sides = {'Road', 'Field', 'Road', 'Road'}
+linkedOctants = {{5, 12}, {6, 7, 8, 9}, {10, 11}}
+specialFeatures = {{'Crop-Club', nil, nil}}

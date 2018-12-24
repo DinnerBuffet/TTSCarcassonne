@@ -46,9 +46,9 @@ function showTileMarkers(newTile)
     end
     if not hasTileLocation then
         if not newTile.getVar('isStartingPiece') then
-            allGameMessage("There is no valid location to put this tile. If the tile was drawn from the stack, put it back in and shuffle, then draw another.", NEUTRAL_COLOR)
+            allGameMessage({"MESSAGE_HINTS_NO_TILE_LOCATION"}, NEUTRAL_COLOR)
         elseif startingTile_GUID == nil then
-            allGameMessage("You may place this starting tile anywhere. It is recommended to place it near the center of the table.", NEUTRAL_COLOR)
+            allGameMessage(({"MESSAGE_HINTS_STARTING_TILE"}), NEUTRAL_COLOR)
         end
     end
     return 1
@@ -114,7 +114,7 @@ function showFeatureMarkers()
         end
     end
     --uncapped towers
-    if controlPanelSettings['TowerTowers'] and (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') then
+    if controlPanelSettings['TowerTowers'] and table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) then
         --all tower locations are candidates for placing followers if they are legally placed
         for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
             if obj.getVar('figureName') == 'Tower' then
@@ -157,7 +157,7 @@ function showFeatureMarkers()
         end
     end
     --wheel of fortune crown spaces
-    if controlPanelSettings['WoFCrowns'] and (newFigure.getVar('figureName') == 'Follower' or newFigure.getVar('figureName') == 'Big Follower') then
+    if controlPanelSettings['WoFCrowns'] and table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) then
         for _, tileIndex in ipairs({1, 2, 3, 4, 5, 8, 9, 12, 14, 15}) do --these are the indexes of the tiles that have crown features on them
             local obj = getObjectFromGUID(expansionBags['WoF'].contents['WoFStartingTiles'].contents[tileIndex].guid)
             local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
@@ -197,9 +197,9 @@ function showFeatureMarkers()
         end
     end
     --magic portal
-    if tileHasMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
+    if tileHasMagicPortal and not hasAlreadyUsedMagicPortal and table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
         lastFrameTime = os.clock()
-        allGameMessage("Calculating all possible magic portal locations. Hints may be delayed...", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_MAGIC_PORTAL_CALCULATING"}), NEUTRAL_COLOR)
 
         --prune features that don't have openings
         for featureNum, feature in pairs(featuresToMark) do
@@ -298,7 +298,7 @@ function showFeatureMarkers()
         end
     end
     if not hasFigureLocation then
-        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_NO_FIGURE_LOCATION"}), NEUTRAL_COLOR)
     end
     return 1
 end
@@ -314,7 +314,7 @@ function showTowerMarkers()
     local positionsToVisit = {}
 
     lastFrameTime = os.clock()
-    allGameMessage("Calculating all possible tower locations. Hints may be delayed...", NEUTRAL_COLOR)
+    allGameMessage(({"MESSAGE_HINTS_TOWER_CALCULATING"}), NEUTRAL_COLOR)
 
     for x, tileColumn in pairs(tileGrid) do
         for z, tileLocation in pairs(tileColumn) do
@@ -412,7 +412,7 @@ function showTowerMarkers()
         end
     end
     if not hasFigureLocation then
-        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_NO_FIGURE_LOCATION"}), NEUTRAL_COLOR)
     end
     return 1
 end
@@ -434,7 +434,7 @@ function showFairyHighlights(newFigure)
         end
     end
     if not hasFairyLocation then
-        allGameMessage("There is no valid location to put the fairy. The fairy can only be placed next to your own followers.", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_NO_FAIRY_LOCATION"}), NEUTRAL_COLOR)
     end
     return 1
 end
@@ -443,7 +443,7 @@ function showWagonFeatureMarkers(newFigure)
     figureMarkers = {}
     local wagonFeatureNum = wagonFeatures[activePlayers[currentMiniTurn]]
     if linkedFeatures['Road Intersection'][wagonFeatureNum] == nil then
-        allGameMessage("There is no valid location to put this figure. Something went horribly wrong. Tell the dev.", NEUTRAL_COLOR)
+        allGameMessage("ERROR: There is no valid location to put this figure. Something went horribly wrong. Tell the dev.", NEUTRAL_COLOR)
         return
     end
 
@@ -543,7 +543,7 @@ function showWagonFeatureMarkers(newFigure)
         end
     end
     if not hasFigureLocation then
-        allGameMessage("There is no valid location to put this figure. Something went horribly wrong. Tell the dev.", NEUTRAL_COLOR)
+        allGameMessage("ERROR: There is no valid location to put this figure. Something went horribly wrong. Tell the dev.", NEUTRAL_COLOR)
     end
     return 1
 end
@@ -620,7 +620,7 @@ function showFlierFeatureMarkers(newFigure)
         end
     end
     if not hasFigureLocation then
-        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_NO_FIGURE_LOCATION"}), NEUTRAL_COLOR)
     end
     return 1
 end
@@ -704,7 +704,7 @@ function showToCoCFeatureMarkers(newFigure)
         end
     end
     if not hasFigureLocation then
-        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_NO_FIGURE_LOCATION"}), NEUTRAL_COLOR)
     end
     return 1
 end
@@ -803,7 +803,7 @@ function showFromCoCFeatureMarkers()
         end
     elseif turnState == 'game over - prompt moving from carcassonne' then
         lastFrameTime = os.clock()
-        allGameMessage("Calculating all possible locations. Hints may be delayed...", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_COC_CALCULATING"}), NEUTRAL_COLOR)
 
         for x, tileColumn in pairs(tileGrid) do
             for z, tileLocation in pairs(tileColumn) do
@@ -895,7 +895,7 @@ function showFromCoCFeatureMarkers()
         end
     end
     if not hasFigureLocation then
-        allGameMessage("There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.", NEUTRAL_COLOR)
+        allGameMessage(({"MESSAGE_HINTS_NO_FIGURE_LOCATION"}), NEUTRAL_COLOR)
     end
     return 1
 end
