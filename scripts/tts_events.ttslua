@@ -292,8 +292,8 @@ function onObjectPickUp(player, pickedUpObject)
         elseif (table.contains(FOLLOWER_TYPES, pickedUpObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, pickedUpObject.getVar('figureName')) or pickedUpObject.getVar('figureName') == 'Tower') and
             ((currentMiniTurn ~= nil and pickedUpObject.getVar('owner') == activePlayers[currentMiniTurn]) or
             (currentMiniTurn == nil and pickedUpObject.getVar('owner') == activePlayers[currentPlayer])) then
+            gPickedUpObject = pickedUpObject
             if turnState == 'awaiting figure decision' then
-                gPickedUpObject = pickedUpObject
                 if pickedUpObject.getVar('figureName') == 'Tower' then
                     startLuaCoroutine(self, 'showTowerMarkers')
                 else
@@ -308,7 +308,6 @@ function onObjectPickUp(player, pickedUpObject)
             elseif turnState == 'prompt moving to carcassonne' then
                 showToCoCFeatureMarkers(pickedUpObject)
             elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then
-                gPickedUpObject = pickedUpObject
                 startLuaCoroutine(self, 'showFromCoCFeatureMarkers')
             end
         elseif pickedUpObject.getVar('figureName') == 'Fairy' and turnState == 'awaiting figure decision' then

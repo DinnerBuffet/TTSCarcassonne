@@ -26,10 +26,10 @@ function initializeControlPanelPage()
 
     self.UI.setAttribute("RiverHouseRulesLabel", "text", translate("The River"))
     self.UI.setAttribute("RiverMixAllLabel", "text", translate("LABEL_MIX_RIVER_TILES"))
-    self.UI.setAttribute("RIIDisablePigherdLabel", "text", translate("LABEL_MIX_RIVER_TILES"))
+    self.UI.setAttribute("RIIDisablePigherdLabel", "text", translate("LABEL_DISABLE_PIG_HERD"))
 
     self.UI.setAttribute("CoCHouseRulesLabel", "text", translate("City of Carcassonne"))
-    self.UI.setAttribute("CoCNoCountLabel", "text", translate("LABEL_MIX_RIVER_TILES"))
+    self.UI.setAttribute("CoCNoCountLabel", "text", translate("LABEL_DISABLE_COUNT"))
 
     self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
 

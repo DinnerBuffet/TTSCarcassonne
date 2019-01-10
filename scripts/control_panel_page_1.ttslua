@@ -2,8 +2,6 @@
 
 LANGUAGE_ICONS = {['en-us'] = "UK/US Flag", ['zh-tw'] = "TW Flag"}
 
-NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
-
 EASY_AI_COLOR = {r=0.5,g=1.0,b=0.5}
 HARD_AI_COLOR = {r=1,g=0.3,b=0.3}
 
@@ -206,10 +204,21 @@ function onHotseatButtonPressed(sPlayer, color_pressed, data_key, button_key)
                 numPlayers = numPlayers + 1
             end
         end
-        Global.call('setControlPanelState', {key = 'TowerNumTowers', value = NUM_TOWERS_PER_PLAYER[numPlayers]})
+        local newNumTowers = NUM_TOWERS_PER_PLAYER[numPlayers]
         if Global.call('getControlPanelState', {key = 'TowerTowers'}) then
-            allGameMessage({"MESSAGE_TOWER_COUNT_CHANGED", {'{n1}', NUM_TOWERS_PER_PLAYER[numPlayers]}}, NEUTRAL_COLOR, nil)
+            allGameMessage({"MESSAGE_TOWER_COUNT_CHANGED", {'{n1}', newNumTowers}}, NEUTRAL_COLOR, nil)
         end
+        Global.call('setControlPanelState', {key = 'TowerNumTowers', value = newNumTowers})
+        local newNumBridges = NUM_BRIDGES_PER_PLAYER[numPlayers]
+        if newNumBridges ~= Global.call('getControlPanelState', {key = 'BCnBNumBridges'}) and Global.call('getControlPanelState', {key = 'BCnBBridges'}) then
+            allGameMessage({"MESSAGE_BRIDGE_COUNT_CHANGED", {'{n1}', newNumBridges}}, NEUTRAL_COLOR, nil)
+        end
+        Global.call('setControlPanelState', {key = 'BCnBNumBridges', value = newNumBridges})
+        local newNumCastles = NUM_CASTLES_PER_PLAYER[numPlayers]
+        if newNumBridges ~= Global.call('getControlPanelState', {key = 'BCnBNumCastles'}) and Global.call('getControlPanelState', {key = 'BCnBCastles'}) then
+            allGameMessage({"MESSAGE_CASTLE_COUNT_CHANGED", {'{n1}', newNumCastles}}, NEUTRAL_COLOR, nil)
+        end
+        Global.call('setControlPanelState', {key = 'BCnBNumCastles', value = newNumCastles})
     end
 end
 

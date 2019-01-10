@@ -255,7 +255,8 @@ function showFeatureMarkers()
                         lastFrameTime = lastFrameTime + FRAME_TIME
                         coroutine.yield(0)
                     end
-                    if turnState ~= 'awaiting figure decision' or newFigure.held_by_color == nil then
+                    --if the turnState already changed or the figure is no longer being held by the time all of the positions have been calculated, don't show the hints
+                    if (turnState ~= 'awaiting figure decision' and turnState ~= 'awaiting phantom decision') or newFigure.held_by_color == nil then
                         return 1
                     end
                 end
@@ -351,6 +352,7 @@ function showTowerMarkers()
                     lastFrameTime = lastFrameTime + FRAME_TIME
                     coroutine.yield(0)
                 end
+                --if the turnState already changed or the figure is no longer being held by the time all of the positions have been calculated, don't show the hints
                 if turnState ~= 'awaiting figure decision' or newFigure.held_by_color == nil then
                     return 1
                 end
@@ -852,6 +854,7 @@ function showFromCoCFeatureMarkers()
                         lastFrameTime = lastFrameTime + FRAME_TIME
                         coroutine.yield(0)
                     end
+                    --if the turnState already changed or the figure is no longer being held by the time all of the positions have been calculated, don't show the hints
                     if turnState ~= 'game over - prompt moving from carcassonne' or newFigure.held_by_color == nil then
                         return 1
                     end

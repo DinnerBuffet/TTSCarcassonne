@@ -25,7 +25,7 @@ end
 
 function initializeControlPanelPage()
     self.UI.setAttribute("WoFExpansionLabel", "text", translate("Wheel of Fortune"))
-    self.UI.setAttribute("WoFTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("WoFTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("StartingTileWoFLabel", "text", translate("LABEL_WHEEL"))
     self.UI.setAttribute("WoFCrownsLabel", "text", translate("Crown"))
     self.UI.setAttribute("WoFFortuneLabel", "text", translate("Fortune"))
@@ -39,7 +39,7 @@ function initializeControlPanelPage()
     self.UI.setAttribute("MiniExpansionsLabel", "text", translate("LABEL_MINI_EXPANSIONS"))
 
     self.UI.setAttribute("FlierExpansionLabel", "text", "1. " .. translate("The Flier"))
-    self.UI.setAttribute("FlierTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("FlierTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("FlierFlierLabel", "text", translate("Fliers"))
 
     self.UI.setAttribute("MessagesExpansionLabel", "text", "2. " .. translate("The Messages"))
@@ -47,28 +47,28 @@ function initializeControlPanelPage()
     self.UI.setAttribute("MessagesMessengerLabel", "text", translate("Messenger"))
 
     self.UI.setAttribute("FerriesExpansionLabel", "text", "3 . " .. translate("The Ferries"))
-    self.UI.setAttribute("FerriesTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("FerriesTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("FerriesFerriesLabel", "text", translate("Ferries"))
 
     self.UI.setAttribute("GoldminesExpansionLabel", "text", "4. " .. translate("The Goldmines"))
-    self.UI.setAttribute("GoldminesTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("GoldminesTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("GoldminesGoldLabel", "text", translate("Gold"))
 
     self.UI.setAttribute("MnWExpansionLabel", "text", "5 . " .. translate("Mage & Witch"))
-    self.UI.setAttribute("MnWTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("MnWTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("MnWMageLabel", "text", translate("Mage"))
     self.UI.setAttribute("MnWWitchLabel", "text", translate("Witch"))
 
     self.UI.setAttribute("RobbersExpansionLabel", "text", "6. " .. translate("The Robbers"))
-    self.UI.setAttribute("RobbersTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("RobbersTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("RobbersRobbersLabel", "text", translate("Robbers"))
 
     self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
     self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
 
 --Wheel of Fortune
-    initializeAllCheckbox(COLUMN_1_1, ROW_1, 'WoFAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_1_2, ROW_1, 'WoFTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 52}}))
+    initializeAllCheckbox(COLUMN_1_1, ROW_1, 'WoFAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_1_2, ROW_1, 'WoFTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 52}}))
     initializeCheckbox(COLUMN_1_3, ROW_1, 'StartingTileWoF', translate("TOOLTIP_WHEEL_OF_FORTUNE"))
     initializeCheckbox(COLUMN_1_4, ROW_1, 'WoFCrowns', translate("TOOLTIP_WHEEL_CROWN"))
     initializeCheckbox(COLUMN_1_5, ROW_1, 'WoFFortune', translate("TOOLTIP_WHEEL_FORTUNE"))
@@ -80,8 +80,8 @@ function initializeControlPanelPage()
     initializeCheckbox(COLUMN_1_6, ROW_2, 'WoFPlague', translate("TOOLTIP_WHEEL_PLAGUE"))
 
 --The Flier
-    initializeAllCheckbox(COLUMN_2_1, ROW_3, 'FlierAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2_2, ROW_3, 'FlierTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 8}}))
+    initializeAllCheckbox(COLUMN_2_1, ROW_3, 'FlierAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2_2, ROW_3, 'FlierTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 8}}))
     initializeCheckbox(COLUMN_2_3, ROW_3, 'FlierFlier', translate("TOOLTIP_FLIER"))
 
 --The Messages
@@ -91,12 +91,12 @@ function initializeControlPanelPage()
 
 --The Ferries
     -- initializeAllCheckbox(COLUMN_2_1, ROW_4, 'FerriesAll', "")
-    initializeCheckbox(COLUMN_2_2, ROW_4, 'FerriesTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 8}}))
+    initializeCheckbox(COLUMN_2_2, ROW_4, 'FerriesTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 8}}))
     -- initializeCheckbox(COLUMN_2_3, ROW_4, 'FerriesFerries', "")
 
 --The Goldmines
-    initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2_6, ROW_4, 'GoldminesTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 8}}))
+    initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2_6, ROW_4, 'GoldminesTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 8}}))
     initializeCheckbox(COLUMN_2_7, ROW_4, 'GoldminesGold', translate("TOOLTIP_GOLD"))
 
 --Mage & Witch

@@ -12,75 +12,133 @@ COLUMN_4 = -0.4
 COLUMN_5 = -3.75
 COLUMN_6 = -7.1
 
+numPlayers = 1
+
 function onLoad()
     Timer.create({identifier='' .. os.clock(), function_name='initializeControlPanelPage', function_owner=nil, parameters=nil, delay=0.0001})
 end
 
 function initializeControlPanelPage()
     self.UI.setAttribute("AnMExpansionLabel", "text", "5. " .. translate("Abbey & Mayor"))
-    self.UI.setAttribute("AnMTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("AnMTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("AnMAbbeyLabel", "text", translate("Abbey"))
     self.UI.setAttribute("AnMMayorLabel", "text", translate("Mayor"))
     self.UI.setAttribute("AnMWagonLabel", "text", translate("Wagon"))
     self.UI.setAttribute("AnMBarnLabel", "text", translate("Barn"))
     self.UI.setAttribute("CKnRExpansionLabel", "text", "6. " .. translate("Count, King, & Robber"))
-    self.UI.setAttribute("KnRBTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("KnRBTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("StartingTileCoCLabel", "text", translate("City"))
     self.UI.setAttribute("KnRBKingLabel", "text", translate("King"))
     self.UI.setAttribute("KnRBRobberLabel", "text", translate("Robber"))
     self.UI.setAttribute("CultTilesLabel", "text", translate("Shrines"))
     self.UI.setAttribute("CatapultExpansionLabel", "text", "7. " .. translate("The Catapult"))
-    self.UI.setAttribute("CatapultTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("CatapultTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("CatapultKnockOutLabel", "text", translate("Knock Out"))
     self.UI.setAttribute("CatapultSeductionLabel", "text", translate("Seduction"))
     self.UI.setAttribute("CatapultTargetLabel", "text", translate("Target"))
     self.UI.setAttribute("CatapultCatchLabel", "text", translate("Catch"))
     self.UI.setAttribute("BCnBExpansionLabel", "text", "8 . " .. translate("Bridges, Castles, & Bazaars"))
-    self.UI.setAttribute("BCnBTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("BCnBTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("BCnBBridgesLabel", "text", translate("Bridges"))
     self.UI.setAttribute("BCnBCastlesLabel", "text", translate("Castles"))
     self.UI.setAttribute("BCnBBazaarsLabel", "text", translate("Bazaars"))
     self.UI.setAttribute("HnSExpansionLabel", "text", "9. " .. translate("Hills & Sheep"))
-    self.UI.setAttribute("HnSTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("HnSTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("HnSShepherdLabel", "text", translate("Shepherd"))
     self.UI.setAttribute("HnSHillsLabel", "text", translate("Hills"))
     self.UI.setAttribute("HnSVineyardsLabel", "text", translate("Vineyards"))
     self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
     self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
 --Abbey & Mayor
-    initializeAllCheckbox(COLUMN_1, ROW_1, 'AnMAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2, ROW_1, 'AnMTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 12}}))
+    initializeAllCheckbox(COLUMN_1, ROW_1, 'AnMAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_1, 'AnMTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 12}}))
     initializeCheckbox(COLUMN_3, ROW_1, 'AnMAbbey', translate("TOOLTIP_ABBEY"))
     initializeCheckbox(COLUMN_4, ROW_1, 'AnMMayor', translate("TOOLTIP_MAYOR"))
     initializeCheckbox(COLUMN_5, ROW_1, 'AnMWagon', translate("TOOLTIP_WAGON"))
     initializeCheckbox(COLUMN_6, ROW_1, 'AnMBarn', translate("TOOLTIP_BARN"))
 
 --Count, King, and Robber
-    initializeAllCheckbox(COLUMN_1, ROW_2, 'CKnRAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2, ROW_2, 'KnRBTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 5}}))
+    initializeAllCheckbox(COLUMN_1, ROW_2, 'CKnRAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_2, 'KnRBTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 5}}))
     initializeCheckbox(COLUMN_3, ROW_2, 'StartingTileCoC', translate("The City of Carcassonne starting tiles. Whenever you place a tile that scores points for others, you can store a follower here. These followers can be snuck into features after they are finished, but before they are scored."))
     initializeCheckbox(COLUMN_4, ROW_2, 'KnRBKing', translate("TOOLTIP_KING"))
     initializeCheckbox(COLUMN_5, ROW_2, 'KnRBRobber', translate("TOOLTIP_ROBBER_BARON"))
     initializeCheckbox(COLUMN_6, ROW_2, 'CultTiles', translate("TOOLTIP_SHRINE"))
 
 --The Catapult
-    -- initializeAllCheckbox(COLUMN_1, ROW_3, 'CatapultAll', "BUTTON_TOOLTIP_ENABLE_ALL")
-    initializeCheckbox(COLUMN_2, ROW_3, 'CatapultTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 12}}))
+    -- initializeAllCheckbox(COLUMN_1, ROW_3, 'CatapultAll', "TOOLTIP_ENABLE_ALL")
+    initializeCheckbox(COLUMN_2, ROW_3, 'CatapultTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 12}}))
     -- initializeCheckbox(COLUMN_3, ROW_3, 'CatapultKnockOut', nil)
     -- initializeCheckbox(COLUMN_4, ROW_3, 'CatapultSeduction', nil)
     -- initializeCheckbox(COLUMN_5, ROW_3, 'CatapultTarget', nil)
     -- initializeCheckbox(COLUMN_6, ROW_3, 'CatapultCatch', nil)
 
 --Bridges, Castles, and Bazaars
-    -- initializeAllCheckbox(COLUMN_1, ROW_4, 'BCnBAll', "BUTTON_TOOLTIP_ENABLE_ALL")
-    initializeCheckbox(COLUMN_2, ROW_4, 'BCnBTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 12}}))
-    -- initializeCheckbox(COLUMN_3, ROW_4, 'BCnBBridges', nil)
+    -- initializeAllCheckbox(COLUMN_1, ROW_4, 'BCnBAll', "TOOLTIP_ENABLE_ALL")
+    initializeCheckbox(COLUMN_2, ROW_4, 'BCnBTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 12}}))
+
+    -- --Bridges
+    -- button_parameters.click_function = 'onBridgesDecr'
+    -- button_parameters.label = '-'
+    -- button_parameters.tooltip = ''
+    -- button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_4}
+    -- self.createButton( button_parameters )
+    -- btnIDs['btnBridgesDecr'] = index
+    -- index = index + 1
+    --
+    -- button_parameters.click_function = 'onBCnBBridgesToggle'
+    -- button_parameters.label = '0'
+    -- button_parameters.position = {COLUMN_3, BUTTON_HEIGHT, ROW_4}
+    -- button_parameters.tooltip = translate("TOOLTIP_BRIDGES")
+    -- if Global.call('getControlPanelState', {key = 'BCnBBridges'}) then
+    --     button_parameters.label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumBridges'})
+    -- end
+    -- self.createButton( button_parameters )
+    -- btnIDs['btnBCnBBridgesToggle'] = index
+    -- index = index + 1
+    --
+    -- button_parameters.click_function = 'onBridgesIncr'
+    -- button_parameters.label = '+'
+    -- button_parameters.tooltip = ''
+    -- button_parameters.position = {COLUMN_3 - 1, BUTTON_HEIGHT, ROW_4}
+    -- self.createButton( button_parameters )
+    -- btnIDs['btnBridgesIncr'] = index
+    -- index = index + 1
+    --
+    -- --Castles
+    -- button_parameters.click_function = 'onCastlesDecr'
+    -- button_parameters.label = '-'
+    -- button_parameters.tooltip = ''
+    -- button_parameters.position = {COLUMN_4 + 1, BUTTON_HEIGHT, ROW_4}
+    -- self.createButton( button_parameters )
+    -- btnIDs['btnCastlesDecr'] = index
+    -- index = index + 1
+    --
+    -- button_parameters.click_function = 'onBCnBCastlesToggle'
+    -- button_parameters.label = '0'
+    -- button_parameters.position = {COLUMN_4, BUTTON_HEIGHT, ROW_4}
+    -- button_parameters.tooltip = translate("TOOLTIP_CASTLES")
+    -- if Global.call('getControlPanelState', {key = 'BCnBCastles'}) then
+    --     button_parameters.label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumCastles'})
+    -- end
+    -- self.createButton( button_parameters )
+    -- btnIDs['btnBCnBCastlesToggle'] = index
+    -- index = index + 1
+    --
+    -- button_parameters.click_function = 'onCastlesIncr'
+    -- button_parameters.label = '+'
+    -- button_parameters.tooltip = ''
+    -- button_parameters.position = {COLUMN_4 - 1, BUTTON_HEIGHT, ROW_4}
+    -- self.createButton( button_parameters )
+    -- btnIDs['btnCastlesIncr'] = index
+    -- index = index + 1
+
     -- initializeCheckbox(COLUMN_4, ROW_4, 'BCnBCastles', nil)
     -- initializeCheckbox(COLUMN_5, ROW_4, 'BCnBBazaars', nil)
 
 --Hills & Sheep
-    initializeAllCheckbox(COLUMN_1, ROW_5, 'HnSAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2, ROW_5, 'HnSTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 18}}))
+    initializeAllCheckbox(COLUMN_1, ROW_5, 'HnSAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_5, 'HnSTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 18}}))
     initializeCheckbox(COLUMN_3, ROW_5, 'HnSShepherd', translate("TOOLTIP_SHEPHERD"))
     initializeCheckbox(COLUMN_4, ROW_5, 'HnSHills', translate("TOOLTIP_HILL"))
     initializeCheckbox(COLUMN_5, ROW_5, 'HnSVineyards', translate("TOOLTIP_VINEYARD"))
@@ -171,6 +229,34 @@ function onAllButtonToggle(sPlayer, button_key)
         end
         self.editButton({index = btnIDs['btn' .. key .. 'Toggle'], label = label})
         Global.call('setControlPanelState', {key = key, value = value})
+    end
+    for _, key in ipairs(buttonGroup) do
+        if key == 'StartingTileCoC' then
+            if not Global.call('getControlPanelState', {key = 'StartingTileCoC'}) and Global.call('getControlPanelState', {key = 'StartingTileBase'}) then
+                Global.call('setControlPanelState', {key = 'StartingTileBase', value = false})
+                printToColor(translate("MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_COC"), sPlayer, ERROR_COLOR)
+            end
+        end
+        if key == 'BCnBBridges' then
+            if Global.call('getControlPanelState', {key = 'BCnBBridges'}) then
+                Global.call('setControlPanelState', {key = 'BCnBBridges', value = false})
+                self.editButton({index = btnIDs['btnBCnBBridgesToggle'], label = '0'})
+            else
+                Global.call('setControlPanelState', {key = 'BCnBBridges', value = true})
+                self.editButton({index = btnIDs['btnBCnBBridgesToggle'], label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumBridges'})})
+            end
+        elseif key == 'BCnBCastles' then
+            if Global.call('getControlPanelState', {key = 'BCnBCastles'}) then
+                Global.call('setControlPanelState', {key = 'BCnBCastles', value = false})
+                self.editButton({index = btnIDs['btnBCnBCastlesToggle'], label = '0'})
+            else
+                Global.call('setControlPanelState', {key = 'BCnBCastles', value = true})
+                self.editButton({index = btnIDs['btnBCnBCastlesToggle'], label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumCastles'})})
+            end
+        else
+            self.editButton({index = btnIDs['btn' .. key .. 'Toggle'], label = label})
+            Global.call('setControlPanelState', {key = key, value = value})
+        end
     end
     self.editButton({index = btnIDs[button_key], label = label})
 end
@@ -265,14 +351,76 @@ function onBCnBTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'BCnBTiles', 'btnBCnBTilesToggle')
 end
 
+function onBridgesDecr(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    local numBridges = Global.call('getControlPanelState', {key = 'BCnBNumBridges'})
+    numBridges = numBridges - 1
+    if numBridges < 1 then numBridges = 1 end
+    if numBridges == NUM_BRIDGES_PER_PLAYER[numPlayers] - 1 then
+        printToColor(translate("MESSAGE_BRIDGE_COUNT_WARNING"), sPlayer, {1,0,0})
+    end
+    Global.call('setControlPanelState', {key = 'BCnBNumBridges', value = numBridges})
+    self.editButton({index = btnIDs['btnBCnBBridgesToggle'], label = '' .. numBridges})
+end
+
+function onBridgesIncr(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    local numBridges = Global.call('getControlPanelState', {key = 'BCnBNumBridges'})
+    numBridges = numBridges + 1
+    if numBridges > 12 then numBridges = 12 end
+    if numBridges == NUM_BRIDGES_PER_PLAYER[numPlayers] + 1 then
+        printToColor(translate("MESSAGE_BRIDGE_COUNT_WARNING"), sPlayer, {1,0,0})
+    end
+    Global.call('setControlPanelState', {key = 'BCnBNumBridges', value = numBridges})
+    self.editButton({index = btnIDs['btnBCnBBridgesToggle'], label = '' .. numBridges})
+end
+
 function onBCnBBridgesToggle(Object, sPlayer)
-    printToColor("Bridges, Castles, and Bazaars is not yet implemented", sPlayer, ERROR_COLOR)
-    --onCheckboxToggle(sPlayer, 'BCnBBridges', 'btnBCnBBridgesToggle')
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'BCnBBridges'}) then
+        Global.call('setControlPanelState', {key = 'BCnBBridges', value = false})
+        self.editButton({index = btnIDs['btnBCnBBridgesToggle'], label = '0'})
+    else
+        Global.call('setControlPanelState', {key = 'BCnBBridges', value = true})
+        self.editButton({index = btnIDs['btnBCnBBridgesToggle'], label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumBridges'})})
+    end
+    checkAllCheckboxes()
+end
+
+function onCastlesDecr(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    local numCastles = Global.call('getControlPanelState', {key = 'BCnBNumCastles'})
+    numCastles = numCastles - 1
+    if numCastles < 1 then numCastles = 1 end
+    if numCastles == NUM_CASTLES_PER_PLAYER[numPlayers] - 1 then
+        printToColor(translate("MESSAGE_CASTLE_COUNT_WARNING"), sPlayer, {1,0,0})
+    end
+    Global.call('setControlPanelState', {key = 'BCnBNumCastles', value = numCastles})
+    self.editButton({index = btnIDs['btnBCnBCastlesToggle'], label = '' .. numCastles})
+end
+
+function onCastlesIncr(Object, sPlayer)
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    local numCastles = Global.call('getControlPanelState', {key = 'BCnBNumCastles'})
+    numCastles = numCastles + 1
+    if numCastles > 12 then numCastles = 12 end
+    if numCastles == NUM_CASTLES_PER_PLAYER[numPlayers] + 1 then
+        printToColor(translate("MESSAGE_CASTLE_COUNT_WARNING"), sPlayer, {1,0,0})
+    end
+    Global.call('setControlPanelState', {key = 'BCnBNumCastles', value = numCastles})
+    self.editButton({index = btnIDs['btnBCnBCastlesToggle'], label = '' .. numCastles})
 end
 
 function onBCnBCastlesToggle(Object, sPlayer)
-    printToColor("Bridges, Castles, and Bazaars is not yet implemented", sPlayer, ERROR_COLOR)
-    --onCheckboxToggle(sPlayer, 'BCnBCastles', 'btnBCnBCastlesToggle')
+    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('getControlPanelState', {key = 'BCnBCastles'}) then
+        Global.call('setControlPanelState', {key = 'BCnBCastles', value = false})
+        self.editButton({index = btnIDs['btnBCnBCastlesToggle'], label = '0'})
+    else
+        Global.call('setControlPanelState', {key = 'BCnBCastles', value = true})
+        self.editButton({index = btnIDs['btnBCnBCastlesToggle'], label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumCastles'})})
+    end
+    checkAllCheckboxes()
 end
 
 function onBCnBBazaarsToggle(Object, sPlayer)
@@ -298,4 +446,20 @@ end
 
 function onHnSVineyardsToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'HnSVineyards', 'btnHnSVineyardsToggle')
+end
+
+function onPlayerChangedColor(player)
+    if not Global.getVar('gameover') then return end
+    numPlayers = 0
+    for _, color in ipairs(PLAYER_COLORS) do
+        if Player[color].seated or Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
+            numPlayers = numPlayers + 1
+        end
+    end
+    if Global.call('getControlPanelState', {key = 'BCnBBridges'}) then
+        self.editButton({index = btnIDs['btnTowerTowersToggle'], label = '' .. NUM_BRIDGES_PER_PLAYER[numPlayers]})
+    end
+    if Global.call('getControlPanelState', {key = 'BCnBCastles'}) then
+        self.editButton({index = btnIDs['btnTowerTowersToggle'], label = '' .. NUM_CASTLES_PER_PLAYER[numPlayers]})
+    end
 end

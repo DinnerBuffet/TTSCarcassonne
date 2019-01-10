@@ -76,11 +76,11 @@ LOCALIZED_STRINGS = {
 
     --Control Panel Global
 
-    ["BUTTON_TOOLTIP_ENABLE_ALL"] = "Enable all",
-    ["BUTTON_LABEL_TILES"] = "Tiles",
-    ["BUTTON_TOOLTIP_NUM_TILES"] = "{n1} tiles",
+    ["LABEL_TILES"] = "Tiles",
     ["LABEL_PREVIOUS_PAGE"] = "Previous Page",
     ["LABEL_NEXT_PAGE"] = "Next Page",
+    ["TOOLTIP_ENABLE_ALL"] = "Enable all",
+    ["TOOLTIP_NUM_TILES"] = "{n1} tiles",
 
     --Control Panel pg. 1
 
@@ -649,9 +649,9 @@ LOCALIZED_STRINGS = {
 
     --Control Panel Global
 
-    ["BUTTON_TOOLTIP_ENABLE_ALL"] = "勾選所有選項",
-    ["BUTTON_LABEL_TILES"] = "牌",
-    ["BUTTON_TOOLTIP_NUM_TILES"] = "{n1}卡牌",
+    ["TOOLTIP_ENABLE_ALL"] = "勾選所有選項",
+    ["LABEL_TILES"] = "牌",
+    ["TOOLTIP_NUM_TILES"] = "{n1}卡牌",
     ["LABEL_PREVIOUS_PAGE"] = "上一頁",
     ["LABEL_NEXT_PAGE"] = "下一頁",
 

@@ -12,7 +12,6 @@ COLUMN_4 = -0.4
 COLUMN_5 = -3.75
 COLUMN_6 = -7.1
 
-NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
 numPlayers = 1
 
 function onLoad()
@@ -21,37 +20,37 @@ end
 
 function initializeControlPanelPage()
     self.UI.setAttribute("BaseGameExpansionLabel", "text", translate("LABEL_BASE_GAME"))
-    self.UI.setAttribute("BaseTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("BaseTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("BaseFollowersLabel", "text", translate("Followers"))
     self.UI.setAttribute("MajorExpansionsLabel", "text", translate("LABEL_MAJOR_EXPANSIONS"))
     self.UI.setAttribute("InCExpansionLabel", "text", "1. " .. translate("Inns & Cathedrals"))
-    self.UI.setAttribute("InCTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("InCTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("InCBigFollowerLabel", "text", translate("Big Follower"))
-    self.UI.setAttribute("InCInnsLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("InCInnsLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("InCCathedralsLabel", "text", translate("Cathedrals"))
     self.UI.setAttribute("TnBExpansionLabel", "text", "2. " .. translate("Traders & Builders"))
-    self.UI.setAttribute("TnBTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("TnBTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("TnBBuilderLabel", "text", translate("Builder"))
     self.UI.setAttribute("TnBPigLabel", "text", translate("Pig"))
     self.UI.setAttribute("TnBTradeGoodsLabel", "text", translate("Trade Goods"))
     self.UI.setAttribute("PnDExpansionLabel", "text", "3 . " .. translate("The Princess & The Dragon"))
-    self.UI.setAttribute("PnDTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("PnDTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("PnDDragonLabel", "text", translate("Dragon"))
     self.UI.setAttribute("PnDFairyLabel", "text", translate("Fairy"))
     self.UI.setAttribute("PnDPortalsLabel", "text", translate("Portals"))
     self.UI.setAttribute("PnDPrincessLabel", "text", translate("Princess"))
     self.UI.setAttribute("TowerExpansionLabel", "text", "4. " .. translate("The Tower"))
-    self.UI.setAttribute("TowerTilesLabel", "text", translate("BUTTON_LABEL_TILES"))
+    self.UI.setAttribute("TowerTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("TowerTowersLabel", "text", translate("Towers"))
     self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
     self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
 
-    button_parameters.click_function = 'onBaseFollowerDecr'
+    button_parameters.click_function = 'onBaseFollowersDecr'
     button_parameters.label = '-'
     button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_1}
     self.createButton( button_parameters )
-    btnIDs['btnBaseFollowerDecr'] = index
+    btnIDs['btnBaseFollowersDecr'] = index
     index = index + 1
 
     button_parameters.click_function = 'onBaseFollowerToggle'
@@ -62,49 +61,49 @@ function initializeControlPanelPage()
     btnIDs['btnBaseFollowerToggle'] = index
     index = index + 1
 
-    button_parameters.click_function = 'onBaseFollowerIncr'
+    button_parameters.click_function = 'onBaseFollowersIncr'
     button_parameters.label = '+'
     button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 - 1, BUTTON_HEIGHT, ROW_1}
     self.createButton( button_parameters )
-    btnIDs['btnBaseFollowerIncr'] = index
+    btnIDs['btnBaseFollowersIncr'] = index
     index = index + 1
 
 -- Base game
-    initializeCheckbox(COLUMN_2, ROW_1, 'BaseTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 71}}))
+    initializeCheckbox(COLUMN_2, ROW_1, 'BaseTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 71}}))
 
 --Inns & Cathedrals
-    initializeAllCheckbox(COLUMN_1, ROW_2, 'InCAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2, ROW_2, 'InCTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 18}}))
+    initializeAllCheckbox(COLUMN_1, ROW_2, 'InCAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_2, 'InCTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 18}}))
     initializeCheckbox(COLUMN_3, ROW_2, 'InCBigFollower', translate("TOOLTIP_BIG_FOLLOWER"))
     initializeCheckbox(COLUMN_4, ROW_2, 'InCInns', translate("TOOLTIP_INN"))
     initializeCheckbox(COLUMN_5, ROW_2, 'InCCathedrals', translate("TOOLTIP_CATHEDRAL"))
 
 --Traders & Builders
-    initializeAllCheckbox(COLUMN_1, ROW_3, 'TnBAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2, ROW_3, 'TnBTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 24}}))
+    initializeAllCheckbox(COLUMN_1, ROW_3, 'TnBAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_3, 'TnBTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 24}}))
     initializeCheckbox(COLUMN_3, ROW_3, 'TnBBuilder', translate("TOOLTIP_BUILDER"))
     initializeCheckbox(COLUMN_4, ROW_3, 'TnBPig', translate("TOOLTIP_PIG"))
     initializeCheckbox(COLUMN_5, ROW_3, 'TnBTradeGoods', translate("TOOLTIP_TRADE_GOODS"))
 
 --The Princess & The Dragon
-    initializeAllCheckbox(COLUMN_1, ROW_4, 'PnDAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2, ROW_4, 'PnDTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 30}}))
+    initializeAllCheckbox(COLUMN_1, ROW_4, 'PnDAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_4, 'PnDTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 30}}))
     initializeCheckbox(COLUMN_3, ROW_4, 'PnDDragon', translate("TOOLTIP_DRAGON"))
     initializeCheckbox(COLUMN_4, ROW_4, 'PnDFairy', translate("TOOLTIP_FAIRY"))
     initializeCheckbox(COLUMN_5, ROW_4, 'PnDMagicPortal', translate("TOOLTIP_MAGIC_PORTAL"))
     initializeCheckbox(COLUMN_6, ROW_4, 'PnDPrincess', translate("TOOLTIP_PRINCESS"))
 
 --The Tower
-    initializeAllCheckbox(COLUMN_1, ROW_5, 'TowerAll', translate("BUTTON_TOOLTIP_ENABLE_ALL"))
-    initializeCheckbox(COLUMN_2, ROW_5, 'TowerTiles', translate({"BUTTON_TOOLTIP_NUM_TILES", {'{n1}', 18}}))
+    initializeAllCheckbox(COLUMN_1, ROW_5, 'TowerAll', translate("TOOLTIP_ENABLE_ALL"))
+    initializeCheckbox(COLUMN_2, ROW_5, 'TowerTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 18}}))
 
-    button_parameters.click_function = 'onTowerDecr'
+    button_parameters.click_function = 'onTowersDecr'
     button_parameters.label = '-'
     button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_5}
     self.createButton( button_parameters )
-    btnIDs['btnTowerDecr'] = index
+    btnIDs['btnTowersDecr'] = index
     index = index + 1
 
     button_parameters.click_function = 'onTowerTowersToggle'
@@ -118,12 +117,12 @@ function initializeControlPanelPage()
     btnIDs['btnTowerTowersToggle'] = index
     index = index + 1
 
-    button_parameters.click_function = 'onTowerIncr'
+    button_parameters.click_function = 'onTowersIncr'
     button_parameters.label = '+'
     button_parameters.tooltip = ''
     button_parameters.position = {COLUMN_3 - 1, BUTTON_HEIGHT, ROW_5}
     self.createButton( button_parameters )
-    btnIDs['btnTowerIncr'] = index
+    btnIDs['btnTowersIncr'] = index
     index = index + 1
 end
 
@@ -221,7 +220,7 @@ function onBaseTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'BaseTiles', 'btnBaseTilesToggle')
 end
 
-function onBaseFollowerDecr(Object, sPlayer)
+function onBaseFollowersDecr(Object, sPlayer)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local numFollowers = Global.call('getControlPanelState', {key = 'BaseNumFollowers'})
     numFollowers = numFollowers - 1
@@ -233,7 +232,7 @@ function onBaseFollowerDecr(Object, sPlayer)
     self.editButton({index = btnIDs['btnBaseFollowerToggle'], label = '' .. numFollowers})
 end
 
-function onBaseFollowerIncr(Object, sPlayer)
+function onBaseFollowersIncr(Object, sPlayer)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local numFollowers = Global.call('getControlPanelState', {key = 'BaseNumFollowers'})
     numFollowers = numFollowers + 1
@@ -330,7 +329,7 @@ function onTowerTilesToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'TowerTiles', 'btnTowerTilesToggle')
 end
 
-function onTowerDecr(Object, sPlayer)
+function onTowersDecr(Object, sPlayer)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local numTowers = Global.call('getControlPanelState', {key = 'TowerNumTowers'})
     numTowers = numTowers - 1
@@ -342,7 +341,7 @@ function onTowerDecr(Object, sPlayer)
     self.editButton({index = btnIDs['btnTowerTowersToggle'], label = '' .. numTowers})
 end
 
-function onTowerIncr(Object, sPlayer)
+function onTowersIncr(Object, sPlayer)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     local numTowers = Global.call('getControlPanelState', {key = 'TowerNumTowers'})
     numTowers = numTowers + 1
