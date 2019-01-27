@@ -26,7 +26,7 @@ end
 function initializeControlPanelPage()
     self.UI.setAttribute("WoFExpansionLabel", "text", translate("Wheel of Fortune"))
     self.UI.setAttribute("WoFTilesLabel", "text", translate("LABEL_TILES"))
-    self.UI.setAttribute("StartingTileWoFLabel", "text", translate("LABEL_WHEEL"))
+    self.UI.setAttribute("StartingTileWoFLabel", "text", translate("LABEL_WHEEL_SHORT_NAME"))
     self.UI.setAttribute("WoFCrownsLabel", "text", translate("Crown"))
     self.UI.setAttribute("WoFFortuneLabel", "text", translate("Fortune"))
     self.UI.setAttribute("WoFTaxesLabel", "text", translate("Taxes"))

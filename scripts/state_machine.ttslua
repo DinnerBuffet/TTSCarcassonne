@@ -291,8 +291,7 @@ function stateHandler()
         local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
         for _, obj in ipairs(objs) do
             if obj.getVar('owner') == activePlayers[currentPlayer] and table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
-                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
                 if tileGridOccupied(xIndex, zIndex) then
                     hasFairyLocation = true
                 end

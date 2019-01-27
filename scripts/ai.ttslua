@@ -403,21 +403,7 @@ function AICalculateLocationOdds(openingCoord, xIndex, zIndex, addedTileXIndex, 
                                     for _, nestedPosition in ipairs(link) do
                                         visitedFeatures[nestedPosition] = true
                                         if nestedPosition < 13 then
-                                            local connectedTilePosition
-                                            local connectedX, connectedZ
-                                            if nestedPosition < 5 then
-                                                local direction = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                                local sideDirection = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                                connectedTilePosition = (3 + nestedPosition + validTileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
-                                            else
-                                                local direction = (3 + nestedPosition + (validTileRotation * 2)) % 8 + 5
-                                                local sideDirection = math.floor(((3 + nestedPosition + (validTileRotation * 2)) % 8 + 5 - 3) / 2)
-                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                                connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
-                                            end
+                                            local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, validTileRotation)
                                             if nameOfFeature ~= 'Abbey' then
                                                 if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
                                                     table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedTilePosition])
@@ -509,21 +495,7 @@ function AIRemoveTileOdds(openingCoord, xIndex, zIndex, removedTile_GUID, connec
                                     for _, nestedPosition in ipairs(link) do
                                         visitedFeatures[nestedPosition] = true
                                         if nestedPosition < 13 then
-                                            local connectedTilePosition
-                                            local connectedX, connectedZ
-                                            if nestedPosition < 5 then
-                                                local direction = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                                local sideDirection = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                                connectedTilePosition = (3 + nestedPosition + validTileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
-                                            else
-                                                local direction = (3 + nestedPosition + (validTileRotation * 2)) % 8 + 5
-                                                local sideDirection = math.floor(((3 + nestedPosition + (validTileRotation * 2)) % 8 + 5 - 3) / 2)
-                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                                connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
-                                            end
+                                            local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, validTileRotation)
                                             if nameOfFeature ~= 'Abbey' then
                                                 if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
                                                     table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedTilePosition])
@@ -714,21 +686,7 @@ function AIAddTileOdds(openingCoord, xIndex, zIndex, addedTile_GUID, connectionO
                                     for _, nestedPosition in ipairs(link) do
                                         visitedFeatures[nestedPosition] = true
                                         if nestedPosition < 13 then
-                                            local connectedTilePosition
-                                            local connectedX, connectedZ
-                                            if nestedPosition < 5 then
-                                                local direction = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                                local sideDirection = (3 + nestedPosition + validTileRotation) % 4 + 1
-                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                                connectedTilePosition = (3 + nestedPosition + validTileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
-                                            else
-                                                local direction = (3 + nestedPosition + (validTileRotation * 2)) % 8 + 5
-                                                local sideDirection = math.floor(((3 + nestedPosition + (validTileRotation * 2)) % 8 + 5 - 3) / 2)
-                                                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                                connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
-                                            end
+                                            local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, validTileRotation)
                                             if nameOfFeature ~= 'Abbey' then
                                                 if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
                                                     table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedTilePosition])
@@ -1046,8 +1004,7 @@ function AICalculateBaselineScoresEasy()
         end
 
         for _, follower in ipairs(figureList.followers) do
-            local followerXIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local followerZIndex = math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
             table.insert(joinedActiveFigures[featureNum].followers, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner'), tile_guid=tileGrid[followerXIndex][followerZIndex].tile_guid})
         end
         for _, figure in ipairs(figureList.specialFigures) do
@@ -1108,8 +1065,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
             joinedActiveFigures[featureNum].specialFigures = {}
         end
         for _, follower in ipairs(figureList.followers) do
-            local followerXIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local followerZIndex = math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
             table.insert(joinedActiveFigures[featureNum].followers, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner'), tile_guid=tileGrid[followerXIndex][followerZIndex].tile_guid})
         end
         for _, figure in ipairs(figureList.specialFigures) do
@@ -1147,28 +1103,21 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
 
     local specialFeatures = newTile.getTable('specialFeatures')
     if specialFeatures ~= nil then
-        for i, feature in ipairs(specialFeatures) do
+        for specialFeatureNum, feature in ipairs(specialFeatures) do
             if feature[3] ~= nil then
-                table.insert(positionsToVisit, i+12)
+                table.insert(positionsToVisit, specialFeatureNum+12)
             end
         end
     end
-    for i=1, 12 do
-        table.insert(positionsToVisit, i)
+    for tilePosition=1, 12 do
+        table.insert(positionsToVisit, tilePosition)
     end
 
-    for _, i in ipairs(positionsToVisit) do
-        local direction
-        if i < 5 then
-            direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
-        elseif i < 13 then
-            direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-        else
-            direction = i
-        end
-        local featureNum = tempFeatureMap[direction]
-        if featureNum == nil and i < 5 and tempFeatureMap[(direction * 2) + 3] ~= nil and tempFeatureMap[(direction * 2) + 3] == tempFeatureMap[(direction * 2) + 4] then
-           featureNum = tempFeatureMap[(direction * 2) + 3]
+    for _, tilePosition in ipairs(positionsToVisit) do
+        local featureMapPosition = tilePositionToFeatureMapPosition(tilePosition, tileRotation)
+        local featureNum = tempFeatureMap[featureMapPosition]
+        if featureNum == nil and featureMapPosition < 5 and tempFeatureMap[(featureMapPosition * 2) + 3] ~= nil and tempFeatureMap[(featureMapPosition * 2) + 3] == tempFeatureMap[(featureMapPosition * 2) + 4] then
+           featureNum = tempFeatureMap[(featureMapPosition * 2) + 3]
         end
         if featureNum ~= nil and tempJoinedFeature[featureNum] ~= nil then
             featureNum = tempJoinedFeature[featureNum]
@@ -1217,11 +1166,11 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                 end
                 if not fieldHasBarn and (baselineFollowerCounts[activePlayers[currentPlayer]] > 0 or baselineFigures[activePlayers[currentPlayer]]['Big Follower']) and (numRemainingMoves + 1 <= spareFollowerCounts[activePlayers[currentPlayer]] or (featureScore + spareFollowerAdjustment > FOLLOWER_SCORE_THRESHOLD or featureOpenings == 0)) then
                     if score == highestScore then
-                        --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                        --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                         numIdenticalScore = numIdenticalScore + 1
                     end
                     if score > highestScore or (math.random(numIdenticalScore) == 1 and score == highestScore) then -- this is to lessen the bias towards one side of the play area
-                        --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                        --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                         --debugMessage(1, "moveScore:".. moveScore .. " spareFollowerAdjustment:" .. spareFollowerAdjustment .. " openFeaturePenalty:" .. featureOpenings * OPEN_FEATURE_PENALTY .. " featureScore:" .. featureScore)
                         if score > highestScore then
                             numIdenticalScore = 1
@@ -1230,7 +1179,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = i
+                        highestScorePos = tilePosition
                         if baselineFigures[activePlayers[currentPlayer]]['Big Follower'] and (baselineFollowerCounts[activePlayers[currentPlayer]] == 0 or nameOfFeature == 'City') then
                             highestScoreFigure = 'Big Follower'
                         else
@@ -1245,11 +1194,11 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
             elseif playerHasFollower and nameOfFeature == 'Field' and baselineFigures[activePlayers[currentPlayer]]['Pig'] then
                 score = featureScore / 3
                 if score == highestScore then
-                    --debugMessage(1, "found identical pig score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                    --debugMessage(1, "found identical pig score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                     numIdenticalScore = numIdenticalScore + 1
                 end
                 if score > highestScore or (math.random(numIdenticalScore) == 1 and score == highestScore) then -- this is to lessen the bias towards one side of the play area
-                    --debugMessage(1, "found new best pig score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                    --debugMessage(1, "found new best pig score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                     if score > highestScore then
                         numIdenticalScore = 1
                     end
@@ -1257,18 +1206,18 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = i
+                    highestScorePos = tilePosition
                     highestScoreFigure = 'Pig'
                     usedFeature = true
                 end
             elseif playerHasFollower and featureOpenings > 0 and (nameOfFeature == 'City' or nameOfFeature == 'Road') and baselineFigures[activePlayers[currentPlayer]]['Builder'] then
                 local builderScore = moveScore + 0.01 --give a small bonus so it is more likely to be used in tie situations
                 if builderScore == highestScore then
-                    --debugMessage(1, "found identical builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                    --debugMessage(1, "found identical builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                     numIdenticalScore = numIdenticalScore + 1
                 end
                 if builderScore > highestScore or (math.random(numIdenticalScore) == 1 and builderScore == highestScore) then -- this is to lessen the bias towards one side of the play area
-                    --debugMessage(1, "found new best builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                    --debugMessage(1, "found new best builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                     if builderScore > highestScore then
                         numIdenticalScore = 1
                     end
@@ -1276,7 +1225,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = i
+                    highestScorePos = tilePosition
                     highestScoreFigure = 'Builder'
                     usedFeature = true
                 end
@@ -1291,12 +1240,12 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                 if not hasShepherd then
                     local shepherdScore = moveScore + 2
                     if shepherdScore == highestScore then
-                        --debugMessage(1, "found identical shepherd score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                        --debugMessage(1, "found identical shepherd score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                         numIdenticalScore = numIdenticalScore + 1
                     end
                     --debugMessage(1, "shepherdScore at feature " .. featureNum .. ":" .. shepherdScore)
                     if shepherdScore > highestScore or (math.random(numIdenticalScore) == 1 and shepherdScore == highestScore) then -- this is to lessen the bias towards one side of the play area
-                        --debugMessage(1, "found new best shepherd score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                        --debugMessage(1, "found new best shepherd score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                         if shepherdScore > highestScore then
                             numIdenticalScore = 1
                         end
@@ -1304,7 +1253,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = i
+                        highestScorePos = tilePosition
                         highestScoreFigure = 'Shepherd'
                         usedFeature = true
                     end
@@ -1387,21 +1336,10 @@ function AICalculateActiveScoresEasy(newXIndex, newZIndex)
             end
         else
             local visitedFeatures = {}
-            for i=1, 12 do --roads and cities
-                local newX, newZ, newTilePosition
-                if i < 5 then
-                    local direction = (3 + i + TILE_STANDARD_ROTATION) % 4 + 1
-                    newX = newXIndex + SIDE_DELTA[direction].x
-                    newZ = newZIndex + SIDE_DELTA[direction].z
-                    newTilePosition = (3 + i + TILE_180_ROTATION) % 4 + 1
-                else
-                    local direction = (3 + i + (TILE_STANDARD_ROTATION * 2)) % 8 + 5
-                    newX = newXIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].x
-                    newZ = newZIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].z
-                    newTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction) % 8 + 5
-                end
+            for position=1, 12 do --roads and cities
+                local newFeatureMapPosition, newX, newZ = getConnectingFeatureMapPosition(newXIndex, newZIndex, position, TILE_STANDARD_ROTATION)
                 if featureMap[newX] ~= nil and featureMap[newX][newZ] ~= nil then
-                    local featureNum = featureMap[newX][newZ][newTilePosition]
+                    local featureNum = getFeatureNumAt(newX, newZ, newFeatureMapPosition)
                     if not table.contains(visitedFeatures, featureNum) then
                         local feature = tempFeatureList[featureNum]
                         if feature == nil then feature = featureList[featureNum] end
@@ -1508,7 +1446,7 @@ function AICalculateActiveScoresEasy(newXIndex, newZIndex)
         -- local eligibleFollowers = fairyEligibleFollowers()
         -- for _, eligibleFollower in ipairs(eligibleFollowers) do
         --     if eligibleFollower == follower then
-        --         allGameMessage({"MESSAGE_FAIRY_SCORE_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
+        --         allGameMessage({"MESSAGE_SCORE_FAIRY_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
         --         scorePoints(eligibleFollower.owner, 'Fairy', 3)
         --     end
         -- end
@@ -1764,13 +1702,8 @@ function AICalculateFeatureScoreEasy(featureNum, figures)
         --                                 local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
         --                                 for _, object in ipairs(objs) do
         --                                     if table.contains(FOLLOWER_TYPES, object.figureName) then
-        --                                         local objectXIndex = math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-        --                                         local objectZIndex = math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+        --                                         local objectXIndex, objectZIndex, xPosition, zPosition = getFigureTileLocation(object)
         --                                         if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
-        --                                             local xPosition = (object.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-        --                                             local zPosition = (object.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-        --                                             xPosition = xPosition - objectXIndex
-        --                                             zPosition = zPosition - objectZIndex
         --                                             local closestFeature = findClosestFeature(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), rotation)
         --                                             if closestFeature == i + 12 then
         --                                                 object.setLock(false)
@@ -1828,8 +1761,7 @@ function AICalculateBaselineScores()
         end
 
         for _, follower in ipairs(figureList.followers) do
-            local followerXIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local followerZIndex = math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
             table.insert(joinedActiveFigures[featureNum].followers, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner'), tile_guid=tileGrid[followerXIndex][followerZIndex].tile_guid})
         end
         for _, figure in ipairs(figureList.specialFigures) do
@@ -1963,8 +1895,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
         end
 
         for _, follower in ipairs(figureList.followers) do
-            local followerXIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local followerZIndex = math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
             table.insert(joinedActiveFigures[featureNum].followers, {figureName=follower.getVar('figureName'), owner=follower.getVar('owner'), tile_guid=tileGrid[followerXIndex][followerZIndex].tile_guid})
         end
         for _, figure in ipairs(figureList.specialFigures) do
@@ -2017,18 +1948,11 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
         table.insert(positionsToVisit, i)
     end
 
-    for _, i in ipairs(positionsToVisit) do
-        local direction
-        if i < 5 then
-            direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
-        elseif i < 13 then
-            direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-        else
-            direction = i
-        end
-        local featureNum = tempFeatureMap[direction]
-        if featureNum == nil and i < 5 and tempFeatureMap[(direction * 2) + 3] ~= nil and tempFeatureMap[(direction * 2) + 3] == tempFeatureMap[(direction * 2) + 4] then
-           featureNum = tempFeatureMap[(direction * 2) + 3]
+    for _, tilePosition in ipairs(positionsToVisit) do
+        local featureMapPosition = tilePositionToFeatureMapPosition(tilePosition, tileRotation)
+        local featureNum = tempFeatureMap[featureMapPosition]
+        if featureNum == nil and tilePosition < 5 and tempFeatureMap[(featureMapPosition * 2) + 3] ~= nil and tempFeatureMap[(featureMapPosition * 2) + 3] == tempFeatureMap[(featureMapPosition * 2) + 4] then
+            featureNum = tempFeatureMap[(featureMapPosition * 2) + 3]
         end
         if featureNum ~= nil and tempJoinedFeature[featureNum] ~= nil then
             featureNum = tempJoinedFeature[featureNum]
@@ -2114,11 +2038,11 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                         end
                         debugMessage(1, "followerScore at feature " .. featureNum .. ":" .. followerScore)
                         if followerScore == highestScore then
-                            --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                            --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                             numIdenticalScore = numIdenticalScore + 1
                         end
                         if followerScore > highestScore or (math.random(numIdenticalScore) == 1 and followerScore == highestScore) then -- this is to lessen the bias towards one side of the play area
-                            --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                            --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. tilePosition)
                             --debugMessage(1, "moveScore:".. moveScore .. " spareFollowerAdjustment:" .. spareFollowerAdjustment .. " openFeaturePenalty:" .. featureOpenings * OPEN_FEATURE_PENALTY .. " featureScore:" .. featureScore)
                             if followerScore > highestScore then
                                 numIdenticalScore = 1
@@ -2127,7 +2051,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                             highestScoreX = xIndex
                             highestScoreZ = zIndex
                             highestScoreRot = tileRotation
-                            highestScorePos = i
+                            highestScorePos = featureMapPosition
                             highestScoreFigure = 'Follower'
                             usedFeature = true
                         end
@@ -2142,11 +2066,11 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                         end
                         debugMessage(1, "bigFollowerScore at feature " .. featureNum .. ":" .. followerScore)
                         if followerScore == highestScore then
-                            --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                            --debugMessage(1, "found identical meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. featureMapPosition)
                             numIdenticalScore = numIdenticalScore + 1
                         end
                         if followerScore > highestScore then
-                            --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                            --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. featureMapPosition)
                             --debugMessage(1, "moveScore:".. moveScore .. " spareFollowerAdjustment:" .. spareFollowerAdjustment .. " openFeaturePenalty:" .. featureOpenings * OPEN_FEATURE_PENALTY .. " featureScore:" .. featureScore)
                             if followerScore > highestScore then
                                 numIdenticalScore = 1
@@ -2155,7 +2079,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                             highestScoreX = xIndex
                             highestScoreZ = zIndex
                             highestScoreRot = tileRotation
-                            highestScorePos = i
+                            highestScorePos = featureMapPosition
                             highestScoreFigure = 'Big Follower'
                             usedFeature = true
                         end
@@ -2213,7 +2137,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                 local pigScore = AICalculateCurrentPlayerScoreBenefit()
                 debugMessage(1, "pigScore at feature " .. featureNum .. ":" .. pigScore)
                 if pigScore > highestScore then
-                    --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                    --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. featureMapPosition)
                     --debugMessage(1, "moveScore:".. moveScore .. " spareFollowerAdjustment:" .. spareFollowerAdjustment .. " openFeaturePenalty:" .. featureOpenings * OPEN_FEATURE_PENALTY .. " featureScore:" .. featureScore)
 
                     numIdenticalScore = 1
@@ -2221,7 +2145,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = i
+                    highestScorePos = featureMapPosition
                     highestScoreFigure = 'Pig'
                 end
                 table.remove(joinedActiveFigures[featureNum].specialFigures)
@@ -2236,12 +2160,12 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
 
                 --debugMessage(1, "considering builder with blockPenalty:" .. blockPenalty .. " blockPercentage:" .. featureBlockPercentages["" .. featureNum])
                 if builderScore == highestScore then
-                    --debugMessage(1, "found identical builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                    --debugMessage(1, "found identical builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. featureMapPosition)
                     numIdenticalScore = numIdenticalScore + 1
                 end
                 debugMessage(1, "builderScore at feature " .. featureNum .. ":" .. builderScore)
                 if builderScore > highestScore or (math.random(numIdenticalScore) == 1 and builderScore == highestScore) then -- this is to lessen the bias towards one side of the play area
-                    --debugMessage(1, "found new best builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                    --debugMessage(1, "found new best builder score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. featureMapPosition)
                     if builderScore > highestScore then
                         numIdenticalScore = 1
                     end
@@ -2249,7 +2173,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = i
+                    highestScorePos = featureMapPosition
                     highestScoreFigure = 'Builder'
                 end
                 --table.remove(joinedActiveFigures[featureNum].specialFigures)
@@ -2269,7 +2193,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     local shepherdScore = AICalculateCurrentPlayerScoreBenefit() + newShepherdValue
                     debugMessage(1, "shepherdScore at feature " .. featureNum .. ":" .. shepherdScore)
                     if shepherdScore > highestScore then
-                        --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. i)
+                        --debugMessage(1, "found new best meeple score: " .. score .. " at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation .. " pos:" .. featureMapPosition)
                         --debugMessage(1, "moveScore:".. moveScore .. " spareFollowerAdjustment:" .. spareFollowerAdjustment .. " openFeaturePenalty:" .. featureOpenings * OPEN_FEATURE_PENALTY .. " featureScore:" .. featureScore)
 
                         numIdenticalScore = 1
@@ -2277,7 +2201,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = i
+                        highestScorePos = featureMapPosition
                         highestScoreFigure = 'Shepherd'
                     end
                     table.remove(joinedActiveFigures[featureNum].specialFigures)
@@ -2385,21 +2309,10 @@ function AICalculateActiveScores(newXIndex, newZIndex, tileRotation, featureNum)
             end
         else
             local visitedFeatures = {}
-            for i=1, 12 do --roads and cities
-                local newX, newZ, newTilePosition
-                if i < 5 then
-                    local direction = (3 + i + TILE_STANDARD_ROTATION) % 4 + 1
-                    newX = newXIndex + SIDE_DELTA[direction].x
-                    newZ = newZIndex + SIDE_DELTA[direction].z
-                    newTilePosition = (3 + i + TILE_180_ROTATION) % 4 + 1
-                else
-                    local direction = (3 + i + (TILE_STANDARD_ROTATION * 2)) % 8 + 5
-                    newX = newXIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].x
-                    newZ = newZIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].z
-                    newTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction) % 8 + 5
-                end
+            for position=1, 12 do --roads and cities
+                local newFeatureMapPosition, newX, newZ = getConnectingFeatureMapPosition(newXIndex, newZIndex, position, TILE_STANDARD_ROTATION)
                 if featureMap[newX] ~= nil and featureMap[newX][newZ] ~= nil then
-                    local featureNum = featureMap[newX][newZ][newTilePosition]
+                    local featureNum = getFeatureNumAt(newX, newZ, newFeatureMapPosition)
                     if not table.contains(visitedFeatures, featureNum) then
                         local feature = tempFeatureList[featureNum]
                         if feature == nil then feature = featureList[featureNum] end
@@ -2802,7 +2715,7 @@ function AICalculateFeatureScore(blockPercentage, featureNums, nameOfFeature, sp
     -- local eligibleFollowers = fairyEligibleFollowers()
     -- for _, eligibleFollower in ipairs(eligibleFollowers) do
     --     if eligibleFollower == follower then
-    --         allGameMessage({"MESSAGE_FAIRY_SCORE_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
+    --         allGameMessage({"MESSAGE_SCORE_FAIRY_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
     --         scorePoints(eligibleFollower.owner, 'Fairy', 3)
     --     end
     -- end
@@ -3023,13 +2936,8 @@ function AICalculateFeatureScore(blockPercentage, featureNums, nameOfFeature, sp
         --                                 local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
         --                                 for _, object in ipairs(objs) do
         --                                     if table.contains(FOLLOWER_TYPES, object.figureName) then
-        --                                         local objectXIndex = math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-        --                                         local objectZIndex = math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+        --                                         local objectXIndex, objectZIndex, xPosition, zPosition = getFigureTileLocation(follower)
         --                                         if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
-        --                                             local xPosition = (object.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-        --                                             local zPosition = (object.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-        --                                             xPosition = xPosition - objectXIndex
-        --                                             zPosition = zPosition - objectZIndex
         --                                             local closestFeature = findClosestFeature(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), rotation)
         --                                             if closestFeature == i + 12 then
         --                                                 object.setLock(false)
@@ -3134,12 +3042,12 @@ end
 
 function AIMoveFigureToLocation()
     local tile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
-    local nameOfFeature = getFeatureName(tile, highestScorePos)
-    local x, z = getFeatureLocation(highestScorePos, tile, tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation)
+    local featureNum = getFeatureNumAt(lastPlacedTileX, lastPlacedTileZ, highestScorePos)
+    local nameOfFeature = featureList[featureNum].nameOfFeature
+    local x, z = getFeatureLocation(highestScorePos, tile, TILE_STANDARD_ROTATION)
     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if highestScoreFigure == obj.getVar('figureName') and obj.getVar('owner') == activePlayers[currentPlayer] then
-            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
             if tileGrid[xIndex] == nil or tileGrid[xIndex][zIndex] == nil then
                 local pieceRotation = 0
                 if highestScorePos < 5 then pieceRotation = (highestScorePos - 1) * 90
@@ -3147,16 +3055,16 @@ function AIMoveFigureToLocation()
                 if table.contains(MEEPLE_TYPES, obj.getVar('figureName')) and nameOfFeature == 'Field' then
                     --lay the Follower down
                     if AI_ANIMATIONS_ENABLED then
-                        obj.setRotationSmooth({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        obj.setRotationSmooth({90, pieceRotation, 0})
                     else
-                        obj.setRotation({tile.getRotation().x + 90, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        obj.setRotation({90, pieceRotation, 0})
                     end
                 else
                     --align with the tile
                     if AI_ANIMATIONS_ENABLED then
-                        obj.setRotationSmooth({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        obj.setRotationSmooth({0, pieceRotation, 0})
                     else
-                        obj.setRotation({tile.getRotation().x, tile.getRotation().y + pieceRotation, tile.getRotation().z})
+                        obj.setRotation({0, pieceRotation, 0})
                     end
                 end
                 obj.interactable = false
@@ -3195,22 +3103,9 @@ function AIChooseShepherdAction()
     end
 
     local shepherd = getObjectFromGUID(shepherdAwaitingAction)
-
-    local xIndex = math.floor((shepherd.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-    local zIndex = math.floor((shepherd.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-    local xPosition = (shepherd.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-    local zPosition = (shepherd.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-    xPosition = xPosition - xIndex
-    zPosition = zPosition - zIndex
+    local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(shepherd)
     local closestPosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation, false)
-    local featureNum = featureMap[xIndex][zIndex][closestPosition]
-
-    if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
-        if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
-            featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
-        end
-    end
-
+    local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
     if featureList[featureNum].openings <= 1 then
         local params = {}
         params.shepherd = shepherd

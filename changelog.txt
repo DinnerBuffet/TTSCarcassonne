@@ -1,4 +1,11 @@
-﻿v1.21.1 - 20180109
+﻿v1.21.2 - 20180126
+[*]Fixed King and Robber Baron tokens not working (Thanks to Teff for reporting!)
+[*]Fixed wagon rotating incorrectly after being moved.
+[*]Added a different message for City of Carcassonne prompts at the end of the game, since the behavior is different than during the game.
+[*]Added better scoring messages for Trade Tokens and King + Robber Baron
+[*]Re-factored a lot of code to be cleaner and easier to read with much fewer copy-pasting. This should not have any difference in the game but it could have broken something.
+
+v1.21.1 - 20180109
 [*]Fixed hint markers not working when using the phantom with a magic portal (Thanks to TheLimeyDragon for reporting!)
 [*]Fixed label issues on the 6th page of the control panel (Thanks to TheLimeyDragon for reporting!)
 

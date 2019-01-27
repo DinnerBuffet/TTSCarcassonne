@@ -114,7 +114,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
     if features ~= nil then numSpecialFeatures = #features end
     local numFeatures = 12 + numSpecialFeatures
     for position=1, numFeatures do
-        local nameOfFeature = getFeatureName(tile, position)
+        local nameOfFeature = getTileFeatureName(tile, position)
         if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' or nameOfFeature == 'Abbey') and not (position > 12 and features[position-12][3] == nil) and not visitedFeatures[position] then
             local featurePositions = {}
             local linkedSpecialFeatures = {}
@@ -142,21 +142,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                             for _, nestedPosition in ipairs(link) do
                                 featurePositions[nestedPosition] = true
                                 if nestedPosition < 13 then
-                                    local connectedTilePosition
-                                    local connectedX, connectedZ
-                                    if nestedPosition < 5 then
-                                        local direction = (3 + nestedPosition + rotation) % 4 + 1
-                                        local sideDirection = (3 + nestedPosition + rotation) % 4 + 1
-                                        connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                        connectedTilePosition = (3 + nestedPosition + rotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
-                                    else
-                                        local direction = (3 + nestedPosition + (rotation * 2)) % 8 + 5
-                                        local sideDirection = math.floor(((3 + nestedPosition + (rotation * 2)) % 8 + 5 - 3) / 2)
-                                        connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                                        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-                                        connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
-                                    end
+                                    local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, rotation)
                                     if featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedTilePosition] ~= nil then
                                         if nameOfFeature ~= 'Abbey' then
                                             featureOpenings = featureOpenings - 1
@@ -237,10 +223,10 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
 
                 if #connectedFeatures > 1 then --this feature merged with more than one feature, so we'll need to do a bit more work to merge them
                     local visitedTiles = {}
-                    for i, connectedFeature in ipairs(connectedFeatures) do
+                    for i, connectedFeatureNum in ipairs(connectedFeatures) do
                         for linkType, originFeatures in pairs(linkedFeatures) do
-                            if linkedFeatures[linkType][connectedFeature] ~= nil then
-                                for destinationFeature, _ in pairs(linkedFeatures[linkType][connectedFeature]) do
+                            if linkedFeatures[linkType][connectedFeatureNum] ~= nil then
+                                for destinationFeature, _ in pairs(linkedFeatures[linkType][connectedFeatureNum]) do
                                     if destinationFeature ~= newFeatureIndex then --don't copy a reference to itself
                                         if linkedFeatures[linkType][newFeatureIndex] == nil then
                                             targetLinkedFeatures[linkType][newFeatureIndex] = {}
@@ -251,7 +237,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                             end
                             for originFeature, _ in pairs(originFeatures) do
                                 if originFeature ~= newFeatureIndex then --don't copy a reference to itself
-                                    if linkedFeatures[linkType][originFeature][connectedFeature] ~= nil then
+                                    if linkedFeatures[linkType][originFeature][connectedFeatureNum] ~= nil then
                                         if temp then
                                             --if a link needs to be changed then it needs to be copied from the original table if it exists
                                             if tempLinkedFeatures[linkType][originFeature] == nil then
@@ -276,7 +262,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                                 for nestedX, featureColumn in pairs(featureMap) do
                                     for nestedZ, tileFeatures in pairs(featureColumn) do
                                         for nestedFeature, feature in pairs(tileFeatures) do
-                                            if feature == connectedFeature then
+                                            if feature == connectedFeatureNum then
                                                 if visitedTiles[nestedX] == nil then visitedTiles[nestedX] = {} end
                                                 visitedTiles[nestedX][nestedZ] = true
                                                 break
@@ -286,24 +272,24 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                                 end
                             end
                         else --if 2 features have been merged to one, we should combine all special features, add the openings to each other, and recalculate numTiles
-                            for _, specialFeature in ipairs(featureList[connectedFeature].specialFeatures) do
+                            for _, specialFeature in ipairs(featureList[connectedFeatureNum].specialFeatures) do
                                 table.insert(targetFeatureList[newFeatureIndex].specialFeatures, specialFeature)
                             end
-                            targetFeatureList[newFeatureIndex].openings = targetFeatureList[newFeatureIndex].openings + featureList[connectedFeature].openings
-                            for openingCoord, _ in pairs(featureList[connectedFeature].openingCoords) do
+                            targetFeatureList[newFeatureIndex].openings = targetFeatureList[newFeatureIndex].openings + featureList[connectedFeatureNum].openings
+                            for openingCoord, _ in pairs(featureList[connectedFeatureNum].openingCoords) do
                                 if openingCoord ~= xIndex .. "-" .. zIndex then
                                     targetFeatureList[newFeatureIndex].openingCoords[openingCoord] = true
                                     invalidatedFeatureCoordinates[openingCoord] = true
                                 end
                             end
                             if temp then
-                                tempJoinedFeature[connectedFeature] = newFeatureIndex
+                                tempJoinedFeature[connectedFeatureNum] = newFeatureIndex
                             end
                             for nestedX, featureColumn in pairs(featureMap) do
                                 for nestedZ, tileFeatures in pairs(featureColumn) do
-                                    for nestedFeature, feature in pairs(tileFeatures) do
-                                        if feature == connectedFeature then
-                                            --print("feature " .. newFeatureIndex .. " on x:" .. nestedX .. " y:" .. nestedZ .. " assigned to position " .. nestedFeature)
+                                    for nestedFeature, featureNum in pairs(tileFeatures) do
+                                        if featureNum == connectedFeatureNum then
+                                            --print("featureNum " .. newFeatureIndex .. " on x:" .. nestedX .. " y:" .. nestedZ .. " assigned to position " .. nestedFeature)
                                             if not temp then
                                                 featureMap[nestedX][nestedZ][nestedFeature] = newFeatureIndex
                                             end
@@ -320,12 +306,12 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                                 end
                             end
                             if not temp then
-                                featureList[connectedFeature] = nil
+                                featureList[connectedFeatureNum] = nil
                                 for linkType, originFeatures in pairs(linkedFeatures) do
                                     for origin, _ in pairs(originFeatures) do
-                                        linkedFeatures[linkType][origin][connectedFeature] = nil
+                                        linkedFeatures[linkType][origin][connectedFeatureNum] = nil
                                     end
-                                    linkedFeatures[linkType][connectedFeature] = nil
+                                    linkedFeatures[linkType][connectedFeatureNum] = nil
                                 end
                             end
                         end
@@ -374,16 +360,10 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                     targetFeatureList[newFeatureIndex].numTiles = 0
                 end
             end
-            for nestedPosition, featurePosition in pairs(featurePositions) do
-                if nestedPosition < 5 then
-                    direction = (3 + nestedPosition + rotation + TILE_STANDARD_ROTATION) % 4 + 1
-                elseif nestedPosition < 13 then
-                    direction = (3 + nestedPosition + ((rotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                else
-                    direction = nestedPosition
-                end
-                targetFeatureMap[direction] = newFeatureIndex
-                visitedFeatures[nestedPosition] = true
+            for nestedTilePosition, featurePosition in pairs(featurePositions) do
+                local nestedFeatureMapPosition = tilePositionToFeatureMapPosition(nestedTilePosition, rotation)
+                targetFeatureMap[nestedFeatureMapPosition] = newFeatureIndex
+                visitedFeatures[nestedTilePosition] = true
             end
         end
     end
@@ -393,16 +373,10 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             if feature[2] ~= nil then
                 if feature[1] == 'City-Field' or feature[1] == 'Road Intersection' then
                     local nestedLinkedFeatures = {}
-                    for _, nestedPosition in ipairs(feature[2]) do
-                        if nestedPosition < 5 then
-                            direction = (3 + nestedPosition + rotation + TILE_STANDARD_ROTATION) % 4 + 1
-                        elseif nestedPosition < 13 then
-                            direction = (3 + nestedPosition + ((rotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                        else
-                            direction = nestedPosition
-                        end
+                    for _, nestedTilePosition in ipairs(feature[2]) do
+                        local nestedFeatureMapPosition = tilePositionToFeatureMapPosition(nestedTilePosition, rotation)
                         local featureNum
-                        featureNum = targetFeatureMap[direction]
+                        featureNum = targetFeatureMap[nestedFeatureMapPosition]
                         if not table.contains(nestedLinkedFeatures, featureNum) then
                             table.insert(nestedLinkedFeatures, featureNum)
                         end
@@ -475,15 +449,18 @@ function removeTile(xIndex, zIndex, removedTile)
     --    startingTile_GUID = nil
     --end
 
+    --the best way I could figure out to divide features that are split is to
+    --remove all features on the tile from the entire featureMap,
+    --then recursively re-add neighboring nil features
     for _, featureNum in pairs(featureMap[xIndex][zIndex]) do
         --remove features
         featureList[featureNum] = nil
         for nestedX, featureColumn in pairs(featureMap) do
             for nestedZ, tileFeatures in pairs(featureColumn) do
-                for nestedFeature, feature in pairs(tileFeatures) do
-                    if feature == featureNum then
+                for nestedFeaturePosition, nestedFeatureNum in pairs(tileFeatures) do
+                    if nestedFeatureNum == featureNum then
                         --remove from feature map
-                        featureMap[nestedX][nestedZ][nestedFeature] = nil
+                        featureMap[nestedX][nestedZ][nestedFeaturePosition] = nil
                     end
                 end
             end
@@ -505,24 +482,22 @@ function removeTile(xIndex, zIndex, removedTile)
         local tempLinkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
 
         for position=1, 12 do
-            local connectedTilePosition, featureMapPosition
-            local connectedX, connectedZ
-            local direction
+            local direction, sideDirection
             if position < 5 then
                 direction = (3 + position + TILE_STANDARD_ROTATION) % 4 + 1
-                local sideDirection = (3 + position + TILE_STANDARD_ROTATION) % 4 + 1
-                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+                sideDirection = direction
             else
                 direction = (3 + position + TILE_STANDARD_ROTATION) % 8 + 5
-                local sideDirection = math.floor(((3 + position + TILE_STANDARD_ROTATION) % 8 + 5 - 3) / 2)
-                connectedX = xIndex + SIDE_DELTA[sideDirection].x
-                connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+                sideDirection = math.floor((direction - 3) / 2)
             end
+
+            local connectedX = xIndex + SIDE_DELTA[sideDirection].x
+            local connectedZ = zIndex + SIDE_DELTA[sideDirection].z
 
             if tileGridOccupied(connectedX, connectedZ) then
                 local connectedTile = getObjectFromGUID(tileGrid[connectedX][connectedZ].tile_guid)
                 local connectedTileRotation = tileGrid[connectedX][connectedZ].rotation
+                local connectedTilePosition, featureMapPosition
 
                 if position < 5 then
                     connectedTilePosition = (3 + position + TILE_STANDARD_ROTATION - connectedTileRotation + TILE_180_ROTATION) % 4 + 1
@@ -532,7 +507,7 @@ function removeTile(xIndex, zIndex, removedTile)
                     featureMapPosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
                 end
 
-                local nameOfFeature = getFeatureName(connectedTile, connectedTilePosition)
+                local nameOfFeature = featureList[featureMap[connectedX][connectedZ][featureMapPosition]].nameOfFeature
                 if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River') and featureMap[connectedX][connectedZ][featureMapPosition] == nil then
                     --print(position .. ": checking x:" .. connectedX .. " z:" .. connectedZ .. " tilePosition:" .. connectedTilePosition .. " featureMapPosition:" .. featureMapPosition)
                     local openings = getFeatureComponents(connectedX, connectedZ, connectedTilePosition, 2, true, nameOfFeature == 'City')
@@ -563,27 +538,21 @@ function removeTile(xIndex, zIndex, removedTile)
                     tempLinkedFeatures['Road Intersection'][newFeatureIndex] = {}
                     for nestedXIndex, gridColumn in pairs(traversedFeaturePositions) do
                         for nestedZIndex, tileLocation in pairs(gridColumn) do
-                            for nestedPosition, traversedFeaturePosition in pairs(tileLocation) do
+                            for nestedTilePosition, traversedFeaturePosition in pairs(tileLocation) do
                                 local tile = getObjectFromGUID(tileGrid[nestedXIndex][nestedZIndex].tile_guid)
                                 local rotation = tileGrid[nestedXIndex][nestedZIndex].rotation
-                                --print("traversing " .. newFeatureIndex .. " to x: " .. nestedXIndex .. " z: " .. nestedZIndex .. " pos: " .. nestedPosition)
-                                if nestedPosition < 13 or tile.getTable('specialFeatures')[nestedPosition - 12][3] ~= nil then
-                                    if nestedPosition > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' then
-                                        local nestedDirection = nestedPosition
-                                        if nestedPosition < 5 then
-                                            nestedDirection = (3 + nestedPosition + rotation + TILE_STANDARD_ROTATION) % 4 + 1
-                                        elseif nestedPosition < 13 then
-                                            nestedDirection = (3 + nestedPosition + ((rotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                                        end
-
+                                --print("traversing " .. newFeatureIndex .. " to x: " .. nestedXIndex .. " z: " .. nestedZIndex .. " pos: " .. nestedTilePosition)
+                                if nestedTilePosition < 13 or tile.getTable('specialFeatures')[nestedTilePosition - 12][3] ~= nil then
+                                    if nestedTilePosition > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' then
+                                        local nestedFeatureMapPosition = tilePositionToFeatureMapPosition(nestedTilePosition, rotation)
                                         if traversedFeaturePosition == 1 then
-                                            --print("assigning " .. newFeatureIndex .. " to x: " .. nestedXIndex .. " z: " .. nestedZIndex .. " dir: " .. nestedDirection .. " pos: " .. nestedPosition)
-                                            featureMap[nestedXIndex][nestedZIndex][nestedDirection] = newFeatureIndex
+                                            --print("assigning " .. newFeatureIndex .. " to x: " .. nestedXIndex .. " z: " .. nestedZIndex .. " dir: " .. nestedFeatureMapPosition .. " pos: " .. nestedTilePosition)
+                                            featureMap[nestedXIndex][nestedZIndex][nestedFeatureMapPosition] = newFeatureIndex
                                         elseif traversedFeaturePosition == 2 then
                                             if nameOfFeature == 'Field' then
-                                                table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedDirection})
+                                                table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedFeatureMapPosition})
                                             elseif nameOfFeature == 'City' then
-                                                table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedDirection})
+                                                table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedFeatureMapPosition})
                                             end
                                         end
                                     end
@@ -593,26 +562,20 @@ function removeTile(xIndex, zIndex, removedTile)
                     end
                     for nestedXIndex, gridColumn in pairs(traversedGrid) do
                         for nestedZIndex, tileLocation in pairs(gridColumn) do
-                            for nestedPosition, traversedPosition in pairs(tileLocation) do
+                            for nestedTilePosition, traversedPosition in pairs(tileLocation) do
                                 local tile = getObjectFromGUID(tileGrid[nestedXIndex][nestedZIndex].tile_guid)
                                 local rotation = tileGrid[nestedXIndex][nestedZIndex].rotation
-                                if nestedPosition < 13 or tile.getTable('specialFeatures')[nestedPosition - 12][3] ~= nil then
-                                    if nestedPosition > 4 or getFeatureName(tile, nestedPosition) == 'Road' or getFeatureName(tile, nestedPosition) == 'River' then
-                                        local nestedDirection = nestedPosition
-                                        if nestedPosition < 5 then
-                                            nestedDirection = (3 + nestedPosition + rotation + TILE_STANDARD_ROTATION) % 4 + 1
-                                        elseif nestedPosition < 13 then
-                                            nestedDirection = (3 + nestedPosition + ((rotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                                        end
-
-                                        --print("traversed x: " .. nestedXIndex .. " z: " .. nestedZIndex .. " dir: " .. nestedDirection .. " pos: " .. nestedPosition)
-                                        if traversedFeaturePositions[nestedXIndex] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex][nestedPosition] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex][nestedPosition] == 2 then
-                                            if getFeatureName(tile, nestedPosition) == 'Field' then
-                                                --table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedDirection})
+                                if nestedTilePosition < 13 or tile.getTable('specialFeatures')[nestedTilePosition - 12][3] ~= nil then
+                                    if nestedTilePosition > 4 or getFeatureName(tile, nestedTilePosition) == 'Road' or getFeatureName(tile, nestedTilePosition) == 'River' then
+                                        local nestedFeatureMapPosition = tilePositionToFeatureMapPosition(nestedTilePosition, rotation)
+                                        --print("traversed x: " .. nestedXIndex .. " z: " .. nestedZIndex .. " dir: " .. nestedFeatureMapPosition .. " pos: " .. nestedTilePosition)
+                                        if traversedFeaturePositions[nestedXIndex] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex][nestedTilePosition] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex][nestedTilePosition] == 2 then
+                                            if featureList[featureMap[nestedXIndex][nestedZIndex][nestedTilePosition]].nameOfFeature == 'Field' then
+                                                --table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedFeatureMapPosition})
                                             elseif nameOfFeature == 'Field' then
-                                                table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedDirection})
+                                                table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedFeatureMapPosition})
                                             else
-                                                table.insert(tempLinkedFeatures['Road Intersection'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedDirection})
+                                                table.insert(tempLinkedFeatures['Road Intersection'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedFeatureMapPosition})
                                                 --print("added to Road Intersection for: " .. newFeatureIndex)
                                             end
                                         end
@@ -629,28 +592,22 @@ function removeTile(xIndex, zIndex, removedTile)
         for featureType, linkedFeatureCategory in pairs(tempLinkedFeatures) do
             for newFeatureIndex, categoryLinkedFeatures in pairs(linkedFeatureCategory) do
                 for _, connectedFeatureDetails in ipairs(categoryLinkedFeatures) do
-                    local connectedFeature = featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][connectedFeatureDetails.position]
-
-                    if connectedFeature == nil and connectedFeatureDetails.position < 5 and featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3] ~= nil then
-                        if featureList[featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3]].nameOfFeature ~= 'River' then
-                            connectedFeature = featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3]
-                        end
-                    end
-                    if connectedFeature == nil then
+                    local connectedFeatureNum = getFeatureNumAt(connectedFeatureDetails.x, connectedFeatureDetails.z, connectedFeatureDetails.position)
+                    if connectedFeatureNum == nil then
                         allErrorMessage("no feature found at: x: " .. connectedFeatureDetails.x .. " z: " .. connectedFeatureDetails.z .. " pos: " .. connectedFeatureDetails.position)
                     else
-                        if connectedFeature ~= newFeatureIndex then
+                        if connectedFeatureNum ~= newFeatureIndex then
                             if linkedFeatures[featureType][newFeatureIndex] == nil then
                                 linkedFeatures[featureType][newFeatureIndex] = {}
                             end
                             --print("from location: x: " .. connectedFeatureDetails.x .. " z: " .. connectedFeatureDetails.z .. " pos: " .. connectedFeatureDetails.position)
-                            --print("adding " .. featureType .. " link from " .. newFeatureIndex .. " to " .. connectedFeature)
-                            linkedFeatures[featureType][newFeatureIndex][connectedFeature] = true
-                            if linkedFeatures[featureType][connectedFeature] == nil then
-                                linkedFeatures[featureType][connectedFeature] = {}
+                            --print("adding " .. featureType .. " link from " .. newFeatureIndex .. " to " .. connectedFeatureNum)
+                            linkedFeatures[featureType][newFeatureIndex][connectedFeatureNum] = true
+                            if linkedFeatures[featureType][connectedFeatureNum] == nil then
+                                linkedFeatures[featureType][connectedFeatureNum] = {}
                             end
-                            --print("adding " .. featureType .. " link from " .. connectedFeature .. " to " .. newFeatureIndex)
-                            linkedFeatures[featureType][connectedFeature][newFeatureIndex] = true
+                            --print("adding " .. featureType .. " link from " .. connectedFeatureNum .. " to " .. newFeatureIndex)
+                            linkedFeatures[featureType][connectedFeatureNum][newFeatureIndex] = true
                         end
                     end
                 end
@@ -691,6 +648,27 @@ function removeTile(xIndex, zIndex, removedTile)
         end
     end
     AITileRemoved(xIndex, zIndex, removedTile)
+end
+
+--Get the feature at the specified position
+--Also takes into account features that have no "middle" (ie. fields and cities)
+--Will return nil if there is still no feature at the given position (can happen if the feature is on the ignore list or both sides are not linked)
+function getFeatureNumAt(xIndex, zIndex, position)
+    local featureNum = featureMap[xIndex][zIndex][position]
+    if featureNum == nil and position < 5 and featureMap[xIndex][zIndex][(position * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(position * 2) + 3] == featureMap[xIndex][zIndex][(position * 2) + 4] then
+        featureNum = featureMap[xIndex][zIndex][(position * 2) + 3]
+    end
+    return featureNum
+end
+
+function tilePositionToFeatureMapPosition(tilePosition, tileRotation)
+    if tilePosition < 5 then
+        return (3 + tilePosition + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
+    elseif tilePosition < 13 then
+        return (3 + tilePosition + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
+    else
+        return tilePosition
+    end
 end
 
 --This function will completely shift all objects on the table, along with the stored metadata, by the given deltas

@@ -174,6 +174,8 @@ function onObjectDrop(player, droppedObject)
                         if not spamLock then
                             if droppedObject.getVar('figureName') == 'Tower' then
                                 playerErrorMessage({"MESSAGE_TOWER_WRONG_OWNER"}, player)
+                            elseif droppedObject.getVar('figureName') == 'Bridge' then
+                                playerErrorMessage({"MESSAGE_BRIDGE_WRONG_OWNER"}, player)
                             else
                                 playerErrorMessage({"MESSAGE_FIGURE_WRONG_OWNER"}, player)
                             end
@@ -297,14 +299,14 @@ function onObjectPickUp(player, pickedUpObject)
                 if pickedUpObject.getVar('figureName') == 'Tower' then
                     startLuaCoroutine(self, 'showTowerMarkers')
                 else
-                    startLuaCoroutine(self, 'showFeatureMarkers')
+                    startLuaCoroutine(self, 'showFigureMarkers')
                 end
             elseif pickedUpObject.getVar('figureName') == 'Wagon' and turnState == 'replace finished wagons' then
                 showWagonFeatureMarkers(pickedUpObject)
             elseif turnState == 'awaiting flier decision' then
                 showFlierFeatureMarkers(pickedUpObject)
             elseif turnState == 'awaiting phantom decision' then
-                startLuaCoroutine(self, 'showFeatureMarkers')
+                startLuaCoroutine(self, 'showFigureMarkers')
             elseif turnState == 'prompt moving to carcassonne' then
                 showToCoCFeatureMarkers(pickedUpObject)
             elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then

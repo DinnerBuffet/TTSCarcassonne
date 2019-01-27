@@ -134,14 +134,18 @@ LOCALIZED_STRINGS = {
 
     --Control Panel pg. 3
 
+        --labels
+
+    ["LABEL_ROBBER_BARON_SHORT_NAME"] = "Robber", -- This is the shortened form of "Robber Baron", since it doesn't fit on the control panel
+
       --tooltips
 
     ["TOOLTIP_ABBEY"] = "The Abbey is a special tile that can be used instead of drawing a random tile from the stack. The abbey can only be placed if it is surrounded on all 4 sides by tiles. The abbey completes all features (road, city, field) that it connects to. A follower can be placed in the abbey as a cloister (8 surrounding tiles finish the feature).",
     ["TOOLTIP_MAYOR"] = "Follower - The Mayor can only be placed on cities. It's strength is the equivalent of 1 normal follower per Pennant in the city.",
     ["TOOLTIP_WAGON"] = "Follower - The Wagon can only be placed on cities, roads, and cloisters. It is scored exactly the same as a normal follower. Once scored, though, the wagon can be moved to any connected feature. A feature is considered connected if it DIRECTLY touches a road. Please see the rules for more details.",
     ["TOOLTIP_BARN"] = "Special Figure - The Barn can only be placed in the corner of 4 tiles, where the corner contains only fields. Any followers in this field are immediately scored and removed. Any followers in fields that are later connected to this field are also removed, but for fewer points. At the end of the game, the barn scores 4 points per completed city in the field. Please see the rules for more details.",
-    ["TOOLTIP_KING"] = "The King token is awarded to the player that completes the largest city (most tiles). The token is then moved if anyone completes an even bigger city. At the end of the game, the player with the token is awarded 1 point per completed city (anywhere in play).",
-    ["TOOLTIP_ROBBER_BARON"] = "The Robber Baron token is awarded to the player that completes the longest road (most tiles). The token is then moved if anyone completes an even longer road. At the end of the game, the player with the token is awarded 1 point per completed road (anywhere in play).",
+    ["TOOLTIP_KING"] = "The King is awarded to the player that completes the largest city (most tiles). The token is then moved if anyone completes an even bigger city. At the end of the game, the player with the token is awarded 1 point per completed city (anywhere in play).",
+    ["TOOLTIP_ROBBER_BARON"] = "The Robber Baron is awarded to the player that completes the longest road (most tiles). The token is then moved if anyone completes an even longer road. At the end of the game, the player with the token is awarded 1 point per completed road (anywhere in play).",
     ["TOOLTIP_SHRINE"] = "6 shrine tiles. Claiming a shrine next to a cloister will challenge that cloister, or vice verca. The first to be completed between the two will score points, while the other will not.",
     ["TOOLTIP_SHEPHERD"] = "Special Figure - The Shepherd can be placed in a field. When placed, the player will draw a random sheep token and add it to the field. Each time the shepherd owner adds a tile to the field, they may draw another token, or herd them for 1 point per sheep. If the player draws a wolf, then all sheep are lost and the shepherd is returned to the supply. See rules for more details.",
     ["TOOLTIP_HILL"] = "The Hill is a feature on some Hills and Sheep tiles. When a player places a follower on any feature on that tile (not the hill itself), that player will break any scoring ties in their favor. See rules for more details. Disabling this option will not prevent tiles containing this feature from being included (it will also not prevent a tile from being 'buried' underneath). Disabling this option will also not prevent tiles containing this feature from being included.",
@@ -156,7 +160,7 @@ LOCALIZED_STRINGS = {
       --labels
 
     ["LABEL_MINI_EXPANSIONS"] = "Mini Expansions",
-    ["LABEL_WHEEL"] = "Wheel", -- This is the shortened form of "Wheel of Fortune", since it doesn't fit on the control panel
+    ["LABEL_WHEEL_SHORT_NAME"] = "Wheel", -- This is the shortened form of "Wheel of Fortune", since it doesn't fit on the control panel
     ["LABEL_WHEEL_TILES"] = "Wheel Tiles",
 
       --tooltips
@@ -256,8 +260,8 @@ LOCALIZED_STRINGS = {
     --{c1} is the description of the figure (ie. Red). {f1} is the name of the figure. ie. "Red Follower has been eaten..."
     ["MESSAGE_DRAGON_FIGURE_EAT_MESSAGE"] = "{c1} {f1} has been eaten by the dragon! Om nom nom!",
     ["MESSAGE_DRAGON_COC_PROTECTION"] = "{c1} {f1} is protected from the dragon in the City of Carcassonne.",
-    ["MESSAGE_ROBBER_BARON_AWARD"] = "{c1} has been awarded the Robber Baron token for completing the longest road ({n1} tiles).",
-    ["MESSAGE_KING_AWARD"] = "{c1} has been awarded the King token for completing the biggest city ({n1}tiles)",
+    ["MESSAGE_ROBBER_BARON_AWARD"] = "{c1} has been awarded the Robber Baron for completing the longest road ({n1} tiles).",
+    ["MESSAGE_KING_AWARD"] = "{c1} has been awarded the King for completing the biggest city ({n1} tiles)",
     ["MESSAGE_TRADE_TOKEN_AWARD"] = "{c1} has been awarded a {s1} for completing the city.",
     ["MESSAGE_PRINCESS_SEDUCTION_WAGON"] = "{c1} {f1} has been seduced by the princess! Well not the wagon but the wagon crew... all of them... wow. Let's move on and forget this.",
     ["MESSAGE_PRINCESS_SEDUCTION"] = "{c1} {f1} has been seduced by the princess! bow chicka wow wow~",
@@ -271,22 +275,24 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_DEPENDENT_FIGURE_REMOVED"] = "{c1} no longer has a follower for their {f1} and must be removed.",
     ["MESSAGE_SHEPHERD_PROMPT"] = "{c1} added to their Shepherd's field and has an opportunity to expand their flock.",
     ["MESSAGE_SHEPHERD_FIELD_FULL"] = "No more room on field! Placing sheep on shepherd.",
-    ["MESSAGE_SHEPHERD_SCORE"] = "{c1}'s Shepherd scores {n1} points for {n1} sheep.",
+    ["MESSAGE_SCORE_SHEPHERD"] = "{c1}'s Shepherd scores {n1} points for {n1} sheep.",
     ["MESSAGE_SHEPHERD_WOLF"] = "{c1}'s Shepherd loses all of its sheep to a wolf. No points scored.",
     ["MESSAGE_FLIER_LANDED_ON_DRAGON"] = "The follower flew directly into the dragon's mouth! The dragon thanks you for the delicious aerial food delivery.",
     ["MESSAGE_FLIER_NO_DESTINATION"] = "The destination tile has no valid incomplete features that this follower can land on. Returning follower.",
     ["MESSAGE_FLIER_NO_TILE"] = "No tile exists at flier destination. Returning follower.",
-    ["MESSAGE_COC_FROM_CITY_PROMPT"] = "{c1} has followers in the City of Carcassonne that can be moved to a completed feature.",
+    ["MESSAGE_COC_FROM_CITY_PROMPT"] = "{c1} has a follower in the City of Carcassonne that can be moved to a completed feature.",
+    ["MESSAGE_COC_FROM_CITY_GAMEOVER_PROMPT"] = "{c1} has a follower in the City of Carcassonne that can be moved to an incomplete feature.",
     ["MESSAGE_SHRINE_LOSE"] = "{c1} {f1} has lost the Cloister/Shrine challenge.",
-    ["MESSAGE_SCORE"] = "{c1} scores {n1} points on {f1}",
-    ["MESSAGE_MAYOR_NO_POINTS"] = "{c1} scores 0 points on {f1}. A mayor can only score points if the city contains a Pennant!",
-    ["MESSAGE_FAIRY_SCORE_FINISH"] = "{c1} {f1} scores 3 points for being next to the fairy when scoring a feature.",
-    ["MESSAGE_TRADE_TOKEN_SCORE"] = "{c1} scores 10 points on {s1}s",
-    ["MESSAGE_GOLD_MINES_SCORE"] = "{c1} scores {n1} points on {n2} gold bars ({n3} points each).",
+    ["MESSAGE_SCORE"] = "{c1} scores {n1} points on {f1}.",
+    ["MESSAGE_SCORE_TRADE_TOKENS"] = "{c1} scores {n1} points for possessing the most {f1}s.",
+    ["MESSAGE_SCORE_KING_OR_ROBBER_BARON"] = "{c1} scores {n1} points for possessing the {f1}.",
+    ["MESSAGE_SCORE_MAYOR_NO_POINTS"] = "{c1} scores 0 points on {f1}. A mayor can only score points if the city contains a Pennant!",
+    ["MESSAGE_SCORE_FAIRY_FINISH"] = "{c1} {f1} scores 3 points for being next to the fairy when scoring a feature.",
+    ["MESSAGE_SCORE_GOLD_MINES"] = "{c1} scores {n1} points on {n2} gold bars ({n3} points each).",
     ["MESSAGE_GAME_OVER"] = "Game over.",
     ["MESSAGE_GAME_OVER_PROMOTE"] = "If you enjoyed the mod, please give it a like on the workshop. If you encountered any bugs, please upload a save file and describe it in the workshop comments.",
     ["MESSAGE_FAIRY_WARNING_NO_TILESTACK"] = "WARNING: No tile stack found. No points awarded for fairy. If you just placed the last tile, you can ignore this message.",
-    ["MESSAGE_FAIRY_SCORE_IDLE"] = "{c1} scores 1 point for being next to the fairy on their turn.",
+    ["MESSAGE_SCORE_FAIRY_IDLE"] = "{c1} scores 1 point for being next to the fairy on their turn.",
     ["MESSAGE_GOLD_MINES_GOLD_AWARDED"] = "{c1} was awarded a gold bar for having control over a finished feature.",
     ["MESSAGE_GOLD_MINES_TAKE_GOLD_PROMPT"] = "{c1} may choose a gold bar for having control over a finished feature.",
     ["MESSAGE_WAGON_PROMPT"] = "{c1}'s wagon has finished and may now be placed back on a connected feature.",
@@ -299,8 +305,8 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_HILL_WARNING_NO_TILESTACK"] = "Warning: Hill drawn but draw pile not found. This could be because the draw pile has only 1 tile left or none. If there is 1 tile left, it must be manually placed underneath the hill.",
     ["MESSAGE_SHEPHERD_ERROR_NO_SHEEP_BAG_RETURNING"] = "Error: Sheep bag is missing! The bag needs to remain out in order to return sheep tokens.",
     ["MESSAGE_SHEPHERD_ERROR_NO_SHEEP_BAG_DRAWING"] = "Error: Sheep bag is missing! The bag needs to remain out in order to draw sheep tokens.",
-    ["MESSAGE_ROBBER_BARON_ERROR_MISSING"] = "Error: Robber Baron token missing! The token needs to remain out in order to awarded.",
-    ["MESSAGE_KING_ERROR_MISSING"] = "Error: King token missing! The token needs to remain out in order to awarded.",
+    ["MESSAGE_ROBBER_BARON_ERROR_MISSING"] = "Error: Robber Baron missing! The token needs to remain out in order to awarded.",
+    ["MESSAGE_KING_ERROR_MISSING"] = "Error: King missing! The token needs to remain out in order to awarded.",
     ["MESSAGE_TRADE_TOKENS_ERROR_MISSING"] = "Error: {s1} pile missing! The pile needs to remain out in order to draw trade goods",
     ["MESSAGE_TOWER_ERROR_MISSING_CAPTURE"] = "ERROR: Could not find the captor of the prisoner.",
 
@@ -556,7 +562,7 @@ LOCALIZED_STRINGS = {
     ["Wheat Token"] = "麥子幣",
     --currently excluding the token name for display in the control panel
     ["King"] = "國王",
-    --["Robber"] = "強盜", --currently shared with follower on a road. Consider renaming to Robber Baron later and possibly having a unique translation
+    ["Robber Baron"] = "強盜男爵", --currently shared with follower on a road. Consider renaming to Robber Baron later and possibly having a unique translation
     ["Knock Out"] = "撞撞出局",
     ["Seduction"] = "誘惑交換",
     ["Target"] = "正中靶心",
@@ -580,7 +586,7 @@ LOCALIZED_STRINGS = {
     ["Bridges, Castles, & Bazaars"] = "橋樑與市集",
     ["Hills & Sheep"] = "羊咩擴充",
     ["Count, King, & Robber"] = "伯爵國王與強盜",
-    ["King & Robber Baron"] = "國王與強盜擴充", --aka King & Scout, both unused. Jenny suggests "國王與斥侯（強盜）擴充"
+    ["King & Robber Baron"] = "國王與強盜男爵擴充", --aka King & Scout, both unused.
     ["The Cathars"] = "異教徒擴充(圍城擴充)",
     ["The Count of Carcassonne"] = "伯爵擴充",
     ["The Cult, The Siege"] = "祭壇戰亂擴充", --??
@@ -707,6 +713,10 @@ LOCALIZED_STRINGS = {
 
     --Control Panel pg. 3
 
+        --labels
+
+    ["LABEL_ROBBER_BARON_SHORT_NAME"] = "強盜男爵", -- This is the shortened form of "Robber Baron", since it doesn't fit on the control panel. In Chinese it is not shortened.
+
         --tooltips
 
     ["TOOLTIP_ABBEY"] = "隱修院是特殊的卡牌，玩家可以選擇抽一張卡牌或者是放隱修院卡牌。隱修院卡牌只能在有四面環繞其他卡牌的情況下才能放置。一旦隱修院放置，周圍四張卡牌的地標（道路，城市，田地）都視為完成。米寶可以被放置在隱修院(九宮格完成)",
@@ -729,7 +739,7 @@ LOCALIZED_STRINGS = {
         --labels
 
     ["LABEL_MINI_EXPANSIONS"] = "迷你擴充",
-    ["LABEL_WHEEL"] = "命運之輪", -- This is the shortened form of "Wheel of Fortune", since it doesn't fit on the control panel
+    ["LABEL_WHEEL_SHORT_NAME"] = "命運之輪", -- This is the shortened form of "Wheel of Fortune", since it doesn't fit on the control panel. In Chinese it is not shortened.
     ["LABEL_WHEEL_TILES"] = "輪牌",
 
         --tooltips
@@ -842,18 +852,20 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_DEPENDENT_FIGURE_REMOVED"] = "{c1}沒有米寶可以給{f1}了，同時也需被移除。",
     ["MESSAGE_SHEPHERD_PROMPT"] = "{c1}加入他們的牧羊人的田地，並有機會擴大羊群。",
     ["MESSAGE_SHEPHERD_FIELD_FULL"] = "沒有土地可以佔了，但你可以牧羊:)",
-    ["MESSAGE_SHEPHERD_SCORE"] = "牧羊人牧了{n1}隻羊，得{n1}分。",
+    ["MESSAGE_SCORE_SHEPHERD"] = "牧羊人牧了{n1}隻羊，得{n1}分。",
     ["MESSAGE_SHEPHERD_WOLF"] = "牧羊人的羊，全被狼嚇走了，沒有得分。",
     ["MESSAGE_FLIER_LANDED_ON_DRAGON"] = "米寶飛行員直直的飛雞龍嘴巴啦!謝謝你空中快遞食物來。",
     ["MESSAGE_FLIER_NO_DESTINATION"] = "飛行員要去的卡牌沒有任何地方可以佔有，米寶歸回。",
     ["MESSAGE_FLIER_NO_TILE"] = "飛行員要去的方向沒有卡牌存在，米寶歸回。",
     ["MESSAGE_COC_FROM_CITY_PROMPT"] = "{c1}在卡卡頌市裡有一個人物可以被放置到完成的地標。",
+    ["MESSAGE_COC_FROM_CITY_GAMEOVER_PROMPT"] = "{c1}在卡卡頌市裡有一個人物可以被放置到未完成的地標。",
     ["MESSAGE_SHRINE_LOSE"] = "{c1}{f1}在修道院挑戰中挑戰失敗。",
     ["MESSAGE_SCORE"] = "{c1}因為{f1}而得{n1}分。",
-    ["MESSAGE_MAYOR_NO_POINTS"] = "{c1}在{f1}中得0分，市長只能在有盾牌的城市得分。",
-    ["MESSAGE_FAIRY_SCORE_FINISH"] = "{c1}{f1}因為在得分時有仙女在旁邊，因此多得3分。",
-    ["MESSAGE_TRADE_TOKEN_SCORE"] = "{c1}因為{s1}們得10分。",
-    ["MESSAGE_GOLD_MINES_SCORE"] = "{c1}得{n1}分，因為{n2}個金條，每個{n3}值分。",
+    ["MESSAGE_SCORE_TRADE_TOKENS"] = "{c1}因為有最多的{f1}而得{n1}分。",
+    ["MESSAGE_SCORE_KING_OR_ROBBER_BARON"] = "{c1}因為有{f1}而得{n1}分。",
+    ["MESSAGE_SCORE_MAYOR_NO_POINTS"] = "{c1}在{f1}中得0分，市長只能在有盾牌的城市得分。",
+    ["MESSAGE_SCORE_FAIRY_FINISH"] = "{c1}{f1}因為在得分時有仙女在旁邊，因此多得3分。",
+    ["MESSAGE_SCORE_GOLD_MINES"] = "{c1}得{n1}分，因為{n2}個金條，每個{n3}值分。",
     --this is displayed as a line for each player on the scoreboard
     ["{n1} points - {p1}"] = "{n1}分 - {p1}",
     --this is displayed as a line for each player when printing the scores at the end of the game
@@ -861,7 +873,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_GAME_OVER"] = "遊戲結束",
     ["MESSAGE_GAME_OVER_PROMOTE"] = "如果你喜歡我的程式請幫我按一個讚，如果你有遇到任何錯誤或需要修改的地方請上傳檔案並留言告訴我。如果你喜歡我的翻譯也請幫我按一個讚，歡迎到我的IG:JENNY_JNILIFE。",
     ["MESSAGE_FAIRY_WARNING_NO_TILESTACK"] = "警告：找不到卡牌堆。仙女沒有分。如果您剛剛放置了最後塊卡牌，則可以忽略此訊息。",
-    ["MESSAGE_FAIRY_SCORE_IDLE"] = "{c1}得1分，因為輪到他的時候他在仙女旁邊。",
+    ["MESSAGE_SCORE_FAIRY_IDLE"] = "{c1}得1分，因為輪到他的時候他在仙女旁邊。",
     ["MESSAGE_GOLD_MINES_GOLD_AWARDED"] = "{c1}因為控制一個完成地標而得到一條金條。",
     ["MESSAGE_GOLD_MINES_TAKE_GOLD_PROMPT"] = "{c1}可以選擇得到一條金條或控制一個完成地標。",
     ["MESSAGE_WAGON_PROMPT"] = "{c1}的馬車已完成，可以放回鄰近的地標。",

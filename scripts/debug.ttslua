@@ -115,10 +115,7 @@ function debugShowFeatureMap()
                                     -- end
                                     -- printLine = printLine .. nameOfFeature:sub(1,1)
 
-                                    local featureNum = featureMap[xIndex][zIndex][position]
-                                    if featureNum == nil and position < 5 and featureMap[xIndex][zIndex][(position * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(position * 2) + 3] == featureMap[xIndex][zIndex][(position * 2) + 4] then
-                                        featureNum = featureMap[xIndex][zIndex][(position * 2) + 3]
-                                    end
+                                    local featureNum = getFeatureNumAt(xIndex, zIndex, position)
                                     if featureNum == nil then
                                         --print("no feature found for x:" .. xIndex .. " z:" .. zIndex .. " position:" .. position .. " on tile:" .. tileGrid[xIndex][zIndex].tile_guid)
                                         if featureIndex < 100 then

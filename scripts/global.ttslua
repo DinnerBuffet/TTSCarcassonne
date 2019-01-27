@@ -397,7 +397,9 @@ controlPanelSettings = {
     ['BCnBTiles'] = false,
     ['BCnBBazaars'] = false,
     ['BCnBBridges'] = false,
+    ['BCnBNumBridges'] = 3,
     ['BCnBCastles'] = false,
+    ['BCnBNumCastles'] = 3,
     ['HnSTiles'] = false,
     ['HnSShepherd'] = false,
     ['HnSHills'] = false,
@@ -516,6 +518,8 @@ turnState = nil
 #include !\TTSCarcassonne\scripts\move_validation
 
 #include !\TTSCarcassonne\scripts\feature_map_management
+
+#include !\TTSCarcassonne\scripts\tile_traversal
 
 #include !\TTSCarcassonne\scripts\ai
 
@@ -930,23 +934,12 @@ function getActiveFigures()
     end
     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, obj.getVar('figureName')) then
-            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
             if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                xPosition = xPosition - xIndex
-                zPosition = zPosition - zIndex
                 local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                 local rotation = tileGrid[xIndex][zIndex].rotation
                 local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, false)
-                local featureNum = featureMap[xIndex][zIndex][closestPosition]
-
-                if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
-                    if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
-                        featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
-                    end
-                end
+                local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
                 --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
                 if activeFigures[featureNum] == nil then
                     activeFigures[featureNum] = {}
@@ -973,23 +966,12 @@ function getActiveNeutralFigures()
     if controlPanelSettings['HnSShepherd'] then
         for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
             if table.contains(SHEEP_TOKEN_TYPES, obj.getVar('tokenName')) then
-                local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
                 if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                    local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                    local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                    xPosition = xPosition - xIndex
-                    zPosition = zPosition - zIndex
                     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                     local rotation = tileGrid[xIndex][zIndex].rotation
                     local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, false)
-                    local featureNum = featureMap[xIndex][zIndex][closestPosition]
-
-                    if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
-                        if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
-                            featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
-                        end
-                    end
+                    local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
                     --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
                     if activeNeutralFigures[featureNum] == nil then
                         activeNeutralFigures[featureNum] = {}
@@ -1343,10 +1325,6 @@ function rewardCrownSpaces()
     if controlPanelSettings['WoFCrowns'] then
         local crownFollowers = {}
         for featureNum, figures in pairs(activeFigures) do
-            if featureList[featureNum] == nil then --FIXME: can remove this debug code if no one complains after a while
-                print("ERROR: feature " .. featureNum .. " doesn't exist. This should not happen. Please save the game and send the save file to the dev, thanks!")
-                return nextState('next')
-            end
             if featureList[featureNum].nameOfFeature == 'Crown-' .. WHEEL_POSITIONS[wofPigPosition] then
                 for _, follower in ipairs(figures.followers) do
                     table.insert(crownFollowers, follower)
@@ -1361,16 +1339,11 @@ function rewardCrownSpaces()
                 scorePoints(follower.getVar('owner'), 'Wheel', points)
 
                 if showMarkers == 'Both' or showMarkers == 'Scoring' then
-                    local xIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                    local zIndex = math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                    local xPosition = (follower.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                    local zPosition = (follower.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                    xPosition = xPosition - xIndex
-                    zPosition = zPosition - zIndex
+                    local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(follower)
                     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                     local tileRotation = tileGrid[xIndex][zIndex].rotation
-                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
-                    getFeatureComponents(xIndex, zIndex, closestPosition, 2, i == 1)
+                    local closestTilePosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                    getFeatureComponents(xIndex, zIndex, closestTilePosition, 2, i == 1)
                 end
 
                 table.insert(removedFigures, {guid=follower.getGUID(), winner=true})
@@ -1438,8 +1411,7 @@ function checkTileForDragon()
                     for _, forbiddenZone_GUID in ipairs(forbiddenZones) do
                         forbiddenZone = getObjectFromGUID(forbiddenZone_GUID)
                         if forbiddenZone ~= nil then
-                            local xIndex = math.floor((forbiddenZone.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                            local zIndex = math.floor((forbiddenZone.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                            local xIndex, zIndex, _, _ = getFigureTileLocation(forbiddenZone)
                             if tileGridOccupied(xIndex, zIndex) then
                                 table.insert(dragonIllegalTiles, {xIndex, zIndex})
                             end
@@ -1458,8 +1430,7 @@ end
 
 function createDragonButtons()
     local dragon = getObjectFromGUID(dragon_GUID)
-    local xIndex = math.floor((dragon.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-    local zIndex = math.floor((dragon.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+    local xIndex, zIndex, _, _ = getFigureTileLocation(dragon)
     local hasValidMove = false
     for i=1, 4 do
         local newX = xIndex + SIDE_DELTA[i].x
@@ -1527,8 +1498,7 @@ function moveDragonDirection(i)
     clearArbitraryButtons()
 
     local dragon = getObjectFromGUID(dragon_GUID)
-    local dragonXIndex = math.floor((dragon.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-    local dragonZIndex = math.floor((dragon.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+    local dragonXIndex, dragonZIndex, _, _ = getFigureTileLocation(dragon)
 
     local xIndex = dragonXIndex + SIDE_DELTA[i].x
     local zIndex = dragonZIndex + SIDE_DELTA[i].z
@@ -1554,8 +1524,9 @@ function moveDragonToTile(xIndex, zIndex)
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
     for _, object in ipairs(objs) do
         if object.getVar('figureName') ~= 'Barn' and (table.contains(FOLLOWER_TYPES, object.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, object.getVar('figureName')) or table.contains(SHEEP_TOKEN_TYPES, object.getVar('tokenName'))) then
-            if xIndex == math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING) and
-               zIndex == math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING) then
+            local objectXIndex, objectZIndex, xPosition, zPosition = getFigureTileLocation(object)
+            if xIndex == objectXIndex and
+               zIndex == objectZIndex then
                if table.contains(SHEEP_TOKEN_TYPES, object.getVar('tokenName')) then
                    local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
                    if sheepTileBag ~= nil then
@@ -1567,12 +1538,8 @@ function moveDragonToTile(xIndex, zIndex)
                else
                     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                     local tileRotation = tileGrid[xIndex][zIndex].rotation
-                    local xPosition = (object.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                    local zPosition = (object.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                    xPosition = xPosition - xIndex
-                    zPosition = zPosition - zIndex
-                    local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
-                    local nameOfFeature = getFeatureName(tile, closestPosition)
+                    local closestTilePosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                    local nameOfFeature = getTileFeatureName(tile, closestTilePosition)
                     if string.sub(nameOfFeature,1,8) ~= 'Quarter-' and nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,6) ~= 'Crown-' then
                         --an assumption is made here that there won't be more than 1 figure on the same tile that the figures are dependent on.
                         --It is possible for more than 1 figure from the same player to be on the same tile through use of the magic portal, but not on the same feature.
@@ -1602,16 +1569,9 @@ function checkTileForPrincess()
         for _, specialFeature in ipairs(specialFeatures) do
             if specialFeature[1] == "Princess" then
                 getActiveFigures()
-                for _, i in ipairs(specialFeature[2]) do
-                    local direction
-                    if i < 5 then
-                        direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
-                    elseif i < 13 then
-                        direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                    else
-                        direction = i
-                    end
-                    local featureNum = featureMap[lastPlacedTileX][lastPlacedTileZ][direction]
+                for _, tilePosition in ipairs(specialFeature[2]) do
+                    local featureMapPosition = tilePositionToFeatureMapPosition(tilePosition, tileRotation)
+                    local featureNum = getFeatureNumAt(lastPlacedTileX, lastPlacedTileZ, featureMapPosition)
                     if activeFigures[featureNum] ~= nil then
                         for _, obj in ipairs(activeFigures[featureNum].followers) do
                             table.insert(seducedKnights, obj.getGUID())
@@ -1750,24 +1710,12 @@ function checkAddedTileFeatureExtensions()
     if newTile.getTable('sides')[1] ~= 'Abbey' then
         local specialFeatures = newTile.getTable('specialFeatures')
         for i=1, 12 do --roads and cities
-            -- local direction
-            -- if closestPosition < 5 then
-            --     direction = (3 + closestPosition + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
-            -- elseif closestPosition < 13 then
-            --     direction = (3 + closestPosition + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-            -- else
-            --     direction = closestPosition
-            -- end
-            -- local featureNum = featureMap[xIndex][zIndex][direction]
-            -- if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(direction * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(direction * 2) + 3] == featureMap[xIndex][zIndex][(direction * 2) + 4] then
-            --    featureNum = featureMap[xIndex][zIndex][(direction * 2) + 3]
-            -- end
-            if (controlPanelSettings['KnRBRobber'] and getFeatureName(newTile, i) == 'Road') or (i >= 5 and controlPanelSettings['KnRBKing'] and getFeatureName(newTile, i) == 'City') then
+            if (controlPanelSettings['KnRBRobber'] and getTileFeatureName(newTile, i) == 'Road') or (i >= 5 and controlPanelSettings['KnRBKing'] and getTileFeatureName(newTile, i) == 'City') then
                 if getFeatureComponents(lastPlacedTileX, lastPlacedTileZ, i, 1, true) == 0 then
                     --since there is a chance of the player breaking the new city or road record twice, wait until afterwards to award the token
-                    if getFeatureName(newTile, i) == 'Road' and #traversedTileCoords > longestNewRoad then
+                    if getTileFeatureName(newTile, i) == 'Road' and #traversedTileCoords > longestNewRoad then
                         longestNewRoad = #traversedTileCoords
-                    elseif getFeatureName(newTile, i) == 'City' and #traversedTileCoords > largestNewCity then
+                    elseif getTileFeatureName(newTile, i) == 'City' and #traversedTileCoords > largestNewCity then
                         largestNewCity = #traversedTileCoords
                     end
                 end
@@ -1785,7 +1733,7 @@ function checkAddedTileFeatureExtensions()
                     local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
                     local newTileRotation = tileGrid[newX][newZ].rotation
                     local newTilePosition = (3 + i + rotation - newTileRotation + TILE_180_ROTATION) % 4 + 1
-                    if getFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'Road' then
+                    if getTileFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'Road' then
                         if getFeatureComponents(newX, newZ, newTilePosition, 1, true) == 0 then
                             --since there is a chance of the player breaking the new city or road record twice, wait until afterwards to award the token
                             if #traversedTileCoords > longestNewRoad then
@@ -1802,7 +1750,7 @@ function checkAddedTileFeatureExtensions()
                     local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
                     local newTileRotation = tileGrid[newX][newZ].rotation
                     local newTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (newTileRotation * 2) - 4) % 8 + 5
-                    if getFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'City' then
+                    if getTileFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'City' then
                         if getFeatureComponents(newX, newZ, newTilePosition, 1, true) == 0 then
                             --since there is a chance of the player breaking the new city record twice, wait until afterwards to award the token
                             if #traversedTileCoords > largestNewCity then
@@ -1853,7 +1801,7 @@ function checkAddedTileFeatureExtensions()
     --roads and cities
     if newTile.getTable('sides')[1] ~= 'Abbey' then
         for i=1, 12 do
-            if getFeatureName(newTile, i) == 'Road' or (i >= 5 and getFeatureName(newTile, i) == 'City') then --not really sure why the i >= 5 check is necessary, but keeping just to be sure
+            if getTileFeatureName(newTile, i) == 'Road' or (i >= 5 and getTileFeatureName(newTile, i) == 'City') then --not really sure why the i >= 5 check is necessary, but keeping just to be sure
                 if getFeatureComponents(lastPlacedTileX, lastPlacedTileZ, i, 1, false) == 0 then
                     for _, traversedSpecialFeature in ipairs(traversedSpecialFeatures) do
                         table.insert(specialFeatures, traversedSpecialFeature)
@@ -1886,7 +1834,7 @@ function checkAddedTileFeatureExtensions()
                     newTilePosition  = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (newTileRotation * 2) - 4) % 8 + 5
                 end
 
-                if getFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'Road' or (i >= 5 and getFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'City') then
+                if getTileFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'Road' or (i >= 5 and getTileFeatureName(getObjectFromGUID(tileGrid[newX][newZ].tile_guid), newTilePosition) == 'City') then
                     if getFeatureComponents(newX, newZ, newTilePosition, 1, false) == 0 then
                         for _, traversedSpecialFeature in ipairs(traversedSpecialFeatures) do
                             table.insert(specialFeatures, traversedSpecialFeature)
@@ -1901,7 +1849,7 @@ function checkAddedTileFeatureExtensions()
     -- currently there is no reason to check fields, since I moved the shepherd/builder check to another part of the state machine
     -- there technically isn't a need to check roads either, but it shouldn't hurt too much so I'll leave it in
     -- for i=5, 12 do --fields
-    --     if getFeatureName(newTile, i) ~= 'City' then
+    --     if getTileFeatureName(newTile, i) ~= 'City' then
     --         getFeatureComponents(lastPlacedTileX, lastPlacedTileZ, i, 1, false)
     --     end
     -- end
@@ -1959,8 +1907,7 @@ function displayFigureButtons()
     end
     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if obj.getVar('figureName') == 'Abbot' and obj.getVar('owner') == activePlayers[currentPlayer] then
-            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
             if tileGridOccupied(xIndex, zIndex) then
                 local retrieveAbbotButtonParam = {
                    index = 1, label = translate("BUTTON_LABEL_RETRIEVE_ABBOT"), click_function = 'retrieveAbbotButton',
@@ -2081,18 +2028,13 @@ end
 
 function retrieveAbbotButton(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        local xIndex = math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-        local zIndex = math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+        local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(object)
         if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-            local xPosition = (object.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-            local zPosition = (object.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-            xPosition = xPosition - xIndex
-            zPosition = zPosition - zIndex
             local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
             local rotation = tileGrid[xIndex][zIndex].rotation
-            local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, true)
-            local nameOfFeature = getFeatureName(tile, closestPosition)
-            getFeatureComponents(xIndex, zIndex, closestPosition, 2, true)
+            local closestTilePosition = findClosestPosition(xPosition, zPosition, tile, rotation, true)
+            local nameOfFeature = getTileFeatureName(tile, closestTilePosition)
+            getFeatureComponents(xIndex, zIndex, closestTilePosition, 2, true)
             if nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
                 score = #traversedTileCoords
                 allGameMessage({"MESSAGE_ABBOT_RETRIEVE", {'{c1}', object.getDescription()}, {'{n1}', score}, {'{s1}', translate(nameOfFeature)}}, player_color_tints[object.getVar('owner')])
@@ -2136,8 +2078,7 @@ function promptTowerCapture()
     capturableFollowers = {}
     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
-            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
 			if tileGridOccupied(xIndex, zIndex) then
                 if (xIndex == towerX and zIndex <= towerZ + towerRange and zIndex >= towerZ - towerRange) or (zIndex == towerZ and xIndex <= towerX + towerRange and xIndex >= towerX - towerRange) then
                     local captureFollowerButtonParam = {
@@ -2255,7 +2196,6 @@ function getPrisoners()
     for _, player in ipairs(activePlayers) do
         prisoners[player] = {}
         local playerPossessions = getObjectFromGUID(playerPossessionScriptingZones[player]).getObjects()
-        local playerNumTokens = 0
         for _, obj in ipairs(playerPossessions) do
             if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) and obj.getVar('owner') ~= player then
                 table.insert(prisoners[player], obj)
@@ -2316,20 +2256,15 @@ end
 
 --adds any special figures that were dependent on this figure to the removed figure list
 function removeDependentFigures(object)
-    local xIndex = math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-    local zIndex = math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-    local xPosition = (object.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-    local zPosition = (object.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-    xPosition = xPosition - xIndex
-    zPosition = zPosition - zIndex
+    local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(object)
     if(tileGrid[xIndex] == nil or tileGrid[xIndex][zIndex] == nil) then
       allErrorMessage("ERROR: No tile detected at this figure. Was it moved? You may need to manually recover from this.", activePlayers[currentPlayer])
       return
     end
     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
     local rotation = tileGrid[xIndex][zIndex].rotation
-    local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, true)
-    getFeatureComponents(xIndex, zIndex, closestPosition, 2, true)
+    local closestTilePosition = findClosestPosition(xPosition, zPosition, tile, rotation, true)
+    getFeatureComponents(xIndex, zIndex, closestTilePosition, 2, true)
     local followersCount = 0
     for _, follower in ipairs(traversedFollowers) do
         if follower.getGUID() ~= object.getGUID() and follower.getVar('owner') == object.getVar('owner') then
@@ -2362,7 +2297,7 @@ function clearFigureOptions()
 end
 
 function clearArbitraryButtons(alsoClearHighlights)
-    local prisoners = getPrisoners()
+    allPrisoners = getPrisoners()
     for _, object in ipairs(getAllObjects()) do
         if tostring(object) == 'Card(Clone) (LuaGameObjectScript)' then
             if alsoClearHighlights then
@@ -2463,14 +2398,9 @@ end
 --We can still use it for games that do not include the dragon, because I think it looks nicer
 function addSheepToFieldCoroutine()
     --no error checking for the shepherd. Assume that it is still in a legal position
-    local shepherdTileXIndex = math.floor((shepherd.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-    local shepherdTileZIndex = math.floor((shepherd.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-    local shepherdxPosition = (shepherd.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-    local shepherdzPosition = (shepherd.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-    shepherdxPosition = shepherdxPosition - shepherdTileXIndex
-    shepherdzPosition = shepherdzPosition - shepherdTileZIndex
-    local shepherdClosestPosition = findClosestPosition(shepherdxPosition, shepherdzPosition, getObjectFromGUID(tileGrid[shepherdTileXIndex][shepherdTileZIndex].tile_guid), tileGrid[shepherdTileXIndex][shepherdTileZIndex].rotation, true)
-    getFeatureComponents(shepherdTileXIndex, shepherdTileZIndex, shepherdClosestPosition, 1, true)
+    local shepherdTileXIndex, shepherdTileZIndex, shepherdXPosition, shepherdZPosition = getFigureTileLocation(shepherd)
+    local shepherdClosestTilePosition = findClosestPosition(shepherdXPosition, shepherdZPosition, getObjectFromGUID(tileGrid[shepherdTileXIndex][shepherdTileZIndex].tile_guid), tileGrid[shepherdTileXIndex][shepherdTileZIndex].rotation, true)
+    getFeatureComponents(shepherdTileXIndex, shepherdTileZIndex, shepherdClosestTilePosition, 1, true)
     --now that we've traversed for this shepherd, check all positions in the field for an open spot
     for _, traversedTileCoord in ipairs(traversedTileCoords) do
         if traversedFeaturePositions[traversedTileCoord.x] ~= nil and traversedFeaturePositions[traversedTileCoord.x][traversedTileCoord.z] ~= nil then
@@ -2480,13 +2410,8 @@ function addSheepToFieldCoroutine()
                     --debugMessage(1, "checking x: " .. traversedTileCoord.x .. " z: " .. traversedTileCoord.z .. " location: " .. location .. " for empty sheep location")
                     for _, figureSet in ipairs({traversedFollowers, traversedSheepTokens, traversedSpecialFigures}) do
                         for _, figure in ipairs(figureSet) do
-                            local xIndex = math.floor((figure.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                            local zIndex = math.floor((figure.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                            local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(figure)
                             if xIndex == traversedTileCoord.x and zIndex == traversedTileCoord.z then
-                                local xPosition = (figure.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                                local zPosition = (figure.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                                xPosition = xPosition - xIndex
-                                zPosition = zPosition - zIndex
                                 local x, z = getFeatureLocation(location, getObjectFromGUID(tileGrid[traversedTileCoord.x][traversedTileCoord.z].tile_guid), tileGrid[traversedTileCoord.x][traversedTileCoord.z].rotation)
                                 if ((xPosition - x) * (xPosition - x)) + ((zPosition - z) * (zPosition - z)) < 0.1 then
                                     --debugMessage(2, "Too close to sheep location (" .. ((xPosition - x) * (xPosition - x)) + ((zPosition - z) * (zPosition - z)) .. ")")
@@ -2550,17 +2475,12 @@ end
 --adds a sheep to the tile that the shepherd is on, if there is room
 function addSheepToTileCoroutine()
     --no error checking for the shepherd. Assume that it is still in a legal position
-    local shepherdTileXIndex = math.floor((shepherd.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-    local shepherdTileZIndex = math.floor((shepherd.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+    local shepherdTileXIndex, shepherdTileZIndex, shepherdXPosition, shepherdZPosition = getFigureTileLocation(shepherd)
     local tile = getObjectFromGUID(tileGrid[shepherdTileXIndex][shepherdTileZIndex].tile_guid)
     local rotation = tileGrid[shepherdTileXIndex][shepherdTileZIndex].rotation
-    local shepherdxPosition = (shepherd.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-    local shepherdzPosition = (shepherd.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-    shepherdxPosition = shepherdxPosition - shepherdTileXIndex
-    shepherdzPosition = shepherdzPosition - shepherdTileZIndex
-    local shepherdClosestPosition = findClosestPosition(shepherdxPosition, shepherdzPosition, getObjectFromGUID(tileGrid[shepherdTileXIndex][shepherdTileZIndex].tile_guid), tileGrid[shepherdTileXIndex][shepherdTileZIndex].rotation, true)
+    local shepherdClosestTilePosition = findClosestPosition(shepherdXPosition, shepherdZPosition, getObjectFromGUID(tileGrid[shepherdTileXIndex][shepherdTileZIndex].tile_guid), tileGrid[shepherdTileXIndex][shepherdTileZIndex].rotation, true)
     for _, linkedOctants in pairs(tile.getTable('linkedOctants')) do
-        if table.contains(linkedOctants, shepherdClosestPosition) then
+        if table.contains(linkedOctants, shepherdClosestTilePosition) then
             for _, location in pairs(linkedOctants) do
                 local x, z = getFeatureLocation(location, tile, rotation)
                 local occupied = false
@@ -2568,13 +2488,8 @@ function addSheepToTileCoroutine()
                 for _, object in ipairs(objs) do
                     if table.contains(FOLLOWER_TYPES, object.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, object.getVar('figureName')) or
                     table.contains(NEUTRAL_FIGURE_TYPES, object.getVar('figureName')) or table.contains(SHEEP_TOKEN_TYPES, object.getVar('tokenName')) then
-                        local xIndex = math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                        local zIndex = math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                        local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(object)
                         if xIndex == shepherdTileXIndex and zIndex == shepherdTileZIndex then
-                            local xPosition = (object.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                            local zPosition = (object.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                            xPosition = xPosition - xIndex
-                            zPosition = zPosition - zIndex
                             if ((xPosition - x) * (xPosition - x)) + ((zPosition - z) * (zPosition - z)) < 0.1 then
                                 --debugMessage(2, "Too close to sheep location (" .. ((xPosition - x) * (xPosition - x)) + ((zPosition - z) * (zPosition - z)) .. ")")
                                 occupied = true
@@ -2676,15 +2591,10 @@ end
 function scoreFlockCoroutine()
     local sheepTileBag = getObjectFromGUID(expansionBags['HnS'].contents['HnSSheepBag'].guid)
     if sheepTileBag ~= nil then
-        local xIndex = math.floor((shepherd.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-        local zIndex = math.floor((shepherd.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-        local xPosition = (shepherd.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-        local zPosition = (shepherd.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-        xPosition = xPosition - xIndex
-        zPosition = zPosition - zIndex
-        local closestPosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation, true)
+        local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(shepherd)
+        local closestTilePosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation, true)
         --only need a traversal level of 1, since we don't care about completed cities on the field
-        getFeatureComponents(xIndex, zIndex, closestPosition, 1, true)
+        getFeatureComponents(xIndex, zIndex, closestTilePosition, 1, true)
         local score = 0
         local hasWolf = false
 
@@ -2709,7 +2619,7 @@ function scoreFlockCoroutine()
                 if score > 0 then winner = true else winner = false end
                 table.insert(removedFigures, {guid=figure.getGUID(), winner=winner})
                 if not hasWolf then
-                    allGameMessage({"MESSAGE_SHEPHERD_SCORE", {'{c1}', figure.getVar('owner')}, {'{n1}', score}}, player_color_tints[figure.getVar('owner')])
+                    allGameMessage({"MESSAGE_SCORE_SHEPHERD", {'{c1}', figure.getVar('owner')}, {'{n1}', score}}, player_color_tints[figure.getVar('owner')])
                 else
                     allGameMessage({"MESSAGE_SHEPHERD_WOLF", {'{c1}', figure.getVar('owner')}}, player_color_tints[figure.getVar('owner')])
                 end
@@ -2828,8 +2738,9 @@ function checkFlierDestination()
     if tileGridOccupied(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z) then
         local dragon = getObjectFromGUID(dragon_GUID)
         if controlPanelSettings['PnDDragon'] and dragon ~= nil then
-            if lastPlacedTileX + flierOffset.x == math.floor((dragon.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING) and
-               lastPlacedTileZ + flierOffset.z == math.floor((dragon.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING) then
+            local dragonXIndex, dragonZIndex, _, _ = getFigureTileLocation(dragon)
+            if lastPlacedTileX + flierOffset.x == dragonXIndex and
+               lastPlacedTileZ + flierOffset.z == dragonZIndex then
                 allGameMessage({"MESSAGE_FLIER_LANDED_ON_DRAGON"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
                 table.insert(removedFigures, {guid=flier, winner=false})
                 return nextState('feature unavailable')
@@ -2839,8 +2750,8 @@ function checkFlierDestination()
         local destinationTile = getObjectFromGUID(tileGrid[lastPlacedTileX + flierOffset.x][lastPlacedTileZ + flierOffset.z].tile_guid)
         local hasIncompleteFeature = false
         for i=1, 12 do
-            if getFeatureName(destinationTile, i) == 'City' or getFeatureName(destinationTile, i) == 'Road' then --fields are not valid destinations
-                if getObjectFromGUID(flier).getVar('figureName') ~= 'Mayor' or getFeatureName(destinationTile, i) == 'City' then
+            if getTileFeatureName(destinationTile, i) == 'City' or getTileFeatureName(destinationTile, i) == 'Road' then --fields are not valid destinations
+                if getObjectFromGUID(flier).getVar('figureName') ~= 'Mayor' or getTileFeatureName(destinationTile, i) == 'City' then
                     if getFeatureComponents(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z, i, 1, false) > 0 then
                         hasIncompleteFeature = true
                     end
@@ -2892,17 +2803,12 @@ function promptMovingFromCoC()
             local countnameOfFeature = nil
             if not controlPanelSettings['CoCNoCount'] then
                 local count = getObjectFromGUID(expansionBags['CoC'].contents['CoCCount'].guid)
-                local countxIndex = math.floor((count.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                local countzIndex = math.floor((count.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                if tileGrid[countxIndex] ~= nil and tileGrid[countxIndex][countzIndex] ~= nil then
-                    local countxPosition = (count.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                    local countzPosition = (count.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                    countxPosition = countxPosition - countxIndex
-                    countzPosition = countzPosition - countzIndex
-                    local counttile = getObjectFromGUID(tileGrid[countxIndex][countzIndex].tile_guid)
-                    local counttilerotation = tileGrid[countxIndex][countzIndex].rotation
-                    local countclosestPosition = findClosestPosition(countxPosition, countzPosition, counttile, counttilerotation, false)
-                    local countfeatureNum = featureMap[countxIndex][countzIndex][countclosestPosition]
+                local countXIndex, countZIndex, countXPosition, countZPosition = getFigureTileLocation(count)
+                if tileGrid[countXIndex] ~= nil and tileGrid[countXIndex][countZIndex] ~= nil then
+                    local counttile = getObjectFromGUID(tileGrid[countXIndex][countZIndex].tile_guid)
+                    local counttilerotation = tileGrid[countXIndex][countZIndex].rotation
+                    local countclosestPosition = findClosestPosition(countXPosition, countZPosition, counttile, counttilerotation, false)
+                    local countfeatureNum = featureMap[countXIndex][countZIndex][countclosestPosition]
                     countnameOfFeature = featureList[countfeatureNum].nameOfFeature
                 end
             end
@@ -2910,17 +2816,12 @@ function promptMovingFromCoC()
             --find all followers in the city of carcassonne
             for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
                 if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or obj.getVar('figureName') == 'Barn' then
-                    local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                    local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                    local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
                     if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                        local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                        local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                        xPosition = xPosition - xIndex
-                        zPosition = zPosition - zIndex
                         local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                         local rotation = tileGrid[xIndex][zIndex].rotation
                         local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, false)
-                        local featureNum = featureMap[xIndex][zIndex][closestPosition]
+                        local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
 
                         if featureNum ~= nil and featureList[featureNum] ~= nil then
                             if obj.getVar('figureName') == 'Barn' then
@@ -2945,17 +2846,12 @@ function promptMovingFromCoC()
             barnFeatureNumbers = {}
             for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
                 if obj.getVar('figureName') == 'Barn' then
-                    local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                    local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                    local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
                     if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                        local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                        local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                        xPosition = xPosition - xIndex
-                        zPosition = zPosition - zIndex
                         local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                         local rotation = tileGrid[xIndex][zIndex].rotation
                         local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, false)
-                        local featureNum = featureMap[xIndex][zIndex][closestPosition]
+                        local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
 
                         if featureNum ~= nil and featureList[featureNum] ~= nil then
                             if obj.getVar('figureName') == 'Barn' then
@@ -2980,17 +2876,9 @@ function promptMovingFromCoC()
                 local tileRotation = tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation
                 if newTile.getTable('sides')[1] ~= 'Abbey' then
                     local specialFeatures = newTile.getTable('specialFeatures')
-                    for i=1, 12 do --roads and cities
-                        local direction
-                        if i < 5 then
-                            direction = (3 + i + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
-                        elseif i < 13 then
-                            direction = (3 + i + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                        end
-                        local featureNum = featureMap[lastPlacedTileX][lastPlacedTileZ][direction]
-                        if featureNum == nil and i < 5 and featureMap[lastPlacedTileX][lastPlacedTileZ][(direction * 2) + 3] ~= nil and featureMap[lastPlacedTileX][lastPlacedTileZ][(direction * 2) + 3] == featureMap[lastPlacedTileX][lastPlacedTileZ][(direction * 2) + 4] then
-                           featureNum = featureMap[lastPlacedTileX][lastPlacedTileZ][(direction * 2) + 3]
-                        end
+                    for tilePosition=1, 12 do --roads and cities
+                        local featureMapPosition = tilePositionToFeatureMapPosition(tilePosition, tileRotation)
+                        local featureNum = getFeatureNumAt(lastPlacedTileX, lastPlacedTileZ, featureMapPosition)
                         if featureNum ~= nil and featureList[featureNum] ~= nil then
                             local nameOfFeature = featureList[featureNum].nameOfFeature
                             if nameOfFeature == 'Field' and table.contains(barnFeatureNumbers, featureNum) and not controlPanelSettings['BaseDisableFields'] then
@@ -3018,18 +2906,8 @@ function promptMovingFromCoC()
                         if tileGridOccupied(newX, newZ) then
                             local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
                             local newTileRotation = tileGrid[newX][newZ].rotation
-                            local newTilePosition
-                            if direction < 5 then
-                                newTilePosition = (3 + direction + newTileRotation + TILE_STANDARD_ROTATION) % 4 + 1
-                            elseif direction < 13 then
-                                newTilePosition = (3 + direction + ((newTileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                            else
-                                newTilePosition = direction
-                            end
-                            local featureNum = featureMap[newX][newZ][newTilePosition]
-                            if featureNum == nil and direction < 5 and featureMap[newX][newZ][(newTilePosition * 2) + 3] ~= nil and featureMap[newX][newZ][(newTilePosition * 2) + 3] == featureMap[newX][newZ][(newTilePosition * 2) + 4] then
-                               featureNum = featureMap[newX][newZ][(newTilePosition * 2) + 3]
-                            end
+                            local newFeatureMapPosition = tilePositionToFeatureMapPosition(direction, newTileRotation)
+                            local featureNum = getFeatureNumAt(newX, newZ, newFeatureMapPosition)
                             if featureNum ~= nil and featureList[featureNum] ~= nil then
                                 if featureList[featureNum].openings == 0 then
                                     local nameOfFeature = featureList[featureNum].nameOfFeature
@@ -3106,7 +2984,11 @@ function promptMovingFromCoC()
                 end
             end
             if hasAnything then
-                allGameMessage({"MESSAGE_COC_FROM_CITY_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                if gameover then
+                    allGameMessage({"MESSAGE_COC_FROM_CITY_GAMEOVER_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                else
+                    allGameMessage({"MESSAGE_COC_FROM_CITY_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                end
                 local labelButtonParam = {
                    index = 1, label = translate("BUTTON_LABEL_PROMPT_PLACE_FIGURE"), click_function = 'doNothing',
                    position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=3.8}, width = 0, height=0, font_size = 200, function_owner = nil
@@ -3152,36 +3034,20 @@ function scoreFeatures()
         for _, obj in ipairs(objs) do
             if table.contains(figureTypes, obj.getVar('figureName')) and not (i == 2 and (not gameover or obj.getVar('figureName') ~= 'Barn')) then
                 if not table.contains(followersScored, obj) then
-                    local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                    local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                    local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
                     if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
                         --debugMessage(1, "Checking " .. obj.getVar('owner') .. " " .. obj.getVar('tokenName') .. " for finished features at index: x: " .. xIndex .. " z: " .. zIndex)
-                        local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                        local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                        xPosition = xPosition - xIndex
-                        zPosition = zPosition - zIndex
-
                         local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                         local tileRotation = tileGrid[xIndex][zIndex].rotation
-                        local closestPosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
-                        local direction
-                        if closestPosition < 5 then
-                            direction = (3 + closestPosition + tileRotation + TILE_STANDARD_ROTATION) % 4 + 1
-                        elseif closestPosition < 13 then
-                            direction = (3 + closestPosition + ((tileRotation + TILE_STANDARD_ROTATION) * 2)) % 8 + 5
-                        else
-                            direction = closestPosition
-                        end
-                        local featureNum = featureMap[xIndex][zIndex][direction]
-                        if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(direction * 2) + 3] ~= nil and featureMap[xIndex][zIndex][(direction * 2) + 3] == featureMap[xIndex][zIndex][(direction * 2) + 4] then
-                           featureNum = featureMap[xIndex][zIndex][(direction * 2) + 3]
-                        end
+                        local closestTilePosition = findClosestPosition(xPosition, zPosition, tile, tileRotation, true)
+                        local closestFeatureMapPosition = tilePositionToFeatureMapPosition(closestTilePosition, tileRotation)
+                        local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
                         if featureNum ~= nil then
                             getActiveFigures()
                             -- getActiveNeutralFigures()
                             local nameOfFeature = featureList[featureNum].nameOfFeature
 
-                            --debugMessage(2, "figure closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " position: " .. closestPosition .. " name: " .. nameOfFeature)
+                            --debugMessage(2, "figure closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " position: " .. closestTilePosition .. " name: " .. nameOfFeature)
 
                             local featureComplete
                             if featureList[featureNum].openings == 0 then
@@ -3216,8 +3082,7 @@ function scoreFeatures()
                                     hasMayor[follower.getVar('owner')] = true
                                 end
                                 if weight > 0 then
-                                    local followerXIndex = math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                                    local followerZIndex = math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                                    local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
                                     local specialFeatures = getObjectFromGUID(tileGrid[followerXIndex][followerZIndex].tile_guid).getTable('specialFeatures')
                                     if controlPanelSettings['HnSHills'] and specialFeatures ~= nil then
                                         for _, specialFeature in ipairs(specialFeatures) do
@@ -3361,15 +3226,10 @@ function scoreFeatures()
                                                                 local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
                                                                 for _, object in ipairs(objs) do
                                                                     if table.contains(FOLLOWER_TYPES, object.getVar('figureName')) then
-                                                                        local objectXIndex = math.floor((object.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-                                                                        local objectZIndex = math.floor((object.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+                                                                        local objectXIndex, objectZIndex, xPosition, zPosition = getFigureTileLocation(object)
                                                                         if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
-                                                                    				local xPosition = (object.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                                                                    				local zPosition = (object.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                                                                    				xPosition = xPosition - objectXIndex
-                                                                    				zPosition = zPosition - objectZIndex
-                                                                    				local nestedClosestPosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), tileGrid[xIndex + x][zIndex + z].rotation, true)
-                                                                            if nestedClosestPosition == i + 12 then
+                                                            				local nestedClosestTilePosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid), tileGrid[xIndex + x][zIndex + z].rotation, true)
+                                                                            if nestedClosestTilePosition == i + 12 then
                                                                                 object.setLock(false)
                                                                                 object.use_gravity = false
                                                                                 object.interactable = false
@@ -3424,7 +3284,7 @@ function scoreFeatures()
                                         elseif value > 0 then
                                             --allGameMessage(player .. " did not score any points with a strength of only " .. value .. " followers", player_color_tints[player])
                                         elseif topWeight == 0 and hasMayor[player] then
-                                            allGameMessage({"MESSAGE_MAYOR_NO_POINTS", {'{c1}', translate(player)}, {'{f1}', nameOfFeature}}, player_color_tints[player])
+                                            allGameMessage({"MESSAGE_SCORE_MAYOR_NO_POINTS", {'{c1}', translate(player)}, {'{f1}', nameOfFeature}}, player_color_tints[player])
                                         end
                                     end
                                 end
@@ -3444,12 +3304,12 @@ function scoreFeatures()
                             if nameOfFeature ~= 'Carcassonne' and string.sub(nameOfFeature,1,8) ~= 'Quarter-' and string.sub(nameOfFeature,1,6) ~= 'Crown-' and nameOfFeature ~= 'Tower Foundation' then
                                 if gameover or featureComplete or (nameOfFeature == 'Field' and hasBarn) then
                                     --The following is only used to check for traversedGoldBars
-                                    getFeatureComponents(xIndex, zIndex, closestPosition, 2, true)
+                                    getFeatureComponents(xIndex, zIndex, closestTilePosition, 2, true)
                                     for _, follower in ipairs(featureFollowers) do
                                         local eligibleFollowers = fairyEligibleFollowers()
                                         for _, eligibleFollower in ipairs(eligibleFollowers) do
                                             if eligibleFollower == follower then
-                                                allGameMessage({"MESSAGE_FAIRY_SCORE_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
+                                                allGameMessage({"MESSAGE_SCORE_FAIRY_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
                                                 scorePoints(eligibleFollower.getVar('owner'), 'Fairy', 3)
                                             end
                                         end
@@ -3493,7 +3353,7 @@ function scoreFeatures()
                                         if gameover then
                                             praiseFiguresCameraFocus(false)
                                         end
-                                        getFeatureComponents(xIndex, zIndex, closestPosition, 2, true)
+                                        getFeatureComponents(xIndex, zIndex, closestTilePosition, 2, true)
                                         Timer.create({identifier=os.clock(), function_name='praiseFigures', function_owner=nil, parameters=nil, delay=0.9})
                                     else
                                         returnFigures()
@@ -3537,7 +3397,7 @@ function scoreFeatures()
                         local winner
                         if tokenCounts[player] == highestNumTokens then
                             winner = true
-                            allGameMessage({"MESSAGE_TRADE_TOKEN_SCORE", {'{c1}', player}, {'{s1}', tokenType}}, player_color_tints[player])
+                            allGameMessage({"MESSAGE_SCORE_TRADE_TOKENS", {'{c1}', player}, {'{n1}', 10}, {'{f1}', tokenType}}, player_color_tints[player])
                             scorePoints(player, 'Trade Goods', 10)
                         else
                             winner = false
@@ -3599,7 +3459,7 @@ function scoreFeatures()
                     else
                         goldMultiplier = 1
                     end
-                    allGameMessage({"MESSAGE_GOLD_MINES_SCORE", {'{c1}', player}, {'{n1}', playerNumGold * goldMultiplier}, {'{n2}', playerNumGold}, {'{n2}', goldMultiplier}}, player_color_tints[player])
+                    allGameMessage({"MESSAGE_SCORE_GOLD_MINES", {'{c1}', player}, {'{n1}', playerNumGold * goldMultiplier}, {'{n2}', playerNumGold}, {'{n2}', goldMultiplier}}, player_color_tints[player])
                     scorePoints(player, 'Gold', playerNumGold * goldMultiplier)
                     traversedFeaturePositions = {}
 
@@ -3623,11 +3483,11 @@ function scoreFeatures()
                     local tile = getObjectFromGUID(tileLocation.tile_guid)
                     for i=1, 12 do --roads and cities
                         if traversedGrid[x] == nil or traversedGrid[x][z] == nil or traversedGrid[x][z][i] == nil or traversedGrid[x][z][i] > 1 then
-                            if controlPanelSettings['KnRBRobber'] and i < 5 and getFeatureName(tile, i) == 'Road' then
+                            if controlPanelSettings['KnRBRobber'] and i < 5 and getTileFeatureName(tile, i) == 'Road' then
                                 if getFeatureComponents(x, z, i, 1, false) == 0 then
                                     numRoads = numRoads + 1
                                 end
-                            elseif controlPanelSettings['KnRBKing'] and i >= 5 and (getFeatureName(tile, i) == 'City' or getFeatureName(tile, i) == 'Carcassonne') then
+                            elseif controlPanelSettings['KnRBKing'] and i >= 5 and (getTileFeatureName(tile, i) == 'City' or getTileFeatureName(tile, i) == 'Carcassonne') then
                                 if getFeatureComponents(x, z, i, 1, false) == 0 then
                                     numCities = numCities + 1
                                 end
@@ -3647,7 +3507,7 @@ function scoreFeatures()
                         score = numRoads
                     end
                     if (obj.getGUID() == expansionBags['KnRB'].contents['KnRBKing'].guid and controlPanelSettings['KnRBKing']) or (obj.getGUID() == expansionBags['KnRB'].contents['KnRBRobber'].guid and controlPanelSettings['KnRBRobber']) then
-                        allGameMessage({"MESSAGE_SCORE.", {'{c1}', player}, {'{n1}', score}, {'{f1}', object.getName()}}, player_color_tints[player])
+                        allGameMessage({"MESSAGE_SCORE_KING_OR_ROBBER_BARON", {'{c1}', player}, {'{n1}', score}, {'{f1}', obj.getName()}}, player_color_tints[player])
                         scorePoints(player, 'King/Robber Tokens', score)
                         table.insert(removedFigures, {guid=obj.getGUID(), winner=true})
                         obj.setLock(false)
@@ -3721,7 +3581,7 @@ function rewardFairy()
             if tileStack == nil and finalTile_GUID == nil then
                 allGameMessage({"MESSAGE_FAIRY_WARNING_NO_TILESTACK"}, NEUTRAL_COLOR)
             else
-                allGameMessage({"MESSAGE_FAIRY_SCORE_IDLE", {'{c1}', eligibleFollower.getDescription()}}, player_color_tints[eligibleFollower.getVar('owner')])
+                allGameMessage({"MESSAGE_SCORE_FAIRY_IDLE", {'{c1}', eligibleFollower.getDescription()}}, player_color_tints[eligibleFollower.getVar('owner')])
                 scorePoints(eligibleFollower.getVar('owner'), 'Fairy', 1)
             end
         end
@@ -3735,14 +3595,14 @@ function fairyEligibleFollowers()
     local eligibleFollowers = {}
     local fairy = getObjectFromGUID(fairy_GUID)
     if fairy ~= nil then
-        local xIndex = math.floor((fairy.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-        local zIndex = math.floor((fairy.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-        if tileGridOccupied(xIndex, zIndex) then
+        local fairyXIndex, fairyZIndex, _, _ = getFigureTileLocation(fairy)
+        if tileGridOccupied(fairyXIndex, fairyZIndex) then
             local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
             for _, follower in ipairs(objs) do
                 if table.contains(FOLLOWER_TYPES, follower.getVar('figureName')) then
-                    if xIndex == math.floor((follower.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING) and
-                     zIndex == math.floor((follower.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING) then
+                    local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
+                    if fairyXIndex == followerXIndex and
+                     fairyZIndex == followerZIndex then
                         table.insert(eligibleFollowers, follower)
                     end
                 end
@@ -3982,23 +3842,12 @@ function hasAvailableWagonFeature(wagonFeatureNum)
 
     for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
-            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+            local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
             if tileGrid[xIndex] ~= nil and tileGrid[xIndex][zIndex] ~= nil then
-                local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                xPosition = xPosition - xIndex
-                zPosition = zPosition - zIndex
                 local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                 local rotation = tileGrid[xIndex][zIndex].rotation
                 local closestPosition = findClosestPosition(xPosition, zPosition, tile, rotation, false)
-                local featureNum = featureMap[xIndex][zIndex][closestPosition]
-
-                if featureNum == nil and closestPosition < 5 and featureMap[xIndex][zIndex][(closestPosition * 2) + 3] ~= nil then
-                    if featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[xIndex][zIndex][(closestPosition * 2) + 3]].nameOfFeature ~= 'River' then
-                        featureNum = featureMap[xIndex][zIndex][(closestPosition * 2) + 3]
-                    end
-                end
+                local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
                 if featureNum ~= nil then
                     for linkedFeatureNum, _ in pairs(linkedRoadFeatures) do
                         if linkedFeatureNum == featureNum then
@@ -4279,6 +4128,36 @@ function deleteMarkers()
     featureMarkers = {}
 end
 
+--returns the x and z index of the tile that the figure is on, as well as the relative x and z position within that tile's area
+function getFigureTileLocation(figure)
+    local xIndex = math.floor((figure.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
+    local zIndex = math.floor((figure.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
+    local xPosition = (figure.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+    local zPosition = (figure.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+    xPosition = xPosition - xIndex
+    zPosition = zPosition - zIndex
+    return xIndex, zIndex, xPosition, zPosition
+end
+
+function getConnectingFeatureMapPosition(xIndex, zIndex, tilePosition, tileRotation)
+    local connectedTilePosition
+    local connectedX, connectedZ
+    if tilePosition < 5 then
+        local direction = (3 + tilePosition + tileRotation) % 4 + 1
+        local sideDirection = direction
+        connectedX = xIndex + SIDE_DELTA[sideDirection].x
+        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+        connectedTilePosition = (3 + tilePosition + tileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
+    else
+        local direction = (3 + tilePosition + (tileRotation * 2)) % 8 + 5
+        local sideDirection = math.floor((direction - 3) / 2)
+        connectedX = xIndex + SIDE_DELTA[sideDirection].x
+        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+        connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
+    end
+    return connectedTilePosition, connectedX, connectedZ
+end
+
 --findClosestPosition
 -- params:
 --  int: x
@@ -4357,7 +4236,7 @@ function getFeatureLocation(feature, tile, rotation)
     return x, z
 end
 
---getFeatureName
+--getTileFeatureName
 --
 -- Gets the name of the feature on the tile at the specified position
 --
@@ -4366,7 +4245,7 @@ end
 --  position: 1-12, 13-...
 -- returns:
 --  string: name
-function getFeatureName(tile, position)
+function getTileFeatureName(tile, position)
     local nameOfFeature
     if position < 5 then
         nameOfFeature = tile.getTable('sides')[position]
@@ -4391,374 +4270,4 @@ function getFeatureName(tile, position)
         end
     end
     return nameOfFeature
-end
-
---getFeatureComponents
---
--- Traverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
---
--- params:
---  int: xIndex
---  int: zIndex
---  int: position number to check
---  int: number of traversal levels do check
---  bool: false if multiple getFeatureComponents calls will be made. This prevents resetting the traversal and also does not check for followers each time. The goal is to save on performance.
--- returns:
---  bool: true if the feature is complete, false if not complete
-function getFeatureComponents(xIndex, zIndex, position, traversalLevels, reset, reverseCityTraversal)
-    if reset then --for when we want to make multiple feature traversals without revisiting already visited positions
-        resetTraversal()
-    end
-
-    local nameOfFeature = getFeatureName(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), position)
-    local finished = 0
-    if position < 5 then
-        --if nameOfFeature == 'River' then return 0
-        if nameOfFeature == 'Road' or nameOfFeature == 'River' then
-            finished = getTileComponents(xIndex, zIndex, position, traversalLevels, 1, reverseCityTraversal)
-        else
-            --in theory this shouldn't happen unless a player allows a figure to stay somewhere they're not supposed to
-            --if it happens, just pick an arbitrary octant
-            finished = getTileComponents(xIndex, zIndex, (position * 2) + 3, traversalLevels, 1, reverseCityTraversal)
-        end
-    else
-        finished = getTileComponents(xIndex, zIndex, position, traversalLevels, 1, reverseCityTraversal)
-    end
-
-    if reset then -- don't run for each call of getFeatureComponents. Instead, getFigureComponents should be called from the calling method.
-        getFigureComponents()
-    end
-
-    -- if finished == 0 then
-    --     debugMessage(2, "Feature is complete")
-    -- else
-    --     debugMessage(2, "Feature is not complete: " .. finished .. " openings.")
-    -- end
-
-    return finished
-end
-
---getFigureComponents
---
--- Traverses the all objects in the play area, storing followers and tokens that were in the traversed positions
-function getFigureComponents()
-    local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
-    for _, obj in ipairs(objs) do
-        if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, obj.getVar('figureName')) or table.contains(SHEEP_TOKEN_TYPES, obj.getVar('tokenName')) or obj.getVar('figureName') == GOLD_BAR_NAME then
-            local xIndex = math.floor((obj.getPosition().x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
-            local zIndex = math.floor((obj.getPosition().z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-            --debugMessage(2, "Object on tile: x: " .. xIndex .. " z: " .. zIndex)
-            if obj.getVar('figureName') == GOLD_BAR_NAME and table.contains(traversedTileCoords, {x=xIndex, z=zIndex}) then
-                --debugMessage(2, obj.getVar('figureName') .. " added to traversedGoldBars table")
-                table.insert(traversedGoldBars, obj)
-            elseif traversedFeaturePositions[xIndex] ~= nil and traversedFeaturePositions[xIndex][zIndex] ~= nil then
-                local xPosition = (obj.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
-                local zPosition = (obj.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
-                xPosition = xPosition - xIndex
-                zPosition = zPosition - zIndex
-                local closestPosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation, true)
-                --debugMessage(2, "Object closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " feature: " .. closestPosition)
-                if traversedFeaturePositions[xIndex][zIndex][closestPosition] == 1 then
-                    if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
-                        --debugMessage(2, obj.getVar('owner') .. " " .. obj.getVar('tokenName') .. " added to traversedFollowers table")
-                        table.insert(traversedFollowers, obj)
-                    elseif table.contains(SPECIAL_FIGURE_TYPES, obj.getVar('figureName')) then
-                        --debugMessage(2, obj.getVar('owner') .. " " .. obj.getVar('tokenName') .. " added to traversedSpecialFigures table")
-                        table.insert(traversedSpecialFigures, obj)
-                    elseif table.contains(SHEEP_TOKEN_TYPES, obj.getVar('tokenName')) then
-                        --debugMessage(2, obj.getVar('tokenName') .. " added to traversedSheepTokens table")
-                        table.insert(traversedSheepTokens, obj)
-                    end
-                end
-            end
-        end
-    end
-    --debugMessage(1, "Traversed " .. #traversedTileCoords .. " tiles, " .. #traversedFollowers .. " followers, " .. #traversedSpecialFigures .. " special figures, " .. #traversedSpecialFeatures .. " special features, " .. #traversedSheepTokens .. " sheep tokens, and " .. #traversedGoldBars .. " gold bars")
-end
-
---getTileComponents
---
--- Traverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
---
--- params:
---  int: xIndex
---  int: zIndex
---  int: position number to check
---  int: how many traversal levels to check
---       2 levels would be used for checking secondary features such as completed cities and road intersections
---  int: current traversal level
---  bool: reverseCityTraversal - traverses from cities to fields, when the feature is a city. Currently only used for recalculating field connections from the city's point of view
--- returns:
---  bool: true if the feature is complete, false if not complete
-function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalNum, reverseCityTraversal)
-    if traversalNum > traversalLevels then return 0 end
-    --debugMessage(2, "checking tile at x: " .. xIndex .. " z: " .. zIndex .. " position: " .. position .. " trans num: " .. traversalNum)
-    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
-    local rotation = tileGrid[xIndex][zIndex].rotation
-    if traversedGrid[xIndex] == nil then
-        traversedGrid[xIndex] = {}
-    end
-    if traversedGrid[xIndex][zIndex] == nil then
-        traversedGrid[xIndex][zIndex] = {}
-    end
-    if traversedFeaturePositions[xIndex] == nil then
-        traversedFeaturePositions[xIndex] = {}
-    end
-    if traversedFeaturePositions[xIndex][zIndex] == nil then
-        traversedFeaturePositions[xIndex][zIndex] = {}
-    end
-    if traversalNum == 1 and not table.contains(traversedTileCoords, {x=xIndex, z=zIndex}) then
-        table.insert(traversedTileCoords, {x=xIndex, z=zIndex})
-        --debugMessage(2, "adding tile to traversedTileCoords: x: " .. xIndex .. " z: " .. zIndex)
-    end
-    if traversedGrid[xIndex][zIndex][position] ~= nil and traversedGrid[xIndex][zIndex][position] <= traversalNum then return 0 end
-    local finished = 0
-    local specialFeatures = tile.getTable('specialFeatures')
-    if position < 5 then
-        local links = tile.getTable('linkedQuadrants')
-        while traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum do
-            if links ~= nil then
-                for _, link in ipairs(links) do
-                    if table.contains(link, position) then
-                        for _, quadrant in ipairs(link) do
-                            if traversedGrid[xIndex][zIndex][quadrant] == nil or traversedGrid[xIndex][zIndex][quadrant] > traversalNum then
-                                traversedGrid[xIndex][zIndex][quadrant] = traversalNum
-                                if traversalNum == 1 then
-                                    traversedFeaturePositions[xIndex][zIndex][quadrant] = 1
-                                end
-                                local direction = (3 + quadrant + rotation) % 4 + 1
-                                local newX = xIndex + SIDE_DELTA[direction].x
-                                local newZ = zIndex + SIDE_DELTA[direction].z
-                                --debugMessage(2, "checking x:" .. xIndex .. " z:" .. zIndex .. " quadrant:" .. quadrant .. " direction:" .. direction .. " newX:" .. newX .. " newZ:" .. newZ .. " trans num: " .. traversalNum)
-                                if tileGridOccupied(newX, newZ) then
-                                    local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
-                                    local newTileRotation = tileGrid[newX][newZ].rotation
-                                    local newTilePosition = (3 + quadrant + rotation - newTileRotation + TILE_180_ROTATION) % 4 + 1
-                                    --debugMessage(2, "newTilePosition: " .. newTilePosition)
-                                    if getFeatureName(newTile, newTilePosition) ~= 'Abbey' and getFeatureName(tile, position) ~= 'Abbey' then
-                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
-                                    elseif traversalNum == 1 then
-                                        if getFeatureName(newTile, newTilePosition) == 'Abbey' then
-                                            getTileComponents(newX, newZ, (newTilePosition * 2) + 3, traversalLevels, traversalNum + 1, reverseCityTraversal)
-                                        elseif getFeatureName(newTile, newTilePosition) ~= 'Field' then
-                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
-                                        end
-                                    end
-                                else
-                                    --debugMessage(2, "Next tile is empty. Feature is not finished")
-                                    finished = finished + 1
-                                    if traversalNum == 1 then
-                                        traversedOpeningCoords[newX .. "-" .. newZ] = true
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-             --workaround for when the target position has no links and is the first tile of the chain
-             --in that case, the target position would never be checked, and, therefore, none of its neighbors
-             --so we force it to be checked by running again with a links table containing the element
-            if traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum then
-                links = {{position}}
-            end
-        end
-    elseif position < 13 then
-        local links = tile.getTable('linkedOctants')
-        while traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum do
-            if links ~= nil then
-                for _, link in ipairs(links) do
-                    if table.contains(link, position) then
-                        for _, octant in ipairs(link) do
-                            if traversedGrid[xIndex][zIndex][octant] == nil or traversedGrid[xIndex][zIndex][octant] > traversalNum then
-                                traversedGrid[xIndex][zIndex][octant] = traversalNum
-                                if traversalNum == 1 then
-                                    traversedFeaturePositions[xIndex][zIndex][octant] = 1
-                                end
-                                local direction = (3 + octant + (rotation * 2)) % 8 + 5
-                                local newX = xIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].x
-                                local newZ = zIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].z
-                                --debugMessage(2, "checking x:" .. xIndex .. " z:" .. zIndex .. " octant:" .. octant .. " direction:" .. direction .. " newX:" .. newX .. " newZ:" .. newZ .. " trans num: " .. traversalNum)
-                                if tileGridOccupied(newX, newZ) then
-                                    local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
-                                    local newTileRotation = tileGrid[newX][newZ].rotation
-                                    local newTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (newTileRotation * 2) - 4) % 8 + 5
-                                    --debugMessage(2, "newTileRotation: " .. newTileRotation .. " newTilePosition: " .. newTilePosition)
-                                    if getFeatureName(newTile, newTilePosition) ~= 'Abbey' and getFeatureName(tile, position) ~= 'Abbey' then
-                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
-                                    elseif traversalNum == 1 then -- all of this is for Abbeys and Wagons
-                                        if getFeatureName(newTile, (newTilePosition - 3) / 2) == 'Road' then
-                                            getTileComponents(newX, newZ, math.floor((newTilePosition - 3) / 2), traversalLevels, traversalNum + 1, reverseCityTraversal)
-                                        elseif getFeatureName(newTile, newTilePosition) ~= 'Field' then
-                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
-                                        end
-                                    end
-                                else
-                                    --debugMessage(2, "Next tile is empty. Feature is not finished")
-                                    finished = finished + 1
-                                    if traversalNum == 1 then
-                                        traversedOpeningCoords[newX .. "-" .. newZ] = true
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-             --workaround for when the target position has no links and is the first tile of the chain
-             --in that case, the target position would never be checked, and, therefore, none of its neighbors
-             --so we force it to be checked by running again with a links table containing the element
-            if traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum then
-                links = {{position}}
-            end
-        end
-    else
-        if traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum then
-            traversedGrid[xIndex][zIndex][position] = traversalNum
-            if traversalNum == 1 then
-                traversedFeaturePositions[xIndex][zIndex][position] = 1
-            end
-            local feature = specialFeatures[position - 12]
-            if table.contains(PROXIMITY_FEATURES, feature[1]) then
-                if traversalNum == 1 then
-                    table.insert(traversedSpecialFeatures, feature[1])
-                    --debugMessage(2, feature[1] .. " added to traversedSpecialFeatures")
-                end
-                local tileNum = 1
-                for i = -1, 1 do
-                    for j = -1, 1 do
-                        if tileGridOccupied(xIndex + i, zIndex + j) then
-                            if not (i == 0 and j == 0) then --we already added the tile
-                                tileNum = tileNum + 1
-                                if traversalNum == 1 then
-                                    table.insert(traversedTileCoords, {x=xIndex + i, z=zIndex + j})
-                                    local nestedSpecialFeatures = getObjectFromGUID(tileGrid[xIndex + i][zIndex + j].tile_guid).getTable('specialFeatures')
-                                    if nestedSpecialFeatures ~= nil then
-                                        for _, specialFeature in ipairs(nestedSpecialFeatures) do
-                                            if specialFeature[1] == "Vineyard" then
-                                                table.insert(traversedSpecialFeatures, specialFeature[1])
-                                                --debugMessage(2, specialFeature[1] .. " added to traversedSpecialFeatures")
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                            --this is purely for graphical effect of showing what tiles were used in scoring the cloister
-                            if traversalNum == 1 and not (i == 0 and j == 0 and feature[1] == 'Abbey') then
-                                if traversedFeaturePositions[xIndex + i] == nil then
-                                    traversedFeaturePositions[xIndex + i] = {}
-                                end
-                                if traversedFeaturePositions[xIndex + i][zIndex + j] == nil then
-                                    traversedFeaturePositions[xIndex + i][zIndex + j] = {}
-                                end
-                                for k = 1, 12 do
-                                    if traversedFeaturePositions[xIndex + i][zIndex + j][k] == nil then
-                                        traversedFeaturePositions[xIndex + i][zIndex + j][k] = 2
-                                    end
-                                end
-                            end
-                        else
-                            traversedOpeningCoords[xIndex + i .. "-" .. zIndex + j] = true
-                        end
-                    end
-                end
-                if tileNum < 9 then finished = finished + 9 - tileNum end
-            end
-            if feature[1] == 'City' or feature[1] == 'Road' or feature[1] == 'Field' or feature[1] == 'Abbey' then
-                if feature[2] ~= nil then
-                    for _, location in ipairs(feature[2]) do
-                        if traversedGrid[xIndex][zIndex][location] == nil or traversedGrid[xIndex][zIndex][location] > traversalNum then
-                            if traversalNum == 1 then
-                                traversedFeaturePositions[xIndex][zIndex][location] = 1
-                            end
-                            finished = finished + getTileComponents(xIndex, zIndex, location, traversalLevels, traversalNum, reverseCityTraversal)
-                        end
-                    end
-                end
-            end
-        end
-    end
-    if specialFeatures ~= nil then
-        for i, feature in ipairs(specialFeatures) do
-            if feature[2] ~= nil then
-                if table.contains(feature[2], position) then
-                    if (traversedGrid[xIndex][zIndex][i+12] == nil or traversedGrid[xIndex][zIndex][i+12] > traversalNum) and not (feature[1] == 'City-Field' and ((not reverseCityTraversal and getFeatureName(tile, position) ~= 'Field') or (reverseCityTraversal and getFeatureName(tile, position) ~= 'City'))) then
-                        if feature[1] == 'Abbey' then
-                            finished = finished + getTileComponents(xIndex, zIndex, i+12, traversalLevels, traversalNum, reverseCityTraversal)
-                        else
-                            traversedGrid[xIndex][zIndex][i+12] = traversalNum
-                            if traversalNum == 1 then
-                                traversedFeaturePositions[xIndex][zIndex][i+12] = 1
-                                if feature[1] == 'City-Field' then
-                                    if getFeatureName(tile, position) == 'Field' or (reverseCityTraversal and (getFeatureName(tile, position) == 'City' or getFeatureName(tile, octant) == 'Carcassonne')) then
-                                        for _, octant in ipairs(feature[2]) do
-                                            if getFeatureName(tile, octant) == 'City' or getFeatureName(tile, octant) == 'Carcassonne' or (reverseCityTraversal and getFeatureName(tile, octant) == 'Field') then
-                                                if traversedGrid[xIndex][zIndex][octant] == nil or traversedGrid[xIndex][zIndex][octant] > traversalNum + 1 then
-                                                    if getTileComponents(xIndex, zIndex, octant, traversalLevels, traversalNum + 1, reverseCityTraversal) == 0 or reverseCityTraversal then
-                                                        if not reverseCityTraversal then
-                                                            table.insert(traversedSpecialFeatures, "Completed City")
-                                                            --debugMessage(2, "Completed City added to traversedSpecialFeatures")
-                                                        end
-                                                        traversedFeaturePositions[xIndex][zIndex][octant] = 2
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                elseif feature[1] == 'Road Intersection' then
-                                    for _, location in ipairs(feature[2]) do
-                                        if getTileComponents(xIndex, zIndex, location, traversalLevels, traversalNum + 1, reverseCityTraversal) > 0 then
-                                            --we don't really care if the feature is finished or not. In fact, we really don't need to traverse intersections at all, except for the removeTile method
-                                        end
-                                    end
-                                elseif feature[1] == 'Pennant' or feature[1] == 'Inn' or feature[1] == 'Cathedral' or
-                                    table.contains(TRADE_GOOD_TYPES, feature[1]) or
-                                    feature[1] == 'Pig-herd' or feature[1] == 'Sheep' then
-                                    table.insert(traversedSpecialFeatures, feature[1])
-                                    --debugMessage(2, feature[1] .. " added to traversedSpecialFeatures")
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    for i=1, 4 do
-        --this one is necessary for followers placed on center positions for quadrant features to be processed correctly
-        if getFeatureName(tile, i) ~= 'Road' and getFeatureName(tile, i) ~= 'River' then
-            if traversedFeaturePositions[xIndex][zIndex][i] ~= nil then
-                if traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == nil or traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] > traversedFeaturePositions[xIndex][zIndex][i] then
-                    traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] = traversedFeaturePositions[xIndex][zIndex][i]
-                end
-                if traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] == nil or traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] > traversedFeaturePositions[xIndex][zIndex][i] then
-                    traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] = traversedFeaturePositions[xIndex][zIndex][i]
-                end
-            end
-            --this is just used for graphical effect
-            if traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] ~= nil and traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] ~= nil and traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] then
-                traversedFeaturePositions[xIndex][zIndex][i] = traversedFeaturePositions[xIndex][zIndex][i * 2 + 3]
-            end
-            if addToTempPositions and traversedGrid[xIndex][zIndex][i * 2 + 3] ~= nil and traversedGrid[xIndex][zIndex][i * 2 + 4] ~= nil and traversedGrid[xIndex][zIndex][i * 2 + 3] == traversedGrid[xIndex][zIndex][i * 2 + 4] then
-                traversedGrid[xIndex][zIndex][i] = traversedGrid[xIndex][zIndex][i * 2 + 3]
-            end
-        end
-    end
-    return finished
-end
-
---resetTraversal
---Empties the traversal tables, so that they are ready for the next traversal
-function resetTraversal()
-    --debugMessage(2, "Clearing traversal tables")
-    traversedGrid = {}
-    traversedFeaturePositions = {}
-    traversedTileCoords = {}
-    traversedOpeningCoords = {}
-    traversedSpecialFeatures = {}
-    traversedFollowers = {}
-    traversedSpecialFigures = {}
-    traversedSheepTokens = {}
-    traversedGoldBars = {}
-    return
 end

@@ -1,0 +1,366 @@
+--contains scripts related to recursive tile traversal
+
+--getFeatureComponents
+--
+-- Traverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
+--
+-- params:
+--  int: xIndex
+--  int: zIndex
+--  int: position number to check
+--  int: number of traversal levels do check
+--  bool: false if multiple getFeatureComponents calls will be made. This prevents resetting the traversal and also does not check for followers each time. The goal is to save on performance.
+-- returns:
+--  bool: true if the feature is complete, false if not complete
+function getFeatureComponents(xIndex, zIndex, position, traversalLevels, reset, reverseCityTraversal)
+    if reset then --for when we want to make multiple feature traversals without revisiting already visited positions
+        resetTraversal()
+    end
+
+    local nameOfFeature = getTileFeatureName(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), position)
+    local finished = 0
+    if position < 5 then
+        --if nameOfFeature == 'River' then return 0
+        if nameOfFeature == 'Road' or nameOfFeature == 'River' then
+            finished = getTileComponents(xIndex, zIndex, position, traversalLevels, 1, reverseCityTraversal)
+        else
+            --in theory this shouldn't happen unless a player allows a figure to stay somewhere they're not supposed to
+            --if it happens, just pick an arbitrary octant
+            finished = getTileComponents(xIndex, zIndex, (position * 2) + 3, traversalLevels, 1, reverseCityTraversal)
+        end
+    else
+        finished = getTileComponents(xIndex, zIndex, position, traversalLevels, 1, reverseCityTraversal)
+    end
+
+    if reset then -- don't run for each call of getFeatureComponents. Instead, getFigureComponents should be called from the calling method.
+        getFigureComponents()
+    end
+
+    -- if finished == 0 then
+    --     debugMessage(2, "Feature is complete")
+    -- else
+    --     debugMessage(2, "Feature is not complete: " .. finished .. " openings.")
+    -- end
+
+    return finished
+end
+
+--getFigureComponents
+--
+-- Traverses the all objects in the play area, storing followers and tokens that were in the traversed positions
+function getFigureComponents()
+    local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
+    for _, obj in ipairs(objs) do
+        if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, obj.getVar('figureName')) or table.contains(SHEEP_TOKEN_TYPES, obj.getVar('tokenName')) or obj.getVar('figureName') == GOLD_BAR_NAME then
+            local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
+            --debugMessage(2, "Object on tile: x: " .. xIndex .. " z: " .. zIndex)
+            if obj.getVar('figureName') == GOLD_BAR_NAME and table.contains(traversedTileCoords, {x=xIndex, z=zIndex}) then
+                --debugMessage(2, obj.getVar('figureName') .. " added to traversedGoldBars table")
+                table.insert(traversedGoldBars, obj)
+            elseif traversedFeaturePositions[xIndex] ~= nil and traversedFeaturePositions[xIndex][zIndex] ~= nil then
+                local closestTilePosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation, true)
+                --debugMessage(2, "Object closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " feature: " .. closestTilePosition)
+                if traversedFeaturePositions[xIndex][zIndex][closestTilePosition] == 1 then
+                    if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
+                        --debugMessage(2, obj.getVar('owner') .. " " .. obj.getVar('tokenName') .. " added to traversedFollowers table")
+                        table.insert(traversedFollowers, obj)
+                    elseif table.contains(SPECIAL_FIGURE_TYPES, obj.getVar('figureName')) then
+                        --debugMessage(2, obj.getVar('owner') .. " " .. obj.getVar('tokenName') .. " added to traversedSpecialFigures table")
+                        table.insert(traversedSpecialFigures, obj)
+                    elseif table.contains(SHEEP_TOKEN_TYPES, obj.getVar('tokenName')) then
+                        --debugMessage(2, obj.getVar('tokenName') .. " added to traversedSheepTokens table")
+                        table.insert(traversedSheepTokens, obj)
+                    end
+                end
+            end
+        end
+    end
+    --debugMessage(1, "Traversed " .. #traversedTileCoords .. " tiles, " .. #traversedFollowers .. " followers, " .. #traversedSpecialFigures .. " special figures, " .. #traversedSpecialFeatures .. " special features, " .. #traversedSheepTokens .. " sheep tokens, and " .. #traversedGoldBars .. " gold bars")
+end
+
+--getTileComponents
+--
+-- Traverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
+--
+-- params:
+--  int: xIndex
+--  int: zIndex
+--  int: position number to check
+--  int: how many traversal levels to check
+--       2 levels would be used for checking secondary features such as completed cities and road intersections
+--  int: current traversal level
+--  bool: reverseCityTraversal - traverses from cities to fields, when the feature is a city. Currently only used for recalculating field connections from the city's point of view
+-- returns:
+--  bool: true if the feature is complete, false if not complete
+function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalNum, reverseCityTraversal)
+    if traversalNum > traversalLevels then return 0 end
+    --debugMessage(2, "checking tile at x: " .. xIndex .. " z: " .. zIndex .. " position: " .. position .. " trans num: " .. traversalNum)
+    local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+    local rotation = tileGrid[xIndex][zIndex].rotation
+    if traversedGrid[xIndex] == nil then
+        traversedGrid[xIndex] = {}
+    end
+    if traversedGrid[xIndex][zIndex] == nil then
+        traversedGrid[xIndex][zIndex] = {}
+    end
+    if traversedFeaturePositions[xIndex] == nil then
+        traversedFeaturePositions[xIndex] = {}
+    end
+    if traversedFeaturePositions[xIndex][zIndex] == nil then
+        traversedFeaturePositions[xIndex][zIndex] = {}
+    end
+    if traversalNum == 1 and not table.contains(traversedTileCoords, {x=xIndex, z=zIndex}) then
+        table.insert(traversedTileCoords, {x=xIndex, z=zIndex})
+        --debugMessage(2, "adding tile to traversedTileCoords: x: " .. xIndex .. " z: " .. zIndex)
+    end
+    if traversedGrid[xIndex][zIndex][position] ~= nil and traversedGrid[xIndex][zIndex][position] <= traversalNum then return 0 end
+    local finished = 0
+    local specialFeatures = tile.getTable('specialFeatures')
+    if position < 5 then
+        local links = tile.getTable('linkedQuadrants')
+        while traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum do
+            if links ~= nil then
+                for _, link in ipairs(links) do
+                    if table.contains(link, position) then
+                        for _, quadrant in ipairs(link) do
+                            if traversedGrid[xIndex][zIndex][quadrant] == nil or traversedGrid[xIndex][zIndex][quadrant] > traversalNum then
+                                traversedGrid[xIndex][zIndex][quadrant] = traversalNum
+                                if traversalNum == 1 then
+                                    traversedFeaturePositions[xIndex][zIndex][quadrant] = 1
+                                end
+                                local direction = (3 + quadrant + rotation) % 4 + 1
+                                local newX = xIndex + SIDE_DELTA[direction].x
+                                local newZ = zIndex + SIDE_DELTA[direction].z
+                                --debugMessage(2, "checking x:" .. xIndex .. " z:" .. zIndex .. " quadrant:" .. quadrant .. " direction:" .. direction .. " newX:" .. newX .. " newZ:" .. newZ .. " trans num: " .. traversalNum)
+                                if tileGridOccupied(newX, newZ) then
+                                    local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
+                                    local newTileRotation = tileGrid[newX][newZ].rotation
+                                    local newTilePosition = (3 + quadrant + rotation - newTileRotation + TILE_180_ROTATION) % 4 + 1
+                                    --debugMessage(2, "newTilePosition: " .. newTilePosition)
+                                    if getTileFeatureName(newTile, newTilePosition) ~= 'Abbey' and getTileFeatureName(tile, position) ~= 'Abbey' then
+                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
+                                    elseif traversalNum == 1 then
+                                        if getTileFeatureName(newTile, newTilePosition) == 'Abbey' then
+                                            getTileComponents(newX, newZ, (newTilePosition * 2) + 3, traversalLevels, traversalNum + 1, reverseCityTraversal)
+                                        elseif getTileFeatureName(newTile, newTilePosition) ~= 'Field' then
+                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
+                                        end
+                                    end
+                                else
+                                    --debugMessage(2, "Next tile is empty. Feature is not finished")
+                                    finished = finished + 1
+                                    if traversalNum == 1 then
+                                        traversedOpeningCoords[newX .. "-" .. newZ] = true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+             --workaround for when the target position has no links and is the first tile of the chain
+             --in that case, the target position would never be checked, and, therefore, none of its neighbors
+             --so we force it to be checked by running again with a links table containing the element
+            if traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum then
+                links = {{position}}
+            end
+        end
+    elseif position < 13 then
+        local links = tile.getTable('linkedOctants')
+        while traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum do
+            if links ~= nil then
+                for _, link in ipairs(links) do
+                    if table.contains(link, position) then
+                        for _, octant in ipairs(link) do
+                            if traversedGrid[xIndex][zIndex][octant] == nil or traversedGrid[xIndex][zIndex][octant] > traversalNum then
+                                traversedGrid[xIndex][zIndex][octant] = traversalNum
+                                if traversalNum == 1 then
+                                    traversedFeaturePositions[xIndex][zIndex][octant] = 1
+                                end
+                                local direction = (3 + octant + (rotation * 2)) % 8 + 5
+                                local newX = xIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].x
+                                local newZ = zIndex + SIDE_DELTA[math.floor((direction - 3) / 2)].z
+                                --debugMessage(2, "checking x:" .. xIndex .. " z:" .. zIndex .. " octant:" .. octant .. " direction:" .. direction .. " newX:" .. newX .. " newZ:" .. newZ .. " trans num: " .. traversalNum)
+                                if tileGridOccupied(newX, newZ) then
+                                    local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
+                                    local newTileRotation = tileGrid[newX][newZ].rotation
+                                    local newTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (newTileRotation * 2) - 4) % 8 + 5
+                                    --debugMessage(2, "newTileRotation: " .. newTileRotation .. " newTilePosition: " .. newTilePosition)
+                                    if getTileFeatureName(newTile, newTilePosition) ~= 'Abbey' and getTileFeatureName(tile, position) ~= 'Abbey' then
+                                        finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
+                                    elseif traversalNum == 1 then -- all of this is for Abbeys and Wagons
+                                        if getTileFeatureName(newTile, (newTilePosition - 3) / 2) == 'Road' then
+                                            getTileComponents(newX, newZ, math.floor((newTilePosition - 3) / 2), traversalLevels, traversalNum + 1, reverseCityTraversal)
+                                        elseif getTileFeatureName(newTile, newTilePosition) ~= 'Field' then
+                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
+                                        end
+                                    end
+                                else
+                                    --debugMessage(2, "Next tile is empty. Feature is not finished")
+                                    finished = finished + 1
+                                    if traversalNum == 1 then
+                                        traversedOpeningCoords[newX .. "-" .. newZ] = true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+             --workaround for when the target position has no links and is the first tile of the chain
+             --in that case, the target position would never be checked, and, therefore, none of its neighbors
+             --so we force it to be checked by running again with a links table containing the element
+            if traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum then
+                links = {{position}}
+            end
+        end
+    else
+        if traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum then
+            traversedGrid[xIndex][zIndex][position] = traversalNum
+            if traversalNum == 1 then
+                traversedFeaturePositions[xIndex][zIndex][position] = 1
+            end
+            local feature = specialFeatures[position - 12]
+            if table.contains(PROXIMITY_FEATURES, feature[1]) then
+                if traversalNum == 1 then
+                    table.insert(traversedSpecialFeatures, feature[1])
+                    --debugMessage(2, feature[1] .. " added to traversedSpecialFeatures")
+                end
+                local tileNum = 1
+                for i = -1, 1 do
+                    for j = -1, 1 do
+                        if tileGridOccupied(xIndex + i, zIndex + j) then
+                            if not (i == 0 and j == 0) then --we already added the tile
+                                tileNum = tileNum + 1
+                                if traversalNum == 1 then
+                                    table.insert(traversedTileCoords, {x=xIndex + i, z=zIndex + j})
+                                    local nestedSpecialFeatures = getObjectFromGUID(tileGrid[xIndex + i][zIndex + j].tile_guid).getTable('specialFeatures')
+                                    if nestedSpecialFeatures ~= nil then
+                                        for _, specialFeature in ipairs(nestedSpecialFeatures) do
+                                            if specialFeature[1] == "Vineyard" then
+                                                table.insert(traversedSpecialFeatures, specialFeature[1])
+                                                --debugMessage(2, specialFeature[1] .. " added to traversedSpecialFeatures")
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                            --this is purely for graphical effect of showing what tiles were used in scoring the cloister
+                            if traversalNum == 1 and not (i == 0 and j == 0 and feature[1] == 'Abbey') then
+                                if traversedFeaturePositions[xIndex + i] == nil then
+                                    traversedFeaturePositions[xIndex + i] = {}
+                                end
+                                if traversedFeaturePositions[xIndex + i][zIndex + j] == nil then
+                                    traversedFeaturePositions[xIndex + i][zIndex + j] = {}
+                                end
+                                for k = 1, 12 do
+                                    if traversedFeaturePositions[xIndex + i][zIndex + j][k] == nil then
+                                        traversedFeaturePositions[xIndex + i][zIndex + j][k] = 2
+                                    end
+                                end
+                            end
+                        else
+                            traversedOpeningCoords[xIndex + i .. "-" .. zIndex + j] = true
+                        end
+                    end
+                end
+                if tileNum < 9 then finished = finished + 9 - tileNum end
+            end
+            if feature[1] == 'City' or feature[1] == 'Road' or feature[1] == 'Field' or feature[1] == 'Abbey' then
+                if feature[2] ~= nil then
+                    for _, location in ipairs(feature[2]) do
+                        if traversedGrid[xIndex][zIndex][location] == nil or traversedGrid[xIndex][zIndex][location] > traversalNum then
+                            if traversalNum == 1 then
+                                traversedFeaturePositions[xIndex][zIndex][location] = 1
+                            end
+                            finished = finished + getTileComponents(xIndex, zIndex, location, traversalLevels, traversalNum, reverseCityTraversal)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if specialFeatures ~= nil then
+        for i, feature in ipairs(specialFeatures) do
+            if feature[2] ~= nil then
+                if table.contains(feature[2], position) then
+                    if (traversedGrid[xIndex][zIndex][i+12] == nil or traversedGrid[xIndex][zIndex][i+12] > traversalNum) and not (feature[1] == 'City-Field' and ((not reverseCityTraversal and getTileFeatureName(tile, position) ~= 'Field') or (reverseCityTraversal and getTileFeatureName(tile, position) ~= 'City'))) then
+                        if feature[1] == 'Abbey' then
+                            finished = finished + getTileComponents(xIndex, zIndex, i+12, traversalLevels, traversalNum, reverseCityTraversal)
+                        else
+                            traversedGrid[xIndex][zIndex][i+12] = traversalNum
+                            if traversalNum == 1 then
+                                traversedFeaturePositions[xIndex][zIndex][i+12] = 1
+                                if feature[1] == 'City-Field' then
+                                    if getTileFeatureName(tile, position) == 'Field' or (reverseCityTraversal and (getTileFeatureName(tile, position) == 'City' or getTileFeatureName(tile, octant) == 'Carcassonne')) then
+                                        for _, octant in ipairs(feature[2]) do
+                                            if getTileFeatureName(tile, octant) == 'City' or getTileFeatureName(tile, octant) == 'Carcassonne' or (reverseCityTraversal and getTileFeatureName(tile, octant) == 'Field') then
+                                                if traversedGrid[xIndex][zIndex][octant] == nil or traversedGrid[xIndex][zIndex][octant] > traversalNum + 1 then
+                                                    if getTileComponents(xIndex, zIndex, octant, traversalLevels, traversalNum + 1, reverseCityTraversal) == 0 or reverseCityTraversal then
+                                                        if not reverseCityTraversal then
+                                                            table.insert(traversedSpecialFeatures, "Completed City")
+                                                            --debugMessage(2, "Completed City added to traversedSpecialFeatures")
+                                                        end
+                                                        traversedFeaturePositions[xIndex][zIndex][octant] = 2
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                elseif feature[1] == 'Road Intersection' then
+                                    for _, location in ipairs(feature[2]) do
+                                        if getTileComponents(xIndex, zIndex, location, traversalLevels, traversalNum + 1, reverseCityTraversal) > 0 then
+                                            --we don't really care if the feature is finished or not. In fact, we really don't need to traverse intersections at all, except for the removeTile method
+                                        end
+                                    end
+                                elseif feature[1] == 'Pennant' or feature[1] == 'Inn' or feature[1] == 'Cathedral' or
+                                    table.contains(TRADE_GOOD_TYPES, feature[1]) or
+                                    feature[1] == 'Pig-herd' or feature[1] == 'Sheep' then
+                                    table.insert(traversedSpecialFeatures, feature[1])
+                                    --debugMessage(2, feature[1] .. " added to traversedSpecialFeatures")
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for i=1, 4 do
+        --this one is necessary for followers placed on center positions for quadrant features to be processed correctly
+        if getTileFeatureName(tile, i) ~= 'Road' and getTileFeatureName(tile, i) ~= 'River' then
+            if traversedFeaturePositions[xIndex][zIndex][i] ~= nil then
+                if traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == nil or traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] > traversedFeaturePositions[xIndex][zIndex][i] then
+                    traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] = traversedFeaturePositions[xIndex][zIndex][i]
+                end
+                if traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] == nil or traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] > traversedFeaturePositions[xIndex][zIndex][i] then
+                    traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] = traversedFeaturePositions[xIndex][zIndex][i]
+                end
+            end
+            --this is just used for graphical effect
+            if traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] ~= nil and traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] ~= nil and traversedFeaturePositions[xIndex][zIndex][i * 2 + 3] == traversedFeaturePositions[xIndex][zIndex][i * 2 + 4] then
+                traversedFeaturePositions[xIndex][zIndex][i] = traversedFeaturePositions[xIndex][zIndex][i * 2 + 3]
+            end
+            if addToTempPositions and traversedGrid[xIndex][zIndex][i * 2 + 3] ~= nil and traversedGrid[xIndex][zIndex][i * 2 + 4] ~= nil and traversedGrid[xIndex][zIndex][i * 2 + 3] == traversedGrid[xIndex][zIndex][i * 2 + 4] then
+                traversedGrid[xIndex][zIndex][i] = traversedGrid[xIndex][zIndex][i * 2 + 3]
+            end
+        end
+    end
+    return finished
+end
+
+--resetTraversal
+--Empties the traversal tables, so that they are ready for the next traversal
+function resetTraversal()
+    --debugMessage(2, "Clearing traversal tables")
+    traversedGrid = {}
+    traversedFeaturePositions = {}
+    traversedTileCoords = {}
+    traversedOpeningCoords = {}
+    traversedSpecialFeatures = {}
+    traversedFollowers = {}
+    traversedSpecialFigures = {}
+    traversedSheepTokens = {}
+    traversedGoldBars = {}
+    return
+end
