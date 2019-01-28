@@ -400,15 +400,15 @@ function AICalculateLocationOdds(openingCoord, xIndex, zIndex, addedTileXIndex, 
                                 end
                                 if table.contains(link, position) then
                                     visitedPosition = true
-                                    for _, nestedPosition in ipairs(link) do
-                                        visitedFeatures[nestedPosition] = true
-                                        if nestedPosition < 13 then
-                                            local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, validTileRotation)
+                                    for _, nestedTilePosition in ipairs(link) do
+                                        visitedFeatures[nestedTilePosition] = true
+                                        if nestedTilePosition < 13 then
+                                            local connectedFeatureMapPosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedTilePosition, validTileRotation)
                                             if nameOfFeature ~= 'Abbey' then
                                                 if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
-                                                    table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedTilePosition])
-                                                elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedTilePosition] ~= nil then
-                                                    table.bininsertnodup(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition])
+                                                    table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedFeatureMapPosition])
+                                                elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedFeatureMapPosition] ~= nil then
+                                                    table.bininsertnodup(connectedFeatures, featureMap[connectedX][connectedZ][connectedFeatureMapPosition])
                                                 else
                                                     featureOpenings = featureOpenings + 1
                                                 end
@@ -492,15 +492,15 @@ function AIRemoveTileOdds(openingCoord, xIndex, zIndex, removedTile_GUID, connec
                                 end
                                 if table.contains(link, position) then
                                     visitedPosition = true
-                                    for _, nestedPosition in ipairs(link) do
-                                        visitedFeatures[nestedPosition] = true
-                                        if nestedPosition < 13 then
-                                            local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, validTileRotation)
+                                    for _, nestedTilePosition in ipairs(link) do
+                                        visitedFeatures[nestedTilePosition] = true
+                                        if nestedTilePosition < 13 then
+                                            local connectedFeatureMapPosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedTilePosition, validTileRotation)
                                             if nameOfFeature ~= 'Abbey' then
                                                 if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
-                                                    table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedTilePosition])
-                                                elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedTilePosition] ~= nil then
-                                                    table.bininsertnodup(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition])
+                                                    table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedFeatureMapPosition])
+                                                elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedFeatureMapPosition] ~= nil then
+                                                    table.bininsertnodup(connectedFeatures, featureMap[connectedX][connectedZ][connectedFeatureMapPosition])
                                                 else
                                                     featureOpenings = featureOpenings + 1
                                                 end
@@ -683,15 +683,15 @@ function AIAddTileOdds(openingCoord, xIndex, zIndex, addedTile_GUID, connectionO
                                 end
                                 if table.contains(link, position) then
                                     visitedPosition = true
-                                    for _, nestedPosition in ipairs(link) do
-                                        visitedFeatures[nestedPosition] = true
-                                        if nestedPosition < 13 then
-                                            local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, validTileRotation)
+                                    for _, nestedTilePosition in ipairs(link) do
+                                        visitedFeatures[nestedTilePosition] = true
+                                        if nestedTilePosition < 13 then
+                                            local connectedFeatureMapPosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedTilePosition, validTileRotation)
                                             if nameOfFeature ~= 'Abbey' then
                                                 if temp and connectedX == addedTileXIndex and connectedZ == addedTileZIndex then
-                                                    table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedTilePosition])
-                                                elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedTilePosition] ~= nil then
-                                                    table.bininsertnodup(connectedFeatures, featureMap[connectedX][connectedZ][connectedTilePosition])
+                                                    table.bininsertnodup(connectedFeatures, tempFeatureMap[connectedFeatureMapPosition])
+                                                elseif featureMap[connectedX] ~= nil and featureMap[connectedX][connectedZ] ~= nil and featureMap[connectedX][connectedZ][connectedFeatureMapPosition] ~= nil then
+                                                    table.bininsertnodup(connectedFeatures, featureMap[connectedX][connectedZ][connectedFeatureMapPosition])
                                                 else
                                                     featureOpenings = featureOpenings + 1
                                                 end
@@ -1179,7 +1179,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = tilePosition
+                        highestScorePos = featureMapPosition
                         if baselineFigures[activePlayers[currentPlayer]]['Big Follower'] and (baselineFollowerCounts[activePlayers[currentPlayer]] == 0 or nameOfFeature == 'City') then
                             highestScoreFigure = 'Big Follower'
                         else
@@ -1206,7 +1206,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = tilePosition
+                    highestScorePos = featureMapPosition
                     highestScoreFigure = 'Pig'
                     usedFeature = true
                 end
@@ -1225,7 +1225,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = tilePosition
+                    highestScorePos = featureMapPosition
                     highestScoreFigure = 'Builder'
                     usedFeature = true
                 end
@@ -1253,7 +1253,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = tilePosition
+                        highestScorePos = featureMapPosition
                         highestScoreFigure = 'Shepherd'
                         usedFeature = true
                     end
@@ -1336,8 +1336,8 @@ function AICalculateActiveScoresEasy(newXIndex, newZIndex)
             end
         else
             local visitedFeatures = {}
-            for position=1, 12 do --roads and cities
-                local newFeatureMapPosition, newX, newZ = getConnectingFeatureMapPosition(newXIndex, newZIndex, position, TILE_STANDARD_ROTATION)
+            for tilePosition=1, 12 do --roads and cities
+                local newFeatureMapPosition, newX, newZ = getConnectingFeatureMapPosition(newXIndex, newZIndex, tilePosition, TILE_STANDARD_ROTATION)
                 if featureMap[newX] ~= nil and featureMap[newX][newZ] ~= nil then
                     local featureNum = getFeatureNumAt(newX, newZ, newFeatureMapPosition)
                     if not table.contains(visitedFeatures, featureNum) then
@@ -2309,7 +2309,7 @@ function AICalculateActiveScores(newXIndex, newZIndex, tileRotation, featureNum)
             end
         else
             local visitedFeatures = {}
-            for position=1, 12 do --roads and cities
+            for tilePosition=1, 12 do --roads and cities
                 local newFeatureMapPosition, newX, newZ = getConnectingFeatureMapPosition(newXIndex, newZIndex, position, TILE_STANDARD_ROTATION)
                 if featureMap[newX] ~= nil and featureMap[newX][newZ] ~= nil then
                     local featureNum = getFeatureNumAt(newX, newZ, newFeatureMapPosition)

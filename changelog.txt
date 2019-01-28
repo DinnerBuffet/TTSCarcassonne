@@ -1,4 +1,8 @@
-﻿v1.21.2 - 20180126
+﻿v1.21.3 - 20180128
+[*]Fixed Easy AI being broken (Due to a change in 1.21.2) (Thanks to Teff for reporting!)
+[*]Fixed tile removal being broken (Due to a change in 1.21.2) (Thanks to Teff for reporting!)
+
+v1.21.2 - 20180126
 [*]Fixed King and Robber Baron tokens not working (Thanks to Teff for reporting!)
 [*]Fixed wagon rotating incorrectly after being moved.
 [*]Added a different message for City of Carcassonne prompts at the end of the game, since the behavior is different than during the game.

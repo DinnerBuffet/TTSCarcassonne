@@ -507,7 +507,7 @@ function removeTile(xIndex, zIndex, removedTile)
                     featureMapPosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
                 end
 
-                local nameOfFeature = featureList[featureMap[connectedX][connectedZ][featureMapPosition]].nameOfFeature
+                local nameOfFeature = getTileFeatureName(connectedTile, connectedTilePosition)
                 if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River') and featureMap[connectedX][connectedZ][featureMapPosition] == nil then
                     --print(position .. ": checking x:" .. connectedX .. " z:" .. connectedZ .. " tilePosition:" .. connectedTilePosition .. " featureMapPosition:" .. featureMapPosition)
                     local openings = getFeatureComponents(connectedX, connectedZ, connectedTilePosition, 2, true, nameOfFeature == 'City')
@@ -566,11 +566,11 @@ function removeTile(xIndex, zIndex, removedTile)
                                 local tile = getObjectFromGUID(tileGrid[nestedXIndex][nestedZIndex].tile_guid)
                                 local rotation = tileGrid[nestedXIndex][nestedZIndex].rotation
                                 if nestedTilePosition < 13 or tile.getTable('specialFeatures')[nestedTilePosition - 12][3] ~= nil then
-                                    if nestedTilePosition > 4 or getFeatureName(tile, nestedTilePosition) == 'Road' or getFeatureName(tile, nestedTilePosition) == 'River' then
+                                    if nestedTilePosition > 4 or getTileFeatureName(tile, nestedTilePosition) == 'Road' or getTileFeatureName(tile, nestedTilePosition) == 'River' then
                                         local nestedFeatureMapPosition = tilePositionToFeatureMapPosition(nestedTilePosition, rotation)
                                         --print("traversed x: " .. nestedXIndex .. " z: " .. nestedZIndex .. " dir: " .. nestedFeatureMapPosition .. " pos: " .. nestedTilePosition)
                                         if traversedFeaturePositions[nestedXIndex] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex][nestedTilePosition] == nil or traversedFeaturePositions[nestedXIndex][nestedZIndex][nestedTilePosition] == 2 then
-                                            if featureList[featureMap[nestedXIndex][nestedZIndex][nestedTilePosition]].nameOfFeature == 'Field' then
+                                            if getTileFeatureName(tile, nestedTilePosition) == 'Field' then
                                                 --table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedFeatureMapPosition})
                                             elseif nameOfFeature == 'Field' then
                                                 table.insert(tempLinkedFeatures['City-Field'][newFeatureIndex], {x=nestedXIndex, z=nestedZIndex, position=nestedFeatureMapPosition})
@@ -592,7 +592,14 @@ function removeTile(xIndex, zIndex, removedTile)
         for featureType, linkedFeatureCategory in pairs(tempLinkedFeatures) do
             for newFeatureIndex, categoryLinkedFeatures in pairs(linkedFeatureCategory) do
                 for _, connectedFeatureDetails in ipairs(categoryLinkedFeatures) do
-                    local connectedFeatureNum = getFeatureNumAt(connectedFeatureDetails.x, connectedFeatureDetails.z, connectedFeatureDetails.position)
+                    --TODO: replacing the following with getFeatureNumAt MAY have caused a bug. Understand it better before replacing (why can it not be a road or river?). Also, was there any other similar code removed elsewhere?
+                    local connectedFeatureNum = featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][connectedFeatureDetails.position]
+
+                    if connectedFeatureNum == nil and connectedFeatureDetails.position < 5 and featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3] ~= nil then
+                        if featureList[featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3]].nameOfFeature ~= 'Road' and featureList[featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3]].nameOfFeature ~= 'River' then
+                            connectedFeatureNum = featureMap[connectedFeatureDetails.x][connectedFeatureDetails.z][(connectedFeatureDetails.position * 2) + 3]
+                        end
+                    end
                     if connectedFeatureNum == nil then
                         allErrorMessage("no feature found at: x: " .. connectedFeatureDetails.x .. " z: " .. connectedFeatureDetails.z .. " pos: " .. connectedFeatureDetails.position)
                     else
@@ -659,6 +666,26 @@ function getFeatureNumAt(xIndex, zIndex, position)
         featureNum = featureMap[xIndex][zIndex][(position * 2) + 3]
     end
     return featureNum
+end
+
+--Will only work if tilePosition is < 13
+function getConnectingFeatureMapPosition(xIndex, zIndex, tilePosition, tileRotation)
+    local connectedFeatureMapPosition
+    local connectedX, connectedZ
+    if tilePosition < 5 then
+        local direction = (3 + tilePosition + tileRotation) % 4 + 1
+        local sideDirection = direction
+        connectedX = xIndex + SIDE_DELTA[sideDirection].x
+        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+        connectedFeatureMapPosition = (3 + tilePosition + tileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
+    else
+        local direction = (3 + tilePosition + (tileRotation * 2)) % 8 + 5
+        local sideDirection = math.floor((direction - 3) / 2)
+        connectedX = xIndex + SIDE_DELTA[sideDirection].x
+        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
+        connectedFeatureMapPosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
+    end
+    return connectedFeatureMapPosition, connectedX, connectedZ
 end
 
 function tilePositionToFeatureMapPosition(tilePosition, tileRotation)

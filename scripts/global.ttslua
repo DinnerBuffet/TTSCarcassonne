@@ -4139,25 +4139,6 @@ function getFigureTileLocation(figure)
     return xIndex, zIndex, xPosition, zPosition
 end
 
-function getConnectingFeatureMapPosition(xIndex, zIndex, tilePosition, tileRotation)
-    local connectedTilePosition
-    local connectedX, connectedZ
-    if tilePosition < 5 then
-        local direction = (3 + tilePosition + tileRotation) % 4 + 1
-        local sideDirection = direction
-        connectedX = xIndex + SIDE_DELTA[sideDirection].x
-        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-        connectedTilePosition = (3 + tilePosition + tileRotation - TILE_STANDARD_ROTATION + TILE_180_ROTATION) % 4 + 1
-    else
-        local direction = (3 + tilePosition + (tileRotation * 2)) % 8 + 5
-        local sideDirection = math.floor((direction - 3) / 2)
-        connectedX = xIndex + SIDE_DELTA[sideDirection].x
-        connectedZ = zIndex + SIDE_DELTA[sideDirection].z
-        connectedTilePosition = (((direction % 2) * 2) + TILE_180_ROTATION + direction - (TILE_STANDARD_ROTATION * 2) - 4) % 8 + 5
-    end
-    return connectedTilePosition, connectedX, connectedZ
-end
-
 --findClosestPosition
 -- params:
 --  int: x
