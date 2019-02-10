@@ -56,6 +56,8 @@
               <Row>
                   <Cell></Cell>
                   <Cell><Text id="RiverMixAllLabel" class="ControlPanelItemLabel" text="Mix all river tiles"></Text></Cell>
+                  <Cell><Text id="RiverAllowUTurnsLabel" class="ControlPanelItemLabel" text="Allow\nU-Turns"></Text></Cell>
+                  <Cell><Text id="RiverAllowUnconnectedLabel" class="ControlPanelItemLabel" text="Allow Un-\nconnected"></Text></Cell>
                   <Cell><Text id="RIIDisablePigherdLabel" class="ControlPanelItemLabel" text="Disable pig-herd"></Text></Cell>
               </Row>
           </TableLayout>

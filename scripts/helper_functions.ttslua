@@ -122,6 +122,10 @@ end
 
 --perform takeObject only if the object exists in the container
 function takeObjectSafe(container, params)
+    if container == nil then
+        printToAll("Warning: Attempted to take object " .. params.guid .. " from a container but the container doesn't exist. It may have been deleted.", ERROR_COLOR)
+        return
+    end
     if params.guid ~= nil then
         for _, item in pairs(container.getObjects()) do
             if item.guid == params.guid then

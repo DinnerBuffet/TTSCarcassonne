@@ -35,11 +35,9 @@ function initializeControlPanelPage()
     self.UI.setAttribute("PhantomsLabel", "text", translate("Phantoms"))
 
     self.UI.setAttribute("PlagueLabel", "text", translate("Plague"))
-    self.UI.setAttribute("RobbersLabel", "text", translate("Robbers"))
     self.UI.setAttribute("SiegeLabel", "text", translate("Siege"))
     self.UI.setAttribute("SpielPromoLabel", "text", translate("Spiel Promo"))
     self.UI.setAttribute("TunnelLabel", "text", translate("Tunnel"))
-
     self.UI.setAttribute("RussianPromoLabel", "text", translate("We go to\nCarcassonne"))
 
     self.UI.setAttribute("PreviousPageLabel", "text", translate("LABEL_PREVIOUS_PAGE"))
@@ -61,11 +59,10 @@ function initializeControlPanelPage()
     -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 2, 'MiNBTiles', "")
     initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 2, 'Phantoms', translate("TOOLTIP_PHANTOMS"))
     -- initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, 'Plague', "")
-    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 3, 'Robbers', "")
-    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 3, 'SiegeTiles', "")
-    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 3, 'SpielPromoTiles', translate("TOOLTIP_SPIEL_PROMO"))
-    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 3, 'Tunnel', "")
-    initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 4, 'RussianPromoTiles', translate("TOOLTIP_WE_GO_TO_CARCASSONNE"))
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 3, 'SiegeTiles', "")
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 3, 'SpielPromoTiles', translate("TOOLTIP_SPIEL_PROMO"))
+    -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 3, 'Tunnel', "")
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 3, 'RussianPromoTiles', translate("TOOLTIP_WE_GO_TO_CARCASSONNE"))
 end
 
 --This is required so that we can use onCheckboxToggle
@@ -130,10 +127,6 @@ end
 
 function onPhantomsToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'Phantoms', 'btnPhantomsToggle')
-end
-
-function onRobbersToggle(Object, sPlayer)
-    onCheckboxToggle(sPlayer, 'Robbers', 'btnRobbersToggle')
 end
 
 function onSiegeTilesToggle(Object, sPlayer)

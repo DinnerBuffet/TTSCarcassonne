@@ -60,18 +60,9 @@
               <Row>
                   <Cell></Cell>
                   <Cell><Text id="PlagueLabel" class="ControlPanelMicroItemLabel" text="Plague"></Text></Cell>
-                  <Cell><Text id="RobbersLabel" class="ControlPanelMicroItemLabel" text="Robbers"></Text></Cell>
                   <Cell><Text id="SiegeLabel" class="ControlPanelMicroItemLabel" text="Siege"></Text></Cell>
                   <Cell><Text id="SpielPromoLabel" class="ControlPanelMicroItemLabel" text="Spiel Promo"></Text></Cell>
                   <Cell><Text id="TunnelLabel" class="ControlPanelMicroItemLabel" text="Tunnel"></Text></Cell>
-              </Row>
-          </TableLayout>
-        </Row>
-        <Row class="ControlPanelMicroExpansionRowGap"/>
-        <Row class="ControlPanelMicroExpansionRow">
-          <TableLayout class="ControlPanelMicroExpansionLayout">
-              <Row>
-                  <Cell></Cell>
                   <Cell><Text id="RussianPromoLabel" class="ControlPanelMicroItemLabel" text="We go to Carcassonne"></Text></Cell>
               </Row>
           </TableLayout>

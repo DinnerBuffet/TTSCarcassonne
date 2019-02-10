@@ -58,7 +58,7 @@ function getFigureComponents()
                 --debugMessage(2, obj.getVar('figureName') .. " added to traversedGoldBars table")
                 table.insert(traversedGoldBars, obj)
             elseif traversedFeaturePositions[xIndex] ~= nil and traversedFeaturePositions[xIndex][zIndex] ~= nil then
-                local closestTilePosition = findClosestPosition(xPosition, zPosition, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation, true)
+                local closestTilePosition = findClosestTilePosition(xIndex, zIndex, xPosition, zPosition)
                 --debugMessage(2, "Object closest feature: index: x: " .. xIndex .. " z: " .. zIndex .. " feature: " .. closestTilePosition)
                 if traversedFeaturePositions[xIndex][zIndex][closestTilePosition] == 1 then
                     if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then

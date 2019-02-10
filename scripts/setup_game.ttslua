@@ -21,6 +21,8 @@ tileSettings = {
     ['WoFWheelTiles'] = {['WoF'] = {['WoFWheelTiles'] = {}}},
     ['FerriesTiles'] = {['Ferries'] = {['FerriesTiles'] = {}}},
     ['FlierTiles'] = {['Flier'] = {['FlierTiles'] = {}}},
+    ['MnWTiles'] = {['MnW'] = {['MnWTiles'] = {}}},
+    ['RobbersTiles'] = {['Robbers'] = {['RobbersTiles'] = {}}},
     ['GamesQuarterlyTiles'] = {['GamesQuarterly'] = {['GamesQuarterlyTiles'] = {}}},
     ['GoldminesTiles'] = {['Goldmines'] = {['GoldminesTiles'] = {}}},
     ['SpielPromoTiles'] = {['SpielPromo'] = {['SpielPromoTiles'] = {}}},
@@ -308,7 +310,6 @@ function startGame()
         if baseStartingTile ~= nil then
             baseStartingTile.destruct()
             startingTile_GUID = nil
-            tileGrid[MIDDLE_X_OFFSET][MIDDLE_Z_OFFSET] = nil
         end
     end
     if not controlPanelSettings['BaseTiles'] then
@@ -327,6 +328,15 @@ function startGame()
         coroutine.yield(0)
     end
     wait(1.0) --I don't remember what this wait is for but I recall a problem if you don't use it
+    --delete all unused expansions in order to improve save/load times
+    for _, obj in ipairs(getObjectFromGUID(EXPANSION_BAG_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
+        if obj.getGUID() == EXPANSION_TABLE_GUID then
+            obj.setPosition({x=obj.getPosition().x, y=obj.getPosition().y + 0.2, z=obj.getPosition().z - 0.7})
+        else
+            obj.destruct()
+        end
+    end
+    --initialize tilesRemaining
     local tileStack = getObjectFromGUID(tileStack_GUID)
     tilesRemaining = 0
     if getObjectFromGUID(tileStack_GUID) ~= nil then
@@ -334,11 +344,13 @@ function startGame()
     elseif finalTile_GUID ~= nil then
         tilesRemaining = 1
     end
+    --initialize burinedTile information if playing with relevant expansion
     if controlPanelSettings['HnSHills'] then
         buriedTiles = {}
         buriedTileCount = 0
     end
     AIMemorizeCards(tileStack)
+    --since the base starting tile is already on the table, remove if required
     if controlPanelSettings['StartingTileBase'] then
         local newTile = startingTile_GUID
         startingTile_GUID = nil
@@ -362,12 +374,8 @@ function startGame()
                                 if sub_item_settings.addToGrid then
                                     local xIndex = math.floor((sub_item_settings.position.x + MIDDLE_OFFSET.x + TILE_SPACING / 2) / TILE_SPACING)
                                     local zIndex = math.floor((sub_item_settings.position.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
-                                    if tileGrid[xIndex] == nil then tileGrid[xIndex] = {} end
-                                    tileGrid[xIndex][zIndex] = {}
-                                    tileGrid[xIndex][zIndex].tile_guid = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid
                                     local tileRotation = math.floor(sub_item_settings.rotation.y / 90 + 0.5)
                                     if tileRotation == 0 then tileRotation = 4 end
-                                    tileGrid[xIndex][zIndex].rotation = tileRotation
                                     addTile(xIndex, zIndex, getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid), tileRotation, false)
                                 end
                             end

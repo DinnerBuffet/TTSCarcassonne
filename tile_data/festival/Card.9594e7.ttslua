@@ -1,0 +1,5 @@
+symmetry = 2
+sides = {'Road', 'Road', 'Road', 'Road'}
+linkedOctants = {{5, 8, 9, 12}, {6, 7}, {10, 11}}
+linkedQuadrants = {{1, 2}, {3, 4}}
+specialFeatures = {{'Field', {5, 8, 9, 12}, {0.0,0.0}}, {'Festival', nil, nil}}

@@ -101,13 +101,13 @@ function initializeControlPanelPage()
 
 --Mage & Witch
     -- initializeAllCheckbox(COLUMN_2_1, ROW_5, 'MnWAll', "")
-    -- initializeCheckbox(COLUMN_2_2, ROW_5, 'MnWTiles', "")
+    initializeCheckbox(COLUMN_2_2, ROW_5, 'MnWTiles', "")
     -- initializeCheckbox(COLUMN_2_3, ROW_5, 'MnWMage', "")
     -- initializeCheckbox(COLUMN_2_4, ROW_5, 'MnWWitch', "")
 
 --The Robbers
     -- initializeAllCheckbox(COLUMN_2_5, ROW_5, 'RobbersAll', "")
-    -- initializeCheckbox(COLUMN_2_6, ROW_5, 'RobbersTiles', "")
+    initializeCheckbox(COLUMN_2_6, ROW_5, 'RobbersTiles', "")
     -- initializeCheckbox(COLUMN_2_7, ROW_5, 'RobbersRobbers', "")
 end
 

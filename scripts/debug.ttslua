@@ -15,7 +15,7 @@ function debugShowTraversal()
                 if position < 13 or getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')[position - 12][3] ~= nil then
                     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                     local rotation = tileGrid[xIndex][zIndex].rotation
-                    local x, z = getFeatureLocation(position, tile, rotation)
+                    local x, z = getTileFeatureLocation(position, tile, rotation)
                     if traversedFeaturePosition ~= 2 then
                         local params = {}
                         if traversedFeaturePosition == 1 then
@@ -40,7 +40,7 @@ function debugShowTraversal()
                 if position < 13 or getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')[position - 12][3] ~= nil then
                     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                     local rotation = tileGrid[xIndex][zIndex].rotation
-                    local x, z = getFeatureLocation(position, tile, rotation)
+                    local x, z = getTileFeatureLocation(position, tile, rotation)
                     local params = {}
                     if traversedPosition ~= nil and (traversedFeaturePositions[xIndex] == nil or traversedFeaturePositions[xIndex][zIndex] == nil or traversedFeaturePositions[xIndex][zIndex][position] == nil or traversedFeaturePositions[xIndex][zIndex][position] == 2) then
                         params.type = "BlockRectangle"
@@ -68,32 +68,39 @@ function debugShowFeatureMap()
     if featureIndex < 100 then
         chatWindowMaxWidth = 11
     else
-        chatWindowMaxWidth = 6
+        chatWindowMaxWidth = 7
     end
 
-    for xIndex, gridColumn in pairs(featureMap) do
-        if xIndex < minX then minX = xIndex end
-        if xIndex > maxX then maxX = xIndex end
+    for xIndex, gridColumn in pairs(tileGrid) do
+        --sometimes a gridColumn might not be nil even when it has no columns. This can happen due to AI temporarily using a grid location in that column, or by removing a tile. Make sure a real column exists.
+        local hasColumn = false
         for zIndex, tileLocation in pairs(gridColumn) do
-            if zIndex < minZ then minZ = zIndex end
-            if zIndex > maxZ then maxZ = zIndex end
+            hasColumn = true
+        end
+        if hasColumn then
+            if xIndex < minX then minX = xIndex end
+            if xIndex > maxX then maxX = xIndex end
+            for zIndex, tileLocation in pairs(gridColumn) do
+                if zIndex < minZ then minZ = zIndex end
+                if zIndex > maxZ then maxZ = zIndex end
+            end
         end
     end
 
     local printColumnMinX = minX
     for printColumnMaxX = minX + chatWindowMaxWidth, maxX + chatWindowMaxWidth, chatWindowMaxWidth + 1 do
         if printColumnMaxX > maxX then printColumnMaxX = maxX end
-        print("printing feature map x:" .. printColumnMinX .. "-" .. printColumnMaxX .. " z:" .. minZ .. "-" .. maxZ)
+        log("\nprinting feature map x:" .. printColumnMinX .. "-" .. printColumnMaxX .. " z:" .. minZ .. "-" .. maxZ .. "\n")
         for zIndex=maxZ, minZ, -1 do
             for i, positionRow in ipairs({{99, 5, 1, 6, 99}, {12, 99, 99, 99, 7}, {4, 99, 99, 99, 2}, {11, 99, 99, 99, 8}, {99, 10, 3, 9, 99}}) do
                 local printLine = ""
                 for xIndex=printColumnMinX, printColumnMaxX do
-                    if featureMap[xIndex] ~= nil then
-                        if featureMap[xIndex][zIndex] ~= nil then
+                    if tileGrid[xIndex] ~= nil then
+                        if tileGrid[xIndex][zIndex] ~= nil then
                             local tilePositionRow = table.shallow_copy(positionRow)
                             if i >= 2 and i <= 4 then
                                 for j=2, 4 do
-                                    local closestPosition = findClosestPosition((j - 3) * 0.25, (3 - i) * 0.25, getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid), tileGrid[xIndex][zIndex].rotation, false)
+                                    local closestPosition = findClosestPosition(xIndex, zIndex, (j - 3) * 0.25, (3 - i) * 0.25)
                                     if closestPosition > 12 then
                                         tilePositionRow[j] = closestPosition
                                     end
@@ -102,22 +109,14 @@ function debugShowFeatureMap()
                             for _, position in ipairs(tilePositionRow) do
                                 if position == 99 then
                                     if featureIndex < 100 then
-                                        printLine = printLine .. '    '
+                                        printLine = printLine .. '  '
                                     else
-                                        printLine = printLine .. '      '
+                                        printLine = printLine .. '   '
                                     end
                                 else
-                                    -- local nameOfFeature
-                                    -- if featureMap[xIndex][zIndex][position] ~= nil then
-                                    --     nameOfFeature = featureList[featureMap[xIndex][zIndex][position]].nameOfFeature
-                                    -- else
-                                    --     nameOfFeature = featureList[featureMap[xIndex][zIndex][(position * 2) + 3]].nameOfFeature
-                                    -- end
-                                    -- printLine = printLine .. nameOfFeature:sub(1,1)
-
                                     local featureNum = getFeatureNumAt(xIndex, zIndex, position)
                                     if featureNum == nil then
-                                        --print("no feature found for x:" .. xIndex .. " z:" .. zIndex .. " position:" .. position .. " on tile:" .. tileGrid[xIndex][zIndex].tile_guid)
+                                        --no feature found at this position. This can be possible due to ignoredFeatures on the tile (ie. City of Carcassonne) or from tiles where the middle is not valid (ie. Some Hills & Sheep tiles)
                                         if featureIndex < 100 then
                                             featureNum = 'XX'
                                         else
@@ -136,21 +135,19 @@ function debugShowFeatureMap()
                             end
                         else
                             if featureIndex < 100 then
-                                printLine = printLine .. '                    '
+                                printLine = printLine .. '          '
                             else
-                                printLine = printLine .. '                              '
+                                printLine = printLine .. '               '
                             end
                         end
                     end
                 end
-                --substituing 1's for L's to keep the character width consistent
-                printLine = printLine:gsub("1", "L")
-                print(printLine)
+                log(printLine)
             end
         end
         printColumnMinX = printColumnMinX + chatWindowMaxWidth + 1
     end
-    print("printing features...")
+    log("printing features...")
     for featureKey, feature in pairs(featureList) do
         local specialFeatures = ""
         for i, specialFeature in ipairs(feature.specialFeatures) do
@@ -159,7 +156,7 @@ function debugShowFeatureMap()
                 specialFeatures = specialFeatures .. ", "
             end
         end
-        local numFeatureOpenings = feature.openings
+        local numFeatureOpenings = feature.numOpenings
         local featureOpenings = ""
         for key, _ in pairs(feature.openingCoords) do
             featureOpenings = featureOpenings .. key .. ", "
@@ -167,10 +164,9 @@ function debugShowFeatureMap()
         featureOpenings = featureOpenings:sub(1, -3) --get rid of the last comma and space
         if feature.nameOfFeature ~= 'Road' and feature.nameOfFeature ~= 'River' and not table.contains(PROXIMITY_FEATURES, feature.nameOfFeature) then numFeatureOpenings = numFeatureOpenings / 2 end
         featureKey = "" .. tonumber(featureKey)
-        featureKey = featureKey:gsub("1", "L")
-        print(featureKey .. " (" .. feature.nameOfFeature .. "): has " .. feature.numTiles .. " tiles and " .. numFeatureOpenings .. " openings: " .. featureOpenings .. " Special Features: " .. specialFeatures)
+        log(featureKey .. " (" .. feature.nameOfFeature .. "): has " .. feature.numTiles .. " tiles and " .. numFeatureOpenings .. " numOpenings: " .. featureOpenings .. " Special Features: " .. specialFeatures)
     end
-    print("printing links...")
+    log("printing links...")
     for linkType, originFeatures in pairs(linkedFeatures) do
         local printLine = linkType .. ": "
         local first = true
@@ -187,19 +183,18 @@ function debugShowFeatureMap()
                 printLine = printLine .. destination
             end
         end
-        printLine = printLine:gsub("1", "L")
-        print(printLine)
+        log(printLine)
     end
 end
 
 function debugShowTileOdds()
-    print("printing connection odds...")
+    log("printing connection odds...")
     for openingCoord, tileOdds in pairs(tileConnectionOdds) do --iterate through all valid tile lists and remove the added tile
         local printLine = openingCoord .. ": "
         for key, numChances in pairs(tileOdds) do
             printLine = printLine .. key .. ":" .. numChances .. ", "
         end
         printLine = printLine:sub(1, -3) --get rid of the last comma and space
-        print(printLine)
+        log(printLine)
     end
 end

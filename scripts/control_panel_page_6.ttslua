@@ -25,7 +25,9 @@ function initializeControlPanelPage()
     self.UI.setAttribute("TowerNerfTowersLabel", "text", translate("LABEL_REDUCE_TOWER_RANGE"))
 
     self.UI.setAttribute("RiverHouseRulesLabel", "text", translate("The River"))
-    self.UI.setAttribute("RiverMixAllLabel", "text", translate("LABEL_MIX_RIVER_TILES"))
+    self.UI.setAttribute("RiverMixAllLabel", "text", translate("LABEL_RIVER_MIX_TILES"))
+    self.UI.setAttribute("RiverAllowUTurnsLabel", "text", translate("LABEL_RIVER_ALLOW_U_TURNS"))
+    self.UI.setAttribute("RiverAllowUnconnectedLabel", "text", translate("LABEL_RIVER_ALLOW_UNCONNECTED"))
     self.UI.setAttribute("RIIDisablePigherdLabel", "text", translate("LABEL_DISABLE_PIG_HERD"))
 
     self.UI.setAttribute("CoCHouseRulesLabel", "text", translate("City of Carcassonne"))
@@ -48,8 +50,10 @@ function initializeControlPanelPage()
     -- initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, 'HnSDoNotBuryHills', "Don't bury\nhills", "If checked, this will not 'bury' a tile underneath a hill.")
 
 --Rivers/River II
-    initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, 'RiverMixAll', translate("TOOLTIP_MIX_RIVER_TILES"))
-    initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, 'RIIDisablePigherd', translate("TOOLTIP_DISABLE_PIG_HERD"))
+    initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, 'RiverMixAll', translate("TOOLTIP_RIVER_MIX_TILES"))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, 'RiverAllowUTurns', translate("TOOLTIP_RIVER_ALLOW_U_TURNS"))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 2, 'RiverAllowUnconnected', translate("TOOLTIP_RIVER_ALLOW_UNCONNECTED"))
+    initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 2, 'RIIDisablePigherd', translate("TOOLTIP_DISABLE_PIG_HERD"))
 
 --City of Carcassonne
     initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, 'CoCNoCount', translate("TOOLTIP_DISABLE_COUNT"))
@@ -88,6 +92,14 @@ end
 
 function onRiverMixAllToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'RiverMixAll', 'btnRiverMixAllToggle')
+end
+
+function onRiverAllowUTurnsToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'RiverAllowUTurns', 'btnRiverAllowUTurnsToggle')
+end
+
+function onRiverAllowUnconnectedToggle(Object, sPlayer)
+    onCheckboxToggle(sPlayer, 'RiverAllowUnconnected', 'btnRiverAllowUnconnectedToggle')
 end
 
 function onRIIDisablePigherdToggle(Object, sPlayer)

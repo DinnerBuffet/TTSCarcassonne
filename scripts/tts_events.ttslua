@@ -99,7 +99,7 @@ function onFlierDiceRolled(params)
         player = params.sPlayer
         if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
             (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
-            if turnState == 'wait for flier roll' then
+            if turnState == 'wait for flier roll' or 'wait for flier roll - phantom' then
                 local dieValue = getObjectFromGUID(flierDie_GUID).getValue()
                 if dieValue > 3 then dieValue = 7 - dieValue end
                 flierOffset = {x=DIAGONAL_DELTA[flierDirection].x * dieValue, z=DIAGONAL_DELTA[flierDirection].z * dieValue}
@@ -117,7 +117,7 @@ end
 
 -- Activates whenever any object is dropped
 function onObjectDrop(player, droppedObject)
-    if not gameover or turnState == 'game over - prompt moving from carcassonne' then --HACK: because i'm using gameover to differenciate between the two modes of moving from carcassonne, it is an exception to the rule
+    if not gameover or turnState == 'game over - prompt moving from carcassonne' then --HACK: because i'm using gameover to differentiate between the two modes of moving from carcassonne, it is an exception to the rule
         if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
             (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
             for _, featureMarker in ipairs(featureMarkers) do
@@ -143,18 +143,15 @@ function onObjectDrop(player, droppedObject)
                 elseif table.contains(FOLLOWER_TYPES, droppedObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, droppedObject.getVar('figureName')) or droppedObject.getVar('figureName') == 'Tower' then
                     if (currentMiniTurn ~= nil and (droppedObject.getVar('owner') == activePlayers[currentMiniTurn])) or
                         (currentMiniTurn == nil and (droppedObject.getVar('owner') == activePlayers[currentPlayer])) then
-                        if turnState == 'awaiting figure decision' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                        elseif turnState == 'replace finished wagons' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkWagon', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                        elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFlier', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                        elseif turnState == 'awaiting phantom decision' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkPhantom', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                        elseif turnState == 'prompt moving to carcassonne' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkToCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                        elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFromCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+                        if turnState == 'awaiting figure decision'
+                            or turnState == 'replace finished wagons'
+                            or turnState == 'awaiting flier decision'
+                            or turnState == 'awaiting flier decision - phantom'
+                            or turnState == 'awaiting phantom decision'
+                            or turnState == 'prompt moving to carcassonne'
+                            or turnState == 'prompt moving from carcassonne'
+                            or turnState == 'game over - prompt moving from carcassonne' then
+                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                         else
                             dropLock = false
                             if not spamLock then
@@ -186,7 +183,7 @@ function onObjectDrop(player, droppedObject)
                     end
                 elseif droppedObject.getVar('figureName') == 'Fairy' then
                     if turnState == 'awaiting figure decision' then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigure', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                         if highlightedTiles ~= nil then
                             for x, highlightedColumn in pairs(highlightedTiles) do
                                 for z, _ in pairs(highlightedColumn) do
@@ -260,7 +257,6 @@ function onObjectPickUp(player, pickedUpObject)
                 clearFigureOptions()
                 seducedKnights = {}
             end
-            tileGrid[xIndex][zIndex] = nil
             if pickedUpObject.getGUID() == startingTile_GUID then
                 startingTile_GUID = nil
             end
@@ -303,7 +299,7 @@ function onObjectPickUp(player, pickedUpObject)
                 end
             elseif pickedUpObject.getVar('figureName') == 'Wagon' and turnState == 'replace finished wagons' then
                 showWagonFeatureMarkers(pickedUpObject)
-            elseif turnState == 'awaiting flier decision' then
+            elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
                 showFlierFeatureMarkers(pickedUpObject)
             elseif turnState == 'awaiting phantom decision' then
                 startLuaCoroutine(self, 'showFigureMarkers')

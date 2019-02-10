@@ -7,8 +7,6 @@
 function onload(save_state)
     if save_state ~= nil then
         local saved_data = JSON.decode(save_state)
-        --featureMap data
-        featureMap = saved_data.featureMap
         featureList = saved_data.featureList
         linkedFeatures = saved_data.linkedFeatures
         featureIndex = saved_data.featureIndex
@@ -18,24 +16,23 @@ function onload(save_state)
         tileConnectionOdds = saved_data.tileConnectionOdds
         tilesRemaining = saved_data.tilesRemaining
         buriedTileCount = saved_data.buriedTileCount
-        --I'm not exactly sure if all of these nil checks are necessary. Leaving them just in case
-        if saved_data.controlPanelSettings ~= nil then controlPanelSettings = saved_data.controlPanelSettings end
-        if saved_data.showMarkers ~= nil then showMarkers = saved_data.showMarkers end
-        if saved_data.tileGrid ~= nil then tileGrid = saved_data.tileGrid end
-        if saved_data.startingTile_GUID ~= nil then startingTile_GUID = saved_data.startingTile_GUID end
-        if saved_data.startingRiverTile_GUID ~= nil then startingRiverTile_GUID = saved_data.startingRiverTile_GUID end
-        if saved_data.forkTile_GUID ~= nil then forkTile_GUID = saved_data.forkTile_GUID end
-        if saved_data.springTile_GUID ~= nil then springTile_GUID = saved_data.springTile_GUID end
-        if saved_data.lakeTile_GUID ~= nil then lakeTile_GUID = saved_data.lakeTile_GUID end
-        if saved_data.riverBodyTiles_GUID ~= nil then riverBodyTiles_GUID = saved_data.riverBodyTiles_GUID end
-        if saved_data.finalRiverTile_GUID ~= nil then finalRiverTile_GUID = saved_data.finalRiverTile_GUID end
-        if saved_data.finalTile_GUID ~= nil then finalTile_GUID = saved_data.finalTile_GUID end
-        if saved_data.fairy_GUID ~= nil then fairy_GUID = saved_data.fairy_GUID end
-        if saved_data.dragon_GUID ~= nil then dragon_GUID = saved_data.dragon_GUID end
-        if saved_data.flierDie_GUID ~= nil then flierDie_GUID = saved_data.flierDie_GUID end
-        if saved_data.lastPlacedTileX ~= nil then lastPlacedTileX = saved_data.lastPlacedTileX end
-        if saved_data.lastPlacedTileZ ~= nil then lastPlacedTileZ = saved_data.lastPlacedTileZ end
-        if saved_data.lastPlacedPlayerTiles ~= nil then lastPlacedPlayerTiles = saved_data.lastPlacedPlayerTiles end
+        controlPanelSettings = saved_data.controlPanelSettings
+        showMarkers = saved_data.showMarkers
+        tileGrid = saved_data.tileGrid
+        startingTile_GUID = saved_data.startingTile_GUID
+        startingRiverTile_GUID = saved_data.startingRiverTile_GUID
+        forkTile_GUID = saved_data.forkTile_GUID
+        springTile_GUID = saved_data.springTile_GUID
+        lakeTile_GUID = saved_data.lakeTile_GUID
+        riverBodyTiles_GUID = saved_data.riverBodyTiles_GUID
+        finalRiverTile_GUID = saved_data.finalRiverTile_GUID
+        finalTile_GUID = saved_data.finalTile_GUID
+        fairy_GUID = saved_data.fairy_GUID
+        dragon_GUID = saved_data.dragon_GUID
+        flierDie_GUID = saved_data.flierDie_GUID
+        lastPlacedTileX = saved_data.lastPlacedTileX
+        lastPlacedTileZ = saved_data.lastPlacedTileZ
+        lastPlacedPlayerTiles = saved_data.lastPlacedPlayerTiles
         if saved_data.scores ~= nil then
             for player, score in pairs(saved_data.scores) do
                 local scoreCounter = getObjectFromGUID(score_counter_guids[player])
@@ -44,46 +41,47 @@ function onload(save_state)
                 end
             end
         end
-        if saved_data.figurePositions ~= nil then figurePositions = saved_data.figurePositions end
-        if saved_data.gameover ~= nil then gameover = saved_data.gameover end
-        if saved_data.activePlayers ~= nil then activePlayers = saved_data.activePlayers end
-        if saved_data.currentPlayer ~= nil then currentPlayer = saved_data.currentPlayer end
-        if saved_data.scoreSummary ~= nil then scoreSummary = saved_data.scoreSummary end
-        if saved_data.largestCity ~= nil then largestCity = saved_data.largestCity end
-        if saved_data.longestRoad ~= nil then longestRoad = saved_data.longestRoad end
-        if saved_data.playerPossessionScriptingZones ~= nil then playerPossessionScriptingZones = saved_data.playerPossessionScriptingZones end
-        if saved_data.player_color_tints ~= nil then player_color_tints = saved_data.player_color_tints end
-        if saved_data.score_counter_guids ~= nil then score_counter_guids = saved_data.score_counter_guids end
-        if saved_data.figurepad_GUIDs ~= nil then figurepad_GUIDs = saved_data.figurepad_GUIDs end
-        if saved_data.handColor ~= nil then handColor = saved_data.handColor end
-        if saved_data.playerName ~= nil then playerName = saved_data.playerName end
-        if saved_data.player_possession_areas ~= nil then player_possession_areas = saved_data.player_possession_areas end
-        if saved_data.turnState ~= nil then turnState = saved_data.turnState end
-        if saved_data.wagonFeatures ~= nil then wagonFeatures = saved_data.wagonFeatures end
-        if saved_data.seducedKnights ~= nil then seducedKnights = saved_data.seducedKnights end
-        if saved_data.carcassonneFigures ~= nil then carcassonneFigures = saved_data.carcassonneFigures end
-        if saved_data.wofPigPosition ~= nil then wofPigPosition = saved_data.wofPigPosition end
-        if saved_data.numberActiveTowers ~= nil then numberActiveTowers = saved_data.numberActiveTowers end
-        if saved_data.towerX ~= nil then towerX = saved_data.towerX end
-        if saved_data.towerZ ~= nil then towerZ = saved_data.towerZ end
-        if saved_data.currentMiniTurn ~= nil then currentMiniTurn = saved_data.currentMiniTurn end
-        if saved_data.shepherdAwaitingAction ~= nil then shepherdAwaitingAction = saved_data.shepherdAwaitingAction end
-        if saved_data.newBarn ~= nil then newBarn = saved_data.newBarn end
-        if saved_data.hasBuilderAwaitingAction ~= nil then hasBuilderAwaitingAction = saved_data.hasBuilderAwaitingAction end
-        if saved_data.hasAlreadyTakenBuilderTile ~= nil then hasAlreadyTakenBuilderTile = saved_data.hasAlreadyTakenBuilderTile end
-        if saved_data.hasRansomedPrisoner ~= nil then hasRansomedPrisoner = saved_data.hasRansomedPrisoner end
-        if saved_data.buriedTile ~= nil then buriedTile = saved_data.buriedTile end
-        if saved_data.dragonHasAwaken ~= nil then dragonHasAwaken = saved_data.dragonHasAwaken end
-        if saved_data.dragonMoveNumber ~= nil then dragonMoveNumber = saved_data.dragonMoveNumber end
-        if saved_data.dragonIllegalTiles ~= nil then dragonIllegalTiles = saved_data.dragonIllegalTiles end
-        if saved_data.tileHasVolcano ~= nil then tileHasVolcano = saved_data.tileHasVolcano end
-        if saved_data.tileHasMagicPortal ~= nil then tileHasMagicPortal = saved_data.tileHasMagicPortal end
-        if saved_data.hasAlreadyUsedMagicPortal ~= nil then hasAlreadyUsedMagicPortal = saved_data.hasAlreadyUsedMagicPortal end
-        if saved_data.flier ~= nil then flier = saved_data.flier end
-        if saved_data.flierOffset ~= nil then flierOffset = saved_data.flierOffset end
-        if saved_data.hasAlreadyUsedFlier ~= nil then hasAlreadyUsedFlier = saved_data.hasAlreadyUsedFlier end
-        if saved_data.earnedPointsThisTile ~= nil then earnedPointsThisTile = saved_data.earnedPointsThisTile end
-        if saved_data.removedFigures ~= nil then removedFigures = saved_data.removedFigures end
+        figurePositions = saved_data.figurePositions
+        gameover = saved_data.gameover
+        activePlayers = saved_data.activePlayers
+        currentPlayer = saved_data.currentPlayer
+        scoreSummary = saved_data.scoreSummary
+        largestCity = saved_data.largestCity
+        longestRoad = saved_data.longestRoad
+        playerPossessionScriptingZones = saved_data.playerPossessionScriptingZones
+        player_color_tints = saved_data.player_color_tints
+        score_counter_guids = saved_data.score_counter_guids
+        figurepad_GUIDs = saved_data.figurepad_GUIDs
+        handColor = saved_data.handColor
+        playerName = saved_data.playerName
+        player_possession_areas = saved_data.player_possession_areas
+        turnState = saved_data.turnState
+        wagonFeatures = saved_data.wagonFeatures
+        seducedKnights = saved_data.seducedKnights
+        carcassonneFigures = saved_data.carcassonneFigures
+        wofPigPosition = saved_data.wofPigPosition
+        numberActiveTowers = saved_data.numberActiveTowers
+        towerX = saved_data.towerX
+        towerZ = saved_data.towerZ
+        currentMiniTurn = saved_data.currentMiniTurn
+        shepherdAwaitingAction = saved_data.shepherdAwaitingAction
+        newBarn = saved_data.newBarn
+        hasBuilderAwaitingAction = saved_data.hasBuilderAwaitingAction
+        hasAlreadyTakenBuilderTile = saved_data.hasAlreadyTakenBuilderTile
+        hasRansomedPrisoner = saved_data.hasRansomedPrisoner
+        buriedTile = saved_data.buriedTile
+        dragonHasAwaken = saved_data.dragonHasAwaken
+        dragonMovesRemaining = saved_data.dragonMovesRemaining
+        dragonIllegalTiles = saved_data.dragonIllegalTiles
+        tileHasVolcano = saved_data.tileHasVolcano
+        tileHasMagicPortal = saved_data.tileHasMagicPortal
+        hasAlreadyUsedMagicPortal = saved_data.hasAlreadyUsedMagicPortal
+        flier = saved_data.flier
+        flierOffset = saved_data.flierOffset
+        flierDirection = saved_data.flierDirection
+        hasAlreadyUsedFlier = saved_data.hasAlreadyUsedFlier
+        earnedPointsThisTile = saved_data.earnedPointsThisTile
+        removedFigures = saved_data.removedFigures
         if saved_data.featureMarker_GUIDs ~= nil then
             for _, featureMarker_GUID in ipairs(saved_data.featureMarker_GUIDs) do
                 getObjectFromGUID(featureMarker_GUID).destruct()
@@ -173,10 +171,8 @@ function onSave()
         controlPanelSettings = controlPanelSettings,
         --setting for which markers should be shown
         showMarkers = showMarkers,
-        --keeps track of which tiles are in which positions and with what rotation
+        --global storage of all active (in-play) tile information
         tileGrid = tileGrid,
-        --featureMap data
-        featureMap = featureMap,
         featureList = featureList,
         linkedFeatures = linkedFeatures,
         featureIndex = featureIndex,
@@ -240,12 +236,13 @@ function onSave()
         buriedTile = buriedTile,
         dragonHasAwaken = dragonHasAwaken,
         dragonIllegalTiles = dragonIllegalTiles,
-        dragonMoveNumber = dragonMoveNumber,
+        dragonMovesRemaining = dragonMovesRemaining,
         tileHasVolcano = tileHasVolcano,
         tileHasMagicPortal = tileHasMagicPortal,
         hasAlreadyUsedMagicPortal = hasAlreadyUsedMagicPortal,
         flier = flier,
         flierOffset = flierOffset,
+        flierDirection = flierDirection,
         hasAlreadyUsedFlier = hasAlreadyUsedFlier,
         earnedPointsThisTile = earnedPointsThisTile,
         removedFigures = removedFigures,

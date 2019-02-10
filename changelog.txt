@@ -1,18 +1,35 @@
-﻿v1.21.4 - 20180209
+﻿v1.21.5 - 20190304
+[*]Added tile data for Mage & Witch, The Robbers, Siege, Besiegers, Cathars, The Plague, La Porxada, Darmstadt, The Tunnel, and The Festival. They have no logic added for expansion-specific features, but can still be used for their basic terrain features. Micro expansions are not added to the control panel to prevent confusion with partial implementations (Thanks to TheLimeyDragon for implementing the tile data!)
+[*]After the game is setup, remaining expansions are now deleted from the table. This is to improve load/save times. If you wish to play with expansions that are not supported by the control panel, they should be taken out of bags and placed on the table before starting the game.
+[*]Added house rules: Can now allow U-turns with rivers and also allow additional rivers to be started without connecting to existing ones (page 6 of the control panel)
+[*]Fixed bug: Barns have issues being validated when placed (Due to a change in 1.21.2) (Thanks to TheLimeyDragon for reporting!)
+[*]Fixed bug: Phantom does not work when used as a flier (Thanks to TheLimeyDragon for reporting!)
+[*]Fixed bug: Flier breaks if the game is saved and then loaded after the die is rolled but before the flier is placed.
+[*]Fixed bug: Moving followers from City of Carcassonne is mostly broken when an Abbey is used to complete features.
+[*]Fixed bug: Farmers lay on fields the incorrect way, interferring with tile placement (Due to a change in 1.21.2). Also, farmers on rotating snap points will now lay the direction originally intended.
+[*]Abbot is no longer broken, but still is not fully supported.
+[*]Easy AI now has a progress bar as well.
+[*]Fixed typo for "Inns" in the 2nd control panel page (Thanks to TheLimeyDragon for reporting!)
+[*]Think I fixed an elusive bug where a cloister/shrine is incorrectly "challenged"
+[*]Dragon moves now count down instead of up, to better implement a possible future feature of having a custom number of dragon moves.
+[*]Consolidated some save data. This might help a tad with load/save times.
+[*]Most of the above was fixed by a continued effort to re-factor the code in several parts of the mod. This shouldn't have had any other functional changes but it could have broken something. Please report any issues.
+
+v1.21.4 - 20190209
 [*]Fixed end-game scoring breaking when using fliers (Thanks to TheLimeyDragon for reporting!)
 
-v1.21.3 - 20180128
+v1.21.3 - 20190128
 [*]Fixed Easy AI being broken (Due to a change in 1.21.2) (Thanks to Teff for reporting!)
 [*]Fixed tile removal being broken (Due to a change in 1.21.2) (Thanks to Teff for reporting!)
 
-v1.21.2 - 20180126
+v1.21.2 - 20190126
 [*]Fixed King and Robber Baron tokens not working (Thanks to Teff for reporting!)
 [*]Fixed wagon rotating incorrectly after being moved.
 [*]Added a different message for City of Carcassonne prompts at the end of the game, since the behavior is different than during the game.
 [*]Added better scoring messages for Trade Tokens and King + Robber Baron
 [*]Re-factored a lot of code to be cleaner and easier to read with much fewer copy-pasting. This should not have any difference in the game but it could have broken something.
 
-v1.21.1 - 20180109
+v1.21.1 - 20190109
 [*]Fixed hint markers not working when using the phantom with a magic portal (Thanks to TheLimeyDragon for reporting!)
 [*]Fixed label issues on the 6th page of the control panel (Thanks to TheLimeyDragon for reporting!)
 
@@ -365,7 +382,7 @@ v1.05 - 20161025
 
 v1.04 - 20161020
 [*]A player can no longer place another player's figure on their turn.
-[*]Hills have been fixed so that multiple hills do not give an additional advantage against a player that has fewer hills, according to the official rules. 
+[*]Hills have been fixed so that multiple hills do not give an additional advantage against a player that has fewer hills, according to the official rules.
 [*]Broadcast message works for builder now.
 
 v1.03 - 20161019

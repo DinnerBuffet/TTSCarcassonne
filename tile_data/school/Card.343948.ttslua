@@ -1,0 +1,3 @@
+sides = {'Road', 'School', 'Road', 'Road'}
+linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}}
+specialFeatures = {{'School', nil, nil}}

@@ -134,11 +134,14 @@ stateMachine = {
         ['placed flier'] = 'wait for flier roll - phantom',
     },
     ['wait for flier roll - phantom'] = {
-        ['die rolled'] = 'check flier destination'
+        ['die rolled'] = 'check flier destination - phantom'
     },
     ['check flier destination - phantom'] = {
-        ['feature available'] = 'awaiting flier decision',
-        ['feature unavailable'] = 'return flier'
+        ['feature available'] = 'awaiting flier decision - phantom',
+        ['feature unavailable'] = 'return flier - phantom'
+    },
+    ['return flier - phantom'] = {
+        ['figures returned'] = 'post phantom events'
     },
     ['awaiting flier decision - phantom'] = {
         ['placed flier'] = 'post phantom events'
@@ -307,11 +310,11 @@ function stateHandler()
         return displayFigureButtons()
     elseif turnState == 'retrieve abbot' then
         return
-    elseif turnState == 'wait for flier roll' then
+    elseif turnState == 'wait for flier roll' or turnState == 'wait for flier roll - phantom' then
         clearFigureOptions()
         for i=1, 3 do
             local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
-            if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
+            if tileGridOccupied(lastPlacedTileX + possibleOffset.x, lastPlacedTileZ + possibleOffset.z) then
                 local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
                 if possibleTile ~= nil then
                     possibleTile.highlightOn({1,1,1})
@@ -321,13 +324,13 @@ function stateHandler()
         clearArbitraryButtons()
         gameNotification({"MESSAGE_FLIER_DIE_PROMPT"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
         return
-    elseif turnState == 'check flier destination' then
+    elseif turnState == 'check flier destination' or turnState == 'check flier destination - phantom' then
         return checkFlierDestination()
-    elseif turnState == 'awaiting flier decision' then
+    elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
         for i=1, 3 do
             local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
             if not (possibleOffset.x == flierOffset.x and possibleOffset.z == flierOffset.z) then
-                if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
+                if tileGridOccupied(lastPlacedTileX + possibleOffset.x, lastPlacedTileZ + possibleOffset.z) then
                     local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
                     if possibleTile ~= nil then
                         possibleTile.highlightOff()
@@ -365,10 +368,10 @@ function stateHandler()
         return nextState('next')
     elseif turnState == 'seduce knight' then
         return returnFigures()
-    elseif turnState == 'return flier' then
+    elseif turnState == 'return flier' or turnState == 'return flier - phantom' then
         for i=1, 3 do
             local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
-            if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
+            if tileGridOccupied(lastPlacedTileX + possibleOffset.x, lastPlacedTileZ + possibleOffset.z) then
                 local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
                 if possibleTile ~= nil then
                     possibleTile.highlightOff()
@@ -376,7 +379,7 @@ function stateHandler()
             end
         end
         return returnFigures()
-    elseif turnState == 'post figure events' then
+    elseif turnState == 'post figure events' or turnState == 'post phantom events' then
         clearFigureOptions()
         seducedKnights = {}
         currentPlayerAbbot = nil
@@ -391,41 +394,6 @@ function stateHandler()
     elseif turnState == 'awaiting phantom decision' then
         gameNotification({"MESSAGE_PHANTOM_PROMPT"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
         return displayPhantomButtons()
-    elseif turnState == 'wait for flier roll - phantom' then
-        clearFigureOptions()
-        for i=1, 3 do
-            local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
-            if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
-                local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
-                if possibleTile ~= nil then
-                    possibleTile.highlightOn({1,1,1})
-                end
-            end
-        end
-        clearArbitraryButtons()
-        gameNotification({"MESSAGE_FLIER_DIE_PROMPT"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
-        return
-    elseif turnState == 'check flier destination - phantom' then
-        return checkFlierDestination()
-    elseif turnState == 'awaiting flier decision - phantom' then
-        for i=1, 3 do
-            local possibleOffset = {x=DIAGONAL_DELTA[flierDirection].x * i, z=DIAGONAL_DELTA[flierDirection].z * i}
-            if not (possibleOffset.x == flierOffset.x and possibleOffset.z == flierOffset.z) then
-                if tileGrid[lastPlacedTileX + possibleOffset.x] ~= nil and tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z] ~= nil then
-                    local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + possibleOffset.x][lastPlacedTileZ + possibleOffset.z].tile_guid)
-                    if possibleTile ~= nil then
-                        possibleTile.highlightOff()
-                    end
-                end
-            end
-        end
-        gameNotification({"MESSAGE_FLIER_PROMPT"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
-        return
-    elseif turnState == 'post phantom events' then
-        clearFigureOptions()
-        seducedKnights = {}
-        currentPlayerAbbot = nil
-        return nextState('next')
     elseif turnState == 'post figure event - prompt shepherd' then
         if shepherdAwaitingAction ~= nil then
             return promptShepherd()
@@ -441,7 +409,7 @@ function stateHandler()
         return checkTileForDragon()
     elseif turnState == 'post figure event - dragon movement' then
         if currentMiniTurn > #activePlayers then currentMiniTurn = 1 end
-        if dragonMoveNumber <= 6 then
+        if dragonMovesRemaining > 0 then
             for _, tileCoords in ipairs(dragonIllegalTiles) do
                 getObjectFromGUID(tileGrid[tileCoords[1]][tileCoords[2]].tile_guid).highlightOn({1,0,0})
             end

@@ -202,7 +202,9 @@ LOCALIZED_STRINGS = {
     ["LABEL_DISABLE_FEATURE"] = "Disable {s1}",
     ["LABEL_NERF_SMALL_CITIES"] = "Nerf Small Cities",
     ["LABEL_REDUCE_TOWER_RANGE"] = "Reduce tower\ncapture range",
-    ["LABEL_MIX_RIVER_TILES"] = "Mix all river\ntiles",
+    ["LABEL_RIVER_MIX_TILES"] = "Mix all river\ntiles",
+    ["LABEL_RIVER_ALLOW_U_TURNS"] = "Allow\nU-Turns",
+    ["LABEL_RIVER_ALLOW_UNCONNECTED"] = "Allow Un-\nconnected",
     ["LABEL_DISABLE_PIG_HERD"] = "Disable\npig-herd",
     ["LABEL_DISABLE_COUNT"] = "Disable\nThe Count",
 
@@ -211,7 +213,9 @@ LOCALIZED_STRINGS = {
     ["TOOLTIP_DISABLE_FEATURE"] = "It will no longer be allowed to place a follower on a {s1}",
     ["TOOLTIP_NERF_SMALL_CITIES"] = "Changes scoring so that completed cities containing only 2 tiles are worth only 2 points. This is the same as the original Carcassonne release.",
     ["TOOLTIP_REDUCE_TOWER_RANGE"] = "If checked, the tower range will start with just the tile it is placed on, and increase from there.",
-    ["TOOLTIP_MIX_RIVER_TILES"] = "If checked, all river tiles, including end pieces, will be mixed. Extra pieces left-over when the river is finished will be deleted.",
+    ["TOOLTIP_RIVER_MIX_TILES"] = "If checked, all river tiles, including end pieces, will be mixed.",
+    ["TOOLTIP_RIVER_ALLOW_U_TURNS"] = "If checked, river tiles can be placed such that they loop back next to themselves. This can potentially lead to placement issues. Use at your own risk.",
+    ["TOOLTIP_RIVER_ALLOW_UNCONNECTED"] = "If checked, river tiles no longer need to be placed such that they continue a previously started river.",
     ["TOOLTIP_DISABLE_PIG_HERD"] = "If checked, this will disable the pig-herd, which gives an extra point per city to farmers.",
     ["TOOLTIP_DISABLE_COUNT"] = "If checked, this will disable the Count.",
 
@@ -253,7 +257,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_DRAGON_MOVING"] = "The dragon is on the move!",
     ["MESSAGE_DRAGON_TILE_DRAWN_BEFORE_AWAKENED"] = "Dragon tile drawn, but the dragon has not yet awaken. It is allowed to place this tile back in the stack, shuffle, and draw a new tile.",
     ["MESSAGE_DRAGON_TILE_PLAYED_BEFORE_AWAKENED"] = "Dragon tile played, but the dragon has not yet awaken.",
-    ["MESSAGE_DRAGON_MOVE_NUMBER"] = "Dragon move #{n1}. {c1}'s turn to move.",
+    ["MESSAGE_DRAGON_MOVES_REMAINING"] = "Dragon moves remaining: {n1}. {c1}'s turn to move.",
     ["MESSAGE_DRAGON_STUCK"] = "Dragon has no valid places to move to. Ending dragon movement.",
     --{n1} is the number of figures. {f1} is the name of the figure. ie. "5 sheep have been eaten..."
     ["MESSAGE_DRAGON_SHEEP_EAT_MESSAGE"] = "{n1} {f1} have been eaten by the dragon! Om nom nom!",
@@ -347,7 +351,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_INVALID_LOCATION_ABBEY"] = "Invalid Location: Abbey must be surrounded by tiles on all 4 sides.",
     ["MESSAGE_INVALID_LOCATION_SHRINE_CLOISTER"] = "Invalid Location: Cannot place a tile such that more than one cloister is next to a shrine or vice versa.",
     ["MESSAGE_INVALID_LOCATION_RIVER_U_TURN"] = "Invalid Location: U-turns are not allowed on rivers.",
-    ["MESSAGE_INVALID_LOCATION_RIVER"] = "Invalid Location: Tile must continue the already placed river.",
+    ["MESSAGE_INVALID_LOCATION_RIVER_UNCONNECTED"] = "Invalid Location: Tile must continue the already placed river.",
     ["MESSAGE_INVALID_LOCATION_TILE_FEATURES_DONT_MATCH"] = "Invalid Location: Adjacent tiles do not match.",
     ["MESSAGE_INVALID_LOCATION_TILE_OUT_OF_BOUNDS"] = "Invalid Location: Tile must be placed in the blue play area.",
     ["MESSAGE_INVALID_LOCATION_TILE_NOT_ADJACENT"] = "Invalid Location: Must be adjacent to at least one tile.",
@@ -394,7 +398,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_COC_FROM_CITY_ILLEGAL_FIGURE"] = "Only followers from the City of Carcassonne can be placed now.",
     ["MESSAGE_INVALID_LOCATION_COC_FROM_WRONG_QUARTER"] = "Invalid Location: This figure was in the {f1} Quarter and can only be placed on a completed {s1}.",
     ["MESSAGE_INVALID_LOCATION_COC_COMPLETED_ONLY"] = "Invalid Location: Followers from the City of Carcassonne can only be placed on completed features.",
-    ["MESSAGE_INVALID_LOCATION_COC_INCOMPLETE_END_GAME_ONLY"] = "Invalid Location: Followers from the City of Carcassonne can only be placed on incomplete features at the end of the game.",
+    ["MESSAGE_INVALID_LOCATION_COC_END_GAME_INCOMPLETE_ONLY"] = "Invalid Location: Followers from the City of Carcassonne can only be placed on incomplete features at the end of the game.",
     ["MESSAGE_INVALID_LOCATION_COC_LAST_TILE_ONLY"] = "Invalid Location: Followers from the City of Carcassonne can only be placed on features that were completed with the last tile.",
 
       --Save Game
@@ -777,7 +781,9 @@ LOCALIZED_STRINGS = {
     ["LABEL_DISABLE_FEATURE"] = "停用{s1}",
     ["LABEL_NERF_SMALL_CITIES"] = "削弱小城市",
     ["LABEL_REDUCE_TOWER_RANGE"] = "減少塔樓捕獲範圍",
-    ["LABEL_MIX_RIVER_TILES"] = "混合所有河流卡牌",
+    ["LABEL_RIVER_MIX_TILES"] = "混合所有河流卡牌",
+    ["LABEL_RIVER_ALLOW_U_TURNS"] = "允許河流迴轉",
+    ["LABEL_RIVER_ALLOW_UNCONNECTED"] = "允許河流斷開",
     ["LABEL_DISABLE_PIG_HERD"] = "關閉小豬群功能",
     ["LABEL_DISABLE_COUNT"] = "停用伯爵",
 
@@ -786,7 +792,9 @@ LOCALIZED_STRINGS = {
     ["TOOLTIP_DISABLE_FEATURE"] = "不再允許將米寶放置在{s1}",
     ["TOOLTIP_NERF_SMALL_CITIES"] = "更改記分方式，僅包含2個卡牌的完成城市僅值2分。這與原始卡卡頌計分版本相同。",
     ["TOOLTIP_REDUCE_TOWER_RANGE"] = "如果勾選，塔範圍將從它所放置的卡牌開始，並從那裡開始增加。",
-    ["TOOLTIP_MIX_RIVER_TILES"] = "如果勾選，所有河卡牌將會混合。河道完工時留下的剩餘卡牌將被刪除。",
+    ["TOOLTIP_RIVER_MIX_TILES"] = "如果勾選，所有河卡牌將會混合。",
+    ["TOOLTIP_RIVER_ALLOW_U_TURNS"] = "如果勾選，便允許河流卡牌迴轉。但可能造成未來卡牌無適當處可放置。請自行斟酌。",
+    ["TOOLTIP_RIVER_ALLOW_UNCONNECTED"] = "如果勾選， 河流卡牌便不需要承接上一張河流卡牌。 ",
     ["TOOLTIP_DISABLE_PIG_HERD"] = "此選項將關閉小豬群功能，每個城市的農夫不會因此增加一分。",
     ["TOOLTIP_DISABLE_COUNT"] = "此選項將停用伯爵",
 
@@ -830,9 +838,9 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_DRAGON_MOVING"] = "龍正在移動！",
     ["MESSAGE_DRAGON_TILE_DRAWN_BEFORE_AWAKENED"] = "龍卡牌被抽出，但龍尚未醒來。允許將卡牌放回，洗牌並重抽。",
     ["MESSAGE_DRAGON_TILE_PLAYED_BEFORE_AWAKENED"] = "有人使用了龍卡牌，但龍尚未醒來。",
-    ["MESSAGE_DRAGON_MOVE_NUMBER"] = "龍移動＃{n1}。換{c1}移動。",
+    ["MESSAGE_DRAGON_MOVES_REMAINING"] = "龍移動步數倒數{n1}步。換{c1}移動。",
     ["MESSAGE_DRAGON_STUCK"] = "龍沒有地方可以移動，所以動作結束。",
-    --{n1} is the number of figures. {f1} is the name of the figure. ie. "5 sheep have been eaten..."
+    --{n1} is the number of figu b res. {f1} is the name of the figure. ie. "5 sheep have been eaten..."
     ["MESSAGE_DRAGON_SHEEP_EAT_MESSAGE"] = "{n1}{f1}被龍吃掉了！好好吃喔~",
     --{c1} is the description of the figure (ie. Red). {f1} is the name of the figure. ie. "Red Follower has been eaten..."
     ["MESSAGE_DRAGON_FIGURE_EAT_MESSAGE"] = "{c1}{f1}被龍吃掉了！好好吃喔~",
@@ -928,7 +936,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_INVALID_LOCATION_ABBEY"] = "隱修院卡牌放置位置錯誤：修道院必須放置在四面環繞著卡牌的地方。",
     ["MESSAGE_INVALID_LOCATION_SHRINE_CLOISTER"] = "卡牌放置位置錯誤：修道院不能緊挨著神社，反之亦然。",
     ["MESSAGE_INVALID_LOCATION_RIVER_U_TURN"] = "卡牌放置位置錯誤：河流卡牌不允許迴轉。",
-    ["MESSAGE_INVALID_LOCATION_RIVER"] = "卡牌放置位置錯誤：卡牌必須繼續接續已被放置的河流卡牌。",
+    ["MESSAGE_INVALID_LOCATION_RIVER_UNCONNECTED"] = "卡牌放置位置錯誤：卡牌必須繼續接續已被放置的河流卡牌。",
     ["MESSAGE_INVALID_LOCATION_TILE_FEATURES_DONT_MATCH"] = "卡牌放置位置錯誤：相鄰的卡牌不匹配。",
     ["MESSAGE_INVALID_LOCATION_TILE_OUT_OF_BOUNDS"] = "卡牌放置位置錯誤：卡牌必須放在藍色遊樂區塊。",
     ["MESSAGE_INVALID_LOCATION_TILE_NOT_ADJACENT"] = "卡牌放置位置錯誤：必須與至少另一個卡牌相鄰。",
@@ -975,7 +983,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_COC_FROM_CITY_ILLEGAL_FIGURE"] = "錯誤：現在只能放置卡卡頌市的人物。",
     ["MESSAGE_INVALID_LOCATION_COC_FROM_WRONG_QUARTER"] = "卡牌放置位置錯誤：這個人物被置於{f1}，但這個人物只能被放在已完成的{s1}上。",
     ["MESSAGE_INVALID_LOCATION_COC_COMPLETED_ONLY"] = "卡牌放置位置錯誤：人物只能放置在完整的地標上。",
-    ["MESSAGE_INVALID_LOCATION_COC_INCOMPLETE_END_GAME_ONLY"] = "卡牌放置位置錯誤：人物只能放置在不完整的地標上。",
+    ["MESSAGE_INVALID_LOCATION_COC_END_GAME_INCOMPLETE_ONLY"] = "卡牌放置位置錯誤：人物只能放置在不完整的地標上。",
     ["MESSAGE_INVALID_LOCATION_COC_LAST_TILE_ONLY"] = "卡牌放置位置錯誤：人物只能放置在剛剛放下的卡牌上。",
 
         --Save Game

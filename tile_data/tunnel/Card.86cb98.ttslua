@@ -1,0 +1,4 @@
+sides = {'City', 'Road', 'Road', 'Road'}
+linkedOctants = {{5, 6}, {7, 12}, {8, 9}, {10, 11}}
+--TODO: special logic must be added to make Tunnels work with the featureMap
+--specialFeatures = {{'Tunnel', {2}, {0.2,0.05}}, {'Tunnel', {3}, {0.0,-0.20}}, {'Tunnel', {4}, {-0.25,0.05}}}
