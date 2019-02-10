@@ -2283,7 +2283,7 @@ end
 
 function clearFigureOptions()
     clearArbitraryButtons(true)
-    if flierOffset ~= nil and tileGrid[lastPlacedTileX + flierOffset.x] ~= nil and tileGrid[lastPlacedTileX + flierOffset.x][lastPlacedTileZ + flierOffset.z] ~= nil then
+    if flierOffset ~= nil and lastPlacedTileX ~= nil and tileGrid[lastPlacedTileX + flierOffset.x] ~= nil and tileGrid[lastPlacedTileX + flierOffset.x][lastPlacedTileZ + flierOffset.z] ~= nil then
         local possibleTile = getObjectFromGUID(tileGrid[lastPlacedTileX + flierOffset.x][lastPlacedTileZ + flierOffset.z].tile_guid)
         if possibleTile ~= nil then
             possibleTile.highlightOff()

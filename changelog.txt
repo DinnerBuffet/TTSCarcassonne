@@ -1,4 +1,7 @@
-﻿v1.21.3 - 20180128
+﻿v1.21.4 - 20180209
+[*]Fixed end-game scoring breaking when using fliers (Thanks to TheLimeyDragon for reporting!)
+
+v1.21.3 - 20180128
 [*]Fixed Easy AI being broken (Due to a change in 1.21.2) (Thanks to Teff for reporting!)
 [*]Fixed tile removal being broken (Due to a change in 1.21.2) (Thanks to Teff for reporting!)
 
