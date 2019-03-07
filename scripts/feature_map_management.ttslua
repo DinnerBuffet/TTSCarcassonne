@@ -716,11 +716,11 @@ function shiftPlayArea(delta_x, delta_z)
     local start, last
     if delta_x ~= 0 then
         if delta_x < 0 then
-            start = MIN_X + 1
-            last = MAX_X - 1
+            start = MIN_X
+            last = MAX_X
         else
-            start = MAX_X - 1
-            last = MIN_X + 1
+            start = MAX_X
+            last = MIN_X
         end
         for x=start, last, -delta_x do
             if tileGrid[x] ~= nil then
@@ -733,13 +733,6 @@ function shiftPlayArea(delta_x, delta_z)
                 tileConnectionOdds[x + delta_x] = tileConnectionOdds[x]
                 tileConnectionOdds[x] = nil
             end
-        end
-        if delta_x < 0 then
-            start = MIN_X
-            last = MAX_X
-        else
-            start = MAX_X
-            last = MIN_X
         end
         for x=start, last, -delta_x do
             for _, feature in pairs(featureList) do
@@ -757,11 +750,11 @@ function shiftPlayArea(delta_x, delta_z)
     end
     if delta_z ~= 0 then
         if delta_z < 0 then
-            start = MIN_Z + 1
-            last = MAX_Z - 1
+            start = MIN_Z
+            last = MAX_Z
         else
-            start = MAX_Z - 1
-            last = MIN_Z + 1
+            start = MAX_Z
+            last = MIN_Z
         end
         for x, _ in pairs(tileGrid) do
             for z=start, last, -delta_z do
@@ -769,7 +762,7 @@ function shiftPlayArea(delta_x, delta_z)
                     tileGrid[x][z + delta_z] = tileGrid[x][z]
                     tileGrid[x][z] = nil
                 end
-                if validTileLocations[x][z] ~= nil then
+                if validTileLocations[x] ~= nil and validTileLocations[x][z] ~= nil then
                     validTileLocations[x][z + delta_z] = validTileLocations[x][z]
                     validTileLocations[x][z] = nil
                     tileConnectionOdds[x][z + delta_z] = tileConnectionOdds[x][z]
@@ -777,19 +770,15 @@ function shiftPlayArea(delta_x, delta_z)
                 end
             end
         end
-        if delta_z < 0 then
-            start = MIN_Z
-            last = MAX_Z
-        else
-            start = MAX_Z
-            last = MIN_Z
-        end
-        for x=MIN_X, MAX_X, 1 do
-            for z=start, last, -delta_z do
-                for _, feature in pairs(featureList) do
-                    if feature.openingCoords[x .. "-" .. z] ~= nil then
-                        feature.openingCoords[x .. "-" .. z + delta_z] = true
-                        feature.openingCoords[x .. "-" .. z] = nil
+        for z=start, last, -delta_z do
+            for _, feature in pairs(featureList) do
+                for openingCoord, _ in pairs(feature.openingCoords) do
+                    local coord = string.split(openingCoord, "-")
+                    local oldX = tonumber(coord[1])
+                    local oldZ = tonumber(coord[2])
+                    if (oldZ == z) then
+                        feature.openingCoords[oldX .. "-" .. oldZ + delta_z] = true
+                        feature.openingCoords[oldX .. "-" .. oldZ] = nil
                     end
                 end
             end

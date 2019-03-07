@@ -295,7 +295,7 @@ function startGame()
         end
     end
     for _, obj in ipairs(getAllObjects()) do
-        if obj.getName() == 'Follower' or obj.getName() == 'Substitute Colors' then
+        if obj.getName() == 'Follower' or obj.getName() == 'Substitute Colors and Meeples' then
             obj.destruct()
         end
     end
