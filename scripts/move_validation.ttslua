@@ -407,7 +407,6 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
                     --the following checks to see if this tile would create a "U-turn" such that the river folds back on itself
                     --this is illegal and can easily lead to issues
                     --Though technically illegal, it is possible to still make a river that folds back on itself.
-                    --TODO: In the future, consider checking n number of tiles in the direction of the new rivers direction (with a width of 3 tiles) to see if there are any pieces in the way
                     if not controlPanelSettings["RiverAllowUTurns"] and ((tile.getTable('sides')[(3 + i + 1 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 1 - tileGrid[x][z].rotation) % 4 + 1] == 'River') or
                     (tile.getTable('sides')[(3 + i + 3 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 3 - tileGrid[x][z].rotation) % 4 + 1] == 'River')) then
                         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_RIVER_U_TURN"}, activePlayers[currentPlayer]) end

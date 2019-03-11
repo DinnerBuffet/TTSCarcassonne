@@ -361,14 +361,14 @@ function startGame()
         if controlPanelSettings[rule_id] then
             for expansion_id, expansion in pairs(rule) do
                 for item_id, item_settings in pairs(expansion) do
-                    local stackObject = getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid)
+                    local stackObject = getObjectFromGUID(EXPANSION_BAGS[expansion_id].contents[item_id].guid)
                     if stackObject ~= nil then
                         if item_settings.shuffle then stackObject.shuffle() end
                         if item_settings.lock then stackObject.setLock(true) end
                     end
                     if item_settings.contents ~= nil then
                         for sub_item_id, sub_item_settings in pairs(item_settings.contents) do
-                            local sub_tile = getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid)
+                            local sub_tile = getObjectFromGUID(EXPANSION_BAGS[expansion_id].contents[item_id].contents[sub_item_id].guid)
                             if sub_tile ~= nil then
                                 if sub_item_settings.lock then sub_tile.setLock(true) end
                                 if sub_item_settings.addToGrid then
@@ -376,7 +376,7 @@ function startGame()
                                     local zIndex = math.floor((sub_item_settings.position.z + MIDDLE_OFFSET.z + TILE_SPACING / 2) / TILE_SPACING)
                                     local tileRotation = math.floor(sub_item_settings.rotation.y / 90 + 0.5)
                                     if tileRotation == 0 then tileRotation = 4 end
-                                    addTile(xIndex, zIndex, getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid), tileRotation, false)
+                                    addTile(xIndex, zIndex, getObjectFromGUID(EXPANSION_BAGS[expansion_id].contents[item_id].contents[sub_item_id].guid), tileRotation, false)
                                 end
                             end
                         end
@@ -414,7 +414,7 @@ end
 function preparePlayerStartingItems()
     if controlPanelSettings['AnMAbbey'] then
         spawnStartingItemLock = true
-        if takeObjectSafe(getObjectFromGUID(expansionBags['AnM'].guid), {guid = expansionBags['AnM'].contents['AnMAbbey'].guid, position = {x = 0.0, y = 3.0, z = -10.0}, rotation = {0,180,0}, smooth = false, callback_owner = Global, callback = "spawnStartingItemUnlock"}) == nil then
+        if takeObjectSafe(getObjectFromGUID(EXPANSION_BAGS['AnM'].guid), {guid = EXPANSION_BAGS['AnM'].contents['AnMAbbey'].guid, position = {x = 0.0, y = 3.0, z = -10.0}, rotation = {0,180,0}, smooth = false, callback_owner = Global, callback = "spawnStartingItemUnlock"}) == nil then
             spawnStartingItemLock = false
         end
         while spawnStartingItemLock do
@@ -431,7 +431,7 @@ function preparePlayerStartingItems()
             take_object_params.rotation = {0, figurePad.getRotation().y, 0}
             take_object_params.callback_owner = Global
             take_object_params.callback = "spawnStartingItemUnlock"
-            getObjectFromGUID(expansionBags['AnM'].contents['AnMAbbey'].guid).takeObject(take_object_params)
+            getObjectFromGUID(EXPANSION_BAGS['AnM'].contents['AnMAbbey'].guid).takeObject(take_object_params)
         end
         figurePositions[player] = {}
 
@@ -489,7 +489,7 @@ function preparePlayerStartingItems()
         end
     end
     if controlPanelSettings['AnMAbbey'] then
-        getObjectFromGUID(expansionBags['AnM'].guid).putObject(getObjectFromGUID(expansionBags['AnM'].contents['AnMAbbey'].guid))
+        getObjectFromGUID(EXPANSION_BAGS['AnM'].guid).putObject(getObjectFromGUID(EXPANSION_BAGS['AnM'].contents['AnMAbbey'].guid))
     end
     wait(2)
     preparePlayerStartingItemsFinished = true
@@ -520,7 +520,7 @@ function prepareTileStack()
                     if tileStack ~= nil then
                         tileStackAddPosition.y = stackY + 1 + tileStack.getQuantity() * TILE_THICKNESS
                     end
-                    local params = {guid = expansionBags[expansion_id].contents[item_id].guid,
+                    local params = {guid = EXPANSION_BAGS[expansion_id].contents[item_id].guid,
                                     position = tileStackAddPosition,
                                     rotation = {0,180,180}}
                     if tileStack_GUID == nil then
@@ -528,14 +528,14 @@ function prepareTileStack()
                         params.callback_owner = Global
                         params.callback = "prepareTileStackUnlock"
                     end
-                    local newStack = takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), params)
+                    local newStack = takeObjectSafe(getObjectFromGUID(EXPANSION_BAGS[expansion_id].guid), params)
                     if newStack ~= nil then
                         if tileStack_GUID == nil then
                             while prepareTileStackLock do
                                 coroutine.yield(0)
                             end
                             if newStack.getQuantity() > 1 then --HACK: this technically wouldn't work if the first two were only one tile, but for the time being it works
-                                tileStack_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                tileStack_GUID = EXPANSION_BAGS[expansion_id].contents[item_id].guid
                                 tileStack = newStack
                             end
                         else
@@ -602,7 +602,7 @@ function prepareStartingTiles()
                                         position.z = position.z - 1.59 --move to make room for the CoC
                                     end
                                 end
-                                if takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = position, rotation = rotation, smooth = false, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
+                                if takeObjectSafe(getObjectFromGUID(EXPANSION_BAGS[expansion_id].guid), {guid = EXPANSION_BAGS[expansion_id].contents[item_id].guid, position = position, rotation = rotation, smooth = false, callback_owner = Global, callback = "prepareStartingTileUnlock"}) == nil then
                                     prepareStartingTileLock = false
                                 end
                                 while prepareStartingTileLock do
@@ -610,21 +610,21 @@ function prepareStartingTiles()
                                 end
                                 wait(0.1) --need to wait before taking objects from this stack. Wait time is arbitrary, but seems to work.
                                 if controlPanelSettings['RiverMixAll'] and item_id ~= 'CoCStartingTiles' then
-                                    if riverBodyTiles_GUID == nil and getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).getQuantity() > 1  then --HACK: this technically wouldn't work if the first two were only one tile, but for the time being it works
-                                        riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                    if riverBodyTiles_GUID == nil and getObjectFromGUID(EXPANSION_BAGS[expansion_id].contents[item_id].guid).getQuantity() > 1  then --HACK: this technically wouldn't work if the first two were only one tile, but for the time being it works
+                                        riverBodyTiles_GUID = EXPANSION_BAGS[expansion_id].contents[item_id].guid
                                     end
                                 else
                                     if item_id == "RiverForkTile" and forkTile_GUID == nil then
-                                        forkTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                        forkTile_GUID = EXPANSION_BAGS[expansion_id].contents[item_id].guid
                                     end
                                     if item_id == "RiverSpringTile" then
-                                        springTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                        springTile_GUID = EXPANSION_BAGS[expansion_id].contents[item_id].guid
                                     end
                                     if item_id == "RiverLakeTile" then
-                                        lakeTile_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                        lakeTile_GUID = EXPANSION_BAGS[expansion_id].contents[item_id].guid
                                     end
                                     if item_id == "RiverBodyTiles" and rule_id ~= 'GamesQuarterlyTiles' and riverBodyTiles_GUID == nil then --HACK: gamesquarterly has a single body tile, so it won't be used as the bodyTileStack
-                                        riverBodyTiles_GUID = expansionBags[expansion_id].contents[item_id].guid
+                                        riverBodyTiles_GUID = EXPANSION_BAGS[expansion_id].contents[item_id].guid
                                     end
                                 end
                             end
@@ -639,8 +639,8 @@ function prepareStartingTiles()
                                         position.z = position.z - 1.59 --move to make room for the CoC
                                     end
                                 end
-                                if getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid) ~= nil then
-                                    local params = {guid = expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid,
+                                if getObjectFromGUID(EXPANSION_BAGS[expansion_id].contents[item_id].guid) ~= nil then
+                                    local params = {guid = EXPANSION_BAGS[expansion_id].contents[item_id].contents[sub_item_id].guid,
                                                     position = position,
                                                     rotation = sub_item_settings.rotation}
                                     if sub_item_id == #item_settings.contents - 1 then
@@ -652,9 +652,9 @@ function prepareStartingTiles()
                                     --     params.params = {position = position, rotation = sub_item_settings.rotation}
                                     --     params.callback = "prepareWoFStartingTile"
                                     -- end
-                                    getObjectFromGUID(expansionBags[expansion_id].contents[item_id].guid).takeObject(params)
+                                    getObjectFromGUID(EXPANSION_BAGS[expansion_id].contents[item_id].guid).takeObject(params)
                                 else
-                                    local newObj = getObjectFromGUID(expansionBags[expansion_id].contents[item_id].contents[sub_item_id].guid)
+                                    local newObj = getObjectFromGUID(EXPANSION_BAGS[expansion_id].contents[item_id].contents[sub_item_id].guid)
                                     newObj.setPositionSmooth(position)
                                     newObj.setRotationSmooth(sub_item_settings.rotation)
                                     prepareStartingTileLock = false
@@ -746,7 +746,7 @@ function prepareNeutralItems()
                 for item_id, item_settings in pairs(expansion) do
                     neutralItemsLock = true
                     offset = offset + item_settings.width / 2
-                    local takenObject = takeObjectSafe(getObjectFromGUID(expansionBags[expansion_id].guid), {guid = expansionBags[expansion_id].contents[item_id].guid, position = {x = NEUTRAL_ITEMS_LOCATION.x + offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}, rotation = {0,180,0}, callback_owner = Global, callback = "neutralItemsUnlock"})
+                    local takenObject = takeObjectSafe(getObjectFromGUID(EXPANSION_BAGS[expansion_id].guid), {guid = EXPANSION_BAGS[expansion_id].contents[item_id].guid, position = {x = NEUTRAL_ITEMS_LOCATION.x + offset, y = NEUTRAL_ITEMS_LOCATION.y, z = NEUTRAL_ITEMS_LOCATION.z}, rotation = {0,180,0}, callback_owner = Global, callback = "neutralItemsUnlock"})
                     if takenObject == nil then
                         --immediately unlock since the callback will never happen
                         neutralItemsLock = false

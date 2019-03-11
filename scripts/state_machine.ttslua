@@ -443,7 +443,7 @@ function stateHandler()
         clearFigureOptions()
         return promptMovingCount()
     elseif turnState == 'check for extra builder turn' then
-        local count = getObjectFromGUID(expansionBags['CoC'].contents['CoCCount'].guid)
+        local count = getObjectFromGUID(EXPANSION_BAGS['CoC'].contents['CoCCount'].guid)
         if count ~= nil then
             count.setLock(true)
         end

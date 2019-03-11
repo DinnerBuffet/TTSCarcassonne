@@ -120,7 +120,7 @@ function showFigureMarkers()
     --wheel of fortune crown spaces
     if controlPanelSettings['WoFCrowns'] and table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) then
         for _, tileIndex in ipairs({1, 2, 3, 4, 5, 8, 9, 12, 14, 15}) do --these are the indexes of the tiles that have crown features on them
-            local obj = getObjectFromGUID(expansionBags['WoF'].contents['WoFStartingTiles'].contents[tileIndex].guid)
+            local obj = getObjectFromGUID(EXPANSION_BAGS['WoF'].contents['WoFStartingTiles'].contents[tileIndex].guid)
             local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
             if tileGridOccupied(xIndex, zIndex) then
                 local positionsToVisit = {}
@@ -379,7 +379,7 @@ end
 
 function showToCoCFeatureMarkers(newFigure)
     local locationMarkers = {}
-    for _, cocTileSetting in ipairs(expansionBags['CoC'].contents['CoCStartingTiles'].contents) do
+    for _, cocTileSetting in ipairs(EXPANSION_BAGS['CoC'].contents['CoCStartingTiles'].contents) do
         local cocTile = getObjectFromGUID(cocTileSetting.guid)
         local xIndex, zIndex, _, _ = getFigureTileLocation(cocTile)
 

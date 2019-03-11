@@ -1,5 +1,31 @@
 --contains scripts related to recursive tile traversal
 
+traversedGrid = {}
+traversedFeaturePositions = {}
+traversedTileCoords = {}
+traversedOpeningCoords = {}
+traversedSpecialFeatures = {}
+traversedFollowers = {}
+traversedSpecialFigures = {}
+traversedSheepTokens = {}
+traversedGoldBars = {}
+
+--resetTraversal
+--Empties the traversal tables, so that they are ready for the next traversal
+function resetTraversal()
+    --debugMessage(2, "Clearing traversal tables")
+    traversedGrid = {}
+    traversedFeaturePositions = {}
+    traversedTileCoords = {}
+    traversedOpeningCoords = {}
+    traversedSpecialFeatures = {}
+    traversedFollowers = {}
+    traversedSpecialFigures = {}
+    traversedSheepTokens = {}
+    traversedGoldBars = {}
+    return
+end
+
 --getFeatureComponents
 --
 -- Traverses the tiles recursively, storing all associated tiles, features, and followers into their respective global variables
@@ -347,20 +373,4 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
         end
     end
     return finished
-end
-
---resetTraversal
---Empties the traversal tables, so that they are ready for the next traversal
-function resetTraversal()
-    --debugMessage(2, "Clearing traversal tables")
-    traversedGrid = {}
-    traversedFeaturePositions = {}
-    traversedTileCoords = {}
-    traversedOpeningCoords = {}
-    traversedSpecialFeatures = {}
-    traversedFollowers = {}
-    traversedSpecialFigures = {}
-    traversedSheepTokens = {}
-    traversedGoldBars = {}
-    return
 end
