@@ -139,18 +139,18 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                             for _, nestedPosition in ipairs(link) do
                                 featurePositions[nestedPosition] = true
                                 if nestedPosition < 13 then
-                                    local connectedTilePosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, rotation)
-                                    if tileGridOccupied(connectedX, connectedZ) and tileGrid[connectedX][connectedZ].featureMap[connectedTilePosition] ~= nil then
+                                    local connectedFeatureMapPosition, connectedX, connectedZ = getConnectingFeatureMapPosition(xIndex, zIndex, nestedPosition, rotation)
+                                    if tileGridOccupied(connectedX, connectedZ) and tileGrid[connectedX][connectedZ].featureMap[connectedFeatureMapPosition] ~= nil then
                                         if nameOfFeature ~= 'Abbey' then
                                             numOpenings = numOpenings - 1
-                                            if not table.contains(connectedFeatures, tileGrid[connectedX][connectedZ].featureMap[connectedTilePosition]) then
-                                                table.insert(connectedFeatures, tileGrid[connectedX][connectedZ].featureMap[connectedTilePosition])
+                                            if not table.contains(connectedFeatures, tileGrid[connectedX][connectedZ].featureMap[connectedFeatureMapPosition]) then
+                                                table.insert(connectedFeatures, tileGrid[connectedX][connectedZ].featureMap[connectedFeatureMapPosition])
                                             end
                                         else
-                                            if temp and tempFeatureList[tileGrid[connectedX][connectedZ].featureMap[connectedTilePosition]] == nil then
-                                                tempFeatureList[tileGrid[connectedX][connectedZ].featureMap[connectedTilePosition]] = {}
+                                            if temp and tempFeatureList[tileGrid[connectedX][connectedZ].featureMap[connectedFeatureMapPosition]] == nil then
+                                                tempFeatureList[tileGrid[connectedX][connectedZ].featureMap[connectedFeatureMapPosition]] = {}
                                             end
-                                            targetFeatureList[tileGrid[connectedX][connectedZ].featureMap[connectedTilePosition]].numOpenings = featureList[tileGrid[connectedX][connectedZ].featureMap[connectedTilePosition]].numOpenings - 1
+                                            targetFeatureList[tileGrid[connectedX][connectedZ].featureMap[connectedFeatureMapPosition]].numOpenings = featureList[tileGrid[connectedX][connectedZ].featureMap[connectedFeatureMapPosition]].numOpenings - 1
                                         end
                                     elseif nameOfFeature ~= 'Abbey' then
                                         numOpenings = numOpenings + 1

@@ -1,6 +1,10 @@
-﻿v1.21.6 - 20190307
+﻿v1.21.7 - 20190330
+[*]Fixed The Count being broken (due to a change made in 1.21.5) (Thanks to Uranus for reporting!)
+[*]Re-coded Shepherd and Builder to no longer use tile data.
+
+v1.21.6 - 20190307
 [*]Fixed tile-shifting functionality, which has been broken since 1.19.7 (Thanks to Wildcat Hendricks for reporting!)
-[*]Custom meeple bag is once again deleted automatically once the game is started. This has been broken since 1.20.0.
+[*]Custom meeple bag is once again deleted automatically after the game is started. This has been broken since 1.20.0.
 
 v1.21.5 - 20190304
 [*]Added tile data for Mage & Witch, The Robbers, Siege, Besiegers, Cathars, The Plague, La Porxada, Darmstadt, The Tunnel, and The Festival. They have no logic added for expansion-specific features, but can still be used for their basic terrain features. Micro expansions are not added to the control panel to prevent confusion with partial implementations (Thanks to TheLimeyDragon for implementing the tile data!)

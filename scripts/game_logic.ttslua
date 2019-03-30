@@ -491,24 +491,21 @@ end
 --check for features that have been added to, including:
 --shepherds on fields, builders in cities or on roads
 function checkAddedTileSpecialFigureExtensions()
-    local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+    getActiveFigures()
 
-    resetTraversal()
-
-    for i=1, 12 do
-        if newTile.getTable('sides')[1] ~= 'Abbey' then
-            getFeatureComponents(lastPlacedTileX, lastPlacedTileZ, i, 1, false)
-        end
-    end
-
-    getFigureComponents()
-    for _, figure in ipairs(traversedSpecialFigures) do
-        if activePlayers[currentPlayer] ~= nil and figure.getVar('owner') == activePlayers[currentPlayer] and
-           newTile.getTable('sides')[1] ~= 'Abbey' then --do not give give sheep/extra builder tile (CAR ref 149)
-            if figure.getVar('figureName') == 'Shepherd' then
-                shepherdAwaitingAction = figure.getGUID()
-            elseif figure.getVar('figureName') == 'Builder' and not hasAlreadyTakenBuilderTile then
-                hasBuilderAwaitingAction = true
+    for featureMapPosition=1, 12 do
+        local addedFeatureNum = getFeatureNumAt(lastPlacedTileX, lastPlacedTileZ, featureMapPosition)
+        if activeFigures[addedFeatureNum] ~= nil then
+            if featureList[addedFeatureNum].nameOfFeature ~= 'Abbey' then --do not give give sheep/extra builder tile (CAR ref 149)
+                for _, figure in ipairs(activeFigures[addedFeatureNum].specialFigures) do
+                    if figure.getVar('owner') == activePlayers[currentPlayer] then
+                        if figure.getVar('figureName') == 'Shepherd' and featureList[addedFeatureNum].nameOfFeature == 'Field' then
+                            shepherdAwaitingAction = figure.getGUID()
+                        elseif figure.getVar('figureName') == 'Builder' and (featureList[addedFeatureNum].nameOfFeature == 'City' or featureList[addedFeatureNum].nameOfFeature == 'Road') and not hasAlreadyTakenBuilderTile then
+                            hasBuilderAwaitingAction = true
+                        end
+                    end
+                end
             end
         end
     end

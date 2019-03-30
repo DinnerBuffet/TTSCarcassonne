@@ -1,10 +1,10 @@
+--Here are all of the events triggered by TTS. These are the entry points to all of the code.
+
+--onload and onsave
 --
-
-
-
---manages save games by restoring script data
---in general, it is best to minimize the amount of data stored
---the game is not considered 100% save compatible due to issues with the TTS API
+--manages save games by saving script data in onsave and restoring it in onload
+--onload also re-creates global game buttons and  returns to the previously saved state once loading is finished.
+--NOTE: the game is not considered 100% save compatible due to issues with the TTS API
 --for example, an object in the middle of a setPositionSmooth will not continue moving when loaded
 --though whenever the game is awaiting user interaction, it should be 99% save compatible
 
@@ -457,7 +457,7 @@ function onObjectDrop(player, droppedObject)
                     end
                 elseif droppedObject.getVar('figureName') == 'Count' then
                     if turnState == 'prompt moving count' then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkToCoC', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
                     else
                         dropLock = false
                         if not spamLock then
