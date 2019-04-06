@@ -859,7 +859,7 @@ function isValidLocationFromCoC(newFigure, featureNum, verbose)
         end
     end
     for featureMapPosition=1, 12 do
-        table.insert(positionsToVisit, position)
+        table.insert(positionsToVisit, featureMapPosition)
     end
     for _, featureMapPosition in ipairs(positionsToVisit) do
         --find if featureNum is one of the features that was added to by the last tile placed

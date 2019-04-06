@@ -40,6 +40,8 @@ function showTileMarkers(newTile)
                 custom_params.type = 0
                 custom_params.material = 0
                 newObject.setCustomObject(custom_params)
+                --TODO: The following should turn off the annoying collider, but it doesn't work.
+                --newObject.getComponent("BoxCollider").set("enabled", false)
                 hasTileLocation = true
             end
         end
