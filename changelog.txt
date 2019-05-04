@@ -1,4 +1,9 @@
-﻿v1.21.8 - 20190405
+﻿v1.21.9 - 20190504
+[*]Fixed Wheel of Fortune Famine event breaking if there is a farmer on a field with no cities (Thanks to iarspider for reporting!)
+[*]Fixed being able to place followers on crown spaces even when they are disabled.
+[*]Fixed numerous Wheel of Fortune translation issues.
+
+v1.21.8 - 20190405
 [*]Fixed The City of Carcassonne being broken (due to a change made in 1.21.5) (Thanks to Meymo for reporting!)
 
 v1.21.7 - 20190330

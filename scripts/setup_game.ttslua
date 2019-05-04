@@ -344,7 +344,7 @@ function startGame()
     elseif finalTile_GUID ~= nil then
         tilesRemaining = 1
     end
-    --initialize burinedTile information if playing with relevant expansion
+    --initialize buriedTile information if playing with relevant expansion
     if controlPanelSettings['HnSHills'] then
         buriedTiles = {}
         buriedTileCount = 0

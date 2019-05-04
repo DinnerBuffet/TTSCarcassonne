@@ -349,7 +349,7 @@ function isWithinErrorMargin(number, targetNumber, errorMargin)
 end
 
 --rotates coordinates in steps of 90 degrees
---this is much quicker than the below rotateCoordinatesDegrees, since it doesn't use and complex math functions
+--this is much quicker than the below rotateCoordinatesDegrees, since it doesn't use complex math functions
 function rotateCoordinates(x, z, rotation)
     if rotation == 1 then
         temp = x

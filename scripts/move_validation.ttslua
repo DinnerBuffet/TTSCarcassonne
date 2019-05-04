@@ -457,18 +457,17 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, featureMapPosition, fe
         return false
     end
     if string.sub(nameOfFeature,1,6) == 'Flier-' then
-        if controlPanelSettings['FlierFlier'] then
-            if hasAlreadyUsedFlier then
-                if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_USAGE_EXCEEDED"}, activePlayers[currentPlayer]) end
-                return false
-            elseif table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
-                return true
-            else
-                if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_ILLEGAL_FIGURE"}, activePlayers[currentPlayer]) end
-                return false
-            end
-        else
+        if not controlPanelSettings['FlierFlier'] then
             if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_DISABLED"}, activePlayers[currentPlayer]) end
+            return false
+        end
+        if hasAlreadyUsedFlier then
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_USAGE_EXCEEDED"}, activePlayers[currentPlayer]) end
+            return false
+        elseif table.contains(FOLLOWER_TYPES, newFigure.getVar('figureName')) then
+            return true
+        else
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_ILLEGAL_FIGURE"}, activePlayers[currentPlayer]) end
             return false
         end
     end
@@ -508,9 +507,15 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, featureMapPosition, fe
             return true
         end
     end
-    if string.sub(nameOfFeature,1,6) == 'Crown-' and not table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) then
-        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WHEEL_CROWN"}, activePlayers[currentPlayer]) end
-        return false
+    if string.sub(nameOfFeature,1,6) == 'Crown-' then
+        if not controlPanelSettings['WoFCrowns'] then
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WHEEL_CROWN_DISABLED"}, activePlayers[currentPlayer]) end
+            return false
+        end
+        if not table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) then
+            if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_WHEEL_CROWN"}, activePlayers[currentPlayer]) end
+            return false
+        end
     end
     if newFigure.getVar('figureName') == 'Shepherd' and nameOfFeature ~= 'Field' then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_SHEPHERD"}, activePlayers[currentPlayer]) end

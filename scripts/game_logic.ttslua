@@ -618,17 +618,13 @@ end
 WHEEL_POSITIONS = {'Fortune', 'Taxes', 'Famine', 'Storm', 'Inquisition', 'Plague'}
 
 function resolveWheel()
-    getActiveFigures()
-    if WHEEL_POSITIONS[wofPigPosition] == 'Fortune' then
-        if controlPanelSettings['WoFFortune'] then
+    if controlPanelSettings['WoF' .. WHEEL_POSITIONS[wofPigPosition]] then
+        getActiveFigures()
+        if WHEEL_POSITIONS[wofPigPosition] == 'Fortune' then
             allGameMessage({"MESSAGE_WHEEL_FORTUNE"}, NEUTRAL_COLOR)
             allGameMessage({"MESSAGE_WHEEL_FORTUNE_SCORED", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]])
             scorePoints(activePlayers[currentPlayer], 'Wheel', 3)
-        else
-            allGameMessage({"MESSAGE_WHEEL_EVENT_DISABLED", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
-        end
-    elseif WHEEL_POSITIONS[wofPigPosition] == 'Taxes' then
-        if controlPanelSettings['WoFTaxes'] then
+        elseif WHEEL_POSITIONS[wofPigPosition] == 'Taxes' then
             allGameMessage({"MESSAGE_WHEEL_TAXES"}, NEUTRAL_COLOR)
             for featureNum, figures in pairs(activeFigures) do
                 if featureList[featureNum].nameOfFeature == 'City' then
@@ -650,14 +646,11 @@ function resolveWheel()
                     end
                 end
             end
-        else
-            allGameMessage({"MESSAGE_WHEEL_EVENT_DISABLED", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
-        end
-    elseif WHEEL_POSITIONS[wofPigPosition] == 'Famine' then
-        if controlPanelSettings['WoFFamine'] then
+        elseif WHEEL_POSITIONS[wofPigPosition] == 'Famine' then
             allGameMessage({"MESSAGE_WHEEL_FAMINE"}, NEUTRAL_COLOR)
             for featureNum, figures in pairs(activeFigures) do
-                if featureList[featureNum].nameOfFeature == 'Field' then
+                if featureList[featureNum].nameOfFeature == 'Field' and
+                    linkedFeatures['City-Field'][featureNum] ~= nil then --has at least one connected city
                     local num_cities = 0
                     for linkedFeatureNum, _ in pairs(linkedFeatures['City-Field'][featureNum]) do
                         if (featureList[linkedFeatureNum].nameOfFeature == 'City' or featureList[linkedFeatureNum].nameOfFeature == 'Carcassonne') and featureList[linkedFeatureNum].numOpenings == 0 then
@@ -693,21 +686,13 @@ function resolveWheel()
                     end
                 end
             end
-        else
-            allGameMessage({"MESSAGE_WHEEL_EVENT_DISABLED", {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, NEUTRAL_COLOR)
-        end
-    elseif WHEEL_POSITIONS[wofPigPosition] == 'Storm' then
-        if controlPanelSettings['WoFStorm'] then
+        elseif WHEEL_POSITIONS[wofPigPosition] == 'Storm' then
             allGameMessage({"MESSAGE_WHEEL_STORM"}, NEUTRAL_COLOR)
             for playerColor, num_followers in pairs(baselineFollowerCounts) do
-                allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{c1}', playerColor}, {'{n1}', num_followers}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[playerColor])
+                allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{c1}', translate(playerColor)}, {'{n1}', num_followers}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[playerColor])
                 scorePoints(playerColor, 'Wheel', num_followers)
             end
-        else
-            allGameMessage({"MESSAGE_WHEEL_EVENT_DISABLED", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
-        end
-    elseif WHEEL_POSITIONS[wofPigPosition] == 'Inquisition' then
-        if controlPanelSettings['WoFInquisition'] then
+        elseif WHEEL_POSITIONS[wofPigPosition] == 'Inquisition' then
             allGameMessage({"MESSAGE_WHEEL_INQUISITION"}, NEUTRAL_COLOR)
             for featureNum, figures in pairs(activeFigures) do
                 if table.contains(CLOISTER_FEATURES, featureList[featureNum].nameOfFeature) then
@@ -717,16 +702,12 @@ function resolveWheel()
                     end
                 end
             end
-        else
-            allGameMessage({"MESSAGE_WHEEL_EVENT_DISABLED", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
-        end
-    else--if WHEEL_POSITIONS[wofPigPosition == 'Plague'] then
-        if controlPanelSettings['WoFPlague'] then
+        else--if WHEEL_POSITIONS[wofPigPosition == 'Plague'] then
             allGameMessage({"MESSAGE_WHEEL_PLAGUE"}, NEUTRAL_COLOR)
             return nextState('plague')
-        else
-            allGameMessage({"MESSAGE_WHEEL_EVENT_DISABLED", {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, NEUTRAL_COLOR)
         end
+    else
+        allGameMessage({"MESSAGE_WHEEL_EVENT_DISABLED", {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, NEUTRAL_COLOR)
     end
     return nextState('crown')
 end
@@ -801,7 +782,7 @@ function rewardCrownSpaces()
             local points = 6
             if #crownFollowers > 1 or table.contains({'Fortune', 'Famine', 'Inquisition'}, WHEEL_POSITIONS[wofPigPosition]) then points = 3 end
             for i, follower in ipairs(crownFollowers) do
-                allGameMessage({"MESSAGE_WHEEL_CROWN_SCORED", {'{c1}', follower.getVar('owner')}, {'{n1}', points}, {'{s1}', WHEEL_POSITIONS[wofPigPosition]}}, player_color_tints[follower.getVar('owner')])
+                allGameMessage({"MESSAGE_WHEEL_CROWN_SCORED", {'{c1}', follower.getDescription()}, {'{n1}', points}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
                 scorePoints(follower.getVar('owner'), 'Wheel', points)
 
                 if showMarkers == 'Both' or showMarkers == 'Scoring' then
