@@ -2,7 +2,7 @@
 btnIDs = {}
 index = 0
 
-BUTTON_HEIGHT = 0.1
+BUTTON_HEIGHT = 0.15
 LABEL_SEPARATION = 1.1
 
 PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}

@@ -57,7 +57,6 @@ function onload(save_state)
         score_counter_guids = saved_data.score_counter_guids
         figurepad_GUIDs = saved_data.figurepad_GUIDs
         handColor = saved_data.handColor
-        playerName = saved_data.playerName
         player_possession_areas = saved_data.player_possession_areas
         turnState = saved_data.turnState
         wagonFeatures = saved_data.wagonFeatures
@@ -116,7 +115,7 @@ function onload(save_state)
             allGameMessage({"MESSAGE_GAME_LOADED", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}, {'{s1}', turnState}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
         else
             allGameMessage({"MESSAGE_GAME_LOADED", {'{p1}', activePlayers[currentPlayer]}, {'{s1}', turnState}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-            allGameMessage({"MESSAGE_GAME_LOADED_CONTROL", {'{c1}', activePlayers[currentPlayer]}, {'{c2}', stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Control']) .. getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], nil)
+            allGameMessage({"MESSAGE_GAME_LOADED_CONTROL", {'{c1}', activePlayers[currentPlayer]}, {'{p1}', stringToBracketedHex(controlPanelSettings[activePlayers[currentPlayer] .. 'Control']) .. getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], nil)
         end
         allGameMessage({"MESSAGE_GAME_LOADED_REWIND_NOTIFICATION"}, NEUTRAL_COLOR)
     else
@@ -142,11 +141,7 @@ function onload(save_state)
 			createRansomButtons()
             highlightLastPlacedTiles()
 		end
-        if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
-            return AIStateHandler()
-        else
-            return stateHandler()
-        end
+        return stateHandler()
     end
     getObjectFromGUID(BUTTON_ANCHOR_GUID).interactable = false
 end
@@ -213,7 +208,6 @@ function onSave()
         score_counter_guids = score_counter_guids,
         figurepad_GUIDs = figurepad_GUIDs,
         handColor = handColor,
-        playerName = playerName,
         player_possession_areas = player_possession_areas,
         --the following is partial turn data
         turnState = turnState,
@@ -291,11 +285,11 @@ function onPlayerChangedColor(player)
             numPlayers = numPlayers + 1
         end
         if Player[color].seated and controlPanelSettings[color .. 'Control'] ~= nil then
-            allGameMessage({"MESSAGE_HOTSEAT_TAKEN", {'{c1}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. translate(controlPanelSettings[color .. 'Control']) .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', stringToBracketedHex(color) .. translate(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
+            allGameMessage({"MESSAGE_HOTSEAT_TAKEN", {'{p1}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. getPlayerOwnerName(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c1}', stringToBracketedHex(color) .. translate(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
             controlPanelSettings[color .. 'Control'] = value
         end
         if controlPanelSettings[color .. 'Control'] ~= nil and controlPanelSettings[color .. 'Control']:sub(1,2) ~= 'AI' and not Player[controlPanelSettings[color .. 'Control']].seated then
-            allGameMessage({"MESSAGE_HOTSEAT_OWNER_MOVED", {'{c1}', stringToBracketedHex(color) .. translate(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. translate(controlPanelSettings[color .. 'Control']) .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
+            allGameMessage({"MESSAGE_HOTSEAT_OWNER_MOVED", {'{c1}', stringToBracketedHex(color) .. translate(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{p1}', stringToBracketedHex(controlPanelSettings[color .. 'Control']) .. getPlayerOwnerName(color) .. RGBToBracketedHex(NEUTRAL_COLOR)}}, stringColorToRGB(color))
             controlPanelSettings[color .. 'Control'] = nil
         end
     end
@@ -524,11 +518,7 @@ function onObjectPickUp(player, pickedUpObject)
             allGameMessage({"MESSAGE_TILE_REMOVED"}, NEUTRAL_COLOR)
             clearArbitraryButtons(true)
             turnState = 'awaiting tile placement'
-            if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
-                return AIStateHandler()
-            else
-                return stateHandler()
-            end
+            return stateHandler()
         end
     end
 

@@ -19,7 +19,7 @@ end
 
 --checks if the person pressing the button is an admin
 function checkAdminPrivileges(player)
-    local PPlayer = Player[player]
+    local PPlayer = Player[player.sColor]
     if PPlayer ~= nil then
         if PPlayer.admin then
             return true
@@ -88,14 +88,10 @@ function endTurn()
                     currentPlayer = 1
                 end
             else
-                allGameMessage({"MESSAGE_LAKE_TILE_BONUS_TURN", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+                allGameMessage({"MESSAGE_LAKE_TILE_BONUS_TURN", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
             end
             turnState = 'begin turn' --in case skip turn was pressed, go to the beginning from every state
-            if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
-                return AIStateHandler()
-            else
-                return stateHandler()
-            end
+            return stateHandler()
         --end
     end
 end
@@ -126,20 +122,13 @@ function getPlayerOwner(player)
     return owner
 end
 
---gets the steam name of the person controlling this player
-function getPlayerOwnerName(player)
-    if player == nil then return nil end
-    local owner = player
-    if currentMiniTurn ~= nil and controlPanelSettings[player .. 'Control'] ~= nil then
-        owner = controlPanelSettings[player .. 'Control']
-    end
-    if currentMiniTurn == nil and controlPanelSettings[player .. 'Control'] ~= nil then
-        owner = controlPanelSettings[player .. 'Control']
-    end
+--gets the name of the person/AI controlling this color
+function getPlayerOwnerName(color)
+    local owner = getPlayerOwner(color)
     if owner:sub(1,2) == 'AI' then
         return owner
     elseif Player[owner].steam_name == nil then
-        return owner
+        return "no one"
     else
         return Player[owner].steam_name
     end
@@ -161,7 +150,7 @@ end
 
 -- Activates when button is pressed
 function showMarkersToggleButton(object, sPlayer)
-    if checkAdminPrivileges(sPlayer) then
+    if checkAdminPrivileges({sColor = sPlayer}) then
         -- Toggles between different showMarker modes
         if showMarkers == 'Scoring' then showMarkers = 'Hints'
         elseif showMarkers == 'Hints' then showMarkers = 'Both'
@@ -175,7 +164,7 @@ end
 
 --starts the game if the game has not yet started. Ends the game if the game is already running
 function gameToggleButton(object, sPlayer)
-    if checkAdminPrivileges(sPlayer) then
+    if checkAdminPrivileges({sColor = sPlayer}) then
         if gameover then
             local hasStartingTiles = false
             for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
@@ -231,11 +220,7 @@ function endGame()
   	clearArbitraryButtons(true)
     if scoring ~= true then
         turnState = 'game over - prompt moving from carcassonne'
-        if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
-            return AIStateHandler()
-        else
-            return stateHandler()
-        end
+        return stateHandler()
     end
 end
 
@@ -310,14 +295,7 @@ function printScoreToNotes()
         end
         if highscore > -999 then
             if highscore < lastHighscore then rank = playerNum end
-            local steam_name = ""
-            if getPlayerOwner(color):sub(1,2) == 'AI' then
-                steam_name = getPlayerOwner(color)
-            elseif controlPanelSettings[color .. 'Control'] ~= nil then
-                if Player[controlPanelSettings[color .. 'Control']].steam_name ~= nil then steam_name = Player[controlPanelSettings[color .. 'Control']].steam_name end
-            else
-                if Player[color].steam_name ~= nil then steam_name = Player[color].steam_name end
-            end
+            local steam_name = getPlayerOwnerName(color)
             local currentPlayerMarker = ""
             if not gameover and playerNum == currentPlayer then
                 currentPlayerMarker = CURRENT_PLAYER_MARKER
@@ -352,14 +330,7 @@ function printScoreSummary(object, sPlayer)
         end
         if highscore > 0 then
             if highscore < lastHighscore then rank = playerNum end
-            local steam_name = ""
-            if getPlayerOwner(color):sub(1,2) == 'AI' then
-                steam_name = getPlayerOwner(color)
-            elseif controlPanelSettings[color .. 'Control'] ~= nil then
-                if Player[controlPanelSettings[color .. 'Control']].steam_name ~= nil then steam_name = Player[controlPanelSettings[color .. 'Control']].steam_name end
-            else
-                if Player[color].steam_name ~= nil then steam_name = Player[color].steam_name end
-            end
+            local steam_name = getPlayerOwnerName(color)
             printToColor(translate({"#{n1} - {n2} points - {c1} - {p1}", {'{n1}', rank}, {'{n2}', highscore}, {'{c1}', color}, {'{p1}', steam_name}}), sPlayer, player_color_tints[color])
             local accountedPoints = 0
             for key, score in pairs(scoreSummary[color]) do
@@ -622,7 +593,7 @@ function resolveWheel()
         getActiveFigures()
         if WHEEL_POSITIONS[wofPigPosition] == 'Fortune' then
             allGameMessage({"MESSAGE_WHEEL_FORTUNE"}, NEUTRAL_COLOR)
-            allGameMessage({"MESSAGE_WHEEL_FORTUNE_SCORED", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]])
+            allGameMessage({"MESSAGE_WHEEL_FORTUNE_SCORED", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]])
             scorePoints(activePlayers[currentPlayer], 'Wheel', 3)
         elseif WHEEL_POSITIONS[wofPigPosition] == 'Taxes' then
             allGameMessage({"MESSAGE_WHEEL_TAXES"}, NEUTRAL_COLOR)
@@ -641,7 +612,7 @@ function resolveWheel()
                                 num_points = num_points + 1
                             end
                         end
-                        allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{c1}', follower.getDescription()}, {'{n1}', num_points}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
+                        allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{p1}', getPlayerOwnerName(follower.getVar('owner'))}, {'{n1}', num_points}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
                         scorePoints(follower.getVar('owner'), 'Wheel', num_points)
                     end
                 end
@@ -680,7 +651,7 @@ function resolveWheel()
                                 scoreMultiplier = scoreMultiplier + 1
                             end
                             local playerScore = num_cities * scoreMultiplier
-                            allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{c1}', follower.getDescription()}, {'{n1}', playerScore}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
+                            allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{p1}', getPlayerOwnerName(follower.getVar('owner'))}, {'{n1}', playerScore}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
                             scorePoints(follower.getVar('owner'), 'Wheel', playerScore)
                         end
                     end
@@ -689,7 +660,7 @@ function resolveWheel()
         elseif WHEEL_POSITIONS[wofPigPosition] == 'Storm' then
             allGameMessage({"MESSAGE_WHEEL_STORM"}, NEUTRAL_COLOR)
             for playerColor, num_followers in pairs(baselineFollowerCounts) do
-                allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{c1}', translate(playerColor)}, {'{n1}', num_followers}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[playerColor])
+                allGameMessage({"MESSAGE_WHEEL_EVENT_SCORED", {'{p1}', getPlayerOwnerName(playerColor)}, {'{n1}', num_followers}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[playerColor])
                 scorePoints(playerColor, 'Wheel', num_followers)
             end
         elseif WHEEL_POSITIONS[wofPigPosition] == 'Inquisition' then
@@ -697,7 +668,7 @@ function resolveWheel()
             for featureNum, figures in pairs(activeFigures) do
                 if table.contains(CLOISTER_FEATURES, featureList[featureNum].nameOfFeature) then
                     for _, follower in ipairs(figures.followers) do
-                        allGameMessage({"MESSAGE_WHEEL_INQUISITION_SCORED", {'{c1}', follower.getDescription()}, {'{n1}', 2}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
+                        allGameMessage({"MESSAGE_WHEEL_INQUISITION_SCORED", {'{p1}', getPlayerOwnerName(follower.getVar('owner'))}, {'{n1}', 2}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
                         scorePoints(follower.getVar('owner'), 'Wheel', 2)
                     end
                 end
@@ -733,14 +704,14 @@ function resolvePlague()
             end
         end
         if #removableFigures == 0 then
-            allGameMessage({"MESSAGE_WHEEL_PLAGUE_PLAYER_SKIPPED", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+            allGameMessage({"MESSAGE_WHEEL_PLAGUE_PLAYER_SKIPPED", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
         elseif #removableFigures == 1 then
-            allGameMessage({"MESSAGE_WHEEL_PLAGUE_FOLLOWER_AUTOMATICALLY_REMOVED", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+            allGameMessage({"MESSAGE_WHEEL_PLAGUE_FOLLOWER_AUTOMATICALLY_REMOVED", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
             table.insert(removedFigures, {guid=removableFigures[1].getGUID(), winner=false})
             removeDependentFigures(removableFigures[1])
             return returnFigures()
         else
-            allGameMessage({"MESSAGE_WHEEL_PLAGUE_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+            allGameMessage({"MESSAGE_WHEEL_PLAGUE_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
             for _, follower in ipairs(removableFigures) do
                 local plaguedFollowerButtonParam = {
                    index = 1, label = translate("BUTTON_LABEL_RETURN_FOLLOWER"), click_function = 'plaguedFollowerButton',
@@ -782,7 +753,7 @@ function rewardCrownSpaces()
             local points = 6
             if #crownFollowers > 1 or table.contains({'Fortune', 'Famine', 'Inquisition'}, WHEEL_POSITIONS[wofPigPosition]) then points = 3 end
             for i, follower in ipairs(crownFollowers) do
-                allGameMessage({"MESSAGE_WHEEL_CROWN_SCORED", {'{c1}', follower.getDescription()}, {'{n1}', points}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
+                allGameMessage({"MESSAGE_WHEEL_CROWN_SCORED", {'{p1}', getPlayerOwnerName(follower.getVar('owner'))}, {'{n1}', points}, {'{s1}', translate(WHEEL_POSITIONS[wofPigPosition])}}, player_color_tints[follower.getVar('owner')])
                 scorePoints(follower.getVar('owner'), 'Wheel', points)
 
                 if showMarkers == 'Both' or showMarkers == 'Scoring' then
@@ -908,7 +879,7 @@ function createDragonButtons()
     end
 
     if hasValidMove then
-        allGameMessage({"MESSAGE_DRAGON_MOVES_REMAINING", {'{n1}', dragonMovesRemaining}, {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+        allGameMessage({"MESSAGE_DRAGON_MOVES_REMAINING", {'{n1}', dragonMovesRemaining}, {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
     else
         allGameMessage({"MESSAGE_DRAGON_STUCK"}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
         return nextState('next')
@@ -1182,7 +1153,7 @@ function checkAddedTileFeatureExtensions()
                                 params.position = {player_possession_areas[activePlayers[currentPlayer]].x + x, 2, player_possession_areas[activePlayers[currentPlayer]].z + z}
                                 params.rotation = {0,  player_possession_areas[activePlayers[currentPlayer]].rotation * -90, 0}
                                 tradeGoodPile.takeObject(params)
-                                allGameMessage({"MESSAGE_TRADE_TOKEN_AWARD", {'{c1}', activePlayers[currentPlayer]}, {'{s1}', specialFeature}}, player_color_tints[activePlayers[currentPlayer]])
+                                allGameMessage({"MESSAGE_TRADE_TOKEN_AWARD", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}, {'{s1}', specialFeature}}, player_color_tints[activePlayers[currentPlayer]])
                             else
                                 allErrorMessage({"MESSAGE_TRADE_TOKENS_ERROR_MISSING", {'{s1}', specialFeature}})
                             end
@@ -1202,7 +1173,7 @@ function checkAddedTileFeatureExtensions()
             awardToken.setPositionSmooth({player_possession_areas[activePlayers[currentPlayer]].x + x, 2, player_possession_areas[activePlayers[currentPlayer]].z + z})
             awardToken.setRotationSmooth({0,  player_possession_areas[activePlayers[currentPlayer]].rotation * -90, 0})
             awardToken.setDescription(longestRoad .. " tiles")
-            allGameMessage({"MESSAGE_ROBBER_BARON_AWARD", {'{c1}', activePlayers[currentPlayer]}, {'{n1}', longestRoad}}, player_color_tints[activePlayers[currentPlayer]])
+            allGameMessage({"MESSAGE_ROBBER_BARON_AWARD", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}, {'{n1}', longestRoad}}, player_color_tints[activePlayers[currentPlayer]])
         else
             allErrorMessage({"MESSAGE_ROBBER_BARON_ERROR_MISSING"})
         end
@@ -1216,7 +1187,7 @@ function checkAddedTileFeatureExtensions()
             awardToken.setPositionSmooth({player_possession_areas[activePlayers[currentPlayer]].x + x, 2, player_possession_areas[activePlayers[currentPlayer]].z + z})
             awardToken.setRotationSmooth({0,  player_possession_areas[activePlayers[currentPlayer]].rotation * -90, 0})
             awardToken.setDescription(largestCity .. " tiles")
-            allGameMessage({"MESSAGE_KING_AWARD", {'{c1}', activePlayers[currentPlayer]}, {'{n1}', largestCity}}, player_color_tints[activePlayers[currentPlayer]])
+            allGameMessage({"MESSAGE_KING_AWARD", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}, {'{n1}', largestCity}}, player_color_tints[activePlayers[currentPlayer]])
         else
             allErrorMessage({"MESSAGE_KING_ERROR_MISSING"})
         end
@@ -1375,7 +1346,7 @@ function retrieveAbbotButton(object, sPlayer)
             getFeatureComponents(xIndex, zIndex, closestTilePosition, 2, true)
             if nameOfFeature == 'Garden' or nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
                 score = #traversedTileCoords
-                allGameMessage({"MESSAGE_ABBOT_RETRIEVE", {'{c1}', object.getDescription()}, {'{n1}', score}, {'{s1}', translate(nameOfFeature)}}, player_color_tints[object.getVar('owner')])
+                allGameMessage({"MESSAGE_ABBOT_RETRIEVE", {'{p1}', getPlayerOwnerName(object.getVar('owner'))}, {'{n1}', score}, {'{s1}', translate(nameOfFeature)}}, player_color_tints[object.getVar('owner')])
                 scorePoints(object.getVar('owner'), nameOfFeature, score)
                 table.insert(removedFigures, {guid=object.getGUID(), winner=true})
                 object.setLock(false)
@@ -1477,7 +1448,7 @@ function captureFollowerButton(object, sPlayer)
             object.setLock(false)
             object.setPositionSmooth({x, 2, z})
             object.setRotationSmooth({0,  player_possession_areas[activePlayers[currentPlayer]].rotation * -90, 0})
-            allGameMessage({"MESSAGE_TOWER_CAPTURE", {'{c1}', object.getDescription()}, {'{f1}', object.getName() .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', RGBToBracketedHex(player_color_tints[activePlayers[currentPlayer]]) .. activePlayers[currentPlayer]}}, player_color_tints[object.getVar('owner')])
+            allGameMessage({"MESSAGE_TOWER_CAPTURE", {'{c1}', object.getDescription()}, {'{f1}', object.getName() .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{p1}', RGBToBracketedHex(player_color_tints[activePlayers[currentPlayer]]) .. getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[object.getVar('owner')])
             return nextState('capture follower')
         end
     end
@@ -1561,12 +1532,12 @@ function exchangePrisoners()
         prisonersOfOtherPlayer[1].clearButtons()
         table.insert(removedFigures, {guid=prisoners[activePlayers[currentPlayer]][1].getGUID(), winner=false})
         table.insert(removedFigures, {guid=prisonersOfOtherPlayer[1].getGUID(), winner=false})
-        allGameMessage({"MESSAGE_TOWER_EXCHANGE_FOLLOWER", {'{c1}', prisoners[activePlayers[currentPlayer]][1].getDescription() .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{c2}', RGBToBracketedHex(player_color_tints[activePlayers[currentPlayer]]) .. activePlayers[currentPlayer] .. RGBToBracketedHex(NEUTRAL_COLOR)}}, player_color_tints[prisoners[activePlayers[currentPlayer]][1].getVar('owner')])
+        allGameMessage({"MESSAGE_TOWER_EXCHANGE_FOLLOWER", {'{p1}', getPlayerOwnerName(prisoners[activePlayers[currentPlayer]][1].getVar('owner')) .. RGBToBracketedHex(NEUTRAL_COLOR)}, {'{p2}', RGBToBracketedHex(player_color_tints[activePlayers[currentPlayer]]) .. getPlayerOwnerName(activePlayers[currentPlayer]) .. RGBToBracketedHex(NEUTRAL_COLOR)}}, player_color_tints[prisoners[activePlayers[currentPlayer]][1].getVar('owner')])
         return nextState('return followers')
     else
         prisoners[activePlayers[currentPlayer]][1].clearButtons()
         table.insert(removedFigures, {guid=prisoners[activePlayers[currentPlayer]][1].getGUID(), winner=false})
-        allGameMessage({"MESSAGE_TOWER_EXCHANGE_PROMPT", {'{c1}', activePlayers[currentPlayer]}, {'{c2}', prisoners[activePlayers[currentPlayer]][1].getVar('owner')}}, player_color_tints[activePlayers[currentPlayer]])
+        allGameMessage({"MESSAGE_TOWER_EXCHANGE_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}, {'{p2}', getPlayerOwnerName(prisoners[activePlayers[currentPlayer]][1].getVar('owner'))}}, player_color_tints[activePlayers[currentPlayer]])
         for _, prisoner in ipairs(prisonersOfOtherPlayer) do
             prisoner.clearButtons()
             local returnFollowerButtonParam = {
@@ -1611,7 +1582,7 @@ function removeDependentFigures(object)
         for _, figure in ipairs(traversedSpecialFigures) do
             if (figure.getVar('figureName') == 'Pig' or figure.getVar('figureName') == 'Builder') and figure.getVar('owner') == object.getVar('owner') then
                 table.insert(removedFigures, {guid=figure.getGUID(), winner=false})
-                allGameMessage({"MESSAGE_DEPENDENT_FIGURE_REMOVED", {'{c1}', figure.getDescription()}, {'{f1}', figure.getName()}}, player_color_tints[object.getVar('owner')])
+                allGameMessage({"MESSAGE_DEPENDENT_FIGURE_REMOVED", {'{p1}', getPlayerOwnerName(figure.getVar('owner'))}, {'{f1}', figure.getName()}}, player_color_tints[object.getVar('owner')])
             end
         end
     end
@@ -1696,7 +1667,7 @@ function promptShepherd()
     local shepherd = getObjectFromGUID(shepherdAwaitingAction)
     createNormalizedButton(shepherd, shepherdExpandButtonParam, true)
     createNormalizedButton(shepherd, shepherdHerdButtonParam, true)
-    allGameMessage({"MESSAGE_SHEPHERD_PROMPT", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+    allGameMessage({"MESSAGE_SHEPHERD_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
     return
 end
 
@@ -1951,9 +1922,9 @@ function scoreFlockCoroutine()
                 if score > 0 then winner = true else winner = false end
                 table.insert(removedFigures, {guid=figure.getGUID(), winner=winner})
                 if not hasWolf then
-                    allGameMessage({"MESSAGE_SCORE_SHEPHERD", {'{c1}', figure.getVar('owner')}, {'{n1}', score}}, player_color_tints[figure.getVar('owner')])
+                    allGameMessage({"MESSAGE_SCORE_SHEPHERD", {'{p1}', getPlayerOwnerName(figure.getVar('owner'))}, {'{n1}', score}}, player_color_tints[figure.getVar('owner')])
                 else
-                    allGameMessage({"MESSAGE_SHEPHERD_WOLF", {'{c1}', figure.getVar('owner')}}, player_color_tints[figure.getVar('owner')])
+                    allGameMessage({"MESSAGE_SHEPHERD_WOLF", {'{p1}', getPlayerOwnerName(figure.getVar('owner'))}}, player_color_tints[figure.getVar('owner')])
                 end
                 scorePoints(figure.getVar('owner'), 'Shepherd', score)
                 figure.setLock(false)
@@ -2311,9 +2282,9 @@ function promptMovingFromCoC()
             end
             if hasAnything then
                 if gameover then
-                    allGameMessage({"MESSAGE_COC_FROM_CITY_GAMEOVER_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                    allGameMessage({"MESSAGE_COC_FROM_CITY_GAMEOVER_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
                 else
-                    allGameMessage({"MESSAGE_COC_FROM_CITY_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                    allGameMessage({"MESSAGE_COC_FROM_CITY_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
                 end
                 local labelButtonParam = {
                    index = 1, label = translate("BUTTON_LABEL_PROMPT_PLACE_FIGURE"), click_function = 'doNothing',
@@ -2604,12 +2575,12 @@ function scoreFeatures()
                                             end
                                             playerScore = score * scoreMultiplier
                                         end
-                                        allGameMessage({"MESSAGE_SCORE", {'{c1}', translate(player)}, {'{n1}', playerScore}, {'{f1}', translate(nameOfFeature)}}, player_color_tints[player]) -- .. " with a strength of " .. value .. " followers", player_color_tints[player])
+                                        allGameMessage({"MESSAGE_SCORE", {'{p1}', getPlayerOwnerName(player)}, {'{n1}', playerScore}, {'{f1}', translate(nameOfFeature)}}, player_color_tints[player]) -- .. " with a strength of " .. value .. " followers", player_color_tints[player])
                                         scorePoints(player, nameOfFeature, playerScore)
                                     elseif value > 0 then
                                         --allGameMessage(player .. " did not score any points with a strength of only " .. value .. " followers", player_color_tints[player])
                                     elseif topWeight == 0 and hasMayor[player] then
-                                        allGameMessage({"MESSAGE_SCORE_MAYOR_NO_POINTS", {'{c1}', translate(player)}, {'{f1}', nameOfFeature}}, player_color_tints[player])
+                                        allGameMessage({"MESSAGE_SCORE_MAYOR_NO_POINTS", {'{p1}', getPlayerOwnerName(player)}, {'{f1}', nameOfFeature}}, player_color_tints[player])
                                     end
                                 end
                             end
@@ -2634,7 +2605,7 @@ function scoreFeatures()
                                     local eligibleFollowers = fairyEligibleFollowers()
                                     for _, eligibleFollower in ipairs(eligibleFollowers) do
                                         if eligibleFollower == follower then
-                                            allGameMessage({"MESSAGE_SCORE_FAIRY_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
+                                            allGameMessage({"MESSAGE_SCORE_FAIRY_FINISH", {'{p1}', getPlayerOwnerName(eligibleFollower.getVar('owner'))}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
                                             scorePoints(eligibleFollower.getVar('owner'), 'Fairy', 3)
                                         end
                                     end
@@ -2721,7 +2692,7 @@ function scoreFeatures()
                         local winner
                         if tokenCounts[player] == highestNumTokens then
                             winner = true
-                            allGameMessage({"MESSAGE_SCORE_TRADE_TOKENS", {'{c1}', player}, {'{n1}', 10}, {'{f1}', tokenType}}, player_color_tints[player])
+                            allGameMessage({"MESSAGE_SCORE_TRADE_TOKENS", {'{p1}', getPlayerOwnerName(player)}, {'{n1}', 10}, {'{f1}', tokenType}}, player_color_tints[player])
                             scorePoints(player, 'Trade Goods', 10)
                         else
                             winner = false
@@ -2783,7 +2754,7 @@ function scoreFeatures()
                     else
                         goldMultiplier = 1
                     end
-                    allGameMessage({"MESSAGE_SCORE_GOLD_MINES", {'{c1}', player}, {'{n1}', playerNumGold * goldMultiplier}, {'{n2}', playerNumGold}, {'{n2}', goldMultiplier}}, player_color_tints[player])
+                    allGameMessage({"MESSAGE_SCORE_GOLD_MINES", {'{p1}', getPlayerOwnerName(player)}, {'{n1}', playerNumGold * goldMultiplier}, {'{n2}', playerNumGold}, {'{n2}', goldMultiplier}}, player_color_tints[player])
                     scorePoints(player, 'Gold', playerNumGold * goldMultiplier)
                     traversedFeaturePositions = {}
 
@@ -2831,7 +2802,7 @@ function scoreFeatures()
                         score = numRoads
                     end
                     if (obj.getGUID() == EXPANSION_BAGS['KnRB'].contents['KnRBKing'].guid and controlPanelSettings['KnRBKing']) or (obj.getGUID() == EXPANSION_BAGS['KnRB'].contents['KnRBRobber'].guid and controlPanelSettings['KnRBRobber']) then
-                        allGameMessage({"MESSAGE_SCORE_KING_OR_ROBBER_BARON", {'{c1}', player}, {'{n1}', score}, {'{f1}', obj.getName()}}, player_color_tints[player])
+                        allGameMessage({"MESSAGE_SCORE_KING_OR_ROBBER_BARON", {'{p1}', getPlayerOwnerName(player)}, {'{n1}', score}, {'{f1}', obj.getName()}}, player_color_tints[player])
                         scorePoints(player, 'King/Robber Tokens', score)
                         table.insert(removedFigures, {guid=obj.getGUID(), winner=true})
                         obj.setLock(false)
@@ -2874,14 +2845,7 @@ function scoreFeatures()
             end
             if highscore > 0 then
                 if highscore < lastHighscore then rank = playerNum end
-                local steam_name = ""
-                if getPlayerOwner(color):sub(1,2) == 'AI' then
-                    steam_name = getPlayerOwner(color)
-                elseif controlPanelSettings[color .. 'Control'] ~= nil then
-                    if Player[controlPanelSettings[color .. 'Control']].steam_name ~= nil then steam_name = Player[controlPanelSettings[color .. 'Control']].steam_name end
-                else
-                    if Player[color].steam_name ~= nil then steam_name = Player[color].steam_name end
-                end
+                local steam_name = getPlayerOwnerName(color)
                 allGameMessage({"#{n1} - {n2} points - {c1} - {p1}", {'{n1}', rank}, {'{n2}', highscore}, {'{c1}', color}, {'{p1}', steam_name}}, player_color_tints[color])
             else
                 break
@@ -2905,7 +2869,7 @@ function rewardFairy()
             if tileStack == nil and finalTile_GUID == nil then
                 allGameMessage({"MESSAGE_FAIRY_WARNING_NO_TILESTACK"}, NEUTRAL_COLOR)
             else
-                allGameMessage({"MESSAGE_SCORE_FAIRY_IDLE", {'{c1}', eligibleFollower.getDescription()}}, player_color_tints[eligibleFollower.getVar('owner')])
+                allGameMessage({"MESSAGE_SCORE_FAIRY_IDLE", {'{p1}', getPlayerOwnerName(eligibleFollower.getVar('owner'))}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
                 scorePoints(eligibleFollower.getVar('owner'), 'Fairy', 1)
             end
         end
@@ -2983,10 +2947,10 @@ function rewardGold()
                 end
             end
             if #eligibleGold == 1 or (#eligibleGold > 0 and #eligiblePlayers == 1) then
-                allGameMessage({"MESSAGE_GOLD_MINES_GOLD_AWARDED", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                allGameMessage({"MESSAGE_GOLD_MINES_GOLD_AWARDED", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
                 return giveGold(eligibleGold[1], activePlayers[currentMiniTurn])
             elseif #eligibleGold > 1 then
-                allGameMessage({"MESSAGE_GOLD_MINES_TAKE_GOLD_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                allGameMessage({"MESSAGE_GOLD_MINES_TAKE_GOLD_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
                 return promptGoldChoice(eligibleGold)
             end
             local count = 0
@@ -3065,7 +3029,7 @@ function replaceFinishedWagons()
         end
         if wagonFeatures[activePlayers[currentMiniTurn]] ~= nil then
             if hasAvailableWagonFeature(wagonFeatures[activePlayers[currentMiniTurn]]) then
-                allGameMessage({"MESSAGE_WAGON_PROMPT", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                allGameMessage({"MESSAGE_WAGON_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
                 local labelButtonParam = {
                    index = 1, label = translate("BUTTON_LABEL_PROMPT_REPLACE_WAGON"), click_function = 'doNothing',
                    position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.8}, width = 0, height=0, font_size = 200, function_owner = nil
@@ -3079,7 +3043,7 @@ function replaceFinishedWagons()
                 return
             else
                 wagonFeatures[activePlayers[currentMiniTurn]] = nil
-                allGameMessage({"MESSAGE_WAGON_NO_FEATURES", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
+                allGameMessage({"MESSAGE_WAGON_NO_FEATURES", {'{p1}', getPlayerOwnerName(activePlayers[currentMiniTurn])}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
             end
         end
     end
@@ -3097,7 +3061,7 @@ function promptMovingToCarcassonne()
             end
         end
         if someoneGotPoints and (earnedPointsThisTile[activePlayers[currentPlayer]] == nil or earnedPointsThisTile[activePlayers[currentPlayer]] == 0) then
-            allGameMessage({"MESSAGE_COC_TO_CITY_PROMPT", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+            allGameMessage({"MESSAGE_COC_TO_CITY_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
             local labelButtonParam = {
                index = 1, label = translate("BUTTON_LABEL_PROMPT_COC"), click_function = 'doNothing',
                position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=3.8}, width = 0, height=0, font_size = 200, function_owner = nil
@@ -3118,7 +3082,7 @@ end
 
 function promptMovingCount()
     if controlPanelSettings['StartingTileCoC'] and not controlPanelSettings['CoCNoCount'] then
-        allGameMessage({"MESSAGE_COC_COUNT_PROMPT", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+        allGameMessage({"MESSAGE_COC_COUNT_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
         getObjectFromGUID(EXPANSION_BAGS['CoC'].contents['CoCCount'].guid).setLock(false)
         local labelButtonParam = {
            index = 1, label = translate("BUTTON_LABEL_PROMPT_MOVE_COUNT"), click_function = 'doNothing',

@@ -398,8 +398,6 @@ handColor = {
     ['Pink'] = 'Pink'
 }
 
-playerName = {}
-
 player_color_tints = {}
 
 figurePositions = {}

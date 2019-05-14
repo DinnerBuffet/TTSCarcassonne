@@ -96,7 +96,7 @@ startingTileSettings = {
             [15] = {position = {x=0.0, y=2.0, z=-3.18}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true},
             [16] = {position = {x=1.59, y=2.0, z=-3.18}, rotation = {x=0,y=180,z=0}, shuffle = false, lock = true, addToGrid = true}
         }},
-        ['WoFPig'] = {position = {x=-0.795, y=1.23, z=0.85}, rotation = {x=270,y=180,z=0}, shuffle = false, lock = true}
+        ['WoFPig'] = {position = {x=-0.795, y=1.33, z=0.85}, rotation = {x=270,y=180,z=0}, shuffle = false, lock = true}
     }}
 }
 
@@ -140,21 +140,34 @@ neutralFigureSettings = {
     ['PnDFairy'] = {name = 'Fairy', width = 1.0, use_snap_points = false, color = {r = 162/255, g = 1, b = 1, a = 1}, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXT2hMVjh2QXJLa1k', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
     ['PnDDragon'] = {name = 'Dragon', width = 2.0, use_snap_points = false, color = {r = 142/255, g = 0, b = 0, a = 1}, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXaUIyMll1aWs0SUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', collider = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdllDZHFOQ24yZGc'}},
     ['FlierFlier'] = {width = 1.0, use_snap_points = false, object_params = {type = 'Custom_Dice', scale = {1.0, 1.0, 1.0}}, custom_object_params = {type=1, image = 'https://www.dropbox.com/s/ax3shaignnxpnmk/flierdie.jpg?raw=1'}, custom_script =
-[[m_sLastPlayer = nil     --Remember last player who picked up the die
+[[m_sLastPlayer = nil
 loaded = false
+dieColliding = false
+diePickedUp = false
 
 function onLoad()
     loaded = true
 end
 
-function onCollisionStay(collision_info)
-    if loaded and self.resting then
+function onCollisionEnter(collision_info)
+    dieColliding = true
+end
+
+function onCollisionExit(collision_info)
+    dieColliding = false
+end
+
+function onUpdate()
+    if diePickedUp and dieColliding and loaded and self.resting then
+        dieColliding = false
+        diePickedUp = false
         Global.call('onFlierDiceRolled', {sPlayer = m_sLastPlayer})
     end
 end
 
 function onPickedUp(player_color)
-    m_sLastPlayer = player_color
+    diePickedUp = true
+    m_sLastPlayer = player_color     --Remember last player who picked up the die
 end
 
 function getLastPlayerColor()
@@ -277,15 +290,6 @@ function startGame()
                 handColor[newColor] = handColor[player_color]
             end
             table.insert(activePlayers, newColor)
-            if Player[player_color].seated then
-              playerName[player_color] = Player[player_color].steam_name
-            else
-              if(controlPanelSettings[player_color .. 'Control']:sub(1,2) == 'AI') then
-                playerName[player_color] = 'AI (beta)'
-              else
-                playerName[player_color] = Player[controlPanelSettings[player_color .. 'Control']].steam_name .. ' (Hotseat)'
-              end
-            end
             if Player[player_color].seated and vipFigureSettings[Player[player_color].steam_id] ~= nil and vipFigureSettings[Player[player_color].steam_id]['Intro'] ~= nil then
                 allGameMessage(string.format(vipFigureSettings[Player[player_color].steam_id]['Intro'], Player[player_color].steam_name), NEUTRAL_COLOR)
             end
@@ -398,15 +402,11 @@ function startGame()
         -- tileStack.interactable = false
     end
     allGameMessage({"MESSAGE_SETUP_START"}, NEUTRAL_COLOR)
-    allGameMessage({"MESSAGE_SETUP_FIRST_PLAYER", {'{c1}', translate(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+    allGameMessage({"MESSAGE_SETUP_FIRST_PLAYER", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
 
     gameover = false
     turnState = 'begin turn'
-    if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
-        AIStateHandler()
-    else
-        stateHandler()
-    end
+    stateHandler()
     return 1
 end
 

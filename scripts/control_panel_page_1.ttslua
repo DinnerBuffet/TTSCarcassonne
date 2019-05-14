@@ -184,7 +184,7 @@ function onHotseatButtonPressed(sPlayer, color_pressed, data_key, button_key)
             elseif passedCurrentPlayerControl and (Player[color].seated or i == #PLAYER_COLORS) then
                 if Player[color].seated then
                     Global.call('setControlPanelState', {key = data_key, value = color})
-                    allGameMessage({"MESSAGE_SEAT_ASSIGNED_TO_HOTSEAT", {'{c1}', translate(color_pressed)}, {'{c2}', stringToBracketedHex(color) .. translate(color)}}, stringColorToRGB(color_pressed), color)
+                    allGameMessage({"MESSAGE_SEAT_ASSIGNED_TO_HOTSEAT", {'{c1}', translate(color_pressed)}, {'{p1}', stringToBracketedHex(color) .. Player[color].steam_name}}, stringColorToRGB(color_pressed), color)
                     self.editButton({index = btnIDs[button_key], label = Global.call('getControlPanelState', {key = color_pressed .. 'Control'}):sub(1,1), color = stringColorToRGB(color)})
                 else
                     Global.call('setControlPanelState', {key = data_key, value = nil})

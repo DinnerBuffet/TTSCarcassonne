@@ -121,7 +121,7 @@ function AIStateHandler()
     --    gameNotification("AI not implemented for expansion: The Abbey & The Mayor", NEUTRAL_COLOR, activePlayers[currentPlayer])
         --return replaceFinishedWagons()
     else
-        return stateHandler()
+        return playerStateHandler()
     end
 end
 
@@ -861,7 +861,7 @@ function AIChooseTileLocation()
     UI.show("AIProgressPanel")
     UI.setAttribute("AIProgressPanel", "active", "true")
     UI.setAttribute("AIProgressBar", "percentage", 0.0)
-    
+
     local CalculateLocationScoreFunction
     if getPlayerOwner(activePlayers[currentPlayer]) == "AIEasy" then
         CalculateLocationScoreFunction = AICalculateLocationScoreEasy

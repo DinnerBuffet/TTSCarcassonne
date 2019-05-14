@@ -1,4 +1,11 @@
-﻿v1.21.9 - 20190504
+v1.21.10 - 20190513
+[*]Fixed the flier die not working since the release of TTS 12.0 (Thanks to JoeysRattata for reporting!)
+[*]Changed several game messages to reference the player's steam name rather than color (Thanks to iarspider for suggesting!)
+[*]Raised the labels of the expansion bags such that some of them will no longer disappear when viewed from a steep angle or from high up.
+[*]Raised the buttons on the control panel such that they should no longer disappear when viewed from a steep angle or from high up.
+[*]Fixed the Wheel of Fortune pig spawning under the wheel tiles sometimes.
+
+v1.21.9 - 20190504
 [*]Fixed Wheel of Fortune Famine event breaking if there is a farmer on a field with no cities (Thanks to iarspider for reporting!)
 [*]Fixed being able to place followers on crown spaces even when they are disabled.
 [*]Fixed numerous Wheel of Fortune translation issues.
@@ -22,7 +29,7 @@ v1.21.5 - 20190304
 [*]Fixed bug: Phantom does not work when used as a flier (Thanks to TheLimeyDragon for reporting!)
 [*]Fixed bug: Flier breaks if the game is saved and then loaded after the die is rolled but before the flier is placed.
 [*]Fixed bug: Moving followers from City of Carcassonne is mostly broken when an Abbey is used to complete features.
-[*]Fixed bug: Farmers lay on fields the incorrect way, interferring with tile placement (Due to a change in 1.21.2). Also, farmers on rotating snap points will now lay the direction originally intended.
+[*]Fixed bug: Farmers lay on fields the incorrect way, interfering with tile placement (Due to a change in 1.21.2). Also, farmers on rotating snap points will now lay the direction originally intended.
 [*]Abbot is no longer broken, but still is not fully supported.
 [*]Easy AI now has a progress bar as well.
 [*]Fixed typo for "Inns" in the 2nd control panel page (Thanks to TheLimeyDragon for reporting!)
@@ -73,7 +80,7 @@ v1.20.3 - 20180423
 
 v1.20.2 - 20180415
 [*]Drawing a tile while the AI is calculating will no longer slightly mess up the calculations
-[*]If the size of the stack changes unexpectantly, the AI will recalculate all pre-calculated odds. This will allow players to manipulate the tiles (ie. add new ones) while not breaking the game. Unfortunately this will also happen if a player draws a tile out of turn, so players should wait for the AI to draw before pre-drawing.
+[*]If the size of the stack changes unexpectedly, the AI will recalculate all pre-calculated odds. This will allow players to manipulate the tiles (ie. add new ones) while not breaking the game. Unfortunately this will also happen if a player draws a tile out of turn, so players should wait for the AI to draw before pre-drawing.
 
 v1.20.1 - 20180326
 [*]Hard AI will now consider tokens in blocked cities when calculating remaining tokens.

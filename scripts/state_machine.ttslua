@@ -217,19 +217,30 @@ stateMachine = {
         ['figures returned'] = 'game over - scoring'
     }
 }
-
 function stateHandler()
+    if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
+        return AIStateHandler()
+    else
+        return playerStateHandler()
+    end
+end
+
+function playerStateHandler()
     if turnState == nil then
         --game hasn't started yet. This should never happen.
         return
     end
     --debugMessage(1, "stateHandler - " .. turnState)
     if turnState == 'begin turn' then
+        if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] == nil and Player[activePlayers[currentPlayer]].seated == false then
+            allGameMessage({"MESSAGE_STATE_NEW_TURN_PLAYER_MISSING", {'{c1}', translate(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]])
+            return
+        end
         if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] == nil then
-            allGameMessage({"MESSAGE_STATE_NEW_TURN", {'{c1}', translate(getPlayerOwnerName(activePlayers[currentPlayer]))}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+            allGameMessage({"MESSAGE_STATE_NEW_TURN", {'{p1}', translate(getPlayerOwnerName(activePlayers[currentPlayer]))}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
         else
-            allGameMessage({"MESSAGE_STATE_NEW_TURN", {'{c1}', translate(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-            allGameMessage({"MESSAGE_STATE_NEW_TURN_CONTROL", {'{c1}', translate(activePlayers[currentPlayer])}, {'{c2}', stringToBracketedHex(getPlayerOwner(activePlayers[currentPlayer])) .. getPlayerOwnerName(activePlayers[currentPlayer]) .. stringToBracketedHex(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], nil)
+            allGameMessage({"MESSAGE_STATE_NEW_TURN", {'{p1}', translate(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+            allGameMessage({"MESSAGE_STATE_NEW_TURN_CONTROL", {'{c1}', translate(activePlayers[currentPlayer])}, {'{p1}', stringToBracketedHex(getPlayerOwner(activePlayers[currentPlayer])) .. getPlayerOwnerName(activePlayers[currentPlayer]) .. stringToBracketedHex(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], nil)
         end
         hasAlreadyTakenBuilderTile = false
         hasAlreadyUsedMagicPortal = false
@@ -450,7 +461,7 @@ function stateHandler()
         clearArbitraryButtons(true)
         if hasBuilderAwaitingAction then
             hasAlreadyTakenBuilderTile = true
-            allGameMessage({"MESSAGE_BUILDER_PROMPT", {'{c1}', activePlayers[currentPlayer]}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+            allGameMessage({"MESSAGE_BUILDER_PROMPT", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
             return nextState('has builder')
         else
             return nextState('no builder')
@@ -470,11 +481,7 @@ function nextState(action)
     if stateMachine[turnState] ~= nil then
         if stateMachine[turnState][action] ~= nil then
             turnState = stateMachine[turnState][action]
-            if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
-                return AIStateHandler()
-            else
-                return stateHandler()
-            end
+            return stateHandler()
         else
             allErrorMessage({"MESSAGE_ERROR_NO_ACTION_FOR_STATE", {'{s1}', action}, {'{s2}', turnState}}, activePlayers[currentPlayer])
         end
