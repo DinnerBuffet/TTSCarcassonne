@@ -208,7 +208,7 @@ function checkFigurePlacement(params)
             getObjectFromGUID(follower_guid).highlightOff()
             getObjectFromGUID(follower_guid).setLock(true)
         end
-        if gameover then
+        if turnState == 'prompt moving from carcassonne' then
             currentMiniTurn = currentMiniTurn + 1
         end
     end
@@ -834,16 +834,16 @@ function isValidLocationFromCoC(newFigure, featureNum, verbose)
         return false
     end
 
-    if numOpenings ~= 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and not gameover then
+    if numOpenings ~= 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and turnState ~= 'game over - prompt moving from carcassonne' then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_COMPLETED_ONLY"}, activePlayers[currentMiniTurn]) end
         return false
     end
-    if numOpenings == 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and gameover then
+    if numOpenings == 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and turnState ~= 'game over - prompt moving from carcassonne' then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_END_GAME_INCOMPLETE_ONLY"}, activePlayers[currentMiniTurn]) end
         return false
     end
 
-    if gameover then return true end
+    if not gameIsActive() then return true end
 
     local tileFeatures = tileGrid[lastPlacedTileX][lastPlacedTileZ].tileFeatures
     local isAbbey = false

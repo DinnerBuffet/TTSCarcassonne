@@ -439,7 +439,7 @@ LOCALIZED_STRINGS = {
       --TTS Events
 
     ["MESSAGE_HOTSEAT_TAKEN"] = "{p1}'s hotseat, {c1}, has been taken.",
-    ["MESSAGE_HOTSEAT_OWNER_MOVED"] = "{c1}'s hotseat owner, {p1}, has left the table or moved.",
+    ["MESSAGE_HOTSEAT_OWNER_MOVED"] = "{c1}'s hotseat owner, {c2}, has left the table or moved.",
     ["MESSAGE_FLIER_DIE_ROLL"] = "{p1} rolled a {n1}",
     ["MESSAGE_FLIER_WRONG_PLAYER_ROLLED"] = "ERROR: It is not currently your turn OR you rolled the die without picking it up.",
     ["MESSAGE_TILE_NOT_ALLOWED"] = "It is currently not allowed to place a tile. You are only allowed to place a tile at the beginning of your turn. Current state: {s1}",
@@ -456,6 +456,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_TILE_REMOVED"] = "Tile removed from grid.",
   },
   ['zh-tw'] = {
+    ["AI/Hotseat (H)"] = "機器人(AI)/熱座(H)",
     --Player Colors
     ["Green"] = "綠色",
     ["Purple"] = "紫色",
@@ -574,7 +575,8 @@ LOCALIZED_STRINGS = {
     ["Target"] = "正中靶心",
     ["Catch"] = "接接樂",
     --Starting Tiles
-    ["Base Starting Tile"] = "起始牌",
+    ["Starting Tiles"] = "起始牌",
+    ["Base Starting Tile"] = "標準起始牌",
     ["The River"] = "河流一擴充",
     ["The River II"] = "河流二擴充",
     ["The River (Big Box 5)"] = "河流 (大盒版5)",

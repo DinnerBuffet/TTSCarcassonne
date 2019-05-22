@@ -311,7 +311,6 @@ linkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
 droplock = false
 spamLock = false
 scoring = false
-gameover = true
 
 wagonFeatures = {}
 
@@ -352,7 +351,7 @@ carcassonneFigures = nil
 barnFeatureNumbers = nil
 wofPigPosition = 1
 
-turnState = nil
+turnState = "pre-game"
 
 tileStack_GUID = '16d9db'
 startingTile_GUID = 'c107f0'
@@ -421,7 +420,7 @@ showMarkersButtonParam = {
 }
 
 endGameButtonParam = {
-    index = 1, click_function = 'gameToggleButton',
+    index = 1, click_function = 'startGameButton',
     position = {1.0, 0.1, 0.0}, width = 750, height=600, font_size = 150, function_owner = nil
 }
 

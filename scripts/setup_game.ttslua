@@ -404,7 +404,6 @@ function startGame()
     allGameMessage({"MESSAGE_SETUP_START"}, NEUTRAL_COLOR)
     allGameMessage({"MESSAGE_SETUP_FIRST_PLAYER", {'{p1}', getPlayerOwnerName(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
 
-    gameover = false
     turnState = 'begin turn'
     stateHandler()
     return 1

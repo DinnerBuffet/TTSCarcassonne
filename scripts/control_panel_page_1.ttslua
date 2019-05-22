@@ -57,7 +57,7 @@ function initializeControlPanelPage()
     self.UI.setAttribute("en-us", "icon", "UK/US Flag")
     self.UI.setAttribute("zh-tw", "icon", "TW Flag")
 
-    self.UI.setAttribute("AI/Hotseat", "text", translate("AI/Hotseat"))
+    self.UI.setAttribute("AI/Hotseat", "text", translate("AI/Hotseat (H)"))
     self.UI.setAttribute("Green", "text", translate("Green"))
     self.UI.setAttribute("Purple", "text", translate("Purple"))
     self.UI.setAttribute("White", "text", translate("White"))
@@ -135,7 +135,7 @@ function initializeHotseatButton(x, z, color)
             button_parameters.color = stringColorToRGB(hotseatOwner)
         end
         button_parameters.tooltip = translate("TOOLTIP_AI_HOTSEAT_TOGGLE")
-    elseif (Global.getVar('gameover') and Player[color].seated) or table.contains(Global.getTable('activePlayers'), color) then
+    elseif (not Global.call('gameIsActive', {}) and Player[color].seated) or table.contains(Global.getTable('activePlayers'), color) then
         button_parameters.label = 'X'
         button_parameters.tooltip = Player[color].steam_name
         button_parameters.color = stringColorToRGB(color)
@@ -152,7 +152,7 @@ function initializeHotseatButton(x, z, color)
 end
 
 function onHotseatButtonPressed(sPlayer, color_pressed, data_key, button_key)
-    if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
+    if Global.call('checkAdminPrivileges', {sColor = sPlayer}) == false then return end
     local numPlayersChanged = false
     if Player[color_pressed].seated then
         printToColor(translate("MESSAGE_SEAT_OCCUPIED"), sPlayer, ERROR_COLOR)
@@ -185,7 +185,7 @@ function onHotseatButtonPressed(sPlayer, color_pressed, data_key, button_key)
                 if Player[color].seated then
                     Global.call('setControlPanelState', {key = data_key, value = color})
                     allGameMessage({"MESSAGE_SEAT_ASSIGNED_TO_HOTSEAT", {'{c1}', translate(color_pressed)}, {'{p1}', stringToBracketedHex(color) .. Player[color].steam_name}}, stringColorToRGB(color_pressed), color)
-                    self.editButton({index = btnIDs[button_key], label = Global.call('getControlPanelState', {key = color_pressed .. 'Control'}):sub(1,1), color = stringColorToRGB(color)})
+                    self.editButton({index = btnIDs[button_key], label = 'H', color = stringColorToRGB(color)})
                 else
                     Global.call('setControlPanelState', {key = data_key, value = nil})
                     allGameMessage({"MESSAGE_HOTSEAT_REMOVED", {'{c1}', translate(color_pressed)}}, NEUTRAL_COLOR)
@@ -195,6 +195,13 @@ function onHotseatButtonPressed(sPlayer, color_pressed, data_key, button_key)
                 break
             end
         end
+    end
+
+    if Global.call('gameIsActive', {}) then
+        if Global.call('getControlPanelState', {key = data_key}) ~= nil and color_pressed == Global.getVar('activePlayers')[Global.getVar('currentPlayer')] and Global.getVar('turnState') == 'begin turn' then -- if the current player was stuck at the beginning of the turn, allow them to proceed
+            return Timer.create({identifier=os.clock(), function_name='currentPlayerControllerChanged', function_owner=Global, parameters={currentPlayer=color_pressed, newCurrentPlayerControl=Global.call('getControlPanelState', {key = color_pressed .. 'Control'})}, delay=2})
+        end
+        return --don't change tower/bridge/castle numbers after the game has already started
     end
 
     if numPlayersChanged then
@@ -224,7 +231,6 @@ end
 
 -- This should be called after the global onPlayerChangedColor is called, and it appears to do so when tested. Otherwise, the incorrect data will be displayed
 function onPlayerChangedColor(player)
-    if not Global.getVar('gameover') then return end
     for _, color in ipairs(PLAYER_COLORS) do
         if Player[color].seated then
             self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'X', tooltip = Player[color].steam_name, color=stringColorToRGB(color)})

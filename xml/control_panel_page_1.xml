@@ -34,9 +34,9 @@
         <Button id="zh-tw" class="LanguageButton" tooltip="Chinese (Traditional)" tooltipPosition="Above" icon="TW Flag"></Button>
     </VerticalLayout>
     <!-- AI/Hotseats -->
-    <Text id="AI/Hotseat" text="AI/Hotseat" class="ControlPanelSubCategoryLabel"
+    <Text id="AI/Hotseat" text="AI/Hotseat (H)" class="ControlPanelSubCategoryLabel"
            width="1200" height="100" offsetXY="0 -330"></Text>
-    <Text text="_________" class="ControlPanelSubCategoryLabel"
+    <Text text="____________" class="ControlPanelSubCategoryLabel"
           width="1200" height="100" offsetXY="0 -330"></Text>
     <TableLayout width="1570" height="256" padding="8 0 440 0" autoCalculateHeight="true" alignment="UpperCenter" rectAlignment="UpperCenter" cellBackgroundColor="0 0 0 0">
         <Row preferredHeight="128">

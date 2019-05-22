@@ -4,6 +4,9 @@
 --a generic 'next' can be used to go to the implied next state
 
 stateMachine = {
+    ['pre-game'] = {
+        ['next'] = 'begin turn'
+    },
     ['begin turn'] = {
         ['next'] = 'reward fairy'
     },
@@ -214,8 +217,10 @@ stateMachine = {
     },
     ['game over - scoring'] = {
         ['next'] = 'game over - scoring',
-        ['figures returned'] = 'game over - scoring'
-    }
+        ['figures returned'] = 'game over - scoring',
+        ['finished'] = 'game over - finished'
+    },
+    ['game over - finished'] = {}
 }
 function stateHandler()
     if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] ~= nil and controlPanelSettings[activePlayers[currentPlayer] .. 'Control']:sub(1,2) == 'AI' then
@@ -226,12 +231,9 @@ function stateHandler()
 end
 
 function playerStateHandler()
-    if turnState == nil then
-        --game hasn't started yet. This should never happen.
-        return
-    end
     --debugMessage(1, "stateHandler - " .. turnState)
     if turnState == 'begin turn' then
+        printScoreToNotes()
         if controlPanelSettings[activePlayers[currentPlayer] .. 'Control'] == nil and Player[activePlayers[currentPlayer]].seated == false then
             allGameMessage({"MESSAGE_STATE_NEW_TURN_PLAYER_MISSING", {'{c1}', translate(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]])
             return
@@ -249,7 +251,6 @@ function playerStateHandler()
         wagonFeatures = {}
         newBarn = nil
         lastPlacedTileX = nil
-        printScoreToNotes()
         highlightLastPlacedTiles()
         createRansomButtons()
         return nextState('next')
@@ -487,6 +488,14 @@ function nextState(action)
         end
     else
         allErrorMessage({"MESSAGE_ERROR_NO_STATE", {'{s1}', turnState}}, activePlayers[currentPlayer])
+    end
+end
+
+function gameIsActive()
+    if turnState == 'pre-game' or turnState == 'game over - prompt moving from carcassonne' or turnState == 'game over - scoring' or turnState == 'game over - finished' then
+        return false
+    else
+        return true
     end
 end
 

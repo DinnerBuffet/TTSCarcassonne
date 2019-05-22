@@ -247,15 +247,6 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
     if not temp and not addedTile.getVar('isStartingPiece') then --since we don't include starting pieces in the tilesRemaining count, don't subtract them or we'll be forced to recalculate
         tilesRemaining = tilesRemaining - 1
     end
-    if hasSmartAI == nil then
-        hasSmartAI = false
-        for _, player in ipairs(activePlayers) do
-            if getPlayerOwner(player) == 'AIHard (Beta)' then
-                hasSmartAI = true
-                break
-            end
-        end
-    end
     if not temp then
         if unusedTiles[addedTile.getGUID()] ~= nil then --don't modify the odds if tiles not from the tilestack are added (ie. starting tile)
             for openingCoord, tileTiles in pairs(validTileLocations) do --iterate through all valid tile lists and remove the added tile
@@ -356,7 +347,7 @@ end
 --Calculate the possible combinations of connections or lack thereof
 --using the validTileLocations and unusedTiles data structures
 function AICalculateLocationOdds(openingCoord, xIndex, zIndex, addedTileXIndex, addedTileZIndex, temp)
-    if not hasSmartAI then return nil end
+    if temp and getPlayerOwner(activePlayers[currentPlayer]) ~= 'AIHard (Beta)' then return nil end
     --debugMessage(1, "calculating odds at x:" .. xIndex .. " z:" .. zIndex)
     local connectionOdds = {}
     connectionOdds["blocked"] = tilesRemaining + buriedTileCount
@@ -457,7 +448,6 @@ end
 --Modify the connection odds of this position by subtracting the valid connections
 --of the removed tile
 function AIRemoveTileOdds(openingCoord, xIndex, zIndex, removedTile_GUID, connectionOdds)
-    if not hasSmartAI then return nil end
     if validTileLocations[openingCoord][removedTile_GUID] ~= nil then
         for validTileRotation, _ in pairs(validTileLocations[openingCoord][removedTile_GUID]) do
             connectionOdds["totalValid"] = connectionOdds["totalValid"] - 1
@@ -560,16 +550,6 @@ function AITileRemoved(xIndex, zIndex, removedTile)
     unusedTiles[removedTile.guid].linkedOctants = removedTile.getTable("linkedOctants")
     --unusedTiles[removedTile.guid].specialFeatures = removedTile.getTable("specialFeatures")
 
-    if hasSmartAI == nil then
-        hasSmartAI = false
-        for _, player in ipairs(activePlayers) do
-            if getPlayerOwner(player) == 'AIHard (Beta)' then
-                hasSmartAI = true
-                break
-            end
-        end
-    end
-
     tilesRemaining = tilesRemaining + 1
 
     for openingCoord, tileTiles in pairs(validTileLocations) do --iterate through all valid tile lists and add the removed tile
@@ -646,7 +626,6 @@ function AITileRemoved(xIndex, zIndex, removedTile)
 end
 
 function AIAddTileOdds(openingCoord, xIndex, zIndex, addedTile_GUID, connectionOdds)
-    if not hasSmartAI then return nil end
     if validTileLocations[openingCoord][addedTile_GUID] ~= nil then
         for validTileRotation, _ in pairs(validTileLocations[openingCoord][addedTile_GUID]) do
             connectionOdds["totalValid"] = connectionOdds["totalValid"] + 1
@@ -728,15 +707,6 @@ end
 
 --iterate through all openings and recalculate valid tiles and odds from scratch
 function AIRecalculateOdds()
-    if hasSmartAI == nil then
-        hasSmartAI = false
-        for _, player in ipairs(activePlayers) do
-            if getPlayerOwner(player) == 'AIHard (Beta)' then
-                hasSmartAI = true
-                break
-            end
-        end
-    end
     for openingCoord, _ in pairs(validTileLocations) do --iterate through all valid tile lists and add the removed tile
         validTileLocations[openingCoord] = {}
         local coord = string.split(openingCoord, "-")

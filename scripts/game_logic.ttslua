@@ -2,7 +2,7 @@
 
 --checks if the person pressing the control panel buttons is an admin, and that the game is not already running
 function checkControlPanelPrivileges(player)
-    if not gameover then
+    if gameIsActive() then
         broadcastToColor(translate("MESSAGE_SETUP_GAME_ALREADY_STARTED"), player.sColor, NEUTRAL_COLOR)
         return false
     end
@@ -61,6 +61,13 @@ function languageChanged()
     initializeButtons()
 end
 
+--this function is called when the control of the current player is changed at the beginning of a turn
+function currentPlayerControllerChanged(params)
+    if turnState == 'begin turn' and activePlayers[currentPlayer] == params.currentPlayer and params.newCurrentPlayerControl == controlPanelSettings[params.currentPlayer .. 'Control'] then
+        stateHandler()
+    end
+end
+
 --skip the rest of the turn and move to the next player
 function skipTurnButton(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
@@ -76,7 +83,7 @@ function endTurn()
             object.clearButtons()
         end
     end
-    if not gameover then
+    if gameIsActive() then
         --the following will detect that the game has finished and will not go to the next turn
         --local tileStack = getObjectFromGUID(tileStack_GUID)
         --if tileStack == nil and finalTile_GUID == nil then
@@ -138,10 +145,10 @@ function initializeButtons()
     buttonBoard = getObjectFromGUID(BUTTON_BOARD_GUID)
     showMarkersButtonParam.label = translate('BUTTON_LABEL_MARKERS') .. translate(showMarkers)
     buttonBoard.createButton(showMarkersButtonParam)
-    if gameover then
-      endGameButtonParam.label = translate('BUTTON_LABEL_START_GAME')
+    if gameIsActive() then
+        endGameButtonParam.label = translate('BUTTON_LABEL_END_GAME')
     else
-      endGameButtonParam.label = translate('BUTTON_LABEL_END_GAME')
+        endGameButtonParam.label = translate('BUTTON_LABEL_START_GAME')
     end
     buttonBoard.createButton(endGameButtonParam)
     skipTurnButtonParam.label = translate('BUTTON_LABEL_SKIP_TURN')
@@ -163,64 +170,63 @@ function showMarkersToggleButton(object, sPlayer)
 end
 
 --starts the game if the game has not yet started. Ends the game if the game is already running
-function gameToggleButton(object, sPlayer)
+function startGameButton(object, sPlayer)
     if checkAdminPrivileges({sColor = sPlayer}) then
-        if gameover then
-            local hasStartingTiles = false
-            for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
-                if settingOn and table.contains({'StartingTileBase', 'StartingTileRiver', 'StartingTileRiverII', 'StartingTileRiverBB5', 'StartingTileCoC', 'StartingTileWoF', 'StartingTileSchool', 'StartingTileWindRoses'}, controlPanelSetting) then
-                    hasStartingTiles = true
-                end
+        local hasStartingTiles = false
+        for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
+            if settingOn and table.contains({'StartingTileBase', 'StartingTileRiver', 'StartingTileRiverII', 'StartingTileRiverBB5', 'StartingTileCoC', 'StartingTileWoF', 'StartingTileSchool', 'StartingTileWindRoses'}, controlPanelSetting) then
+                hasStartingTiles = true
             end
-            if not hasStartingTiles then
-                allErrorMessage({"MESSAGE_NO_STARTING_TILESET"}, sPlayer)
-                return
-            end
-            local hasTileStack = false
-            for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
-                if settingOn and table.contains({'BaseTiles','InCTiles','TnBTiles','PnDTiles','TowerTiles','AnMTiles','KnRBTiles','CultTiles','CatapultTiles','BCnBTiles','HnSTiles','WoFTiles','WoFWheelTiles','FlierTiles','GoldminesTiles'}, controlPanelSetting) then
-                    hasTileStack = true
-                end
-            end
-            if not hasTileStack then
-                allErrorMessage({"MESSAGE_NO_TILES"}, sPlayer)
-                return
-            end
-            for _, player_color in ipairs(PLAYER_COLORS) do
-                if controlPanelSettings[player_color .. 'Control'] ~= nil and controlPanelSettings[player_color .. 'Control']:sub(1,2) == 'AI' then
-                    local illegalExpansion = false
-                    local illegalExpansionList = ""
-                    for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
-                        if settingOn and table.contains({'StartingTileCoC', 'PnDDragon', 'TowerTowers', 'AnMAbbey', 'AnMWagon', 'WoFPlague', 'FlierFlier', 'GoldminesGold', 'Phantoms'}, controlPanelSetting) then
-                            illegalExpansion = true
-                            illegalExpansionList = illegalExpansionList .. controlPanelSetting .. ", "
-                        end
-                    end
-                    if illegalExpansion then
-                        illegalExpansionList = illegalExpansionList:sub(1, -3) --get rid of the last comma and space
-                        allErrorMessage({"MESSAGE_AI_INCOMPATIBLE_EXPANSIONS", {'{s1}', illegalExpansionList}}, sPlayer)
-                        return
-                    end
-                    break
-                end
-            end
-        endGameButtonParam.label = translate('BUTTON_LABEL_END_GAME')
-            startLuaCoroutine(self, 'startGame')
-        else
-        endGameButtonParam.label = translate('BUTTON_LABEL_SCORE_SUMMARY')
-            endGameButtonParam.click_function = 'printScoreSummary'
-            endGame()
         end
+        if not hasStartingTiles then
+            allErrorMessage({"MESSAGE_NO_STARTING_TILESET"}, sPlayer)
+            return
+        end
+        local hasTileStack = false
+        for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
+            if settingOn and table.contains({'BaseTiles','InCTiles','TnBTiles','PnDTiles','TowerTiles','AnMTiles','KnRBTiles','CultTiles','CatapultTiles','BCnBTiles','HnSTiles','WoFTiles','WoFWheelTiles','FlierTiles','GoldminesTiles'}, controlPanelSetting) then
+                hasTileStack = true
+            end
+        end
+        if not hasTileStack then
+            allErrorMessage({"MESSAGE_NO_TILES"}, sPlayer)
+            return
+        end
+        for _, player_color in ipairs(PLAYER_COLORS) do
+            if controlPanelSettings[player_color .. 'Control'] ~= nil and controlPanelSettings[player_color .. 'Control']:sub(1,2) == 'AI' then
+                local illegalExpansion = false
+                local illegalExpansionList = ""
+                for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
+                    if settingOn and table.contains({'StartingTileCoC', 'PnDDragon', 'TowerTowers', 'AnMAbbey', 'AnMWagon', 'WoFPlague', 'FlierFlier', 'GoldminesGold', 'Phantoms'}, controlPanelSetting) then
+                        illegalExpansion = true
+                        illegalExpansionList = illegalExpansionList .. controlPanelSetting .. ", "
+                    end
+                end
+                if illegalExpansion then
+                    illegalExpansionList = illegalExpansionList:sub(1, -3) --get rid of the last comma and space
+                    allErrorMessage({"MESSAGE_AI_INCOMPATIBLE_EXPANSIONS", {'{s1}', illegalExpansionList}}, sPlayer)
+                    return
+                end
+                break
+            end
+        end
+        endGameButtonParam.label = translate('BUTTON_LABEL_END_GAME')
+        endGameButtonParam.click_function = 'endGameButton'
         buttonBoard.editButton(endGameButtonParam)
+        startLuaCoroutine(self, 'startGame')
     end
 end
 
-function endGame()
-    gameover = true
-  	clearArbitraryButtons(true)
-    if scoring ~= true then
-        turnState = 'game over - prompt moving from carcassonne'
-        return stateHandler()
+function endGameButton(object, sPlayer)
+    if checkAdminPrivileges({sColor = sPlayer}) then
+        endGameButtonParam.label = translate('BUTTON_LABEL_SCORE_SUMMARY')
+        endGameButtonParam.click_function = 'printScoreSummaryButton'
+        buttonBoard.editButton(endGameButtonParam)
+      	clearArbitraryButtons(true)
+        if scoring ~= true then
+            turnState = 'game over - prompt moving from carcassonne'
+            return stateHandler()
+        end
     end
 end
 
@@ -297,7 +303,7 @@ function printScoreToNotes()
             if highscore < lastHighscore then rank = playerNum end
             local steam_name = getPlayerOwnerName(color)
             local currentPlayerMarker = ""
-            if not gameover and playerNum == currentPlayer then
+            if gameIsActive() and playerNum == currentPlayer then
                 currentPlayerMarker = CURRENT_PLAYER_MARKER
             end
             scoreBoard = scoreBoard .. stringToBracketedHex(color) .. currentPlayerMarker .. translate({"{n1} points - {p1}", {'{n1}', highscore}, {'{p1}', steam_name}}) .. "\n"
@@ -2089,7 +2095,7 @@ end
 
 function promptMovingFromCoC()
     if currentMiniTurn == nil then
-        if not gameover then
+        if gameIsActive() then
             currentMiniTurn = currentPlayer + 1
         else --this assumes that the script had moved to the next player, even though there were no tiles left. Should be the player after the one that placed the last tile
             currentMiniTurn = currentPlayer
@@ -2168,7 +2174,7 @@ function promptMovingFromCoC()
             local hasRoad = false
             local hasCloister = false
             local hasField = false
-            if not gameover then
+            if gameIsActive() then
                 local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
                 local tileRotation = tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation
                 if newTile.getTable('sides')[1] ~= 'Abbey' then
@@ -2239,6 +2245,7 @@ function promptMovingFromCoC()
                 end
             end
 
+            local gameover = not gameIsActive()
             local hasAnything = false
             if (hasRoad or gameover) and carcassonneFigures[activePlayers[currentMiniTurn]] ~= nil then
                 --allGameMessage({"{c1} has followers at the Blacksmith that can be moved to the completed road.", {'{c1}', activePlayers[currentMiniTurn]}}, player_color_tints[activePlayers[currentMiniTurn]], activePlayers[currentMiniTurn])
@@ -2326,6 +2333,7 @@ end
 
 function scoreFeatures()
     scoring = true
+    local gameover = not gameIsActive()
     local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
     for _, obj in ipairs(objs) do
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or (gameover and obj.getVar('figureName') == 'Barn') then

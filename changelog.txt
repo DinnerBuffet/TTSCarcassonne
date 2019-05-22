@@ -1,3 +1,11 @@
+v1.21.11 - 20190521
+[*]Player control can now be modified to AI/hotseat during the game (if promoted) using page 1 of the control panel. Adding or removing players is still not allowed.
+[*]Fixed temporary hard AI data always being calculated for easy AI as long as there is at least one hard AI in the game. This should now only calculate on the hard AI's turn. Easy AI should calculate much faster now.
+[*]permanent Hard AI data is now always calculated, even if there are no hard AI players. This is a quick calculation so should be mostly unnoticed.
+[*]Hotseat control is now marked with an 'H' instead of the first letter of the color name, to try to make it less confusing.
+[*]The default number of towers should now correctly change when a player and/or hotseat owner leaves.
+[*]Fixed the rest of the pages of the control panel to have the fix from the last version (previously only fixed page 1).
+
 v1.21.10 - 20190513
 [*]Fixed the flier die not working since the release of TTS 12.0 (Thanks to JoeysRattata for reporting!)
 [*]Changed several game messages to reference the player's steam name rather than color (Thanks to iarspider for suggesting!)
