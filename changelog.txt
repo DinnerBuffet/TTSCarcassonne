@@ -293,7 +293,7 @@ v1.16.1 - 20170409
 [*]Fixed different features on the same tile that are linked together by other tiles not being considered by the AI (Thanks QuackerJack!)
 
 v1.16 - 20170408
-[*]Re-coded AI to calculate feature values without transversing the features. Should drastically increase the speed at which it will calculate moves.
+[*]Re-coded AI to calculate feature values without traversing the features. Should drastically increase the speed at which it will calculate moves.
 [*]There is no longer a praise animation if feature markers are turned off. This should save several seconds whenever a feature is scored, if you want a faster game.
 [*]Fixed Abbot not being retrievable from Abbey
 [*]Fixed incorrect snap point on Traders & Builders piece ('526fcd') (Thanks QuackerJack!)
@@ -362,7 +362,7 @@ v1.12 - 20170121
 v1.11 - 20170115
 [*]Fairy now unlocks during the figure placement phase. Also is highlighted so it is more obvious that she is an option.
 [*]Tiles which the dragon cannot move to are now highlighted red.
-[*]Fixed objects not being unlocked by setPostion (due to changes in the API in 8.5).
+[*]Fixed objects not being unlocked by setPosition (due to changes in the API in 8.5).
 
 v1.10 - 20170114
 [*]Implemented Carcassonne II base game. Not yet implemented in the control panel.
@@ -430,13 +430,13 @@ v1.02 - 20161014
 [*]Turned off checkboxes for unimplemented expansions.
 [*]Fixed River II piece ('1dd42f') that had incorrect tile side data.
 [*]Fixed River II piece ('4b84d4') that had incorrect tile data (pig-herd wasn't being scored).
-[*]Fixed issue with fields around rivers not being transversed correctly.
+[*]Fixed issue with fields around rivers not being traversed correctly.
 
 v1.01 - 20161013
 [*]Fixed River II piece ('656947') that had incorrect tile side data.
 [*]Fixed missing snap point on Base tile piece ('b34d70')
 [*]Fixed missing tile data on Inns & Cathedrals piece ('50c7ba')
-[*]Fixed roads not counting for the correct points (caused by road intersection transversal marking roads as visited before they could be added to the transversed tile list).
+[*]Fixed roads not counting for the correct points (caused by road intersection traversal marking roads as visited before they could be added to the traversed tile list).
 [*]Fixed LUA error message that would appear on the host's screen whenever they did something out of turn.
 [*]Fixed Abbey trying to reward King or Robber Baron token even when it had been disabled.
 [*]Black counter is now Blue and works correctly.
