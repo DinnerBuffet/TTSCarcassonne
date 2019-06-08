@@ -1449,7 +1449,9 @@ function captureFollowerButton(object, sPlayer)
                     end
                 end
                 if not prisonerInThisSpot then break end
-                x = x + PLAYER_POSSESSION_SPACING
+                local relativeX, relativeZ = rotateCoordinates(PLAYER_POSSESSION_SPACING, 0, player_possession_areas[activePlayers[currentPlayer]].rotation)
+                x = x - relativeX
+                z = z - relativeZ
             end
             object.setLock(false)
             object.setPositionSmooth({x, 2, z})
@@ -1918,7 +1920,6 @@ function scoreFlockCoroutine()
         for _, feature in ipairs(traversedSpecialFeatures) do
             if feature == 'Sheep' then
                 score = score + 1
-                break
             end
         end
         if hasWolf then score = 0 end
@@ -2762,7 +2763,7 @@ function scoreFeatures()
                     else
                         goldMultiplier = 1
                     end
-                    allGameMessage({"MESSAGE_SCORE_GOLD_MINES", {'{p1}', getPlayerOwnerName(player)}, {'{n1}', playerNumGold * goldMultiplier}, {'{n2}', playerNumGold}, {'{n2}', goldMultiplier}}, player_color_tints[player])
+                    allGameMessage({"MESSAGE_SCORE_GOLD_MINES", {'{p1}', getPlayerOwnerName(player)}, {'{n1}', playerNumGold * goldMultiplier}, {'{n2}', playerNumGold}, {'{n3}', goldMultiplier}}, player_color_tints[player])
                     scorePoints(player, 'Gold', playerNumGold * goldMultiplier)
                     traversedFeaturePositions = {}
 
@@ -3012,14 +3013,12 @@ end
 
 function giveGold(gold, player_color)
     local tradeGoodPile
-    local x, z = rotateCoordinates(PLAYER_POSSESSION_POSITIONS['Gold'].x, PLAYER_POSSESSION_POSITIONS['Gold'].z, player_possession_areas[player_color].rotation)
+    local x, z = rotateCoordinates(PLAYER_POSSESSION_POSITIONS['Gold'].x - PLAYER_POSSESSION_SPACING * tempGoldCounts[player_color], PLAYER_POSSESSION_POSITIONS['Gold'].z, player_possession_areas[player_color].rotation)
     x = player_possession_areas[activePlayers[currentMiniTurn]].x + x
     z = player_possession_areas[activePlayers[currentMiniTurn]].z + z
 
-    x = x + PLAYER_POSSESSION_SPACING * tempGoldCounts[player_color]
-
     getObjectFromGUID(gold).setPositionSmooth({x, 2, z})
-    getObjectFromGUID(gold).setRotationSmooth({0,  player_possession_areas[activePlayers[currentMiniTurn]].rotation * -90 + 90, 0})
+    getObjectFromGUID(gold).setRotationSmooth({0, player_possession_areas[activePlayers[currentMiniTurn]].rotation * -90 + 90, 0})
 
     tempGoldCounts[player_color] = tempGoldCounts[player_color] + 1
     scoringRewards['Gold'][gold] = nil

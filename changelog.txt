@@ -1,3 +1,9 @@
+v1.21.12 - 20190606
+[*]Fixed Gold and captured meeples not being placed in the correct "possession areas" for some players (Thanks to TheLimeyDragon for reporting!)
+[*]Fixed Big Box 5 river sheep only counting as 1 sheep when they are both in the same field (Thanks to TheLimeyDragon for reporting!)
+[*]Fixed City of Carcassonne being essentially broken (due to a change made in 1.21.11) (Thanks to TheLimeyDragon for reporting!)
+[*]Fixed the gold bars scoring message being broken ("Sancho scores 8 points on 4 gold bars ({n3} points each)")
+
 v1.21.11 - 20190521
 [*]Player control can now be modified to AI/hotseat during the game (if promoted) using page 1 of the control panel. Adding or removing players is still not allowed.
 [*]Fixed temporary hard AI data always being calculated for easy AI as long as there is at least one hard AI in the game. This should now only calculate on the hard AI's turn. Easy AI should calculate much faster now.

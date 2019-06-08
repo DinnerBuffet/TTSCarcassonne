@@ -838,7 +838,7 @@ function isValidLocationFromCoC(newFigure, featureNum, verbose)
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_COMPLETED_ONLY"}, activePlayers[currentMiniTurn]) end
         return false
     end
-    if numOpenings == 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and turnState ~= 'game over - prompt moving from carcassonne' then
+    if numOpenings == 0 and carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] ~= 'Market' and turnState == 'game over - prompt moving from carcassonne' then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_COC_END_GAME_INCOMPLETE_ONLY"}, activePlayers[currentMiniTurn]) end
         return false
     end
