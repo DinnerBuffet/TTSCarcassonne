@@ -147,8 +147,13 @@ function initializeButtons()
     buttonBoard.createButton(showMarkersButtonParam)
     if gameIsActive() then
         endGameButtonParam.label = translate('BUTTON_LABEL_END_GAME')
+        endGameButtonParam.click_function = 'endGameButton'
+    elseif turnState == 'game over - finished' then
+        endGameButtonParam.label = translate('BUTTON_LABEL_SCORE_SUMMARY')
+        endGameButtonParam.click_function = 'printScoreSummaryButton'
     else
         endGameButtonParam.label = translate('BUTTON_LABEL_START_GAME')
+        endGameButtonParam.click_function = 'startGameButton'
     end
     buttonBoard.createButton(endGameButtonParam)
     skipTurnButtonParam.label = translate('BUTTON_LABEL_SKIP_TURN')
@@ -317,7 +322,7 @@ function printScoreToNotes()
     Notes.setNotes(scoreBoard)
 end
 
-function printScoreSummary(object, sPlayer)
+function printScoreSummaryButton(object, sPlayer)
     printedPlayers = {}
     local playerNum = 1
     local rank = 1
@@ -2865,6 +2870,7 @@ function scoreFeatures()
         end
         allGameMessage({"MESSAGE_GAME_OVER"}, NEUTRAL_COLOR)
         allGameMessage({"MESSAGE_GAME_OVER_PROMOTE"}, NEUTRAL_COLOR)
+        return nextState('finished')
     else
         return nextState('next')
     end
