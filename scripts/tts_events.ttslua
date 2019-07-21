@@ -10,7 +10,7 @@
 
 function onload(save_state)
     if save_state ~= nil then
-        local saved_data = JSON.decode(save_state)
+        local saved_data = jsondecode(save_state)
         featureList = saved_data.featureList
         linkedFeatures = saved_data.linkedFeatures
         featureIndex = saved_data.featureIndex

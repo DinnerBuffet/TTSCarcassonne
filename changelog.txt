@@ -1,3 +1,6 @@
+v1.21.14 - 20190721
+[*]Changed to a custom JSON decoder to drastically improve loading/rewind time (Thanks to staticrealm from the forums for this suggestion!)
+
 v1.21.13 - 20190612
 [*]Fixed the end game button being broken if the game was saved and then loaded (due to a change made in 1.21.11) (Thanks to Zxurian for reporting!)
 [*]Fixed broken score summary button (due to a change made in 1.21.11)

@@ -550,4 +550,6 @@ controlPanelSettings = {
 
 #include !\TTSCarcassonne\scripts\helper_functions
 
+#include !\TTSCarcassonne\scripts\json
+
 #include !\TTSCarcassonne\scripts\game_logic
