@@ -36,7 +36,7 @@ function showTileMarkers(newTile)
                 table.insert(featureMarkers, newObject)
 
                 local custom_params = {}
-                custom_params.assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXWVhReFIybUtvMjQ'
+                custom_params.assetbundle = 'http://cloud-3.steamusercontent.com/ugc/784108087136435546/E68428C96CCEF1DF30F86B56D1493C196BDDD3B7/'
                 custom_params.type = 0
                 custom_params.material = 0
                 newObject.setCustomObject(custom_params)

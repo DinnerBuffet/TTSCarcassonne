@@ -142,6 +142,7 @@ function onload(save_state)
 		end
         return stateHandler()
     end
+    getObjectFromGUID(TILE_MARKER_PRELOADED_ASSET_GUID).interactable = false
     getObjectFromGUID(BUTTON_ANCHOR_GUID).interactable = false
 end
 

@@ -1,3 +1,7 @@
+v1.21.15 - 20190727
+[*]Changed the tile marker asset to be hosted on steam instead of google drive. I'm hoping this resolves issues loading/seeing the tile markers, though it's likely that it's a TTS bug.
+[*]Made a separate hidden object to hold temporary scripts. This should fix errors on starting the game when the tile marker asset fails to load.
+
 v1.21.14 - 20190721
 [*]Changed to a custom JSON decoder to drastically improve loading/rewind time (Thanks to staticrealm from the forums for this suggestion!)
 
