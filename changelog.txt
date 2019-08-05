@@ -1,3 +1,7 @@
+v1.21.16 - 20190805
+[*]Re-hosted imgur files, which were re-directing from http to https. This may help with loading times (Thanks to BafDyce for the suggestion!)
+[*]Re-hosted the table image from PSDgraphics to Google Drive. Their website also redirected from http to https, so this might also help.
+
 v1.21.15 - 20190727
 [*]Changed the tile marker asset to be hosted on steam instead of google drive. I'm hoping this resolves issues loading/seeing the tile markers, though it's likely that it's a TTS bug.
 [*]Made a separate hidden object to hold temporary scripts. This should fix errors on starting the game when the tile marker asset fails to load.

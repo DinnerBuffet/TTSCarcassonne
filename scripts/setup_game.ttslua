@@ -102,18 +102,100 @@ startingTileSettings = {
 
 --[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, figurepad_offset = {x=<x figurepad_offset>, z=<z figurepad_offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, num=<setting with number to spawn>}
 playerFigureSettings = {
-    ['BaseFollower'] = {name = 'Follower', figurepad_offset = {x = 5.15, z = -0.5}, use_snap_points = true, num = 'BaseNumFollowers', save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg'}},
-    ['InCBigFollower'] = {name = 'Big Follower', figurepad_offset = {x = -0.8, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.6, 0.6, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'http://i.imgur.com/s2rhBCd.jpg'}},
-    ['TnBBuilder'] = {name = 'Builder', figurepad_offset = {x = -0.8, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}, --scale should probably be closer to {0.5, 0.42, 0.5}
-    ['TnBPig'] = {name = 'Pig', figurepad_offset = {x = -2.25, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}, --scale should probably be closer to {0.45, 0.5, 0.5}
-    ['AnMMayor'] = {name = 'Mayor', figurepad_offset = {x = -2.25, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['AnMWagon'] = {name = 'Wagon', figurepad_offset = {x = -3.7, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['AnMBarn'] = {name = 'Barn', figurepad_offset = {x = -3.7, z = -0.5}, use_snap_points = false, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['HnSShepherd'] = {name = 'Shepherd', figurepad_offset = {x = -5.15, z = 0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['Phantoms'] = {name = 'Phantom', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQndSR0hlQWhXeFk', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    --['CIIAbbot'] = {name = 'Abbot', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['TowerTowers'] = {name = 'Tower', figurepad_offset = {x = -8.65, z = 0.0}, use_snap_points = true, save_figurepad_location = false, num = 'TowerNumTowers', color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255}, object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}}, custom_object_params = {type=5, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTUR2R1doUW5NOGc', collider='https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdUtJZ3dSdkppa1E', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['BCnBBridges'] = {name = 'Bridge', figurepad_offset = {x = -10.15, z = 0.0}, use_snap_points = true, save_figurepad_location = false, num = 'BCnBNumBridges', color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255}, object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}}
+    ['BaseFollower'] = {
+        name = 'Follower',
+        figurepad_offset = {x = 5.15, z = -0.5},
+        use_snap_points = true,
+        num = 'BaseNumFollowers',
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['InCBigFollower'] = {
+        name = 'Big Follower',
+        figurepad_offset = {x = -0.8, z = 0.5},
+        use_snap_points = true,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.6, 0.6, 0.5}},
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['TnBBuilder'] = {
+        name = 'Builder',
+        figurepad_offset = {x = -0.8, z = -0.5},
+        use_snap_points = true,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, --scale should probably be closer to {0.5, 0.42, 0.5}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['TnBPig'] = {
+        name = 'Pig',
+        figurepad_offset = {x = -2.25, z = 0.5},
+        use_snap_points = true,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, --scale should probably be closer to {0.45, 0.5, 0.5}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['AnMMayor'] = {
+        name = 'Mayor',
+        figurepad_offset = {x = -2.25, z = -0.5},
+        use_snap_points = true,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['AnMWagon'] = {
+        name = 'Wagon',
+        figurepad_offset = {x = -3.7, z = 0.5},
+        use_snap_points = true,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['AnMBarn'] = {
+        name = 'Barn',
+        figurepad_offset = {x = -3.7, z = -0.5},
+        use_snap_points = false,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['HnSShepherd'] = {
+        name = 'Shepherd',
+        figurepad_offset = {x = -5.15, z = 0.5},
+        use_snap_points = true,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['Phantoms'] = {
+        name = 'Phantom',
+        figurepad_offset = {x = -5.15, z = -0.5},
+        use_snap_points = true,
+        save_figurepad_location = true,
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQndSR0hlQWhXeFk', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    --['CIIAbbot'] = {name = 'Abbot', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}},
+    ['TowerTowers'] = {
+        name = 'Tower',
+        figurepad_offset = {x = -8.65, z = 0.0},
+        use_snap_points = true,
+        save_figurepad_location = false,
+        num = 'TowerNumTowers',
+        color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255},
+        object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}},
+        custom_object_params = {type=5, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTUR2R1doUW5NOGc', collider='https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdUtJZ3dSdkppa1E', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['BCnBBridges'] = {
+        name = 'Bridge',
+        figurepad_offset = {x = -10.15, z = 0.0},
+        use_snap_points = true,
+        save_figurepad_location = false,
+        num = 'BCnBNumBridges',
+        color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255},
+        object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}},
+        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    }
 }
 
 substituteFigureSettings = {}
@@ -130,16 +212,35 @@ vipFigureSettings = {
     -- },
     -- ['9999999999999999999'] = {
     --     ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
-    --     ['BaseFollower'] = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'http://i.imgur.com/s2rhBCd.jpg', scale = {0.5, 0.5, 0.5} },
+    --     ['BaseFollower'] = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I', scale = {0.5, 0.5, 0.5} },
     -- }
 }
 
 --figures that can be generated in code
 --[<setting name>] = {[<expansion bag>] = {[<item name>] = {width = <width of object>}}}
 neutralFigureSettings = {
-    ['PnDFairy'] = {name = 'Fairy', width = 1.0, use_snap_points = false, color = {r = 162/255, g = 1, b = 1, a = 1}, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXT2hMVjh2QXJLa1k', diffuse = 'http://i.imgur.com/6xSYszt.jpg'}},
-    ['PnDDragon'] = {name = 'Dragon', width = 2.0, use_snap_points = false, color = {r = 142/255, g = 0, b = 0, a = 1}, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXaUIyMll1aWs0SUk', diffuse = 'http://i.imgur.com/6xSYszt.jpg', collider = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdllDZHFOQ24yZGc'}},
-    ['FlierFlier'] = {width = 1.0, use_snap_points = false, object_params = {type = 'Custom_Dice', scale = {1.0, 1.0, 1.0}}, custom_object_params = {type=1, image = 'https://www.dropbox.com/s/ax3shaignnxpnmk/flierdie.jpg?raw=1'}, custom_script =
+    ['PnDFairy'] = {
+        name = 'Fairy',
+        width = 1.0,
+        use_snap_points = false,
+        color = {r = 162/255, g = 1, b = 1, a = 1},
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXT2hMVjh2QXJLa1k', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+    },
+    ['PnDDragon'] = {
+        name = 'Dragon',
+        width = 2.0,
+        use_snap_points = false,
+        color = {r = 142/255, g = 0, b = 0, a = 1},
+        object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXaUIyMll1aWs0SUk', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I', collider = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdllDZHFOQ24yZGc'}
+    },
+    ['FlierFlier'] = {
+        width = 1.0,
+        use_snap_points = false,
+        object_params = {type = 'Custom_Dice', scale = {1.0, 1.0, 1.0}},
+        custom_object_params = {type=1, image = 'https://www.dropbox.com/s/ax3shaignnxpnmk/flierdie.jpg?raw=1'},
+        custom_script =
 [[m_sLastPlayer = nil
 loaded = false
 dieColliding = false
@@ -172,7 +273,8 @@ end
 
 function getLastPlayerColor()
     return m_sLastPlayer
-end]]}
+end]]
+    }
 }
 
 --items that are difficult to generate in code, which should be pulled from bags instead
