@@ -142,7 +142,6 @@ function onload(save_state)
 		end
         return stateHandler()
     end
-    getObjectFromGUID(TILE_MARKER_PRELOADED_ASSET_GUID).interactable = false
     getObjectFromGUID(BUTTON_ANCHOR_GUID).interactable = false
 end
 
@@ -349,24 +348,21 @@ end
 
 --called when the flier die is rolled. Checks to make sure the last player to pick it up was the player eligible to roll
 function onFlierDiceRolled(params)
-    if params.sPlayer ~= nil then
-        player = params.sPlayer
-        if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
-            (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
-            if turnState == 'wait for flier roll' or 'wait for flier roll - phantom' then
-                local dieValue = getObjectFromGUID(flierDie_GUID).getValue()
-                if dieValue > 3 then dieValue = 7 - dieValue end
-                flierOffset = {x=DIAGONAL_DELTA[flierDirection].x * dieValue, z=DIAGONAL_DELTA[flierDirection].z * dieValue}
-                --debugMessage(1, "Flier direction: " .. flierDirection .. " Flier destination offset: x: " .. flierOffset.x .. " z: " .. flierOffset.z)
-                allGameMessage({"MESSAGE_FLIER_DIE_ROLL", {'{p1}', activePlayers[currentPlayer]}, {'{n1}', dieValue}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
-                return nextState('die rolled')
-            else
-                --allErrorMessage("It is currently not allowed to roll the flier die. You are only allowed to roll the die after you've placed a follower on the flier feature. Current state: " .. turnState, params.sPlayer)
-            end
-        else
-            playerErrorMessage({"MESSAGE_FLIER_WRONG_PLAYER_ROLLED"}, params.sPlayer)
-        end
+    local player = params.sPlayer
+    --Don't do anything if the player that rolled the die is not the current player
+    if (currentMiniTurn ~= nil and (player ~= activePlayers[currentMiniTurn] and player ~= getCurrentPlayerOwner())) or
+        (currentMiniTurn == nil and (player ~= activePlayers[currentPlayer] and player ~= getCurrentPlayerOwner())) then
+        playerErrorMessage({"MESSAGE_FLIER_WRONG_PLAYER_ROLLED"}, player)
+        return
     end
+    --Don't do anything unless it is a turnState where a player would be expected to roll the die
+    if turnState ~= 'wait for flier roll' and turnState ~= 'wait for flier roll - phantom' then return end
+    local dieValue = getObjectFromGUID(flierDie_GUID).getValue()
+    if dieValue > 3 then dieValue = 7 - dieValue end
+    flierOffset = {x=DIAGONAL_DELTA[flierDirection].x * dieValue, z=DIAGONAL_DELTA[flierDirection].z * dieValue}
+    --debugMessage(1, "Flier direction: " .. flierDirection .. " Flier destination offset: x: " .. flierOffset.x .. " z: " .. flierOffset.z)
+    allGameMessage({"MESSAGE_FLIER_DIE_ROLL", {'{p1}', activePlayers[currentPlayer]}, {'{n1}', dieValue}}, player_color_tints[activePlayers[currentPlayer]], activePlayers[currentPlayer])
+    return nextState('die rolled')
 end
 
 -- Activates whenever any object is dropped

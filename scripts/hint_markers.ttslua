@@ -1,6 +1,8 @@
 --these functions are typically used when a player picks up an object to be placed. They will create
 --a temporary object wherever a legal move can be made, which will be deleted when the object is released.
 
+TILE_MARKER_COLOR = {r=49/255, g=179/255, b=43/255, a=75/255}
+
 function showTileMarkers(newTile)
     local tileMarkers = {}
     for x, tileColumn in pairs(tileGrid) do
@@ -25,23 +27,16 @@ function showTileMarkers(newTile)
         for z, tileLocation in pairs(tileColumn) do
             if tileLocation == true then
                 local params = {}
-                params.type = 'Custom_AssetBundle'
-
+                params.type = "BlockSquare"
                 params.position = {(x * TILE_SPACING) - MIDDLE_OFFSET.x, 1.0, (z * TILE_SPACING) - MIDDLE_OFFSET.z}
-                params.scale = {0.75, 1.2, 0.75}
+                params.scale = {1.5, 0.1, 1.5}
                 params.callback_owner = Global
                 params.callback = "identifyFeature"
                 params.sound = false
                 local newObject = spawnObject(params)
                 table.insert(featureMarkers, newObject)
-
-                local custom_params = {}
-                custom_params.assetbundle = 'http://cloud-3.steamusercontent.com/ugc/784108087136435546/E68428C96CCEF1DF30F86B56D1493C196BDDD3B7/'
-                custom_params.type = 0
-                custom_params.material = 0
-                newObject.setCustomObject(custom_params)
-                --TODO: The following should turn off the annoying collider, but it doesn't work.
-                --newObject.getComponent("BoxCollider").set("enabled", false)
+                newObject.setColorTint(TILE_MARKER_COLOR)
+                newObject.getComponent("BoxCollider").set("enabled", false)
                 hasTileLocation = true
             end
         end
@@ -533,6 +528,7 @@ function showLocationMarkers(newFigure, locationMarkers)
                     params.sound = false
                     local newObject = spawnObject(params)
                     table.insert(featureMarkers, newObject)
+                    newObject.getComponent("BoxCollider").set("enabled", false)
                     hasFigureLocation = true
                 end
             end

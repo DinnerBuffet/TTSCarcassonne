@@ -259,7 +259,7 @@ function onCollisionExit(collision_info)
 end
 
 function onUpdate()
-    if diePickedUp and dieColliding and loaded and self.resting then
+    if diePickedUp and dieColliding and loaded and self.resting and m_sLastPlayer ~= nil then
         dieColliding = false
         diePickedUp = false
         Global.call('onFlierDiceRolled', {sPlayer = m_sLastPlayer})

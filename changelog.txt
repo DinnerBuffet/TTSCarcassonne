@@ -1,3 +1,8 @@
+v1.21.17 - 20191027
+[*]Rolling the flier die at random times will print error messages and non-relevant information (due to a change made in 1.21.10) (Thanks to Serp for reporting!)
+[*]Now using the alpha channel feature added in TTS v12.1 for tile hint markers instead of custom assetbundles. This will hopefully fix the hint markers not showing up consistently.
+[*]Feature and tile hint markers no longer collide with other objects. This should also prevent carried objects from raising their height when carried over these markers.
+
 v1.21.16 - 20190805
 [*]Re-hosted imgur files, which were re-directing from http to https. This may help with loading times (Thanks to BafDyce for the suggestion!)
 [*]Re-hosted the table image from PSDgraphics to Google Drive. Their website also redirected from http to https, so this might also help.
