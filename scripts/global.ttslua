@@ -72,7 +72,7 @@ MEEPLE_TYPES = {'Follower', 'Big Follower', 'Phantom'} --'normal' follower types
 FOLLOWER_TYPES = {'Follower', 'Big Follower', 'Phantom', 'Abbot', 'Mayor', 'Wagon'}
 SPECIAL_FIGURE_TYPES = {'Shepherd', 'Builder', 'Pig', 'Barn'}
 NEUTRAL_FIGURE_TYPES = {'Count', 'Dragon', 'Fairy', 'Tower'}
-TILE_FEATURES = {'Abbey', 'Volcano', 'Dragon', 'Magic Portal', 'Bazaar', 'Hill', 'Vineyard', 'Wheel-1', 'Wheel-2', 'Wheel-3', 'Gold'} --features that are not associated with any position or any other feature. They exist as a feature of the tile itself
+TILE_FEATURES = {'Abbey', 'Volcano', 'Dragon', 'Magic Portal', 'Bazaar', 'Hill', 'Vineyard', 'Wheel-1', 'Wheel-2', 'Wheel-3', 'Gold', 'Lake'} --features that are not associated with any position or any other feature. They exist as a feature of the tile itself
 PROXIMITY_FEATURES = {'Cloister', 'Abbey', 'Shrine', 'Garden', "Baba Yaga's Hut"} --features that change based on the actions of surrounding tiles
 CLOISTER_FEATURES = {'Cloister', 'Abbey', 'Shrine'} --features that are essentially cloisters in many aspects of the rules
 NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
@@ -251,7 +251,8 @@ EXPANSION_BAGS = {
         ['FlierDie'] = {guid = 'dc7bf3'}
     }},
     ['Ferries'] = {guid = '5506dd', contents = {
-        ['FerriesTiles'] = {guid = 'd6deb6'}
+        ['FerriesTiles'] = {guid = 'd6deb6'},
+        ['FerriesFerries'] = {guid = '6822b2'}
     }},
     ['Goldmines'] = {guid = '080d67', contents = {
         ['GoldminesTiles'] = {guid = 'bc8fac'},
@@ -290,8 +291,11 @@ EXPANSION_BAGS = {
 --  (optional) tileFeatures - a table of features of the tile, which does not correspond to any other feature located in the tile
 --  (optional) ignoredFeatures - a table of standard locations that should not be used when finding the closest feature to a figure
 tileGrid = {}
+activeTiles = {}
 lastPlacedTileX = nil
 lastPlacedTileZ = nil
+PlacedFerries = {}
+FerriesLinkedQuadrants = {}
 
 --the next available featureNum that can be used for featureList. This is incremented for each new feature. Discarded featureNums are not recycled.
 featureIndex = 1

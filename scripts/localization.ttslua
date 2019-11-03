@@ -175,6 +175,7 @@ LOCALIZED_STRINGS = {
     ["TOOLTIP_WHEEL_PLAGUE"] = "When the pig lands on the Plague event, each player must return 1 follower from a land tile.",
     ["TOOLTIP_FLIER"] = "The Flier may have a follower placed on it. When done so, a die is rolled to see how far the follower will fly. The player must then place the follower on this tile, if possible, and can even place on a feature that is already occupied (even a cloister). Fields are not allowed.",
     ["TOOLTIP_GOLD"] = "A tile placed with a gold icon will receive a gold bar, along with a neighboring tile. Any player that completes a feature on these tiles will be rewarded the gold, which is worth points at the end of the game.",
+    ["TOOLTIP_FERRY"] = "All tiles with a lake will receive a ferry to connect two of the roads that end into the lake.",
 
       --messages
 
@@ -427,6 +428,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_NO_GAME_BUTTON_PERMISSIONS"] = "Only promoted players can use this button",
     ["MESSAGE_NO_BUTTON_PERMISSIONS"] = "Only the current player or promoted players can use this button",
     ["MESSAGE_GOLD_MINES_PLACE_GOLD_PROMPT"] = "Choose a location to place the gold bar",
+    ["MESSAGE_LAKE_PLACE_FERRY_PROMPT"] = "You must place a ferry on the lake",
     ["MESSAGE_BUILDER_PROMPT"] = "{p1}'s builder has allowed them to draw another tile. Please do so, along with the usual actions, before ending your turn.",
     ["MESSAGE_GAME_LOADED_DURING_SCORING"] = "Loaded game was in the middle of scoring. Game pieces may need to be removed manually. Skipping to post scoring events. Some unscored pieces may remain.",
     ["MESSAGE_FIGURE_PROMPT"] = "Place a figure if desired.",
@@ -751,6 +753,7 @@ LOCALIZED_STRINGS = {
     ["LABEL_WHEEL_TILES"] = "輪牌",
 
         --tooltips
+
     ["TOOLTIP_WHEEL_CROWN"] = "玩家可以選擇將追隨者放在畫有皇冠的空格而不是剛拼放的卡牌上，當移動大豬落在玩家放置的皇冠上時給予分數。",
     ["TOOLTIP_WHEEL_FORTUNE"] = "當大豬移動後停留在米寶（追隨者）所在位置，該玩家獲得3分或六分（兩格皇冠只有一名米寶的話）。",
     ["TOOLTIP_WHEEL_TAX"] = "當大豬移動的稅收圖案時，每個騎士（有盾牌的城堡米寶都為騎士）將為每個騎士帶來1分。",
@@ -761,6 +764,10 @@ LOCALIZED_STRINGS = {
     ["TOOLTIP_WHEEL_PLAGUE"] = "當大豬移動到鼠疫疫事件時，每個玩家必須從版圖上選任何一個米寶收回自己面前，順時鐘順序。",
     ["TOOLTIP_FLIER"] = "米寶可以放在紙飛機上面。當此情況發生時，會自動擲骰子看看米寶會飛幾格，甚至可以放在已被佔用的地方上（就算是修道院也可以，但土地不行)。",
     ["TOOLTIP_GOLD"] = "抽到帶有金色圖標的卡牌將獲得一個金條。相鄰的卡牌也將獲得一個金條。任何完成這些卡牌上的特色(城市，道路等)的玩家也都將獲得金幣，金幣在遊戲結束時會算分。",
+    ["TOOLTIP_FERRY"] = "All tiles with a lake will receive a ferry to connect two of the roads that end into the lake.",
+
+      --messages
+
     ["MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_WOF"] = "基礎起始卡牌不能與命運之輪合併使用。請移除基礎卡牌。",
     ["MESSAGE_WHEEL_DISABLED"] = "命運之輪沒有啟用時此選項無法啟用。",
 
@@ -1015,6 +1022,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_NO_GAME_BUTTON_PERMISSIONS"] = "只有擁有權限的玩家可以控制此選項",
     ["MESSAGE_NO_BUTTON_PERMISSIONS"] = "只有玩家和有權限的玩家可以控制此選項",
     ["MESSAGE_GOLD_MINES_PLACE_GOLD_PROMPT"] = "請選擇一個金條放置地點",
+    ["MESSAGE_LAKE_PLACE_FERRY_PROMPT"] = "You must place a ferry on the lake",
     ["MESSAGE_BUILDER_PROMPT"] = "{p1}玩家的建築師讓他可以再抽一張牌，請再抽一張，並且在換玩家前執行如往常的選擇與動作",
     ["MESSAGE_GAME_LOADED_DURING_SCORING"] = "過去載入的遊戲正在計分，可能需要手動移除米寶，還沒計分的米寶可能會留在原位",
     ["MESSAGE_FIGURE_PROMPT"] = "您可以放置米寶",

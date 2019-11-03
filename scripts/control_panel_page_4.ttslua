@@ -90,9 +90,9 @@ function initializeControlPanelPage()
     -- initializeCheckbox(COLUMN_2_7, ROW_3, 'MessagesMessenger', "")
 
 --The Ferries
-    -- initializeAllCheckbox(COLUMN_2_1, ROW_4, 'FerriesAll', "")
+    initializeAllCheckbox(COLUMN_2_1, ROW_4, 'FerriesAll', translate("TOOLTIP_ENABLE_ALL"))
     initializeCheckbox(COLUMN_2_2, ROW_4, 'FerriesTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 8}}))
-    -- initializeCheckbox(COLUMN_2_3, ROW_4, 'FerriesFerries', "")
+    initializeCheckbox(COLUMN_2_3, ROW_4, 'FerriesFerries', translate("TOOLTIP_FERRY"))
 
 --The Goldmines
     initializeAllCheckbox(COLUMN_2_5, ROW_4, 'GoldminesAll', translate("TOOLTIP_ENABLE_ALL"))

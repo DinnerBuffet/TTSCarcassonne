@@ -288,7 +288,8 @@ neutralContainerSettings = {
     ['KnRBKing'] = {['KnRB'] = {['KnRBKing'] = {name = 'King', width = 2.0}}},
     ['KnRBRobber'] = {['KnRB'] = {['KnRBRobber'] = {name = 'Robber Baron', width = 2.0}}},
     ['HnSShepherd'] = {['HnS'] = {['HnSSheepBag'] = {name = 'Sheep tokens', width = 1.5}}},
-    ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {name = 'Gold bars', width = 1.5}}}
+    ['GoldminesGold'] = {['Goldmines'] = {['GoldminesGold'] = {name = 'Gold bars', width = 1.5}}},
+    ['FerriesFerries'] = {['Ferries'] = {['FerriesFerries'] = {name = 'Ferries', width = 1.5}}}
 }
 
 --setup the game

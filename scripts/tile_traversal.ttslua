@@ -143,7 +143,7 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
     local finished = 0
     local specialFeatures = tile.getTable('specialFeatures')
     if position < 5 then
-        local links = tile.getTable('linkedQuadrants')
+        local links = getLinkedQuadrants(tile)
         while traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum do
             if links ~= nil then
                 for _, link in ipairs(links) do

@@ -9,6 +9,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
     tileGrid[xIndex][zIndex].tile_guid = tile.getGUID()
     tileGrid[xIndex][zIndex].rotation = rotation
     tileGrid[xIndex][zIndex].featureMap = {}
+    activeTiles[tileGrid[xIndex][zIndex].tile_guid] = {x = xIndex, z = zIndex}
     if startingTile_GUID == nil and tile.getVar('isStartingPiece') and not temp then
         startingTile_GUID = tile.getGUID()
         linkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
@@ -121,7 +122,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             local links = nil
 
             if position < 5 then
-                links = tile.getTable('linkedQuadrants')
+                links = getLinkedQuadrants(tile)
             elseif position < 13 then
                 links = tile.getTable('linkedOctants')
             end
@@ -648,6 +649,21 @@ function removeTile(xIndex, zIndex, removedTile)
         end
     end
     AITileRemoved(xIndex, zIndex, removedTile)
+end
+
+--Wrapper method to add a hack for ferry titles
+function getLinkedQuadrants(tile)
+    if tile ~= nil then
+        if tile.guid ~= nil then
+            if FerriesLinkedQuadrants ~= nil then
+                local t = FerriesLinkedQuadrants[tile.guid]
+                if t ~= nil then
+                    return t
+                end
+            end
+        end
+    end
+    return tile.getTable('linkedQuadrants')
 end
 
 --Get the feature at the specified position
