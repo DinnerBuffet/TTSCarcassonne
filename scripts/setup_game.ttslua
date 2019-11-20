@@ -620,7 +620,7 @@ function prepareTileStack()
             for expansion_id, expansion in pairs(rule) do
                 for item_id, item_settings in pairs(expansion) do
                     if tileStack ~= nil then
-                        tileStackAddPosition.y = stackY + 1 + tileStack.getQuantity() * TILE_THICKNESS
+                        tileStackAddPosition.y = stackY + 1 + tileStack.getQuantity() * STACKED_TILE_THICKNESS
                     end
                     local params = {guid = EXPANSION_BAGS[expansion_id].contents[item_id].guid,
                                     position = tileStackAddPosition,

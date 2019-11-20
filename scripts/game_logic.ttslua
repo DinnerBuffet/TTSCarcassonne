@@ -885,7 +885,7 @@ function createDragonButtons()
                index = i, label = label, click_function = click_function,
                position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=0}, width = 800, height=600, font_size = font_size, function_owner = nil
             }
-            createNormalizedArbitraryButton({x=-newX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=newZ * TILE_SPACING - MIDDLE_OFFSET.z}, moveDragonButtonParam, false)
+            createNormalizedArbitraryButton({x=-newX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=newZ * TILE_SPACING - MIDDLE_OFFSET.z}, moveDragonButtonParam, false)
         end
     end
 
@@ -1076,36 +1076,34 @@ function searchFerrySide(i)
     -- the player may move the nearest ferry on every road extended.
     if sides[i] == 'Road' then
         -- 0 start from distance = 1
-        local InvalidTiles = {}
-        local ConnectedTiles = {}
-        local LakeTiles = {}
         local distance = 1
-        ConnectedTiles = { {} }
-        -- add the lastPlacedTile to the InvalidTiles list
-        InvalidTiles =
+        -- add the lastPlacedTile to the invalidTiles list
+        invalidTiles =
         {
             {x = lastPlacedTileX, z = lastPlacedTileZ, side = 1},
             {x = lastPlacedTileX, z = lastPlacedTileZ, side = 2},
             {x = lastPlacedTileX, z = lastPlacedTileZ, side = 3},
             {x = lastPlacedTileX, z = lastPlacedTileZ, side = 4}
         }
+        local connectedTiles = { {} }
+        local lakeTiles = {}
         local s, x, z = getConnectingFeatureMapPosition(lastPlacedTileX, lastPlacedTileZ, i, lastPlacedTile.rotation)
         if tileGridOccupied(x, z) then
             s = (s + 5 - tileGrid[x][z].rotation) % 4 + 1
             local tileInfo = {x = x, z = z, side = s}
-            table.insert(InvalidTiles, tileInfo)
-            table.insert(ConnectedTiles[distance], tileInfo)
+            table.insert(invalidTiles, tileInfo)
+            table.insert(connectedTiles[distance], tileInfo)
             if checkTileForLake(tileGrid[x][z]) then
                 if checkTileForFerry(tileGrid[x][z], s) then
-                    table.insert(LakeTiles, tileInfo)
+                    table.insert(lakeTiles, tileInfo)
                 end
             end
 
             -- while there are connected tiles, but no lake tiles
-            while ConnectedTiles[distance][1] ~= nil and LakeTiles[1] == nil do
-                ConnectedTiles[distance + 1] = {}
+            while connectedTiles[distance][1] ~= nil and lakeTiles[1] == nil do
+                connectedTiles[distance + 1] = {}
                 -- go through all connected tiles
-                for _, info in ipairs(ConnectedTiles[distance]) do
+                for _, info in ipairs(connectedTiles[distance]) do
                     -- get the info of the previous tile
                     local tile = tileGrid[info.x][info.z]
                     local obj = getObjectFromGUID(tile.tile_guid)
@@ -1124,15 +1122,15 @@ function searchFerrySide(i)
                                             connectedSide = (connectedSide - connectedTile.rotation + 5) % 4 + 1
                                             local connectedInfo = {x = connectedX, z = connectedZ, side = connectedSide}
 
-                                            if not table.contains(InvalidTiles, connectedInfo) then
+                                            if not table.contains(invalidTiles, connectedInfo) then
                                                 if connectedTile ~= nil then
                                                     if checkTileForLake(connectedTile) then
                                                         if checkTileForFerry(connectedTile, connectedSide) then
-                                                            table.insert(LakeTiles, connectedInfo)
+                                                            table.insert(lakeTiles, connectedInfo)
                                                         end
                                                     end
-                                                    table.insert(InvalidTiles, connectedInfo)
-                                                    table.insert(ConnectedTiles[distance + 1], connectedInfo)
+                                                    table.insert(invalidTiles, connectedInfo)
+                                                    table.insert(connectedTiles[distance + 1], connectedInfo)
                                                 end
                                             end
                                         end
@@ -1146,21 +1144,16 @@ function searchFerrySide(i)
             end
         end
 
-        -- 4 add buttons to all tiles in LakeTiles
-        if LakeTiles[1] ~= nil then
+        -- 4 add buttons to all tiles in lakeTiles
+        if lakeTiles[1] ~= nil then
             local index = 1
-            for _, lakeTile in ipairs(LakeTiles) do
+            for _, lakeTile in ipairs(lakeTiles) do
                 displayFerryButtons(lakeTile.x, lakeTile.z)
             end
             return
         end
     end
     return nextState('next')
-end
-
-function banana()
-    clearArbitraryButtons()
-    nextState('next')
 end
 
 function checkTileForGold()
@@ -1191,19 +1184,19 @@ function addGoldToTile(xIndex, zIndex)
 end
 
 function addFerryToTile(tile, link)
-    local ferry = PlacedFerries[tile.guid]
+    local ferry = placedFerries[tile.guid]
     local newPosition = getFerryPosition(tile, link)
     local newRotation = getFerryRotation(tile, link)
     if ferry ~= nil then
         getObjectFromGUID(ferry).setPositionSmooth(newPosition, false, false)
         getObjectFromGUID(ferry).setRotationSmooth(newRotation, false, false)
     else
-        local ferrybag = getObjectFromGUID('6822b2')
+        local ferrybag = getObjectFromGUID(EXPANSION_BAGS['Ferries'].contents['FerriesFerries'].guid)
         if ferrybag ~= nil then
             local params = {}
             params.position = newPosition
             params.rotation = newRotation
-            params.callback_function = function(obj, guid) drop_lock(obj, tile.guid) end
+            params.callback_function = function(obj, guid) ferry_lock(obj, tile.guid) end
             ferrybag.takeObject(params)
         end
     end
@@ -1227,44 +1220,63 @@ function getFerryRotation(tile, link)
     return rotation
 end
 
-function drop_lock(obj, guid)
+function ferry_lock(obj, guid)
     obj.setLock(true)
-    PlacedFerries[guid] = obj.guid
+    placedFerries[guid] = obj.guid
 end
 
 function displayFerryButtons(tileX, tileZ)
     if tileGridOccupied(tileX, tileZ) then
-        local tile = tileGrid[tileX][tileZ]
-        local obj = getObjectFromGUID(tile.tile_guid)
+        local ferryTile = tileGrid[tileX][tileZ]
+        ferryTilePosition = {x=tileX, z=tileZ}
+        local tileObj = getObjectFromGUID(ferryTile.tile_guid)
         local offset =
         {
-            {nil, {x = 1, z = -1}, {x = 0, z = -0.5}, {x = -1, z = -1}},
-            {nil, nil, {x = 1, z = 1}, {x = 0, z = 0.25}},
-            {nil, nil, nil, {x = -1, z = 1}}
+            {nil, {x = 0.75, z = -0.75}, {x = 0, z = -0.25}, {x = -0.75, z = -0.75}},
+            {nil, nil, {x = 0.75, z = 0.75}, {x = 0, z = 0.25}},
+            {nil, nil, nil, {x = -0.75, z = 0.75}}
         }
-        local sides = obj.getTable('sides')
+        local sides = tileObj.getTable('sides')
         if sides ~= nil then
-        labelTileSides(tile)
+            labelTileSides(tileX, tileZ, ferryTile, tileObj, sides)
             local i = 1
             for a = 1, 3 do
                 for b = a+1, 4 do
                     if sides[a] == 'Road' and sides[b] == 'Road' then
-                        local placeFerryParam =
+                        local normalized_x, normalized_z
+                        local x, z
+                        if b - a == 2 then --button is for a ferry that crosses the middle
+                            -- middle buttons are special in that rotating their position to the player could cause them to be side by side instead
+                            -- instead, we want the horizontal crossing to always be at the top and the vertical crossing to be below it
+                            -- to do so, we use a normalized x and z of 0 and instead rotate the coordinates ourselves in the hacky code below
+                            local middleButtonRotation = 0
+                            if ferryTile.rotation % 2 == 1 then --flip the orientation of the buttons if the tile is rotated, to keep the horizontal button over the vertical one
+                                middleButtonRotation = 2
+                            end
+                            local playerRotation = player_possession_areas[activePlayers[currentPlayer]].rotation
+                            if playerRotation % 2 == 0 then --orientation is correct for the side players by default, but needs to be flipped by 180 for front players
+                                middleButtonRotation = middleButtonRotation + 2
+                            end
+                            x, z = rotateCoordinates(offset[a][b].x, offset[a][b].z, middleButtonRotation)
+                            normalized_x = 0
+                            normalized_z = 0
+                        else
+                            x = 0
+                            z = 0
+                            normalized_x, normalized_z = rotateCoordinates(offset[a][b].x, offset[a][b].z, ferryTile.rotation)
+                        end
+                        local placeFerryButtonParam =
                         {
                             index = i, label = a .. ' and ' .. b, click_function = 'placeFerryOn' .. a .. b,
                             width = 800, height = 300, font_size = 200, function_owner = nil,
                             position =
                             {
-                                x = TILE_SPACING * offset[a][b].x,
-                                y = 10,
-                                z = TILE_SPACING * offset[a][b].z
+                                x = x,
+                                y = FLOATING_BUTTON_HEIGHT_LOW,
+                                z = z
                             }
                         }
-                        createNormalizedTileButton
-                        (
-                            tile,
-                            placeFerryParam
-                        )
+                        createNormalizedArbitraryButton({x=-tileX * TILE_SPACING + MIDDLE_OFFSET.x + normalized_x, y=TABLE_SURFACE_Y, z=tileZ * TILE_SPACING - MIDDLE_OFFSET.z + normalized_z}, placeFerryButtonParam, true)
                         i = i + 1
                     end
                 end
@@ -1273,76 +1285,70 @@ function displayFerryButtons(tileX, tileZ)
     end
 end
 
-function labelTileSides(tile)
-    local offset = {{x = 0, z = -0.8}, {x = 0.6, z = 0}, {x = 0, z = 0.8}, {x = -0.6, z = 0}}
-    for label = 1,4 do
-        createNormalizedTileButton
-        (
-            tile,
-            {
-                label = label, function_owner = nil, click_function = 'doNothing',
-                width = 200, height = 270, font_size = 180, color = {r = 1, g = 1, b = 0},
-                position =
-                {
-                    x = offset[label].x * TILE_SPACING,
-                    y = 0.5,
-                    z = offset[label].z * TILE_SPACING
-                }
+function labelTileSides(tileX, tileZ, ferryTile, tileObj, sides)
+    local offset = {{x = 0, z = -0.625}, {x = 0.625, z = 0}, {x = 0, z = 0.625}, {x = -0.625, z = 0}}
+    for side, sideType in ipairs(sides) do
+        if sideType == 'Road' then
+            local ferryLabelParam = {
+               index = side, label = side, click_function = 'doNothing',
+               position = {x=0, y=0, z=0}, width = 270, height=270, font_size = 180, color = {r = 1, g = 1, b = 0}, function_owner = nil
             }
-        )
+            local normalized_x, normalized_z = rotateCoordinates(offset[side].x, offset[side].z, ferryTile.rotation)
+            createNormalizedArbitraryButton({x=-tileX * TILE_SPACING + MIDDLE_OFFSET.x + normalized_x, y=tileObj.getPosition().y + TILE_SURFACE_BUTTON_HEIGHT, z=tileZ * TILE_SPACING - MIDDLE_OFFSET.z + normalized_z}, ferryLabelParam, true)
+        end
     end
 end
 
 function placeFerryOn12(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        placeFerryOn(object, {{1, 2}})
+        placeFerryOn({{1, 2}})
     end
 end
 
 function placeFerryOn13(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        placeFerryOn(object, {{1, 3}})
+        placeFerryOn({{1, 3}})
     end
 end
 
 function placeFerryOn14(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        placeFerryOn(object, {{1, 4}})
+        placeFerryOn({{1, 4}})
     end
 end
 
 function placeFerryOn23(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        placeFerryOn(object, {{2, 3}})
+        placeFerryOn({{2, 3}})
     end
 end
 
 function placeFerryOn24(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        placeFerryOn(object, {{2, 4}})
+        placeFerryOn({{2, 4}})
     end
 end
 
 function placeFerryOn34(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        placeFerryOn(object, {{3, 4}})
+        placeFerryOn({{3, 4}})
     end
 end
 
-function placeFerryOn(obj, link)
+function placeFerryOn(link)
     clearArbitraryButtons()
-    local position = activeTiles[obj.guid]
-    local tile = tileGrid[position.x][position.z]
-    if FerriesLinkedQuadrants ~= nil then
-        FerriesLinkedQuadrants[obj.guid] = link
+    local ferryTile = tileGrid[ferryTilePosition.x][ferryTilePosition.z]
+    local ferryTileObj = getObjectFromGUID(ferryTile.tile_guid)
+    if ferriesLinkedQuadrants ~= nil then
+        ferriesLinkedQuadrants[ferryTile.tile_guid] = link
 
         local backup = {tile = lastPlacedTile, x = lastPlacedTileX, z = lastPlacedTileZ}
-        removeTile(position.x, position.z, obj)
-        addTile(position.x, position.z, obj, tile.rotation, false)
+        removeTile(ferryTilePosition.x, ferryTilePosition.z, ferryTileObj)
+        addTile(ferryTilePosition.x, ferryTilePosition.z, ferryTileObj, ferryTile.rotation, false)
         lastPlacedTile = backup.tile
         lastPlacedTileX = backup.x
         lastPlacedTileZ = backup.z
-        addFerryToTile(obj, link[1])
+        addFerryToTile(ferryTileObj, link[1])
     end
     if checkMoveFerry() then
         return nextState('move ferry')
@@ -1359,7 +1365,7 @@ function displayGoldButtons()
                index = i, label = translate("BUTTON_LABEL_PLACE_GOLD"), click_function = 'placeGoldButton' .. i,
                position = {x=0, y=FLOATING_BUTTON_HEIGHT_LOW, z=0}, width = 800, height=600, font_size = 200, function_owner = nil
             }
-            createNormalizedArbitraryButton({x=-newX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=newZ * TILE_SPACING - MIDDLE_OFFSET.z}, placeGoldButtonParam, false)
+            createNormalizedArbitraryButton({x=-newX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=newZ * TILE_SPACING - MIDDLE_OFFSET.z}, placeGoldButtonParam, false)
         end
     end
 end
@@ -1514,12 +1520,12 @@ function displayFigureButtons()
        index = 1, label = translate("BUTTON_LABEL_PROMPT_PLACE_FIGURE"), click_function = 'doNothing',
        position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.8}, width = 0, height=0, font_size = 200, function_owner = nil
     }
-    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, labelButtonParam, true)
+    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, labelButtonParam, true)
     local skipFigureButtonParam = {
        index = 2, label = translate("BUTTON_LABEL_SKIP_PLACING_FIGURE"), click_function = 'skipFigureButton',
        position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.5}, width = 1400, height=600, font_size = 200, function_owner = nil
     }
-    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipFigureButtonParam, true)
+    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipFigureButtonParam, true)
     for _, knight in ipairs(seducedKnights) do
         local seduceKnightButtonParam = {
            index = 1, label = translate("BUTTON_LABEL_SEDUCE_KNIGHT"), click_function = 'seduceKnightButton',
@@ -1549,15 +1555,16 @@ function displayPhantomButtons()
        index = 1, label = translate("BUTTON_LABEL_PROMPT_PLACE_PHANTOM"), click_function = 'doNothing',
        position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.8}, width = 0, height=0, font_size = 200, function_owner = nil
     }
-    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, labelButtonParam, true)
+    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, labelButtonParam, true)
     local skipFigureButtonParam = {
        index = 2, label = translate("BUTTON_LABEL_SKIP_PHANTOM"), click_function = 'skipFigureButton',
        position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.5}, width = 1400, height=600, font_size = 200, function_owner = nil
     }
-    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipFigureButtonParam, true)
+    createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipFigureButtonParam, true)
 end
 
 --creates a button, which is rotated according to the object's current rotation, so that the buttons always face up and towards the active player
+--The positions of the buttons are also rotated to ignore the rotation of the object
 function createNormalizedButton(obj, params, rotateToPlayer, customRotation)
     local player = activePlayers[currentPlayer]
     if currentMiniTurn ~= nil then
@@ -1620,11 +1627,6 @@ function createNormalizedArbitraryButton(pivot_point, params, rotateToPlayer)
     params.scale = {x=0.5, y=1.0, z=0.5}
 
     getObjectFromGUID(BUTTON_ANCHOR_GUID).createButton(params)
-end
-
-function createNormalizedTileButton(tile, params)
-    local obj = getObjectFromGUID(tile.tile_guid)
-    obj.createButton(params)
 end
 
 --dummy function for dummy button
@@ -1723,7 +1725,7 @@ function promptTowerCapture()
            index = 2, label = translate("BUTTON_LABEL_SKIP_TOWER_CAPTURE"), click_function = 'skipCaptureButton',
            position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=1.5}, width = 1400, height=600, font_size = 200, function_owner = nil
         }
-        createNormalizedArbitraryButton({x=-towerX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=towerZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipCaptureButtonParam, true)
+        createNormalizedArbitraryButton({x=-towerX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=towerZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipCaptureButtonParam, true)
     else
         return nextState('skip capture')
     end
@@ -3357,8 +3359,8 @@ function replaceFinishedWagons()
                    index = 2, label = translate("BUTTON_LABEL_SKIP_WAGON"), click_function = 'skipWagonButton',
                    position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.5}, width = 1400, height=600, font_size = 200, function_owner = nil
                 }
-                createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, labelButtonParam, true)
-                createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y + TILE_THICKNESS / 2, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipFigureButtonParam, true)
+                createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, labelButtonParam, true)
+                createNormalizedArbitraryButton({x=-lastPlacedTileX * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=lastPlacedTileZ * TILE_SPACING - MIDDLE_OFFSET.z}, skipFigureButtonParam, true)
                 return
             else
                 wagonFeatures[activePlayers[currentMiniTurn]] = nil

@@ -9,7 +9,6 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
     tileGrid[xIndex][zIndex].tile_guid = tile.getGUID()
     tileGrid[xIndex][zIndex].rotation = rotation
     tileGrid[xIndex][zIndex].featureMap = {}
-    activeTiles[tileGrid[xIndex][zIndex].tile_guid] = {x = xIndex, z = zIndex}
     if startingTile_GUID == nil and tile.getVar('isStartingPiece') and not temp then
         startingTile_GUID = tile.getGUID()
         linkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
@@ -655,8 +654,8 @@ end
 function getLinkedQuadrants(tile)
     if tile ~= nil then
         if tile.guid ~= nil then
-            if FerriesLinkedQuadrants ~= nil then
-                local t = FerriesLinkedQuadrants[tile.guid]
+            if ferriesLinkedQuadrants ~= nil then
+                local t = ferriesLinkedQuadrants[tile.guid]
                 if t ~= nil then
                     return t
                 end

@@ -46,7 +46,7 @@ function initializeControlPanelPage()
     self.UI.setAttribute("MessagesMessagesLabel", "text", translate("Messages"))
     self.UI.setAttribute("MessagesMessengerLabel", "text", translate("Messenger"))
 
-    self.UI.setAttribute("FerriesExpansionLabel", "text", "3 . " .. translate("The Ferries"))
+    self.UI.setAttribute("FerriesExpansionLabel", "text", "3. " .. translate("The Ferries"))
     self.UI.setAttribute("FerriesTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("FerriesFerriesLabel", "text", translate("Ferries"))
 
@@ -54,7 +54,7 @@ function initializeControlPanelPage()
     self.UI.setAttribute("GoldminesTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("GoldminesGoldLabel", "text", translate("Gold"))
 
-    self.UI.setAttribute("MnWExpansionLabel", "text", "5 . " .. translate("Mage & Witch"))
+    self.UI.setAttribute("MnWExpansionLabel", "text", "5. " .. translate("Mage & Witch"))
     self.UI.setAttribute("MnWTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("MnWMageLabel", "text", translate("Mage"))
     self.UI.setAttribute("MnWWitchLabel", "text", translate("Witch"))

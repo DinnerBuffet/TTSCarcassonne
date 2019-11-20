@@ -42,7 +42,8 @@ AUTOLOCK = true
 
 TILE_PLACEMENT_MARGIN = 0.30 --Tiles must be placed within 30% of a tile width to the grid line and within 30% rotation of being face-up and matching the grid line to be valid
 TILE_SPACING = 1.59 --how far apart tiles are spaced (should be the same as the tile grid setting)
-TILE_THICKNESS = 0.005 --about how much thicker each tile makes a stack when added (keep in mind this is probably not as thick as the tile actually is on its own)
+TILE_THICKNESS = 0.145 --the thickness of an actual tile
+STACKED_TILE_THICKNESS = 0.005 --about how much thicker each tile makes a stack when added (keep in mind this is probably not as thick as the tile actually is on its own)
 TILE_STANDARD_ROTATION = 2 --every tile is rotated this much so that the perceived rotation of the tiles matches the actual rotation in the code
 TILE_180_ROTATION = 2
 
@@ -91,6 +92,7 @@ PLAYER_COLORS = {'Green', 'Purple', 'White', 'Blue', 'Red', 'Pink'}
 
 FLOATING_BUTTON_HEIGHT = 2.0
 FLOATING_BUTTON_HEIGHT_LOW = 1.0
+TILE_SURFACE_BUTTON_HEIGHT = 0.025
 
 FIGURE_DISTANCE_FROM_EDGE = 0.1 --percentage distance from the edge that each quadrant/octant exists
 
@@ -291,11 +293,10 @@ EXPANSION_BAGS = {
 --  (optional) tileFeatures - a table of features of the tile, which does not correspond to any other feature located in the tile
 --  (optional) ignoredFeatures - a table of standard locations that should not be used when finding the closest feature to a figure
 tileGrid = {}
-activeTiles = {}
 lastPlacedTileX = nil
 lastPlacedTileZ = nil
-PlacedFerries = {}
-FerriesLinkedQuadrants = {}
+placedFerries = {}
+ferriesLinkedQuadrants = {}
 
 --the next available featureNum that can be used for featureList. This is incremented for each new feature. Discarded featureNums are not recycled.
 featureIndex = 1

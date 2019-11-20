@@ -23,9 +23,8 @@ function onload(save_state)
         controlPanelSettings = saved_data.controlPanelSettings
         showMarkers = saved_data.showMarkers
         tileGrid = saved_data.tileGrid
-        activeTiles = saved_data.activeTiles
-        FerriesLinkedQuadrants = saved_data.FerriesLinkedQuadrants
-        PlacedFerries = saved_data.PlacedFerries
+        ferriesLinkedQuadrants = saved_data.ferriesLinkedQuadrants
+        placedFerries = saved_data.placedFerries
         startingTile_GUID = saved_data.startingTile_GUID
         startingRiverTile_GUID = saved_data.startingRiverTile_GUID
         forkTile_GUID = saved_data.forkTile_GUID
@@ -170,9 +169,8 @@ function onSave()
         showMarkers = showMarkers,
         --global storage of all active (in-play) tile information
         tileGrid = tileGrid,
-        activeTiles = activeTiles,
-        FerriesLinkedQuadrants = FerriesLinkedQuadrants,
-        PlacedFerries = PlacedFerries,
+        ferriesLinkedQuadrants = ferriesLinkedQuadrants,
+        placedFerries = placedFerries,
         featureList = featureList,
         linkedFeatures = linkedFeatures,
         featureIndex = featureIndex,

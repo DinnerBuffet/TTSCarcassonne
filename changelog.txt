@@ -1,3 +1,8 @@
+v1.22 - 20191119
+[*]Implemented mini-expansion: The Phantoms (Scripting by Sigma88)
+[*]Fixed River II piece ('04aa4f') that was missing a city pennant in the tile data (Thanks to Sigma88 for reporting!)
+[*]Fixed some inconsistencies in the control panel expansion labels (Thanks to Sigma88 for reporting!)
+
 v1.21.17 - 20191027
 [*]Rolling the flier die at random times will print error messages and non-relevant information (due to a change made in 1.21.10) (Thanks to Serp for reporting!)
 [*]Now using the alpha channel feature added in TTS v12.1 for tile hint markers instead of custom assetbundles. This will hopefully fix the hint markers not showing up consistently.
