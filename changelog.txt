@@ -1,3 +1,6 @@
+v1.22.1 - 20200326
+[*]Moved all content to Steam Cloud in order to mitigate Google Drive download limits
+
 v1.22 - 20191119
 [*]Implemented mini-expansion: The Phantoms (Scripting by Sigma88)
 [*]Fixed River II piece ('04aa4f') that was missing a city pennant in the tile data (Thanks to Sigma88 for reporting!)

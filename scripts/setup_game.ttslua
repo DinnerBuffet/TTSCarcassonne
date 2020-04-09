@@ -109,7 +109,7 @@ playerFigureSettings = {
         num = 'BaseNumFollowers',
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507572666/4F22246AAEC67B7F142549E71E79DD49F6833D48/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['InCBigFollower'] = {
         name = 'Big Follower',
@@ -117,7 +117,7 @@ playerFigureSettings = {
         use_snap_points = true,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.6, 0.6, 0.5}},
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXS19OU3N4cDdCS2c', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507572666/4F22246AAEC67B7F142549E71E79DD49F6833D48/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['TnBBuilder'] = {
         name = 'Builder',
@@ -125,7 +125,7 @@ playerFigureSettings = {
         use_snap_points = true,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, --scale should probably be closer to {0.5, 0.42, 0.5}
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXcXJzc0NCaXVHaUk', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507591169/C0DEE154BE5ADF17CFAF511C414DA1E5D3791660/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['TnBPig'] = {
         name = 'Pig',
@@ -133,7 +133,7 @@ playerFigureSettings = {
         use_snap_points = true,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, --scale should probably be closer to {0.45, 0.5, 0.5}
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXRllCMGF3aDNQX00', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507588043/7AA65D186BEC7616D7D8896C104CE3927B572C8A/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['AnMMayor'] = {
         name = 'Mayor',
@@ -141,7 +141,7 @@ playerFigureSettings = {
         use_snap_points = true,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ09DaUZ5cThGS0E', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507627776/96C92F673A89C83AA8BC1F0B4A53A9EF9070A372/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['AnMWagon'] = {
         name = 'Wagon',
@@ -149,7 +149,7 @@ playerFigureSettings = {
         use_snap_points = true,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXOTNZT2NNVk02STQ', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507625992/A29365F5E6B7A1BDB032B50FA7058D50889F412A/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['AnMBarn'] = {
         name = 'Barn',
@@ -157,7 +157,7 @@ playerFigureSettings = {
         use_snap_points = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZjNhXzZPUGo1RDg', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507624234/BABD2A5C96106720D88ACD933A3CA5F5769B5A75/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['HnSShepherd'] = {
         name = 'Shepherd',
@@ -165,7 +165,7 @@ playerFigureSettings = {
         use_snap_points = true,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXbjJHZXIwc1U2VTg', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507705885/1388796BBEDA6A8D921A04EFFBA3BCDA00C8DC8D/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['Phantoms'] = {
         name = 'Phantom',
@@ -173,9 +173,16 @@ playerFigureSettings = {
         use_snap_points = true,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQndSR0hlQWhXeFk', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507676572/D377F41E5C089D244D2FEC7281BEF39A36D351C9/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
-    --['CIIAbbot'] = {name = 'Abbot', figurepad_offset = {x = -5.15, z = -0.5}, use_snap_points = true, save_figurepad_location = true, object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXQ2M4NkxxQ2JGRFE', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}},
+    --['CIIAbbot'] = {
+    --     name = 'Abbot',
+    --     figurepad_offset = {x = -5.15, z = -0.5},
+    --     use_snap_points = true,
+    --     save_figurepad_location = true,
+    --     object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
+    --     custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507715301/5F383426AFEDBC06A18318EB6B9DD9C9E8CC206B/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
+    -- },
     ['TowerTowers'] = {
         name = 'Tower',
         figurepad_offset = {x = -8.65, z = 0.0},
@@ -184,7 +191,7 @@ playerFigureSettings = {
         num = 'TowerNumTowers',
         color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255},
         object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}},
-        custom_object_params = {type=5, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXTUR2R1doUW5NOGc', collider='https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdUtJZ3dSdkppa1E', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type=5, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507752144/E20EA352501B8A6DA92F73CFC2D7851EF5294E61/', collider='http://cloud-3.steamusercontent.com/ugc/1014939826507754182/E814C4608C35B5BD9FF79C576AD592AD2D3198DC/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['BCnBBridges'] = {
         name = 'Bridge',
@@ -194,7 +201,7 @@ playerFigureSettings = {
         num = 'BCnBNumBridges',
         color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255},
         object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}},
-        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXZUFQXzZCQUxUYUU', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507673310/37EDD668C0EDFAEFAAB4F9E9F825056726CFCD9C/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     }
 }
 
@@ -204,15 +211,15 @@ substituteFigureSettings = {}
 vipFigureSettings = {
     -- ['76561197962338210'] = {
     --     ['Intro'] = "You are being joined by %s, the creator of Scripted Carcassonne.",
-    --     ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXd0RzVC1ndlBDanM', scale = {0.15, 0.15, 0.15} }
+    --     ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'http://cloud-3.steamusercontent.com/ugc/1014939826507873789/D56CA38C1A69611F7D0A8F474576BE3915BE82E2/', scale = {0.15, 0.15, 0.15} }
     -- },
     -- ['76561197972020303'] = {
     --     ['Intro'] = "You are being joined by %s, contributor to the Carcassonne mod.",
-    --    ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXd0RzVC1ndlBDanM', scale = {0.15, 0.15, 0.15} }
+    --    ['BaseFollower'] = { type = 'Custom_AssetBundle', assetbundle = 'http://cloud-3.steamusercontent.com/ugc/1014939826507873789/D56CA38C1A69611F7D0A8F474576BE3915BE82E2/', scale = {0.15, 0.15, 0.15} }
     -- },
     -- ['9999999999999999999'] = {
     --     ['Intro'] = "You are being joined by %s, the TTS Carcassonne Tournament champion. All hail the king!",
-    --     ['BaseFollower'] = { type = 'Custom_model', mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdmtGZ1lzZ085RFE', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I', scale = {0.5, 0.5, 0.5} },
+    --     ['BaseFollower'] = { type = 'Custom_model', mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507877432/794EE3953A64CCB32CC9538A30B30612FC3C4F2F/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/', scale = {0.5, 0.5, 0.5} },
     -- }
 }
 
@@ -225,7 +232,7 @@ neutralFigureSettings = {
         use_snap_points = false,
         color = {r = 162/255, g = 1, b = 1, a = 1},
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXT2hMVjh2QXJLa1k', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I'}
+        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507606030/3F75A6F3BEA8A6D9A91BBDF16C0882B15110C28E/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     },
     ['PnDDragon'] = {
         name = 'Dragon',
@@ -233,7 +240,7 @@ neutralFigureSettings = {
         use_snap_points = false,
         color = {r = 142/255, g = 0, b = 0, a = 1},
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
-        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXaUIyMll1aWs0SUk', diffuse = 'https://drive.google.com/uc?export=download&id=1bfioHShp738m_mGGoO-K6yHj69mW9Y6I', collider = 'https://drive.google.com/uc?export=download&id=0BzBZwl-j9sHXdllDZHFOQ24yZGc'}
+        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507607867/825A1C22BA586A45EEDBB7D8EECAD1EA79BFFA6A/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/', collider = 'http://cloud-3.steamusercontent.com/ugc/1014939826507610133/42E8E30834CAD76F57AFE8F8CD30A4C2C4B28740/'}
     },
     ['FlierFlier'] = {
         width = 1.0,
