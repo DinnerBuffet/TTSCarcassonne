@@ -100,12 +100,13 @@ startingTileSettings = {
     }}
 }
 
---[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, figurepad_offset = {x=<x figurepad_offset>, z=<z figurepad_offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, num=<setting with number to spawn>}
+--[<setting name>] = {name = <display name>, mesh = <model file>, diffuse = <diffuse file>, figurepad_offset = {x=<x figurepad_offset>, z=<z figurepad_offset>}, scale = {<model scale>}, use_snap_points=<use snap points>, use_grid=<snap to grid>, num=<setting with number to spawn>}
 playerFigureSettings = {
     ['BaseFollower'] = {
         name = 'Follower',
         figurepad_offset = {x = 5.15, z = -0.5},
         use_snap_points = true,
+        use_grid = false,
         num = 'BaseNumFollowers',
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
@@ -115,6 +116,7 @@ playerFigureSettings = {
         name = 'Big Follower',
         figurepad_offset = {x = -0.8, z = 0.5},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.6, 0.6, 0.5}},
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507572666/4F22246AAEC67B7F142549E71E79DD49F6833D48/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -123,6 +125,7 @@ playerFigureSettings = {
         name = 'Builder',
         figurepad_offset = {x = -0.8, z = -0.5},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, --scale should probably be closer to {0.5, 0.42, 0.5}
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507591169/C0DEE154BE5ADF17CFAF511C414DA1E5D3791660/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -131,6 +134,7 @@ playerFigureSettings = {
         name = 'Pig',
         figurepad_offset = {x = -2.25, z = 0.5},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}}, --scale should probably be closer to {0.45, 0.5, 0.5}
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507588043/7AA65D186BEC7616D7D8896C104CE3927B572C8A/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -139,6 +143,7 @@ playerFigureSettings = {
         name = 'Mayor',
         figurepad_offset = {x = -2.25, z = -0.5},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507627776/96C92F673A89C83AA8BC1F0B4A53A9EF9070A372/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -147,6 +152,7 @@ playerFigureSettings = {
         name = 'Wagon',
         figurepad_offset = {x = -3.7, z = 0.5},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507625992/A29365F5E6B7A1BDB032B50FA7058D50889F412A/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -155,6 +161,7 @@ playerFigureSettings = {
         name = 'Barn',
         figurepad_offset = {x = -3.7, z = -0.5},
         use_snap_points = false,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507624234/BABD2A5C96106720D88ACD933A3CA5F5769B5A75/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -163,6 +170,7 @@ playerFigureSettings = {
         name = 'Shepherd',
         figurepad_offset = {x = -5.15, z = 0.5},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507705885/1388796BBEDA6A8D921A04EFFBA3BCDA00C8DC8D/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -171,6 +179,7 @@ playerFigureSettings = {
         name = 'Phantom',
         figurepad_offset = {x = -5.15, z = -0.5},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = true,
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
         custom_object_params = {type = 1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507676572/D377F41E5C089D244D2FEC7281BEF39A36D351C9/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -187,6 +196,7 @@ playerFigureSettings = {
         name = 'Tower',
         figurepad_offset = {x = -8.65, z = 0.0},
         use_snap_points = true,
+        use_grid = false,
         save_figurepad_location = false,
         num = 'TowerNumTowers',
         color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255},
@@ -196,12 +206,13 @@ playerFigureSettings = {
     ['BCnBBridges'] = {
         name = 'Bridge',
         figurepad_offset = {x = -10.15, z = 0.0},
-        use_snap_points = true,
+        use_snap_points = false,
+        use_grid = true,
         save_figurepad_location = false,
         num = 'BCnBNumBridges',
         color = {r = 120/255, g = 65/255, b = 0/255, a = 255/255},
-        object_params = {type = 'Custom_model', scale = {0.39, 0.48, 0.5}},
-        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507673310/37EDD668C0EDFAEFAAB4F9E9F825056726CFCD9C/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
+        object_params = {type = 'Custom_model', scale = {0.63, 0.63, 0.63}},
+        custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507673310/37EDD668C0EDFAEFAAB4F9E9F825056726CFCD9C/', collider='http://cloud-3.steamusercontent.com/ugc/1016071180107208992/9E69EFA4421B2D90079E490BD41629B2B582CFAC/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
     }
 }
 
@@ -230,6 +241,7 @@ neutralFigureSettings = {
         name = 'Fairy',
         width = 1.0,
         use_snap_points = false,
+        use_grid = false,
         color = {r = 162/255, g = 1, b = 1, a = 1},
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
         custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507606030/3F75A6F3BEA8A6D9A91BBDF16C0882B15110C28E/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/'}
@@ -238,6 +250,7 @@ neutralFigureSettings = {
         name = 'Dragon',
         width = 2.0,
         use_snap_points = false,
+        use_grid = false,
         color = {r = 142/255, g = 0, b = 0, a = 1},
         object_params = {type = 'Custom_model', scale = {0.5, 0.5, 0.5}},
         custom_object_params = {type=1, material = 1, specular_intensity = 0.05, mesh = 'http://cloud-3.steamusercontent.com/ugc/1014939826507607867/825A1C22BA586A45EEDBB7D8EECAD1EA79BFFA6A/', diffuse = 'http://cloud-3.steamusercontent.com/ugc/1014939826507578447/525851AB9D9905C66770E742F1F7280B44A44BC5/', collider = 'http://cloud-3.steamusercontent.com/ugc/1014939826507610133/42E8E30834CAD76F57AFE8F8CD30A4C2C4B28740/'}
@@ -245,6 +258,7 @@ neutralFigureSettings = {
     ['FlierFlier'] = {
         width = 1.0,
         use_snap_points = false,
+        use_grid = false,
         object_params = {type = 'Custom_Dice', scale = {1.0, 1.0, 1.0}},
         custom_object_params = {type=1, image = 'http://cloud-3.steamusercontent.com/ugc/1009311636238680991/7292CDD3CA4B7E2FB4F75B5BE315CC5A6EC7092C/'},
         custom_script =
@@ -583,7 +597,7 @@ function preparePlayerStartingItems()
                         obj.setColorTint(player_color_tints[player])
                     end
                     obj.setLuaScript("figureName = '" .. figureSettingCopy.name .. "'\n" .. "owner = '" .. player .. "'")
-                    obj.use_grid = false
+                    obj.use_grid = figureSettingCopy.use_grid
                     obj.use_snap_points = figureSettingCopy.use_snap_points
                     while spawnStartingItemLock do
                         coroutine.yield(0)
@@ -831,7 +845,7 @@ function prepareNeutralItems()
                 if figureSettingCopy.custom_script ~= nil then
                     obj.setLuaScript(figureSettingCopy.custom_script)
                 end
-                obj.use_grid = false
+                obj.use_grid = figureSettingCopy.use_grid
                 obj.use_snap_points = figureSettingCopy.use_snap_points
                 offset = offset + figureSetting.width / 2
                 while neutralItemsLock do

@@ -513,6 +513,8 @@ function onObjectPickUp(player, pickedUpObject)
             end
             lastPlacedTileX = nil
             lastPlacedTileZ = nil
+            placedFerries[pickedUpObject.getGUID()] = nil
+            ferriesLinkedQuadrants[pickedUpObject.getGUID()] = nil
             removeTile(xIndex, zIndex, pickedUpObject)
             allGameMessage({"MESSAGE_TILE_REMOVED"}, NEUTRAL_COLOR)
             clearArbitraryButtons(true)

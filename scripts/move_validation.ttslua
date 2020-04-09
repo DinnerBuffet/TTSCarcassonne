@@ -332,14 +332,55 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_OUT_OF_BOUNDS"}, activePlayers[currentPlayer]) end
         return false
     end
-    if not ((not tileGridOccupied(xIndex + 1, zIndex) or tileConnectsToSide(tile, tileRotation, 4, getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid), tileGrid[xIndex + 1][zIndex].rotation)) and
-    (not tileGridOccupied(xIndex - 1, zIndex) or tileConnectsToSide(tile, tileRotation, 2, getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid), tileGrid[xIndex - 1][zIndex].rotation)) and
-    (not tileGridOccupied(xIndex, zIndex + 1) or tileConnectsToSide(tile, tileRotation, 3, getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid), tileGrid[xIndex][zIndex + 1].rotation)) and
-    (not tileGridOccupied(xIndex, zIndex - 1) or tileConnectsToSide(tile, tileRotation, 1, getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid), tileGrid[xIndex][zIndex - 1].rotation))) then
-        if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_FEATURES_DONT_MATCH"}, activePlayers[currentPlayer]) end
-        return false
+    local playerHasBridge = false
+    if controlPanelSettings['BCnBBridges'] then
+        for _, obj in ipairs(getAllObjects()) do
+            if obj.getVar('figureName') == 'Bridge' and obj.getVar('owner') == activePlayers[currentPlayer] then
+                playerHasBridge = true
+            end
+        end
     end
-    local tileData = getTileDataForTile(tile)
+    local neededBridge = nil
+    for side, sideDelta in ipairs(SIDE_DELTA) do
+        if tileGridOccupied(xIndex + sideDelta.x, zIndex + sideDelta.z) then
+            local adjacentTile = getObjectFromGUID(tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z].tile_guid)
+            local adjacentTileData = getTileDataForTile(adjacentTile)
+            local adjacentTileRotation = tileGrid[xIndex + sideDelta.x][zIndex + sideDelta.z].rotation
+            if not tileConnectsToSide(tile, tileRotation, side, adjacentTile, adjacentTileRotation) then
+                local playerCanUseBridge = false
+                if playerHasBridge then
+                    local newTileSide = tileData.sides[(3 + side - tileRotation) % 4 + 1]
+                    local adjacentTileSide = adjacentTileData.sides[(3 + side - adjacentTileRotation + TILE_180_ROTATION) % 4 + 1]
+                    -- Scenario #1: Place the bridge on the tile that was just placed
+                    if newTileSide == 'Field' and adjacentTileSide == 'Road' then
+                        local oppositeTileSideNumber = (3 + side - tileRotation + TILE_180_ROTATION) % 4 + 1
+                        local oppositeTileSide = tileData.sides[oppositeTileSideNumber]
+                        if oppositeTileSide == 'Field' then
+                            --if the bridge isn't being used, it can be used here
+                            if neededBridge == nil then
+                                neededBridge = {x=xIndex, z=zIndex, side=side}
+                                playerCanUseBridge = true
+                            --if a bridge is already being used, it must be for the opposite side
+                            elseif neededBridge.x == xIndex and neededBridge.z == zIndex and neededBridge.side == oppositeTileSideNumber then
+                                playerCanUseBridge = true
+                            end
+                        end
+                    -- Scenario #2: Place the bridge on an adjacent tile
+                    elseif neededBridge == nil and newTileSide == 'Road' and adjacentTileSide == 'Field' then
+                        local oppositeAdjacentTileSide = tileData.sides[(3 + side - adjacentTileRotation) % 4 + 1]
+                        if oppositeAdjacentTileSide == 'Field' then
+                            neededBridge = {x=xIndex + sideDelta.x, z=zIndex + sideDelta.z, side=side}
+                            playerCanUseBridge = true
+                        end
+                    end
+                end
+                if not playerCanUseBridge then
+                    if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_FEATURES_DONT_MATCH"}, activePlayers[currentPlayer]) end
+                    return false
+                end
+            end
+        end
+    end
     if tileData.sides[1] == 'Abbey' and
     ((not tileGridOccupied(xIndex + 1, zIndex)) or (not tileGridOccupied(xIndex - 1, zIndex)) or (not tileGridOccupied(xIndex, zIndex + 1)) or (not tileGridOccupied(xIndex, zIndex - 1))) then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_ABBEY"}, activePlayers[currentPlayer]) end
@@ -434,6 +475,33 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
         end
     end
     return true
+end
+
+--tileConnectsToSide
+-- params:
+--  obj: tile 1
+--  int: rotation 1 (rotation of the tile)
+--  int: which side of the first tile is being checked
+--  obj: tile 2
+--  int: rotation 2
+-- returns:
+--  bool: true if they match
+function tileConnectsToSide(t1, r1, n1, t2, r2)
+    local t1Data = getTileDataForTile(t1)
+    local t2Data = getTileDataForTile(t2)
+    s1 = t1Data.sides[(3 + n1 - r1) % 4 + 1]
+    s2 = t2Data.sides[(3 + n1 - r2 + TILE_180_ROTATION) % 4 + 1]
+    --debugMessage(2, "s1(" .. (3 + n1 - r1) % 4 + 1 .. "): " .. s1 .. " s2(" .. (3 + n1 - r2 + TILE_180_ROTATION) % 4 + 1 .. "): " .. s2)
+    if s1 == 'Abbey' or s2 == 'Abbey' then return true end
+
+    local splits1 = string.split(s1, "/")
+    if #splits1 == 1 then
+        if s1 == s2 then return true else return false end
+    else
+        local splits2 = string.split(s2, "/")
+        if #splits2 == 1 then return false end
+        if splits1[1] == splits2[2] and splits1[2] == splits2[1] then return true else return false end
+    end
 end
 
 function isValidFigureLocation(newFigure, xIndex, zIndex, featureMapPosition, featureNum, verbose)

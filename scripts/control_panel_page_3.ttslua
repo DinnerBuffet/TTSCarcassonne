@@ -79,34 +79,34 @@ function initializeControlPanelPage()
     -- initializeAllCheckbox(COLUMN_1, ROW_4, 'BCnBAll', "TOOLTIP_ENABLE_ALL")
     initializeCheckbox(COLUMN_2, ROW_4, 'BCnBTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 12}}))
 
-    -- --Bridges
-    -- button_parameters.click_function = 'onBridgesDecr'
-    -- button_parameters.label = '-'
-    -- button_parameters.tooltip = ''
-    -- button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_4}
-    -- self.createButton( button_parameters )
-    -- btnIDs['btnBridgesDecr'] = index
-    -- index = index + 1
-    --
-    -- button_parameters.click_function = 'onBCnBBridgesToggle'
-    -- button_parameters.label = '0'
-    -- button_parameters.position = {COLUMN_3, BUTTON_HEIGHT, ROW_4}
-    -- button_parameters.tooltip = translate("TOOLTIP_BRIDGES")
-    -- if Global.call('getControlPanelState', {key = 'BCnBBridges'}) then
-    --     button_parameters.label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumBridges'})
-    -- end
-    -- self.createButton( button_parameters )
-    -- btnIDs['btnBCnBBridgesToggle'] = index
-    -- index = index + 1
-    --
-    -- button_parameters.click_function = 'onBridgesIncr'
-    -- button_parameters.label = '+'
-    -- button_parameters.tooltip = ''
-    -- button_parameters.position = {COLUMN_3 - 1, BUTTON_HEIGHT, ROW_4}
-    -- self.createButton( button_parameters )
-    -- btnIDs['btnBridgesIncr'] = index
-    -- index = index + 1
-    --
+    --Bridges
+    button_parameters.click_function = 'onBridgesDecr'
+    button_parameters.label = '-'
+    button_parameters.tooltip = ''
+    button_parameters.position = {COLUMN_3 + 1, BUTTON_HEIGHT, ROW_4}
+    self.createButton( button_parameters )
+    btnIDs['btnBridgesDecr'] = index
+    index = index + 1
+
+    button_parameters.click_function = 'onBCnBBridgesToggle'
+    button_parameters.label = '0'
+    button_parameters.position = {COLUMN_3, BUTTON_HEIGHT, ROW_4}
+    button_parameters.tooltip = translate("TOOLTIP_BRIDGES")
+    if Global.call('getControlPanelState', {key = 'BCnBBridges'}) then
+        button_parameters.label = '' .. Global.call('getControlPanelState', {key = 'BCnBNumBridges'})
+    end
+    self.createButton( button_parameters )
+    btnIDs['btnBCnBBridgesToggle'] = index
+    index = index + 1
+
+    button_parameters.click_function = 'onBridgesIncr'
+    button_parameters.label = '+'
+    button_parameters.tooltip = ''
+    button_parameters.position = {COLUMN_3 - 1, BUTTON_HEIGHT, ROW_4}
+    self.createButton( button_parameters )
+    btnIDs['btnBridgesIncr'] = index
+    index = index + 1
+
     -- --Castles
     -- button_parameters.click_function = 'onCastlesDecr'
     -- button_parameters.label = '-'
