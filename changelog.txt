@@ -1,3 +1,7 @@
+v1.22.2 - 20200410
+[*]Fixed tile-shifting functionality, which has probably been broken since the refactoring I did a year ago (Thanks to sebastianbergt for reporting!)
+[*]Moved all content to Steam Cloud since all dropbox content was deleted (Thanks to PartyKitty for reporting!)
+
 v1.22.1 - 20200326
 [*]Moved all content to Steam Cloud in order to mitigate Google Drive download limits
 

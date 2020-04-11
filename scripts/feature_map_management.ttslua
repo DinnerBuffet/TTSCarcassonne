@@ -40,11 +40,11 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             xIndex = xIndex - 1
         end
         if zIndex == MIN_Z then
-            local atEdge = false;
+            local atEdge = false
             for _, tileColumn in pairs(tileGrid) do
                 if tileColumn[MAX_Z] ~= nil then
-                    atEdge = true;
-                    break;
+                    atEdge = true
+                    break
                 end
             end
             if not atEdge then
@@ -53,11 +53,11 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
             end
         end
         if zIndex == MAX_Z then
-            local atEdge = false;
+            local atEdge = false
             for _, tileColumn in pairs(tileGrid) do
                 if tileColumn[MIN_Z] ~= nil then
-                    atEdge = true;
-                    break;
+                    atEdge = true
+                    break
                 end
             end
             if not atEdge then
@@ -742,14 +742,19 @@ function shiftPlayArea(delta_x, delta_z)
                 tileGrid[x + delta_x] = tileGrid[x]
                 tileGrid[x] = nil
             end
-            if validTileLocations[x] ~= nil then
-                validTileLocations[x + delta_x] = validTileLocations[x]
-                validTileLocations[x] = nil
-                tileConnectionOdds[x + delta_x] = tileConnectionOdds[x]
-                tileConnectionOdds[x] = nil
-            end
         end
         for x=start, last, -delta_x do
+            for openingCoord, _ in pairs(validTileLocations) do
+                local coord = string.split(openingCoord, "-")
+                local oldX = tonumber(coord[1])
+                local oldZ = tonumber(coord[2])
+                if (oldX == x) then
+                    validTileLocations[oldX + delta_x .. "-" .. oldZ] = validTileLocations[oldX .. "-" .. oldZ]
+                    validTileLocations[oldX .. "-" .. oldZ] = nil
+                    tileConnectionOdds[oldX + delta_x .. "-" .. oldZ] = tileConnectionOdds[oldX .. "-" .. oldZ]
+                    tileConnectionOdds[oldX .. "-" .. oldZ] = nil
+                end
+            end
             for _, feature in pairs(featureList) do
                 for openingCoord, _ in pairs(feature.openingCoords) do
                     local coord = string.split(openingCoord, "-")
@@ -777,15 +782,20 @@ function shiftPlayArea(delta_x, delta_z)
                     tileGrid[x][z + delta_z] = tileGrid[x][z]
                     tileGrid[x][z] = nil
                 end
-                if validTileLocations[x] ~= nil and validTileLocations[x][z] ~= nil then
-                    validTileLocations[x][z + delta_z] = validTileLocations[x][z]
-                    validTileLocations[x][z] = nil
-                    tileConnectionOdds[x][z + delta_z] = tileConnectionOdds[x][z]
-                    tileConnectionOdds[x][z] = nil
-                end
             end
         end
         for z=start, last, -delta_z do
+            for openingCoord, _ in pairs(validTileLocations) do
+                local coord = string.split(openingCoord, "-")
+                local oldX = tonumber(coord[1])
+                local oldZ = tonumber(coord[2])
+                if (oldZ == z) then
+                    validTileLocations[oldX .. "-" .. oldZ + delta_z] = validTileLocations[oldX .. "-" .. oldZ]
+                    validTileLocations[oldX .. "-" .. oldZ] = nil
+                    tileConnectionOdds[oldX .. "-" .. oldZ + delta_z] = tileConnectionOdds[oldX .. "-" .. oldZ]
+                    tileConnectionOdds[oldX .. "-" .. oldZ] = nil
+                end
+            end
             for _, feature in pairs(featureList) do
                 for openingCoord, _ in pairs(feature.openingCoords) do
                     local coord = string.split(openingCoord, "-")

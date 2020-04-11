@@ -854,7 +854,7 @@ function AIChooseTileLocation()
             local tileConfigurations = {}
             for xIndex, tileColumn in pairs(tileGrid) do
                 for zIndex, tileLocation in pairs(tileColumn) do
-                    for side, sideDelta in pairs(SIDE_DELTA) do
+                    for side, sideDelta in ipairs(SIDE_DELTA) do
                         local nestedX = xIndex + sideDelta.x
                         local nestedZ = zIndex + sideDelta.z
                         if not tileGridOccupied(nestedX, nestedZ) then

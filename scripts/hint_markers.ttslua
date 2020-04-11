@@ -7,7 +7,7 @@ function showTileMarkers(newTile)
     local tileMarkers = {}
     for x, tileColumn in pairs(tileGrid) do
         for z, tileLocation in pairs(tileColumn) do
-            for side, sideDelta in pairs(SIDE_DELTA) do
+            for side, sideDelta in ipairs(SIDE_DELTA) do
                 if tileMarkers[x + sideDelta.x] == nil then
                     tileMarkers[x + sideDelta.x] = {}
                 end

@@ -1695,7 +1695,7 @@ function promptTowerCapture()
     getObjectFromGUID(tileGrid[towerX][towerZ].tile_guid).highlightOn({1,0,0})
 	if towerRange > 0 then
 		for i=1, towerRange do
-			for side, sideDelta in pairs(SIDE_DELTA) do
+			for side, sideDelta in ipairs(SIDE_DELTA) do
 				if tileGridOccupied(towerX + sideDelta.x * i, towerZ + sideDelta.z * i) then
 					getObjectFromGUID(tileGrid[towerX + sideDelta.x * i][towerZ + sideDelta.z * i].tile_guid).highlightOn({1,0,0})
 				end
