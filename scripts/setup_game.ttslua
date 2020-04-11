@@ -246,7 +246,7 @@ neutralFigureSettings = {
         width = 1.0,
         use_snap_points = false,
         object_params = {type = 'Custom_Dice', scale = {1.0, 1.0, 1.0}},
-        custom_object_params = {type=1, image = 'https://www.dropbox.com/s/ax3shaignnxpnmk/flierdie.jpg?raw=1'},
+        custom_object_params = {type=1, image = 'http://cloud-3.steamusercontent.com/ugc/1009311636238680991/7292CDD3CA4B7E2FB4F75B5BE315CC5A6EC7092C/'},
         custom_script =
 [[m_sLastPlayer = nil
 loaded = false
