@@ -19,15 +19,15 @@ Install Atom and the TTS plugin: http://berserk-games.com/knowledgebase/atom-edi
 
 In Atom, go to File->Settings->Packages->Click on settings for tabletopsimulator-lua
 
-Check "Experimental: Insert other files specified in source code"
+Check "#include other files"
 
-Under "Experimental: Base path for files you wish to #include", paste the path to your git folder
-
-Recommended: Check "Experimental: Ignore files from outwith the TTS folder"
+Under "Base path for files you wish to #include", paste the path to your git folder
 
 Now load Carcassonne from the workshop and make a new save file. Load that save file.
 
-You should now be able to edit the code as separate files, rather than one big global file.
+Now right-click your Project explorer on the left side and choose "Add project folder" and choose your git folder.
+
+You should now be able to edit the code as separate files, rather than one big global file. Select Packages->Tabletop Simulator->Save and Play to update and load your save file with script changes.
 
 ## Recommended packages
 
