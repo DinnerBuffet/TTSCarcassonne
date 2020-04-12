@@ -470,6 +470,13 @@ function tileGridOccupied(x, z)
     if tileGrid[x] == nil or tileGrid[x][z] == nil then return false else return true end
 end
 
+--How a figure placed at this position should be rotated
+function getPositionYawRotation(position, figureYRotation)
+    if position < 5 then return (position - 1 + TILE_STANDARD_ROTATION) * 90
+    elseif position < 13 then return (math.floor((position - 5) / 2) + TILE_STANDARD_ROTATION) * 90
+    else return figureYRotation + (TILE_STANDARD_ROTATION * 90) end
+end
+
 --check for features that have been added to, including:
 --shepherds on fields, builders in cities or on roads
 function checkAddedTileSpecialFigureExtensions()
@@ -495,12 +502,16 @@ function checkAddedTileSpecialFigureExtensions()
 end
 
 function checkTileForHill()
+    if not controlPanelSettings['HnSHills'] then
+        return nextState('next')
+    end
+
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
     --put another tile underneath it
     local specialFeatures = newTile.getTable('specialFeatures')
     if specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
-            if controlPanelSettings['HnSHills'] and specialFeature[1] == "Hill" then
+            if specialFeature[1] == "Hill" then
                 local buriedTile_obj = nil
                 if buriedTile == nil then
                     local drawPile = getObjectFromGUID(tileStack_GUID)
@@ -2255,7 +2266,7 @@ function scoreFlockCoroutine()
             end
         end
         if showMarkers == 'Both' or showMarkers == 'Scoring' then
-            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='praiseShepherd', function_owner=nil, parameters=nil, delay=0.9})
+            Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='praiseShepherds', function_owner=nil, parameters=nil, delay=0.9})
         else
             returnShepherds()
         end
@@ -2266,55 +2277,20 @@ function scoreFlockCoroutine()
     return 1
 end
 
-function praiseShepherd()
+function praiseShepherds()
+    --Slightly different code path if true
+    gReturningShepherds = true
+
+    --The built in coroutine functionality had a bug at one point. Managing the coroutines in the script via onUpdate
+    --gets around this bug and is how it is implemented here. TODO: check if the bug still exists
     --startLuaCoroutine(self, 'praiseFiguresCoroutine')
 
-    local CoNew = coroutine.create(praiseShepherdCoroutine)
+    local CoNew = coroutine.create(praiseFiguresCoroutine)
     --add it to the list of active coroutines
     table.insert(m_Routines, {Co = CoNew, iYield = 0})
     --run it...
     local iIdx = #m_Routines
     coroutine.resume(m_Routines[iIdx].Co, m_Routines[iIdx].iYield)
-end
-
---makes the winning shepherds spin and marks the features that were scored
-function praiseShepherdCoroutine()
-    local hasWinner = false
-    for _, figure in ipairs(removedFigures) do
-        if figure.winner then
-            hasWinner = true
-            getObjectFromGUID(figure.guid).addTorque({0,25,0}, 4)
-        end
-    end
-    if hasWinner then
-        getObjectFromGUID(SOUNDBOARD_GUID).AssetBundle.playTriggerEffect(0)
-    end
-    if showMarkers == 'Scoring' or showMarkers == 'Both' then
-        for _, traversedTileCoord in ipairs(traversedTileCoords) do
-            if traversedFeaturePositions[traversedTileCoord.x] ~= nil and traversedFeaturePositions[traversedTileCoord.x][traversedTileCoord.z] ~= nil then
-                for position, traversedFeaturePosition in pairs(traversedFeaturePositions[traversedTileCoord.x][traversedTileCoord.z]) do
-                    if position < 13 or getObjectFromGUID(tileGrid[traversedTileCoord.x][traversedTileCoord.z].tile_guid).getTable('specialFeatures')[position - 12][3] ~= nil then
-                        local tile = getObjectFromGUID(tileGrid[traversedTileCoord.x][traversedTileCoord.z].tile_guid)
-                        local rotation = tileGrid[traversedTileCoord.x][traversedTileCoord.z].rotation
-                        local x, z = getTileFeatureLocation(position, tile, rotation)
-                        local params = {}
-                        if traversedFeaturePosition == 1 then
-                            params.type = "BlockSquare"
-                        end
-                        params.position = {(x * TILE_SPACING) + (traversedTileCoord.x * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (traversedTileCoord.z * TILE_SPACING) - MIDDLE_OFFSET.z}
-                        params.scale = {0.25, 0.25, 0.25}
-                        params.callback = "identifyFeature"
-                        params.sound = false
-                        local newObject = spawnObject(params)
-                        table.insert(featureMarkers, newObject)
-                    end
-                end
-                coroutine.yield(0)
-            end
-        end
-    end
-    Timer.create({identifier=os.clock(), function_name='returnShepherds', function_owner=nil, parameters=nil, delay=FIGURE_PRAISE_DELAY})
-    return 1
 end
 
 function returnShepherds()
@@ -3532,6 +3508,11 @@ function praiseFiguresCameraFocus(onlyWinners)
 end
 
 function praiseFigures()
+    --Slightly different code path if true
+    gReturningShepherds = false
+
+    --The built in coroutine functionality had a bug at one point. Managing the coroutines in the script via onUpdate
+    --gets around this bug and is how it is implemented here. TODO: check if the bug still exists
     --startLuaCoroutine(self, 'praiseFiguresCoroutine')
 
     local CoNew = coroutine.create(praiseFiguresCoroutine)
@@ -3557,30 +3538,49 @@ function praiseFiguresCoroutine()
     if showMarkers == 'Scoring' or showMarkers == 'Both' then
         for _, traversedTileCoord in ipairs(traversedTileCoords) do
             if traversedFeaturePositions[traversedTileCoord.x] ~= nil and traversedFeaturePositions[traversedTileCoord.x][traversedTileCoord.z] ~= nil then
+                local tile = getObjectFromGUID(tileGrid[traversedTileCoord.x][traversedTileCoord.z].tile_guid)
+                local rotation = tileGrid[traversedTileCoord.x][traversedTileCoord.z].rotation
+                local tileHeight = TILE_THICKNESS
+                local specialFeatures = tile.getTable('specialFeatures')
+                if specialFeatures ~= nil then
+                    for _, specialFeature in ipairs(specialFeatures) do
+                        if specialFeature[1] == "Hill" then
+                            tileHeight = TILE_THICKNESS * 2
+                        end
+                    end
+                end
                 for position, traversedFeaturePosition in pairs(traversedFeaturePositions[traversedTileCoord.x][traversedTileCoord.z]) do
-                    if position < 13 or getObjectFromGUID(tileGrid[traversedTileCoord.x][traversedTileCoord.z].tile_guid).getTable('specialFeatures')[position - 12][3] ~= nil then
-                        local tile = getObjectFromGUID(tileGrid[traversedTileCoord.x][traversedTileCoord.z].tile_guid)
-                        local rotation = tileGrid[traversedTileCoord.x][traversedTileCoord.z].rotation
+                    if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
                         local x, z = getTileFeatureLocation(position, tile, rotation)
                         local params = {}
                         if traversedFeaturePosition == 1 then
                             params.type = "BlockSquare"
                         elseif traversedFeaturePosition == 2 then
+                            if gReturningShepherds then break end
                             params.type = "BlockTriangle"
                         end
-                        params.position = {(x * TILE_SPACING) + (traversedTileCoord.x * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (traversedTileCoord.z * TILE_SPACING) - MIDDLE_OFFSET.z}
+                        params.position = {(x * TILE_SPACING) + (traversedTileCoord.x * TILE_SPACING) - MIDDLE_OFFSET.x, TABLE_SURFACE_Y + tileHeight, (z * TILE_SPACING) + (traversedTileCoord.z * TILE_SPACING) - MIDDLE_OFFSET.z}
                         params.scale = {0.25, 0.25, 0.25}
                         params.callback = "identifyFeature"
                         params.sound = false
                         local newObject = spawnObject(params)
                         table.insert(featureMarkers, newObject)
+                        if traversedFeaturePosition == 1 then
+                            newObject.getComponent("BoxCollider").set("enabled", false)
+                        elseif traversedFeaturePosition == 2 then
+                            newObject.getComponent("MeshCollider").set("enabled", false)
+                        end
                     end
                 end
                 coroutine.yield(0)
             end
         end
     end
-    Timer.create({identifier=os.clock(), function_name='returnFigures', function_owner=nil, parameters=nil, delay=FIGURE_PRAISE_DELAY})
+    local returnFigureFunction = 'returnFigures'
+    if gReturningShepherds then
+        returnFigureFunction = 'returnShepherds'
+    end
+    Timer.create({identifier=os.clock(), function_name=returnFigureFunction, function_owner=nil, parameters=nil, delay=FIGURE_PRAISE_DELAY})
     return 1
 end
 

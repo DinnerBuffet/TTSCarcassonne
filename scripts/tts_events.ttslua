@@ -542,39 +542,7 @@ function onObjectPickUp(player, pickedUpObject)
     if showMarkers == 'Hints' or showMarkers == 'Both' and
         ((currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
         (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner()))) then
-        for _, featureMarker in ipairs(featureMarkers) do
-            featureMarker.destruct()
-        end
-        featureMarkers = {}
-        if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' and pickedUpObject.getTable('sides') ~= nil then
-            if turnState == 'awaiting tile placement' then
-                showTileMarkers(pickedUpObject)
-            end
-        elseif (table.contains(FOLLOWER_TYPES, pickedUpObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, pickedUpObject.getVar('figureName')) or pickedUpObject.getVar('figureName') == 'Tower') and
-            ((currentMiniTurn ~= nil and pickedUpObject.getVar('owner') == activePlayers[currentMiniTurn]) or
-            (currentMiniTurn == nil and pickedUpObject.getVar('owner') == activePlayers[currentPlayer])) then
-            gPickedUpObject = pickedUpObject
-            if turnState == 'awaiting figure decision' then
-                if pickedUpObject.getVar('figureName') == 'Tower' then
-                    startLuaCoroutine(self, 'showTowerMarkers')
-                else
-                    startLuaCoroutine(self, 'showFigureMarkers')
-                end
-            elseif pickedUpObject.getVar('figureName') == 'Wagon' and turnState == 'replace finished wagons' then
-                showWagonFeatureMarkers(pickedUpObject)
-            elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
-                showFlierFeatureMarkers(pickedUpObject)
-            elseif turnState == 'awaiting phantom decision' then
-                startLuaCoroutine(self, 'showFigureMarkers')
-            elseif turnState == 'prompt moving to carcassonne' then
-                showToCoCFeatureMarkers(pickedUpObject)
-            elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then
-                startLuaCoroutine(self, 'showFromCoCFeatureMarkers')
-            end
-        elseif pickedUpObject.getVar('figureName') == 'Fairy' and turnState == 'awaiting figure decision' then
-            showFairyHighlights(pickedUpObject)
-        elseif pickedUpObject.getVar('figureName') == 'Count' and turnState == 'prompt moving count' then
-            showToCoCFeatureMarkers(pickedUpObject)
-        end
+        gPickedUpObject = pickedUpObject
+        startLuaCoroutine(self, 'showHintMarkers')
     end
 end

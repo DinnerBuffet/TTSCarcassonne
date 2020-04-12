@@ -98,6 +98,8 @@ function checkFigurePlacement(params)
             if AUTOLOCK then
                 newFigure.setLock(true)
             end
+            local yawRotation = getPositionYawRotation(closestFeatureMapPosition, 180)
+            newFigure.setRotation({0, yawRotation, 0})
             return nextState('placed tower')
         end
         if nameOfFeature == 'Tower Foundation' then
@@ -228,9 +230,7 @@ function checkFigurePlacement(params)
     if newFigure.getVar('figureName') == 'Barn' then --don't rotate the barn
         yawRotation = newFigure.getRotation().y
     else
-        if closestFeatureMapPosition < 5 then yawRotation = (closestFeatureMapPosition - 1 + TILE_STANDARD_ROTATION) * 90
-        elseif closestFeatureMapPosition < 13 then yawRotation = (math.floor((closestFeatureMapPosition - 5) / 2) + TILE_STANDARD_ROTATION) * 90
-        else yawRotation = newFigure.getRotation().y + (TILE_STANDARD_ROTATION * 90) end
+        yawRotation = getPositionYawRotation(closestFeatureMapPosition, newFigure.getRotation().y)
     end
 
     if table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) and nameOfFeature == 'Field' then

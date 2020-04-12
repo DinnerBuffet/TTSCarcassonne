@@ -2852,11 +2852,8 @@ function AIMoveFigureToLocation()
         if highestScoreFigure == obj.getVar('figureName') and obj.getVar('owner') == activePlayers[currentPlayer] then
             local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
             if not tileGridOccupied(xIndex, zIndex) then
-                local pieceRotation = 0
-                if highestScorePos < 5 then pieceRotation = (highestScorePos - 1 + TILE_STANDARD_ROTATION) * 90
-                elseif highestScorePos < 13 then pieceRotation = (math.floor((highestScorePos - 5) / 2) + TILE_STANDARD_ROTATION) * 90 end
-                --NOTE: if pos > 12, rotation is arbitrary. This could be considered a flaw in the case of positions where there are rotating snap points since setPositionSmooth will ignore them. However, I don't think there's an easy way to solve it.
-                pieceRotation = pieceRotation
+                --NOTE: if pos > 12, rotation is always the same. This could be considered a flaw in the case of positions where there are rotating snap points since setPositionSmooth will ignore them. However, I don't think there's an easy way to solve it.
+                local pieceRotation = getPositionYawRotation(highestScorePos, 180)
                 if table.contains(MEEPLE_TYPES, obj.getVar('figureName')) and nameOfFeature == 'Field' then
                     --lay the Follower down
                     if AI_ANIMATIONS_ENABLED then

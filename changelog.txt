@@ -1,3 +1,8 @@
+v1.22.3 - 20200412
+[*]Improved the appearance of figure hints
+[*]figure hints and score markers now appear closer to the tiles and appropriately change height for hills
+[*]Score markers no longer collide with objects in the game
+
 v1.22.2 - 20200410
 [*]Fixed tile-shifting functionality, which has probably been broken since the refactoring I did a year ago (Thanks to sebastianbergt for reporting!)
 [*]Moved all content to Steam Cloud since all dropbox content was deleted (Thanks to PartyKitty for reporting!)

@@ -77,7 +77,7 @@ TILE_FEATURES = {'Abbey', 'Volcano', 'Dragon', 'Magic Portal', 'Bazaar', 'Hill',
 PROXIMITY_FEATURES = {'Cloister', 'Abbey', 'Shrine', 'Garden', "Baba Yaga's Hut"} --features that change based on the actions of surrounding tiles
 CLOISTER_FEATURES = {'Cloister', 'Abbey', 'Shrine'} --features that are essentially cloisters in many aspects of the rules
 NUM_TOWERS_PER_PLAYER = {[1] = 10, [2] = 10, [3] = 9, [4] = 7, [5] = 6, [6] = 5}
-TOWER_HEIGHT = 0.28 --How tall each Tower piece is
+TOWER_HEIGHT = 0.305 --How tall each Tower piece is
 GOLD_BAR_NAME = 'Gold Bar'
 SHEEP_TOKEN_TYPES = {'Sheep', 'Wolf'}
 TRADE_TOKEN_TYPES = {'Wine Token', 'Wheat Token', 'Cloth Token'}

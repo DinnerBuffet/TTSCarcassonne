@@ -1,7 +1,46 @@
 --these functions are typically used when a player picks up an object to be placed. They will create
 --a temporary object wherever a legal move can be made, which will be deleted when the object is released.
 
+FIGURE_MARKER_ALPHA = 150/255
 TILE_MARKER_COLOR = {r=49/255, g=179/255, b=43/255, a=75/255}
+
+function showHintMarkers()
+    local pickedUpObject = gPickedUpObject
+    for _, featureMarker in ipairs(featureMarkers) do
+        featureMarker.destruct()
+    end
+    featureMarkers = {}
+    if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' and pickedUpObject.getTable('sides') ~= nil then
+        if turnState == 'awaiting tile placement' then
+            showTileMarkers(pickedUpObject)
+        end
+    elseif (table.contains(FOLLOWER_TYPES, pickedUpObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, pickedUpObject.getVar('figureName')) or pickedUpObject.getVar('figureName') == 'Tower') and
+        ((currentMiniTurn ~= nil and pickedUpObject.getVar('owner') == activePlayers[currentMiniTurn]) or
+        (currentMiniTurn == nil and pickedUpObject.getVar('owner') == activePlayers[currentPlayer])) then
+        if turnState == 'awaiting figure decision' then
+            if pickedUpObject.getVar('figureName') == 'Tower' then
+                showTowerMarkers(pickedUpObject)
+            else
+                showFigureMarkers(pickedUpObject)
+            end
+        elseif pickedUpObject.getVar('figureName') == 'Wagon' and turnState == 'replace finished wagons' then
+            showWagonFeatureMarkers(pickedUpObject)
+        elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
+            showFlierFeatureMarkers(pickedUpObject)
+        elseif turnState == 'awaiting phantom decision' then
+            showFigureMarkers(pickedUpObject)
+        elseif turnState == 'prompt moving to carcassonne' then
+            showToCoCFeatureMarkers(pickedUpObject)
+        elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then
+            showFromCoCFeatureMarkers(pickedUpObject)
+        end
+    elseif pickedUpObject.getVar('figureName') == 'Fairy' and turnState == 'awaiting figure decision' then
+        showFairyHighlights(pickedUpObject)
+    elseif pickedUpObject.getVar('figureName') == 'Count' and turnState == 'prompt moving count' then
+        showToCoCFeatureMarkers(pickedUpObject)
+    end
+    return 1
+end
 
 function showTileMarkers(newTile)
     local tileMarkers = {}
@@ -54,8 +93,7 @@ end
 --show all possible locations where a figure can be put
 --featuresToMark - features that have not yet been checked for marking
 --positionsToVisit - list of positions for each tile (can be pruned as we search to save time)
-function showFigureMarkers()
-    local newFigure = gPickedUpObject
+function showFigureMarkers(newFigure)
     getActiveFigures()
     local locationMarkers = {}
     locationMarkers[lastPlacedTileX] = {}
@@ -84,7 +122,7 @@ function showFigureMarkers()
         local featureNum = getFeatureNumAt(x, z, featureMapPosition)
         if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
             if isValidFigureLocation(newFigure, x, z, featureMapPosition, featureNum, false) then
-                setLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
+                setOrUpdateLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
                 featuresToMark[featureNum] = nil
             end
         end
@@ -99,16 +137,7 @@ function showFigureMarkers()
                     local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
                     local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
                     if featureNum ~= nil and isValidFigureLocation(newFigure, xIndex, zIndex, closestFeatureMapPosition, featureNum, false) then
-                        if locationMarkers[xIndex] == nil then
-                            locationMarkers[xIndex] = {}
-                        end
-                        if locationMarkers[xIndex][zIndex] == nil then
-                            locationMarkers[xIndex][zIndex] = {}
-                        end
-                        if locationMarkers[xIndex][zIndex][closestFeatureMapPosition] == nil then
-                            locationMarkers[xIndex][zIndex][closestFeatureMapPosition] = 0
-                        end
-                        locationMarkers[xIndex][zIndex][closestFeatureMapPosition] = locationMarkers[xIndex][zIndex][closestFeatureMapPosition] + 1
+                        setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, closestFeatureMapPosition, 1)
                     end
                 end
             end
@@ -135,7 +164,7 @@ function showFigureMarkers()
 
                     if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
                         if isValidFigureLocation(newFigure, xIndex, zIndex, featureMapPosition, featureNum, false) then
-                            setLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
+                            setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
                             featuresToMark[featureNum] = nil
                         end
                     end
@@ -172,7 +201,7 @@ function showFigureMarkers()
                     local featureNum = getFeatureNumAt(x, z, featureMapPosition)
                     if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
                         if isValidFigureLocation(newFigure, x, z, featureMapPosition, featureNum, false) then
-                            setLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
+                            setOrUpdateLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
                             featuresToMark[featureNum] = nil
                         end
                     end
@@ -193,8 +222,7 @@ function showFigureMarkers()
     return 1
 end
 
-function showTowerMarkers()
-    local newFigure = gPickedUpObject
+function showTowerMarkers(newFigure)
     getActiveFigures()
     local locationMarkers = {}
     locationMarkers[lastPlacedTileX] = {}
@@ -224,7 +252,7 @@ function showTowerMarkers()
 
                 if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
                     if isValidFigureLocation(newFigure, x, z, featureMapPosition, featureNum, false) then
-                        setLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
+                        setOrUpdateLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
                         featuresToMark[featureNum] = nil
                     end
                 end
@@ -246,7 +274,7 @@ function showTowerMarkers()
             if locationMarkers[xIndex] ~= nil and locationMarkers[xIndex][zIndex] ~= nil then
                 local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
                 if locationMarkers[xIndex][zIndex][closestFeatureMapPosition] ~= nil then
-                    locationMarkers[xIndex][zIndex][closestFeatureMapPosition] = locationMarkers[xIndex][zIndex][closestFeatureMapPosition] + 1
+                    setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, closestFeatureMapPosition, 1)
                 end
             end
         end
@@ -327,7 +355,7 @@ function showWagonFeatureMarkers(newFigure)
                 local featureNum = getFeatureNumAt(x, z, featureMapPosition)
                 if linkedRoadFeatures[featureNum] ~= nil then
                     if isValidWagonLocation(newFigure, featureNum, false) then
-                        setLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
+                        setOrUpdateLocationMarker(locationMarkers, x, z, featureMapPosition, 0)
                         linkedRoadFeatures[featureNum] = nil
                     end
                 end
@@ -364,7 +392,7 @@ function showFlierFeatureMarkers(newFigure)
         local featureNum = getFeatureNumAt(xIndex, zIndex, featureMapPosition)
         if featureNum ~= nil and featuresToMark[featureNum] == nil then
             if isValidFlierLocation(newFigure, featureNum, false) then
-                setLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
+                setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
                 featuresToMark[featureNum] = true
             end
         end
@@ -395,7 +423,7 @@ function showToCoCFeatureMarkers(newFigure)
             local featureNum = getFeatureNumAt(xIndex, zIndex, featureMapPosition)
             if featureNum ~= nil then
                 if isValidCoCLocation(newFigure, featureNum, false) then
-                    setLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
+                    setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
                 end
             end
         end
@@ -406,8 +434,7 @@ function showToCoCFeatureMarkers(newFigure)
 end
 
 --show legal positions where figures from CoC can be placed
-function showFromCoCFeatureMarkers()
-    local newFigure = gPickedUpObject
+function showFromCoCFeatureMarkers(newFigure)
     local locationMarkers = {}
     local featuresToMark = table.shallow_copy(featureList)
     local positionsToVisit = {}
@@ -434,7 +461,7 @@ function showFromCoCFeatureMarkers()
             local featureNum = getFeatureNumAt(xIndex, zIndex, featureMapPosition)
             if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
                 if isValidLocationFromCoC(newFigure, featureNum, false) then
-                    setLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
+                    setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
                     featuresToMark[featureNum] = nil
                 end
             end
@@ -452,7 +479,7 @@ function showFromCoCFeatureMarkers()
                             local featureNum = getFeatureNumAt(neighborX, neighborZ, featureMapPosition)
                             if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
                                 if isValidLocationFromCoC(newFigure, featureNum, false) then
-                                    setLocationMarker(locationMarkers, neighborX, neighborZ, featureMapPosition, 0)
+                                    setOrUpdateLocationMarker(locationMarkers, neighborX, neighborZ, featureMapPosition, 0)
                                     featuresToMark[featureNum] = nil
                                 end
                             end
@@ -482,7 +509,7 @@ function showFromCoCFeatureMarkers()
                     local featureNum = getFeatureNumAt(xIndex, zIndex, featureMapPosition)
                     if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
                         if isValidLocationFromCoC(newFigure, featureNum, false) then
-                            setLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
+                            setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
                             featuresToMark[featureNum] = nil
                         end
                     end
@@ -507,7 +534,7 @@ function showLocationMarkers(newFigure, locationMarkers)
     local hasFigureLocation = false
     for xIndex, tileColumn in pairs(locationMarkers) do
         for zIndex, tileLocation in pairs(tileColumn) do
-            for featureMapPosition, markerHeight in pairs(tileLocation) do
+            for featureMapPosition, numTowers in pairs(tileLocation) do
                 local x = nil
                 local z = nil
                 if newFigure.getVar('figureName') ~= 'Barn' then
@@ -519,32 +546,63 @@ function showLocationMarkers(newFigure, locationMarkers)
                     end
                 end
                 if x ~= nil and z ~= nil then
+                    local tileHeight = TILE_THICKNESS
+                    local specialFeatures = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')
+                    if specialFeatures ~= nil then
+                        for _, specialFeature in ipairs(specialFeatures) do
+                            if specialFeature[1] == "Hill" then
+                                tileHeight = TILE_THICKNESS * 2
+                            end
+                        end
+                    end
+
+                    local pitchRotation = 0
+                    local featureNum = getFeatureNumAt(xIndex, zIndex, featureMapPosition)
+                    if featureNum ~= nil then
+                        local nameOfFeature = featureList[featureNum].nameOfFeature
+
+                        if table.contains(MEEPLE_TYPES, newFigure.getVar('figureName')) and nameOfFeature == 'Field' then
+                            --meeple types should lay down in fields
+                            pitchRotation = 90
+                        end
+                    end
                     local params = {}
-                    params.type = "BlockSquare"
-                    params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5 + markerHeight * TOWER_HEIGHT, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
-                    params.scale = {0.25, 0.25, 0.25}
+                    params.type = "Custom_model"
+                    params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, TABLE_SURFACE_Y + tileHeight + numTowers * TOWER_HEIGHT, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                    params.scale = newFigure.getScale()
+                    params.rotation = {pitchRotation, getPositionYawRotation(featureMapPosition, 180), 0}
                     params.callback_owner = Global
                     params.callback = "identifyFeature"
                     params.sound = false
                     local newObject = spawnObject(params)
                     table.insert(featureMarkers, newObject)
-                    newObject.getComponent("BoxCollider").set("enabled", false)
+                    newObject.setCustomObject(newFigure.getCustomObject())
+                    local figureColor = newFigure.getColorTint()
+                    newObject.setColorTint({r=figureColor.r, g=figureColor.g, b=figureColor.b, a=FIGURE_MARKER_ALPHA})
                     hasFigureLocation = true
                 end
             end
         end
+    end
+    --Need to wait one frame after calling setCustomObject in order to turn off the BoxCollider.
+    wait(0)
+    for _, featureMarker in ipairs(featureMarkers) do
+        featureMarker.getComponent("BoxCollider").set("enabled", false)
     end
     if not hasFigureLocation then
         allGameMessage(({"MESSAGE_HINTS_NO_FIGURE_LOCATION"}), NEUTRAL_COLOR)
     end
 end
 
-function setLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, markerValue)
+function setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, numTowersAdded)
     if locationMarkers[xIndex] == nil then
         locationMarkers[xIndex] = {}
     end
     if locationMarkers[xIndex][zIndex] == nil then
         locationMarkers[xIndex][zIndex] = {}
     end
-    locationMarkers[xIndex][zIndex][featureMapPosition] = markerValue
+    if locationMarkers[xIndex][zIndex][featureMapPosition] == nil then
+        locationMarkers[xIndex][zIndex][featureMapPosition] = 0
+    end
+    locationMarkers[xIndex][zIndex][featureMapPosition] = locationMarkers[xIndex][zIndex][featureMapPosition] + numTowersAdded
 end

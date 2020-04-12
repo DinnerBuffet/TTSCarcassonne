@@ -364,7 +364,7 @@ function startGame()
                 if customObject.mesh ~= nil then
                     local figureSettingName = nil
                     if obj.getName() == 'Follower' then figureSettingName = 'BaseFollower' end
-                    -- it is possible to put additional figure types here, but I decided not too since it would make the game too confusing
+                    -- it is possible to put additional figure types here, but I decided not to since it would make the game too confusing
                     if figureSettingName ~= nil and customObject.mesh ~= playerFigureSettings[figureSettingName].custom_object_params.mesh then
                         substituteFigureSettings[newColor][figureSettingName] = {}
                         substituteFigureSettings[newColor][figureSettingName].object_params = {type = 'Custom_model'}
