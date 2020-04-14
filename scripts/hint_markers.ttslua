@@ -587,7 +587,12 @@ function showLocationMarkers(newFigure, locationMarkers)
     --Need to wait one frame after calling setCustomObject in order to turn off the BoxCollider.
     wait(0)
     for _, featureMarker in ipairs(featureMarkers) do
-        featureMarker.getComponent("BoxCollider").set("enabled", false)
+        if featureMarker.getComponent("BoxCollider") ~= nil then
+            featureMarker.getComponent("BoxCollider").set("enabled", false)
+        end
+        if featureMarker.getComponent("MeshCollider") ~= nil then
+            featureMarker.getComponent("MeshCollider").set("enabled", false)
+        end
     end
     if not hasFigureLocation then
         allGameMessage(({"MESSAGE_HINTS_NO_FIGURE_LOCATION"}), NEUTRAL_COLOR)

@@ -232,7 +232,7 @@ end
 -- This should be called after the global onPlayerChangedColor is called, and it appears to do so when tested. Otherwise, the incorrect data will be displayed
 function onPlayerChangedColor(player)
     for _, color in ipairs(PLAYER_COLORS) do
-        if Player[color].seated then
+        if Player[color] ~= nil and Player[color].seated then
             self.editButton({index = btnIDs['btn' .. color .. 'HotseatButton'], label = 'X', tooltip = Player[color].steam_name, color=stringColorToRGB(color)})
         elseif Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
             if Global.call('getControlPanelState', {key = color .. 'Control'}):sub(1,2) == 'AI' then

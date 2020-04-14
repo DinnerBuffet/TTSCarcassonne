@@ -369,7 +369,7 @@ function onPlayerChangedColor(player)
     if Global.call('gameIsActive', {}) then return end
     numPlayers = 0
     for _, color in ipairs(PLAYER_COLORS) do
-        if Player[color].seated or Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
+        if (Player[color] ~= nil and Player[color].seated) or Global.call('getControlPanelState', {key = color .. 'Control'}) ~= nil then
             numPlayers = numPlayers + 1
         end
     end

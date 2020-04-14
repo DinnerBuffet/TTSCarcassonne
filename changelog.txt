@@ -1,3 +1,9 @@
+v1.22.4 - 20200413
+[*]Warning messages are no longer printed when players move objects around out of turn unless they place a tile face-up or an object on an active tile (Thanks to StringsOnFire for the suggestion!)
+[*]Added a warning when you try to skip your turn without moving the fairy, for dummies like me that forget to move it.
+[*]Fixed an error message that prints when you exit the mod.
+[*]Fixed figure hints breaking if a custom model is used.
+
 v1.22.3 - 20200412
 [*]Improved the appearance of figure hints
 [*]figure hints and score markers now appear closer to the tiles and appropriately change height for hills

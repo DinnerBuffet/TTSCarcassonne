@@ -26,8 +26,6 @@ function checkFigurePlacement(params)
         return
     end
 
-    local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(newFigure)
-
     local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
 
     local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)

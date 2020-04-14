@@ -1646,7 +1646,12 @@ end
 
 function skipFigureButton(object, sPlayer)
     if checkGameButtonPrivileges(sPlayer) then
-        return nextState('skip figure')
+        if not confirmationDisplayed and controlPanelSettings['PnDFairy'] then
+            confirmationDisplayed = true
+            allGameMessage({"MESSAGE_SKIP_FAIRY_CONFIRMATION"}, WHITE_COLOR, activePlayers[currentPlayer])
+        else
+            return nextState('skip figure')
+        end
     end
 end
 

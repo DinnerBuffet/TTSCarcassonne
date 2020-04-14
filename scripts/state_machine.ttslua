@@ -265,6 +265,7 @@ function playerStateHandler()
         hasAlreadyTakenBuilderTile = false
         hasAlreadyUsedMagicPortal = false
         hasAlreadyUsedFlier = false
+        confirmationDisplayed = false
         hasRansomedPrisoner = false
         wagonFeatures = {}
         newBarn = nil
@@ -319,7 +320,8 @@ function playerStateHandler()
         return displayGoldButtons()
     elseif turnState == 'awaiting figure decision' then
         gameNotification({"MESSAGE_FIGURE_PROMPT"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
-
+        
+        confirmationDisplayed = false
         hasFairyLocation = false
         local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
         for _, obj in ipairs(objs) do

@@ -256,7 +256,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_WHEEL_CROWN_SCORED"] = "{p1}'s follower scores {n1} points on the {s1} Crown.",
     ["MESSAGE_DRAGON_AWAKENED"] = "The dragon has awakened!",
     ["MESSAGE_DRAGON_MOVING"] = "The dragon is on the move!",
-    ["MESSAGE_DRAGON_TILE_DRAWN_BEFORE_AWAKENED"] = "Dragon tile drawn, but the dragon has not yet awaken. It is allowed to place this tile back in the stack, shuffle, and draw a new tile.",
+    ["MESSAGE_DRAGON_TILE_DRAWN_BEFORE_AWAKENED"] = "Dragon tile drawn, but the dragon has not yet awaken. According to the rules, the tile should be placed back in the stack, shuffled, and a new tile drawn. It is not enforced by the script, though.",
     ["MESSAGE_DRAGON_TILE_PLAYED_BEFORE_AWAKENED"] = "Dragon tile played, but the dragon has not yet awaken.",
     ["MESSAGE_DRAGON_MOVES_REMAINING"] = "Dragon moves remaining: {n1}. {p1}'s turn to move.",
     ["MESSAGE_DRAGON_STUCK"] = "Dragon has no valid places to move to. Ending dragon movement.",
@@ -265,6 +265,7 @@ LOCALIZED_STRINGS = {
     --{c1} is the description of the figure (ie. Red). {f1} is the name of the figure. ie. "Red Follower has been eaten..."
     ["MESSAGE_DRAGON_FIGURE_EAT_MESSAGE"] = "{c1} {f1} has been eaten by the dragon! Om nom nom!",
     ["MESSAGE_DRAGON_COC_PROTECTION"] = "{c1} {f1} is protected from the dragon in the City of Carcassonne.",
+    ["MESSAGE_SKIP_FAIRY_CONFIRMATION"] = "You currently have the option to move the fairy. Are you sure you want to skip? Click again to confirm.",
     ["MESSAGE_ROBBER_BARON_AWARD"] = "{p1} has been awarded the Robber Baron for completing the longest road ({n1} tiles).",
     ["MESSAGE_KING_AWARD"] = "{p1} has been awarded the King for completing the biggest city ({n1} tiles)",
     ["MESSAGE_TRADE_TOKEN_AWARD"] = "{p1} has been awarded a {s1} for completing the city.",
@@ -857,6 +858,7 @@ LOCALIZED_STRINGS = {
     --{c1} is the description of the figure (ie. Red). {f1} is the name of the figure. ie. "Red Follower has been eaten..."
     ["MESSAGE_DRAGON_FIGURE_EAT_MESSAGE"] = "{c1}{f1}被龍吃掉了！好好吃喔~",
     ["MESSAGE_DRAGON_COC_PROTECTION"] = "{c1}{f1}受到保護，不會被卡卡頌市的龍傷害。",
+    ["MESSAGE_SKIP_FAIRY_CONFIRMATION"] = "You currently have the option to move the fairy. Are you sure you want to skip? Click again to confirm.",
     ["MESSAGE_ROBBER_BARON_AWARD"] = "{p1}完成最長的道路（{n1}張卡牌），已被授予強盜男爵令牌。",
     ["MESSAGE_KING_AWARD"] = "{p1}完成最大城市（{n1}張卡牌），已被授予的國王令牌。",
     ["MESSAGE_TRADE_TOKEN_AWARD"] = "{p1}完成城市，已被授予{s1}。",

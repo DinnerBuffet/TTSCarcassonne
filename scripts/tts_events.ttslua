@@ -382,124 +382,129 @@ function onObjectDrop(player, droppedObject)
         return
     end
     if turnState == 'game over - finished' then
-        -- FIXME: needs a custom message
-        -- if tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' then
-        --     if not spamLock then
-        --         playerErrorMessage({"MESSAGE_DROP_GAME_NOT_STARTED"}, player)
-        --         spamLock = true
-        --         Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
-        --     end
-        -- end
+        --exit early without printing a message
         return
     end
-    if (currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
-        (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner())) then
-        for _, featureMarker in ipairs(featureMarkers) do
-            featureMarker.destruct()
-        end
-        featureMarkers = {}
-        if not dropLock then
-            dropLock = true
-            lastDroppedObject_GUID = droppedObject.getGUID() --global used for the coroutines
-            lastDroppedTime = os.clock()
-            -- Checks if the dropped object was a single 'card' (tile)
-            if tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' then
-                if turnState == 'awaiting tile placement' then
-                    Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkTile', function_owner=nil, parameters={time=lastDroppedTime}, delay=TILE_PLACEMENT_DELAY})
-                else
-                    dropLock = false
-                    if not spamLock then
-                        allErrorMessage({"MESSAGE_TILE_NOT_ALLOWED", {'{s1}', turnState}}, player)
-                        spamLock = true
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
-                    end
-                end
-            elseif table.contains(FOLLOWER_TYPES, droppedObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, droppedObject.getVar('figureName')) or droppedObject.getVar('figureName') == 'Tower' then
-                if (currentMiniTurn ~= nil and (droppedObject.getVar('owner') == activePlayers[currentMiniTurn])) or
-                    (currentMiniTurn == nil and (droppedObject.getVar('owner') == activePlayers[currentPlayer])) then
-                    if turnState == 'awaiting figure decision'
-                        or turnState == 'replace finished wagons'
-                        or turnState == 'awaiting flier decision'
-                        or turnState == 'awaiting flier decision - phantom'
-                        or turnState == 'awaiting phantom decision'
-                        or turnState == 'prompt moving to carcassonne'
-                        or turnState == 'prompt moving from carcassonne'
-                        or turnState == 'game over - prompt moving from carcassonne' then
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                    else
-                        dropLock = false
-                        if not spamLock then
-                            if droppedObject.getVar('figureName') == 'Tower' then
-                                allErrorMessage({"MESSAGE_TOWER_NOT_ALLOWED", {'{s1}', turnState}}, player)
-                            elseif droppedObject.getVar('figureName') == 'Phantom' then
-                                allErrorMessage({"MESSAGE_PHANTOM_NOT_ALLOWED", {'{s1}', turnState}}, player)
-                            else
-                                allErrorMessage({"MESSAGE_FIGURE_NOT_ALLOWED", {'{s1}', turnState}}, player)
-                            end
-                            spamLock = true
-                            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
-                        end
-                    end
-                else
-                    dropLock = false
-                    if not spamLock then
-                        if droppedObject.getVar('figureName') == 'Tower' then
-                            playerErrorMessage({"MESSAGE_TOWER_WRONG_OWNER"}, player)
-                        elseif droppedObject.getVar('figureName') == 'Bridge' then
-                            playerErrorMessage({"MESSAGE_BRIDGE_WRONG_OWNER"}, player)
-                        else
-                            playerErrorMessage({"MESSAGE_FIGURE_WRONG_OWNER"}, player)
-                        end
-
-                        spamLock = true
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
-                    end
-                end
-            elseif droppedObject.getVar('figureName') == 'Fairy' then
-                if turnState == 'awaiting figure decision' then
-                    Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                    if highlightedTiles ~= nil then
-                        for x, highlightedColumn in pairs(highlightedTiles) do
-                            for z, _ in pairs(highlightedColumn) do
-                                getObjectFromGUID(tileGrid[x][z].tile_guid).highlightOff()
-                            end
-                        end
-                    end
-                else
-                    dropLock = false
-                    if not spamLock then
-                        allErrorMessage({"MESSAGE_FAIRY_NOT_ALLOWED", {'{s1}', turnState}}, player)
-                        spamLock = true
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
-                    end
-                end
-            elseif droppedObject.getVar('figureName') == 'Count' then
-                if turnState == 'prompt moving count' then
-                    Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
-                else
-                    dropLock = false
-                    if not spamLock then
-                        allErrorMessage({"MESSAGE_COUNT_NOT_ALLOWED", {'{s1}', turnState}}, player)
-                        spamLock = true
-                        Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
-                    end
-                end
-            else
-                dropLock = false
-            end
-        else
+    -- exit early if the player placing the object does not currently have a turn.
+    if not ((currentMiniTurn ~= nil and (player == activePlayers[currentMiniTurn] or player == getCurrentPlayerOwner())) or
+        (currentMiniTurn == nil and (player == activePlayers[currentPlayer] or player == getCurrentPlayerOwner()))) then
+        --only print a message if it is a tile (facing up) or an object dropped on a tile
+        local xIndex, zIndex, _, _ = getFigureTileLocation(droppedObject)
+        local yRotation = droppedObject.getRotation().y / 90
+        if (tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' and
+          (isWithinErrorMargin(0, droppedObject.getRotation().x, TILE_PLACEMENT_MARGIN * 90) or
+          isWithinErrorMargin(360, droppedObject.getRotation().x, TILE_PLACEMENT_MARGIN * 90)) and
+          (isWithinErrorMargin(0, droppedObject.getRotation().z, TILE_PLACEMENT_MARGIN * 90) or
+          isWithinErrorMargin(360, droppedObject.getRotation().z, TILE_PLACEMENT_MARGIN * 90)))
+          or tileGridOccupied(xIndex, zIndex) then
             if not spamLock then
-                allErrorMessage({"MESSAGE_DROP_SPAM"}, player)
+                playerErrorMessage({"MESSAGE_DROP_WRONG_PLAYER"}, player)
                 spamLock = true
                 Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
             end
         end
-    else
+        return
+    end
+    for _, featureMarker in ipairs(featureMarkers) do
+        featureMarker.destruct()
+    end
+    featureMarkers = {}
+    -- exit early if the player has been locked for dropping more than one object too quickly.
+    if dropLock then
         if not spamLock then
-            playerErrorMessage({"MESSAGE_DROP_WRONG_PLAYER"}, player)
+            allErrorMessage({"MESSAGE_DROP_SPAM"}, player)
             spamLock = true
             Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
         end
+    end
+    dropLock = true
+    lastDroppedObject_GUID = droppedObject.getGUID() --global used for the coroutines
+    lastDroppedTime = os.clock()
+    -- Checks if the dropped object was a single 'card' (tile)
+    if tostring(droppedObject) == 'Card(Clone) (LuaGameObjectScript)' then
+        if turnState == 'awaiting tile placement' then
+            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkTile', function_owner=nil, parameters={time=lastDroppedTime}, delay=TILE_PLACEMENT_DELAY})
+        else
+            dropLock = false
+            if not spamLock then
+                allErrorMessage({"MESSAGE_TILE_NOT_ALLOWED", {'{s1}', turnState}}, player)
+                spamLock = true
+                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
+            end
+        end
+    end
+    if table.contains(FOLLOWER_TYPES, droppedObject.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, droppedObject.getVar('figureName')) or droppedObject.getVar('figureName') == 'Tower' then
+        if (currentMiniTurn ~= nil and (droppedObject.getVar('owner') == activePlayers[currentMiniTurn])) or
+            (currentMiniTurn == nil and (droppedObject.getVar('owner') == activePlayers[currentPlayer])) then
+            if turnState == 'awaiting figure decision'
+                or turnState == 'replace finished wagons'
+                or turnState == 'awaiting flier decision'
+                or turnState == 'awaiting flier decision - phantom'
+                or turnState == 'awaiting phantom decision'
+                or turnState == 'prompt moving to carcassonne'
+                or turnState == 'prompt moving from carcassonne'
+                or turnState == 'game over - prompt moving from carcassonne' then
+                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+            else
+                dropLock = false
+                if not spamLock then
+                    if droppedObject.getVar('figureName') == 'Tower' then
+                        allErrorMessage({"MESSAGE_TOWER_NOT_ALLOWED", {'{s1}', turnState}}, player)
+                    elseif droppedObject.getVar('figureName') == 'Phantom' then
+                        allErrorMessage({"MESSAGE_PHANTOM_NOT_ALLOWED", {'{s1}', turnState}}, player)
+                    else
+                        allErrorMessage({"MESSAGE_FIGURE_NOT_ALLOWED", {'{s1}', turnState}}, player)
+                    end
+                    spamLock = true
+                    Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
+                end
+            end
+        else
+            dropLock = false
+            if not spamLock then
+                if droppedObject.getVar('figureName') == 'Tower' then
+                    playerErrorMessage({"MESSAGE_TOWER_WRONG_OWNER"}, player)
+                elseif droppedObject.getVar('figureName') == 'Bridge' then
+                    playerErrorMessage({"MESSAGE_BRIDGE_WRONG_OWNER"}, player)
+                else
+                    playerErrorMessage({"MESSAGE_FIGURE_WRONG_OWNER"}, player)
+                end
+
+                spamLock = true
+                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters=nil, delay=SPAM_DELAY})
+            end
+        end
+    elseif droppedObject.getVar('figureName') == 'Fairy' then
+        if turnState == 'awaiting figure decision' then
+            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+            if highlightedTiles ~= nil then
+                for x, highlightedColumn in pairs(highlightedTiles) do
+                    for z, _ in pairs(highlightedColumn) do
+                        getObjectFromGUID(tileGrid[x][z].tile_guid).highlightOff()
+                    end
+                end
+            end
+        else
+            dropLock = false
+            if not spamLock then
+                allErrorMessage({"MESSAGE_FAIRY_NOT_ALLOWED", {'{s1}', turnState}}, player)
+                spamLock = true
+                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
+            end
+        end
+    elseif droppedObject.getVar('figureName') == 'Count' then
+        if turnState == 'prompt moving count' then
+            Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='checkFigurePlacement', function_owner=nil, parameters={time=lastDroppedTime}, delay=FIGURE_PLACEMENT_DELAY})
+        else
+            dropLock = false
+            if not spamLock then
+                allErrorMessage({"MESSAGE_COUNT_NOT_ALLOWED", {'{s1}', turnState}}, player)
+                spamLock = true
+                Timer.create({identifier=droppedObject.getGUID() .. os.clock(), function_name='spamUnlock', function_owner=nil, parameters={time=lastDroppedTime}, delay=SPAM_DELAY})
+            end
+        end
+    else
+        dropLock = false
     end
 end
 
