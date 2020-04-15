@@ -1,3 +1,7 @@
+v1.22.5 - 20200414
+[*]Repositioned hand zones to their original placement after a TTS bug has raised them gradually over the years.
+[*]Fixed the script embedded in the Flier die in the expansion bag (Thanks to PartyKitty for reporting!)
+
 v1.22.4 - 20200413
 [*]Warning messages are no longer printed when players move objects around out of turn unless they place a tile face-up or an object on an active tile (Thanks to StringsOnFire for the suggestion!)
 [*]Added a warning when you try to skip your turn without moving the fairy, for dummies like me that forget to move it.
