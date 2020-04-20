@@ -914,10 +914,11 @@ function AIChooseTileLocation()
     if highestScoreX ~= nil then
         debugMessage(1, "highest score: " .. highestScore .. " at x:" .. highestScoreX .. " z:" .. highestScoreZ .. " rot:" .. highestScoreRot .. " pos:" .. posText .. " figure: " .. figureText)
         debugMessage(1, "Calculation complete in: " .. os.clock() - calculationStart .. " seconds.")
-        if highestScore > AI_TAUNT_THRESHOLD then
-            local tauntNum = math.random(#LOCALIZED_TAUNTS[controlPanelSettings['currentLanguage']])
-            allGameMessage({"{c1}: {s1}", {'{c1}', getPlayerOwner(activePlayers[currentPlayer])}, {'{s1}', RGBToBracketedHex(WHITE_COLOR) .. LOCALIZED_TAUNTS[controlPanelSettings['currentLanguage']][tauntNum]}}, player_color_tints[activePlayers[currentPlayer]])
-        end
+        -- If the AI believes that it has made a game-changing move, it will taunt the player
+        -- if highestScore > AI_TAUNT_THRESHOLD then
+        --     local tauntNum = math.random(#LOCALIZED_TAUNTS[controlPanelSettings['currentLanguage']])
+        --     allGameMessage({"{c1}: {s1}", {'{c1}', getPlayerOwner(activePlayers[currentPlayer])}, {'{s1}', RGBToBracketedHex(WHITE_COLOR) .. LOCALIZED_TAUNTS[controlPanelSettings['currentLanguage']][tauntNum]}}, player_color_tints[activePlayers[currentPlayer]])
+        -- end
         AIMoveTileToLocation(newTile, highestScoreX, highestScoreZ, highestScoreRot)
     else
         allGameMessage({"MESSAGE_AI_NO_LOCATION"}, NEUTRAL_COLOR, nil)

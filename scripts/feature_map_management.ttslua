@@ -221,7 +221,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                     local visitedTiles = {}
                     for i, connectedFeatureNum in ipairs(connectedFeatures) do
                         --if this feature has already been connected to another, then this feature should connect to that one instead
-                        if tempJoinedFeature[connectedFeatureNum] ~= nil then
+                        if temp and tempJoinedFeature[connectedFeatureNum] ~= nil then
                             newConnectedFeatureNum = newFeatureIndex
                             newFeatureIndex = tempJoinedFeature[connectedFeatureNum]
                             connectedFeatureNum = newConnectedFeatureNum

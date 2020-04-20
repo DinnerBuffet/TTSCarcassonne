@@ -1,4 +1,8 @@
-v1.22.6 - 20200418
+v1.22.6.2 - 20200420
+[*]Fixed a bug in the last update that broke the mod when 2 or more different features are connected by a tile when playing without AI.
+[*]Turned off AI taunts, which more often highlight a bug than show off how smart they are.
+
+v1.22.6 - 20200419
 [*]Fixed a bug that caused magic portals to be marked used when they weren't used. (Thanks to lilasquared for reporting!)
 [*]Two magic portals in a row should now work correctly when drawing a second tile via the builder. (Thanks to lilasquared for reporting!)
 [*]Fixed a bug that allowed followers placed through a magic portal to be placed on completed features.
