@@ -68,7 +68,7 @@ function debugShowFeatureMap()
     if featureIndex < 100 then
         chatWindowMaxWidth = 11
     else
-        chatWindowMaxWidth = 7
+        chatWindowMaxWidth = 6
     end
 
     for xIndex, gridColumn in pairs(tileGrid) do
@@ -185,6 +185,58 @@ function debugShowFeatureMap()
         end
         log(printLine)
     end
+end
+
+--show markers at the specified featureNum
+function debugIdentifyFeature(object, player_color, input, stillTyping)
+    if stillTyping then return end
+    inputAsNumber = tonumber(input)
+    if inputAsNumber == nil then return end
+    locationMarkers = {}
+    for xIndex, gridColumn in pairs(tileGrid) do
+        for zIndex, tileLocation in pairs(gridColumn) do
+            local positionsToVisit = {}
+            local specialFeatureLocations = tileLocation.specialFeatureLocations
+            if specialFeatureLocations ~= nil then
+                for specialFeatureNum, _ in pairs(specialFeatureLocations) do
+                    table.insert(positionsToVisit, specialFeatureNum+12)
+                end
+            end
+            for featureMapPosition=1, 12 do
+                table.insert(positionsToVisit, featureMapPosition)
+            end
+
+            for _, featureMapPosition in ipairs(positionsToVisit) do
+                local featureNum = getFeatureNumAt(xIndex, zIndex, featureMapPosition)
+                if featureNum ~= nil and featureNum == input then
+                    --setOrUpdateLocationMarker(locationMarkers, xIndex, zIndex, featureMapPosition, 0)
+                    local x, z = getFeatureLocation(xIndex, zIndex, featureMapPosition)
+                    if x ~= nil and z ~= nil then
+                        local tileHeight = TILE_THICKNESS
+                        local specialFeatures = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')
+                        if specialFeatures ~= nil then
+                            for _, specialFeature in ipairs(specialFeatures) do
+                                if specialFeature[1] == "Hill" then
+                                    tileHeight = TILE_THICKNESS * 2
+                                end
+                            end
+                        end
+                        local tile = getObjectFromGUID(tileLocation.tile_guid)
+                        local rotation = tileLocation.rotation
+                        local params = {}
+                        params.type = "BlockSquare"
+                        params.position = {(x * TILE_SPACING) + (xIndex * TILE_SPACING) - MIDDLE_OFFSET.x, TABLE_SURFACE_Y + tileHeight, (z * TILE_SPACING) + (zIndex * TILE_SPACING) - MIDDLE_OFFSET.z}
+                        params.scale = {0.25, 0.25, 0.25}
+                        params.callback = "identifyFeature"
+                        params.sound = false
+                        local newObject = spawnObject(params)
+                        table.insert(featureMarkers, newObject)
+                    end
+                end
+            end
+        end
+    end
+    Timer.create({identifier=os.clock(), function_name='deleteMarkers', function_owner=nil, parameters=nil, delay=FIGURE_PRAISE_DELAY})
 end
 
 function debugShowTileOdds()

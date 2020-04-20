@@ -1,3 +1,10 @@
+v1.22.6 - 20200418
+[*]Fixed a bug that caused magic portals to be marked used when they weren't used. (Thanks to lilasquared for reporting!)
+[*]Two magic portals in a row should now work correctly when drawing a second tile via the builder. (Thanks to lilasquared for reporting!)
+[*]Fixed a bug that allowed followers placed through a magic portal to be placed on completed features.
+[*]Fixed a bug that caused AI to be able to place a follower on a tile if it connected to the same feature twice. This may possibly fix some poor decision-making that occasionally happens. (Thanks to Battery for reporting!)
+[*]Fixed abbeys being counted as a completed city of a field if a tile from that field is removed. (Thanks to mmerzbacher!)
+
 v1.22.5 - 20200414
 [*]Repositioned hand zones to their original placement after a TTS bug has raised them gradually over the years.
 [*]Fixed the script embedded in the Flier die in the expansion bag (Thanks to PartyKitty for reporting!)

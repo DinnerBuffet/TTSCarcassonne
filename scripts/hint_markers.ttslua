@@ -6,10 +6,7 @@ TILE_MARKER_COLOR = {r=49/255, g=179/255, b=43/255, a=75/255}
 
 function showHintMarkers()
     local pickedUpObject = gPickedUpObject
-    for _, featureMarker in ipairs(featureMarkers) do
-        featureMarker.destruct()
-    end
-    featureMarkers = {}
+    deleteMarkers()
     if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' and pickedUpObject.getTable('sides') ~= nil then
         if turnState == 'awaiting tile placement' then
             showTileMarkers(pickedUpObject)

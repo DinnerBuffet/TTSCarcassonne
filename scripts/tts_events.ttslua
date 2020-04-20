@@ -405,10 +405,7 @@ function onObjectDrop(player, droppedObject)
         end
         return
     end
-    for _, featureMarker in ipairs(featureMarkers) do
-        featureMarker.destruct()
-    end
-    featureMarkers = {}
+    deleteMarkers()
     -- exit early if the player has been locked for dropping more than one object too quickly.
     if dropLock then
         if not spamLock then
@@ -536,6 +533,7 @@ function onObjectPickUp(player, pickedUpObject)
                 startingRiverTile_GUID = nil
             end
             lastPlacedTileX = nil
+            lastPlacedTileZ = nil
             removeTile(xIndex, zIndex, pickedUpObject)
             allGameMessage({"MESSAGE_TILE_REMOVED"}, NEUTRAL_COLOR)
             clearArbitraryButtons(true)

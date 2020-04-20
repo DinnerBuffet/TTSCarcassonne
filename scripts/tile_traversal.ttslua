@@ -167,9 +167,8 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
                                         finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
                                     elseif traversalNum == 1 then
                                         if getTileFeatureName(newTile, newTilePosition) == 'Abbey' then
+                                            --this is a road connecting to an abbey. Traverse it in other to add it as a Road-Intersection
                                             getTileComponents(newX, newZ, (newTilePosition * 2) + 3, traversalLevels, traversalNum + 1, reverseCityTraversal)
-                                        elseif getTileFeatureName(newTile, newTilePosition) ~= 'Field' then
-                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
                                         end
                                     end
                                 else
@@ -214,11 +213,10 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
                                     --debugMessage(2, "newTileRotation: " .. newTileRotation .. " newTilePosition: " .. newTilePosition)
                                     if getTileFeatureName(newTile, newTilePosition) ~= 'Abbey' and getTileFeatureName(tile, position) ~= 'Abbey' then
                                         finished = finished + getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum, reverseCityTraversal)
-                                    elseif traversalNum == 1 then -- all of this is for Abbeys and Wagons
+                                    elseif traversalNum == 1 then
                                         if getTileFeatureName(newTile, (newTilePosition - 3) / 2) == 'Road' then
+                                            --this is an abbey connecting to a road. Traverse it in other to add it as a Road-Intersection
                                             getTileComponents(newX, newZ, math.floor((newTilePosition - 3) / 2), traversalLevels, traversalNum + 1, reverseCityTraversal)
-                                        elseif getTileFeatureName(newTile, newTilePosition) ~= 'Field' then
-                                            getTileComponents(newX, newZ, newTilePosition, traversalLevels, traversalNum + 1, reverseCityTraversal)
                                         end
                                     end
                                 else

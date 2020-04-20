@@ -263,13 +263,14 @@ function playerStateHandler()
             allGameMessage({"MESSAGE_STATE_NEW_TURN_CONTROL", {'{c1}', translate(activePlayers[currentPlayer])}, {'{p1}', stringToBracketedHex(getPlayerOwner(activePlayers[currentPlayer])) .. getPlayerOwnerName(activePlayers[currentPlayer]) .. stringToBracketedHex(activePlayers[currentPlayer])}}, player_color_tints[activePlayers[currentPlayer]], nil)
         end
         hasAlreadyTakenBuilderTile = false
-        hasAlreadyUsedMagicPortal = false
         hasAlreadyUsedFlier = false
         confirmationDisplayed = false
+        --ransoming a prisoner can only be done once per turn. No second ransom is allowed due to drawing an extra tile for the builder (CAR 136)
         hasRansomedPrisoner = false
         wagonFeatures = {}
         newBarn = nil
         lastPlacedTileX = nil
+        lastPlacedTileZ = nil
         highlightLastPlacedTiles()
         createRansomButtons()
         return nextState('next')
@@ -278,6 +279,9 @@ function playerStateHandler()
     elseif turnState == 'eliminate oldest flea' then
         return nextState('next')
     elseif turnState == 'awaiting tile placement' then
+        --if a builder allowed a player to place another tile, the turnState will return here
+        --reset magic portal here so that the builder tile will not be restricted from using the portal: https://github.com/DinnerBuffet/TTSCarcassonne/issues/7
+        hasAlreadyUsedMagicPortal = false
         earnedPointsThisTile = {}
         return
     elseif turnState == 'check added tile features' then
@@ -320,7 +324,7 @@ function playerStateHandler()
         return displayGoldButtons()
     elseif turnState == 'awaiting figure decision' then
         gameNotification({"MESSAGE_FIGURE_PROMPT"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
-        
+
         confirmationDisplayed = false
         hasFairyLocation = false
         local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()

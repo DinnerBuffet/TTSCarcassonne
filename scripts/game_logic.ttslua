@@ -2311,10 +2311,7 @@ end
 
 --send figures back to the player supply area (assuming that's where they were when the game started)
 function returnShepherdsCoroutine()
-    for _, featureMarker in ipairs(featureMarkers) do
-        featureMarker.destruct()
-    end
-    featureMarkers = {}
+    deleteMarkers()
     for _, figure in ipairs(removedFigures) do
         local figure_obj = getObjectFromGUID(figure.guid)
         figure_obj.setLock(false)
@@ -3613,10 +3610,7 @@ end
 
 --send figures back to the player supply area (assuming that's where they were when the game started)
 function returnFiguresCoroutine()
-    for _, featureMarker in ipairs(featureMarkers) do
-        featureMarker.destruct()
-    end
-    featureMarkers = {}
+    deleteMarkers()
     for _, figure in ipairs(removedFigures) do
         local figure_obj = getObjectFromGUID(figure.guid)
         figure_obj.setLock(false)

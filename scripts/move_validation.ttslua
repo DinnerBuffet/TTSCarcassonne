@@ -248,7 +248,7 @@ function checkFigurePlacement(params)
     elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
         return nextState('placed flier')
     else
-        if turnState == 'awaiting figure decision' and xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ then
+        if turnState == 'awaiting figure decision' and (xIndex ~= lastPlacedTileX or zIndex ~= lastPlacedTileZ) then
             hasAlreadyUsedMagicPortal = true
         end
         return nextState('placed figure')
@@ -556,7 +556,7 @@ function isValidFigureLocation(newFigure, xIndex, zIndex, featureMapPosition, fe
             return false
         end
     end
-    if numOpenings == 0 and not (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) and not string.sub(nameOfFeature,1,6) == 'Crown-' and newFigure.getVar('figureName') ~= 'Barn' then
+    if numOpenings == 0 and not (xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ) and string.sub(nameOfFeature,1,6) ~= 'Crown-' and newFigure.getVar('figureName') ~= 'Barn' then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_MAGIC_PORTAL"}, activePlayers[currentPlayer]) end
         return false
     end

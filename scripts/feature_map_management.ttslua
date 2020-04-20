@@ -220,6 +220,12 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                 if #connectedFeatures > 1 then --this feature merged with more than one feature, so we'll need to do a bit more work to merge them
                     local visitedTiles = {}
                     for i, connectedFeatureNum in ipairs(connectedFeatures) do
+                        --if this feature has already been connected to another, then this feature should connect to that one instead
+                        if tempJoinedFeature[connectedFeatureNum] ~= nil then
+                            newConnectedFeatureNum = newFeatureIndex
+                            newFeatureIndex = tempJoinedFeature[connectedFeatureNum]
+                            connectedFeatureNum = newConnectedFeatureNum
+                        end
                         for linkType, originFeatures in pairs(linkedFeatures) do
                             if linkedFeatures[linkType][connectedFeatureNum] ~= nil then
                                 for destinationFeature, _ in pairs(linkedFeatures[linkType][connectedFeatureNum]) do
@@ -267,7 +273,7 @@ function addTile(xIndex, zIndex, tile, rotation, temp)
                                     end
                                 end
                             end
-                        else --if 2 features have been merged to one, we should combine all special features, add the numOpenings to each other, and recalculate numTiles
+                        else --if 2 or more features have been merged to one, we should combine all special features, add the numOpenings to each other, and recalculate numTiles
                             for _, specialFeature in ipairs(featureList[connectedFeatureNum].specialFeatures) do
                                 table.insert(targetFeatureList[newFeatureIndex].specialFeatures, specialFeature)
                             end
