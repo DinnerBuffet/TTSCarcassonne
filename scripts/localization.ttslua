@@ -305,7 +305,6 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_WAGON_NO_FEATURES"] = "{p1}'s wagon has finished, but there were no available features connected.",
     ["MESSAGE_COC_TO_CITY_PROMPT"] = "{p1}'s move scored points for others but not themself. They can now place a follower in the City of Carcassonne if they choose.",
     ["MESSAGE_COC_COUNT_PROMPT"] = "{p1} may now move the Count if they wish.",
-    ["MESSAGE_NO_STARTING_TILESET"] = "Cannot start a game without a starting tileset.",
     ["MESSAGE_NO_TILES"] = "Cannot start a game without tiles.",
     ["MESSAGE_AI_INCOMPATIBLE_EXPANSIONS"] = "Cannot start an AI game with incompatible expansions: {s1}.",
     ["MESSAGE_HILL_WARNING_NO_TILESTACK"] = "Warning: Hill drawn but draw pile not found. This could be because the draw pile has only 1 tile left or none. If there is 1 tile left, it must be manually placed underneath the hill.",
@@ -319,7 +318,7 @@ LOCALIZED_STRINGS = {
       --Hint Markers
 
     ["MESSAGE_HINTS_NO_TILE_LOCATION"] = "There is no valid location to put this tile. If the tile was drawn from the stack, put it back in and shuffle, then draw another.",
-    ["MESSAGE_HINTS_STARTING_TILE"] = "You may place this starting tile anywhere. It is recommended to place it near the center of the table.",
+    ["MESSAGE_HINTS_STARTING_TILE"] = "You may place the first tile anywhere. It is recommended to place it near the center of the table.",
     ["MESSAGE_HINTS_MAGIC_PORTAL_CALCULATING"] = "Calculating all possible magic portal locations. Hints may be delayed...",
     ["MESSAGE_HINTS_NO_FIGURE_LOCATION"] = "There is no valid location to put this figure. If no other figure is valid, you'll need to skip placing a figure.",
     ["MESSAGE_HINTS_TOWER_CALCULATING"] = "Calculating all possible tower locations. Hints may be delayed...",
@@ -902,7 +901,6 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_WAGON_NO_FEATURES"] = "{p1}的馬車已完但是沒有鄰近的地標可以被放置。",
     ["MESSAGE_COC_TO_CITY_PROMPT"] = "{p1}為其他玩家得分(自己沒有得分)，所以{c1}可以選擇在卡卡頌市裡放一個米寶。",
     ["MESSAGE_COC_COUNT_PROMPT"] = "{p1}可以移動伯爵。",
-    ["MESSAGE_NO_STARTING_TILESET"] = "沒有任何版基礎牌組，遊戲無法開始。",
     ["MESSAGE_NO_TILES"] = "沒有任何卡牌，遊戲無法開始。",
     ["MESSAGE_AI_INCOMPATIBLE_EXPANSIONS"] = "人工智慧玩家還沒學會{s1}版本，遊戲無法開始",
     ["MESSAGE_HILL_WARNING_NO_TILESTACK"] = "警告:山丘卡牌被抽出但是找不到剩餘卡牌堆，有可能是因為只剩下一張，這時候請手動將最後一張卡牌放置在山丘卡牌底下。",

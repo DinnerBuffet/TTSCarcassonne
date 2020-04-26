@@ -22,31 +22,6 @@ button_parameters.width = 480
 button_parameters.height = 480
 button_parameters.font_size = 300
 
-button_label_parameters = {}
-button_label_parameters.function_owner = self
-button_label_parameters.rotation = {0.0, 180.0, 0.0}
-button_label_parameters.width = 0
-button_label_parameters.height = 0
-button_label_parameters.font_size = 300
-button_label_parameters.click_function = 'fakeButton'
-button_label_parameters.alignment = 2
-
-expansion_label_parameters = {}
-expansion_label_parameters.function_owner = self
-expansion_label_parameters.rotation = {0.0, 180.0, 0.0}
-expansion_label_parameters.width = 0
-expansion_label_parameters.height = 0
-expansion_label_parameters.font_size = 400
-expansion_label_parameters.click_function = 'fakeButton'
-
-category_label_parameters = {}
-category_label_parameters.function_owner = self
-category_label_parameters.rotation = {0.0, 180.0, 0.0}
-category_label_parameters.width = 0
-category_label_parameters.height = 0
-category_label_parameters.font_size = 500
-category_label_parameters.click_function = 'fakeButton'
-
 function onCheckboxToggle(sPlayer, data_key, button_key)
     if Global.call('checkControlPanelPrivileges', {sColor = sPlayer}) == false then return end
     if Global.call('getControlPanelState', {key = data_key}) then
@@ -57,13 +32,6 @@ function onCheckboxToggle(sPlayer, data_key, button_key)
         self.editButton({index = btnIDs[button_key], label = 'X'})
     end
     checkAllCheckboxes()
-end
-
-function createExpansionLabel(z, label)
-    expansion_label_parameters.position = {0, BUTTON_HEIGHT, z + EXPANSION_LABEL_SEPARATION}
-    expansion_label_parameters.label = label
-    self.createButton( expansion_label_parameters )
-    index = index + 1
 end
 
 function initializeCheckbox(x, z, key, tooltip)
@@ -79,28 +47,6 @@ function initializeCheckbox(x, z, key, tooltip)
     self.createButton( button_parameters )
     btnIDs['btn' .. key .. 'Toggle'] = index
     index = index + 1
-end
-
-function initializeLabeledCheckbox(x, z, buttonEnabled, key, label, labelOffset, alignment, tooltip)
-    button_label_parameters.position = {x + labelOffset.x, BUTTON_HEIGHT, z + labelOffset.z}
-    button_label_parameters.label = label
-    button_label_parameters.alignment = alignment
-    self.createButton( button_label_parameters )
-    index = index + 1
-
-    if buttonEnabled then
-        if Global.call('getControlPanelState', {key = key}) then
-            button_parameters.label = 'X'
-        else
-            button_parameters.label = ''
-        end
-        button_parameters.tooltip = tooltip
-        button_parameters.click_function = 'on' .. key .. 'Toggle'
-        button_parameters.position = {x, BUTTON_HEIGHT, z}
-        self.createButton( button_parameters )
-        btnIDs['btn' .. key .. 'Toggle'] = index
-        index = index + 1
-    end
 end
 
 --will print a message to all players and to the log

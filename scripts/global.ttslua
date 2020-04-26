@@ -108,6 +108,8 @@ CONTROL_PANEL_GUID = '45460c'
 BUTTON_ANCHOR_GUID = '92d643'
 SOUNDBOARD_GUID = '9c8d01'
 EXPANSION_TABLE_GUID = 'f01594'
+BASE_STARTING_TILE_GUID = 'c107f0'
+BASE_TILE_STACK_GUID = '16d9db'
 
 CURRENT_PLAYER_MARKER = "➡ " -- symbol(s) that should be printed on the scoreboard before the current player
 
@@ -293,8 +295,11 @@ EXPANSION_BAGS = {
 --  (optional) tileFeatures - a table of features of the tile, which does not correspond to any other feature located in the tile
 --  (optional) ignoredFeatures - a table of standard locations that should not be used when finding the closest feature to a figure
 tileGrid = {}
+
+--the most recent tile position placed
 lastPlacedTileX = nil
 lastPlacedTileZ = nil
+
 placedFerries = {}
 ferriesLinkedQuadrants = {}
 
@@ -304,7 +309,7 @@ featureIndex = 1
 --list of all features that have been added to the game with their defining characteristics. For each feature, which can be indexed with a featureNum, the following data is available:
 --  nameOfFeature - Name of the feature
 --  numTiles - The number of tiles that make up this feature. This often, but doesn't always, correlate with score.
---  numOpenings - Number of "openings" that need to be completed before the feature is completed. An opening is defined as a full tile side.
+--  numOpenings - Number of "openings" that need to be completed before the feature is completed. An opening is currently defined by the number of unmatched positions (ie. a road would be one, but a side with 2 field octants would be two). TODO: Might make more sense to recode this to be 1 opening = 1 tile side
 --  openingCoords - table of remaining opening coordinates for proximity features (indexed by a string in the form of [xIndex .. "-" .. zIndex] = true)
 --  specialFeatures - specialFeatures associated with this feature
 --  (optional) featureLocation - coordinates of this feature. Useful for locating a proximity feature.
@@ -317,13 +322,8 @@ droplock = false
 spamLock = false
 scoring = false
 
-wagonFeatures = {}
-
-currentMiniTurn = nil --used when the player order must be iterated within someone's turn
 
 followersScored = {}
-earnedPointsThisTile = {}
-removedFigures = {}
 featureMarkers = {}
 scoringRewards = {}
 
@@ -335,11 +335,10 @@ currentPlayer = nil
 
 lastPlacedPlayerTiles = {}
 
-shepherdAwaitingAction = nil
-newBarn = nil
-hasBuilderAwaitingAction = false
-hasAlreadyTakenBuilderTile = false
-hasRansomedPrisoner = false
+--the following is partial state data (for when a state doesn't completely finish)
+turnState = "pre-game"
+currentMiniTurn = nil --used when the player order must be iterated within someone's turn
+
 buriedTile = nil
 dragonHasAwaken = false
 dragonMovesRemaining = 6
@@ -350,23 +349,33 @@ hasAlreadyUsedMagicPortal = false
 flier = nil
 flierOffset = nil
 flierDirection = nil
+hasBuilderAwaitingAction = false
+hasAlreadyTakenBuilderTile = false
 hasAlreadyUsedFlier = false
+hasRansomedPrisoner = false
 seducedKnights = {}
 carcassonneFigures = nil
-barnFeatureNumbers = nil
+earnedPointsThisTile = {}
+removedFigures = {}
+shepherdAwaitingAction = nil
+newBarn = nil
+numberActiveTowers = 0
+towerX = nil
+towerZ = nil
+wagonFeatures = {}
 wofPigPosition = 1
 
-turnState = "pre-game"
+tileStack_GUID = BASE_TILE_STACK_GUID
+tileInPlay = true
 
-tileStack_GUID = '16d9db'
-startingTile_GUID = 'c107f0'
-startingRiverTile_GUID = nil
+--keep track of these tiles to control the order that the AI places them
 forkTile_GUID = nil
 springTile_GUID = nil
 lakeTile_GUID = nil
 riverBodyTiles_GUID = nil
 finalTile_GUID = nil
 
+--The following neutral figures need to be tracked runtime
 fairy_GUID = nil
 dragon_GUID = nil
 flierDie_GUID = nil
@@ -374,6 +383,7 @@ flierDie_GUID = nil
 --debugLogTabIndex = -1
 --gameLogTabIndex = -1
 
+--the following is only changed when using substitute colors
 score_counter_guids = {
     ['Green'] = '28bdff',
     ['Pink'] = '7ef326',
@@ -382,7 +392,6 @@ score_counter_guids = {
     ['Red'] = '4e3519',
     ['White'] = '1ecf3f'
 }
-
 figurepad_GUIDs = {
     ['Green'] = 'cee9ef',
     ['Purple'] = '7b6639',
@@ -391,7 +400,6 @@ figurepad_GUIDs = {
     ['Red'] = '4a5985',
     ['Pink'] = '7ed1bb'
 }
-
 --The corresponding hand color for this player color (can use a custom color)
 handColor = {
     ['Green'] = 'Green',
@@ -401,13 +409,7 @@ handColor = {
     ['Red'] = 'Red',
     ['Pink'] = 'Pink'
 }
-
 player_color_tints = {}
-
-figurePositions = {}
-
-activeFigures = {}
-
 player_possession_areas = {
     ['Green'] = {x=28.35, z=12.1, rotation=3},
     ['Purple'] = {x=28.35, z=-12.1, rotation=3},
@@ -416,8 +418,13 @@ player_possession_areas = {
     ['Red'] = {x=-28.35, z=-12.1, rotation=1},
     ['Pink'] = {x=-28.35, z=12.1, rotation=1}
 }
+
+figurePositions = {}
+
+activeFigures = {}
 playerPossessionScriptingZones = {}
 
+--setting for which markers should be shown
 showMarkers = 'Both'
 showMarkersButtonParam = {
     index = 0, click_function = 'showMarkersToggleButton',
@@ -434,6 +441,7 @@ skipTurnButtonParam = {
    position = {2.8, 0.1, 0.0}, width = 750, height=600, font_size = 150, function_owner = nil
 }
 
+--settings changed by the control panel
 --default control panel settings are defined here
 controlPanelSettings = {
 --pg 1

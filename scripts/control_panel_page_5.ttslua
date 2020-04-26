@@ -1,7 +1,5 @@
 #include !\TTSCarcassonne\scripts\control_panel_common
 
-button_label_parameters.font_size = 250
-
 EXPANSION_LABEL_SEPARATION = LABEL_SEPARATION + 1.3
 CATEGORY = 8.6
 ROW_1 = 6.0

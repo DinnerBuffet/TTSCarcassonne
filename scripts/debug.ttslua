@@ -100,9 +100,9 @@ function debugShowFeatureMap()
                             local tilePositionRow = table.shallow_copy(positionRow)
                             if i >= 2 and i <= 4 then
                                 for j=2, 4 do
-                                    local closestPosition = findClosestPosition(xIndex, zIndex, (j - 3) * 0.25, (3 - i) * 0.25)
-                                    if closestPosition > 12 then
-                                        tilePositionRow[j] = closestPosition
+                                    local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, (j - 3) * 0.25, (3 - i) * 0.25)
+                                    if closestFeatureMapPosition > 12 then
+                                        tilePositionRow[j] = closestFeatureMapPosition
                                     end
                                 end
                             end
@@ -162,7 +162,7 @@ function debugShowFeatureMap()
             featureOpenings = featureOpenings .. key .. ", "
         end
         featureOpenings = featureOpenings:sub(1, -3) --get rid of the last comma and space
-        if feature.nameOfFeature ~= 'Road' and feature.nameOfFeature ~= 'River' and not table.contains(PROXIMITY_FEATURES, feature.nameOfFeature) then numFeatureOpenings = numFeatureOpenings / 2 end
+        -- if feature.nameOfFeature ~= 'Road' and feature.nameOfFeature ~= 'River' and not table.contains(PROXIMITY_FEATURES, feature.nameOfFeature) then numFeatureOpenings = numFeatureOpenings / 2 end
         featureKey = "" .. tonumber(featureKey)
         log(featureKey .. " (" .. feature.nameOfFeature .. "): has " .. feature.numTiles .. " tiles and " .. numFeatureOpenings .. " numOpenings: " .. featureOpenings .. " Special Features: " .. specialFeatures)
     end

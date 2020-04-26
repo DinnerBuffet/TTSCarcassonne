@@ -420,14 +420,16 @@ function startGame()
     prepareStartingTilesFinished = false
     initializeScoreSummary()
     if not controlPanelSettings['StartingTileBase'] then
-        local baseStartingTile = getObjectFromGUID(startingTile_GUID)
+        --since the base starting tile is already on the table, remove if disabled
+        local baseStartingTile = getObjectFromGUID(BASE_STARTING_TILE_GUID)
         if baseStartingTile ~= nil then
             baseStartingTile.destruct()
-            startingTile_GUID = nil
+            tileInPlay = nil
         end
     end
     if not controlPanelSettings['BaseTiles'] then
-        local baseTileStack = getObjectFromGUID(tileStack_GUID)
+        --since the base tile stack is already on the table, remove if disabled
+        local baseTileStack = getObjectFromGUID(BASE_TILE_STACK_GUID)
         if baseTileStack ~= nil then
             baseTileStack.destruct()
             tileStack_GUID = nil
@@ -464,11 +466,8 @@ function startGame()
         buriedTileCount = 0
     end
     AIMemorizeCards(tileStack)
-    --since the base starting tile is already on the table, remove if required
     if controlPanelSettings['StartingTileBase'] then
-        local newTile = startingTile_GUID
-        startingTile_GUID = nil
-        addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(newTile), 2, false)
+        addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(BASE_STARTING_TILE_GUID), 2, false)
     end
     --shuffle and lock starting tiles
     for rule_id, rule in pairs(startingTileSettings) do

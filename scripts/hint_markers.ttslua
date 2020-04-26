@@ -78,9 +78,9 @@ function showTileMarkers(newTile)
         end
     end
     if not hasTileLocation then
-        if not newTile.getVar('isStartingPiece') then
+        if isTileInPlay() then
             allGameMessage({"MESSAGE_HINTS_NO_TILE_LOCATION"}, NEUTRAL_COLOR)
-        elseif startingTile_GUID == nil then
+        else
             allGameMessage(({"MESSAGE_HINTS_STARTING_TILE"}), NEUTRAL_COLOR)
         end
     end

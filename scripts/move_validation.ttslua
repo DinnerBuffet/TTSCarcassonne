@@ -303,13 +303,24 @@ function checkTile(params)
     end
 end
 
+function isTileInPlay()
+    if tileInPlay == nil then
+        for nestedX, featureColumn in pairs(tileGrid) do
+            for nestedZ, tileData in pairs(featureColumn) do
+                tileInPlay = true
+                break
+            end
+        end
+    end
+    return tileInPlay
+end
+
 function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
-    local isStartingPiece = tile.getVar('isStartingPiece')
     if tileGridOccupied(xIndex, zIndex) then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_LOCATION_TAKEN"}, activePlayers[currentPlayer]) end
         return false
     end
-    if not ((startingTile_GUID == nil and isStartingPiece) or
+    if not (not isTileInPlay() or
     tileGridOccupied(xIndex + 1, zIndex) or tileGridOccupied(xIndex - 1, zIndex) or
     tileGridOccupied(xIndex, zIndex + 1) or tileGridOccupied(xIndex, zIndex - 1)) then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_NOT_ADJACENT"}, activePlayers[currentPlayer]) end
@@ -388,6 +399,7 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
         end
     end
     --validate river piece
+    local isStartingPiece = tile.getVar('isStartingPiece')
     if isStartingPiece then
         local hasRiver = false
         local riverHasConnection = false
@@ -413,7 +425,7 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
                 end
             end
         end
-        if not controlPanelSettings["RiverAllowUnconnected"] and hasRiver and startingRiverTile_GUID ~= nil and hasOpenRiver() and not riverHasConnection then
+        if not controlPanelSettings["RiverAllowUnconnected"] and hasRiver and hasOpenRiver() and not riverHasConnection then
             if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_RIVER_UNCONNECTED"}, activePlayers[currentPlayer]) end
             return false
         end

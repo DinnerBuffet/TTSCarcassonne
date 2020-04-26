@@ -25,8 +25,6 @@ function onload(save_state)
         tileGrid = saved_data.tileGrid
         ferriesLinkedQuadrants = saved_data.ferriesLinkedQuadrants
         placedFerries = saved_data.placedFerries
-        startingTile_GUID = saved_data.startingTile_GUID
-        startingRiverTile_GUID = saved_data.startingRiverTile_GUID
         forkTile_GUID = saved_data.forkTile_GUID
         springTile_GUID = saved_data.springTile_GUID
         lakeTile_GUID = saved_data.lakeTile_GUID
@@ -86,6 +84,7 @@ function onload(save_state)
         hasAlreadyUsedFlier = saved_data.hasAlreadyUsedFlier
         earnedPointsThisTile = saved_data.earnedPointsThisTile
         removedFigures = saved_data.removedFigures
+        --if script was in the middle of showing feature markers when the game was saved, delete them after loading
         if saved_data.featureMarker_GUIDs ~= nil then
             for _, featureMarker_GUID in ipairs(saved_data.featureMarker_GUIDs) do
                 getObjectFromGUID(featureMarker_GUID).destruct()
@@ -163,89 +162,75 @@ function onSave()
         end
     end
     local toSave = {
-        --settings changed by the control panel
-        controlPanelSettings = controlPanelSettings,
-        --setting for which markers should be shown
-        showMarkers = showMarkers,
-        --global storage of all active (in-play) tile information
-        tileGrid = tileGrid,
-        ferriesLinkedQuadrants = ferriesLinkedQuadrants,
-        placedFerries = placedFerries,
-        featureList = featureList,
-        linkedFeatures = linkedFeatures,
-        featureIndex = featureIndex,
-        startingTile_GUID = startingTile_GUID,
-        unusedTiles = unusedTiles,
-        buriedTiles = buriedTiles,
-        validTileLocations = validTileLocations,
-        tileConnectionOdds = tileConnectionOdds,
-        tilesRemaining = tilesRemaining,
-        buriedTileCount = buriedTileCount,
-        --keep track of these tiles to control the order that the AI places them
-        startingRiverTile_GUID = startingRiverTile_GUID,
-        forkTile_GUID = forkTile_GUID,
-        springTile_GUID = springTile_GUID,
-        lakeTile_GUID = lakeTile_GUID,
-        riverBodyTiles_GUID = riverBodyTiles_GUID,
-        finalRiverTile_GUID = finalRiverTile_GUID,
-        finalTile_GUID = finalTile_GUID,
-        --specific neutral figures that need to be tracked runtime
-        fairy_GUID = fairy_GUID,
-        dragon_GUID = dragon_GUID,
-        flierDie_GUID = flierDie_GUID,
-        --the most recent tile position placed
-        lastPlacedTileX = lastPlacedTileX,
-        lastPlacedTileZ = lastPlacedTileZ,
-        lastPlacedPlayerTiles = lastPlacedPlayerTiles,
-        scores = scores,
-        figurePositions = figurePositions,
         activePlayers = activePlayers,
-        currentPlayer = currentPlayer,
-        scoreSummary = scoreSummary,
-        largestCity = largestCity,
-        longestRoad = longestRoad,
-        playerPossessionScriptingZones = playerPossessionScriptingZones,
-        --the following is only changed when using substitute colors
-        player_color_tints = player_color_tints,
-        score_counter_guids = score_counter_guids,
-        figurepad_GUIDs = figurepad_GUIDs,
-        handColor = handColor,
-        player_possession_areas = player_possession_areas,
-        --the following is partial turn data
-        turnState = turnState,
-        --wagonLocations = wagonLocations,
-        wagonFeatures = wagonFeatures,
-        seducedKnights = seducedKnights,
-        carcassonneFigures = carcassonneFigures,
-        wofPigPosition = wofPigPosition,
-        numberActiveTowers = numberActiveTowers,
-        towerX = towerX,
-        towerZ = towerZ,
-        --hasAvailableWagonFeature = hasAvailableWagonFeature,
-        currentMiniTurn = currentMiniTurn,
-        shepherdAwaitingAction = shepherdAwaitingAction,
-        newBarn = newBarn,
-        hasBuilderAwaitingAction = hasBuilderAwaitingAction,
-        hasAlreadyTakenBuilderTile = hasAlreadyTakenBuilderTile,
-        hasRansomedPrisoner = hasRansomedPrisoner,
-        --the following is partial state data (for when a state doesn't completely finish)
         buriedTile = buriedTile,
+        buriedTileCount = buriedTileCount,
+        buriedTiles = buriedTiles,
+        carcassonneFigures = carcassonneFigures,
+        controlPanelSettings = controlPanelSettings,
+        currentMiniTurn = currentMiniTurn,
+        currentPlayer = currentPlayer,
         dragonHasAwaken = dragonHasAwaken,
         dragonIllegalTiles = dragonIllegalTiles,
         dragonMovesRemaining = dragonMovesRemaining,
-        tileHasVolcano = tileHasVolcano,
-        tileHasMagicPortal = tileHasMagicPortal,
-        hasAlreadyUsedMagicPortal = hasAlreadyUsedMagicPortal,
-        flier = flier,
-        flierOffset = flierOffset,
-        flierDirection = flierDirection,
-        hasAlreadyUsedFlier = hasAlreadyUsedFlier,
+        dragon_GUID = dragon_GUID,
         earnedPointsThisTile = earnedPointsThisTile,
+        fairy_GUID = fairy_GUID,
+        featureIndex = featureIndex,
+        featureList = featureList,
+        featureMarker_GUIDs = featureMarker_GUIDs,
+        ferriesLinkedQuadrants = ferriesLinkedQuadrants,
+        figurePositions = figurePositions,
+        figurepad_GUIDs = figurepad_GUIDs,
+        finalRiverTile_GUID = finalRiverTile_GUID,
+        finalTile_GUID = finalTile_GUID,
+        flier = flier,
+        flierDie_GUID = flierDie_GUID,
+        flierDirection = flierDirection,
+        flierOffset = flierOffset,
+        forkTile_GUID = forkTile_GUID,
+        handColor = handColor,
+        hasAlreadyTakenBuilderTile = hasAlreadyTakenBuilderTile,
+        hasAlreadyUsedFlier = hasAlreadyUsedFlier,
+        hasAlreadyUsedMagicPortal = hasAlreadyUsedMagicPortal,
+        hasBuilderAwaitingAction = hasBuilderAwaitingAction,
+        hasRansomedPrisoner = hasRansomedPrisoner,
+        lakeTile_GUID = lakeTile_GUID,
+        largestCity = largestCity,
+        lastPlacedPlayerTiles = lastPlacedPlayerTiles,
+        lastPlacedTileX = lastPlacedTileX,
+        lastPlacedTileZ = lastPlacedTileZ,
+        linkedFeatures = linkedFeatures,
+        longestRoad = longestRoad,
+        newBarn = newBarn,
+        numberActiveTowers = numberActiveTowers,
+        placedFerries = placedFerries,
+        playerPossessionScriptingZones = playerPossessionScriptingZones,
+        player_color_tints = player_color_tints,
+        player_possession_areas = player_possession_areas,
         removedFigures = removedFigures,
-        --if script was in the middle of making feature markers or deleting, delete them after loading
-        featureMarker_GUIDs = featureMarker_GUIDs
+        riverBodyTiles_GUID = riverBodyTiles_GUID,
+        scoreSummary = scoreSummary,
+        score_counter_guids = score_counter_guids,
+        scores = scores,
+        seducedKnights = seducedKnights,
+        shepherdAwaitingAction = shepherdAwaitingAction,
+        showMarkers = showMarkers,
+        springTile_GUID = springTile_GUID,
+        tileConnectionOdds = tileConnectionOdds,
+        tileGrid = tileGrid,
+        tileHasMagicPortal = tileHasMagicPortal,
+        tileHasVolcano = tileHasVolcano,
+        tilesRemaining = tilesRemaining,
+        towerX = towerX,
+        towerZ = towerZ,
+        turnState = turnState,
+        unusedTiles = unusedTiles,
+        validTileLocations = validTileLocations,
+        wagonFeatures = wagonFeatures,
+        wofPigPosition = wofPigPosition
     }
-    return JSON.encode(toSave)
+    return jsonencode(toSave)
 end
 
 
@@ -525,12 +510,6 @@ function onObjectPickUp(player, pickedUpObject)
             if lastPlacedTileX ~= nil then
                 clearFigureOptions()
                 seducedKnights = {}
-            end
-            if pickedUpObject.getGUID() == startingTile_GUID then
-                startingTile_GUID = nil
-            end
-            if pickedUpObject.getGUID() == startingRiverTile_GUID then
-                startingRiverTile_GUID = nil
             end
             lastPlacedTileX = nil
             lastPlacedTileZ = nil
