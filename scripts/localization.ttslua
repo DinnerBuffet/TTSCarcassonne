@@ -489,9 +489,9 @@ LOCALIZED_STRINGS = {
     ["Easy"] = "Makkelijk",
     ["Hard (Beta)"] = "Moeilijk (beta)",
     --Figure Names
-    ["Follower"] = "Meeple", --"隨從",
+    ["Follower"] = "Meeple",
     ["Followers"] = "Meeples",
-    ["Big Follower"] = "Grote Meeple", --"大隨從",
+    ["Big Follower"] = "Grote Meeple",
     ["Builder"] = "Bouwmeester",
     ["Pig"] = "Varken",
     ["Mayor"] = "Burgemeester",
@@ -541,7 +541,7 @@ LOCALIZED_STRINGS = {
     ["Inns"] = "Herbergen",
     ["Princess"] = "Jonkvrouw",
     ["Volcano"] = "Vulkaan",
-    ["Portal"] = "Poort", --from big box 3 manual (bad translation?)
+    ["Portal"] = "Poort",
     ["Portals"] = "Poorten",
     ["Tower Foundation"] = "Torenbouwplaats",
     ["Abbey"] = "Abdij",
@@ -570,7 +570,6 @@ LOCALIZED_STRINGS = {
     ["Storm"] = "Storm",
     ["Inquisition"] = "Inquisitie",
     ["Plague"] = "Pest",
-    --["Dragon"] = "火龍", --shared with figure name
     --Token Names
     ["Trade Goods"] = "Handelswaren",
     ["Wine Token"] = "Wijnfiche",
@@ -620,7 +619,6 @@ LOCALIZED_STRINGS = {
     ["Crop Circles II"] = "Graancirkels II",
     ["The Plague"] = "De Pest",
     ["The Tunnel"] = "De Tunnel",
-    --got many of the following from https://www.bger.org/thread-20997-1-1.html
     ["Little Buildings"] = "Kleine Gebouwen", --Unknown in Dutch
     ["We Go to Carcassonne"] = "We gaan naar Carcassonne",
     ["The Besiegers"] = "De Belegeraars", --Not released in Dutch
@@ -631,7 +629,7 @@ LOCALIZED_STRINGS = {
     ["Darmstadt"] = "Darmstadt",
     ["Spiel Promo"] = "Spiel Promo",
     ["Castles in Germany"] = "Kastelen",
-    ['City Gates'] = "De Stadspoort", --Die Stadttore in German. I believe this is a fan expansion.
+    ["City Gates"] = "De Stadspoort", --Die Stadttore in German. I believe this is a fan expansion.
     --Marker Types
     ["Both"] = "Beide",
     ["None"] = "Geen",
