@@ -12,6 +12,7 @@ function onLoad()
 end
 
 function initializeControlPanelPage()
+    localizeUI(Global.call('getControlPanelState', {key = 'currentLanguage'}))
     self.UI.setAttribute("MicroExpansionsLabel", "text", translate("LABEL_MICRO_EXPANSIONS"))
 
     self.UI.setAttribute("BesiegersLabel", "text", translate("Besiegers"))
@@ -61,6 +62,13 @@ function initializeControlPanelPage()
     initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 2, ROW_1 - ROW_SPACING * 3, 'SpielPromoTiles', translate("TOOLTIP_SPIEL_PROMO"))
     -- initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 3, ROW_1 - ROW_SPACING * 3, 'Tunnel', "")
     initializeCheckbox(COLUMN_1 - COLUMN_SPACING * 4, ROW_1 - ROW_SPACING * 3, 'RussianPromoTiles', translate("TOOLTIP_WE_GO_TO_CARCASSONNE"))
+end
+
+function localizeUI(language)
+    if language == 'nl-NL' then
+        --ControlPanelPageLabel
+        self.UI.setAttribute("NextPageLabel", "width", 310)
+    end
 end
 
 --This is required so that we can use onCheckboxToggle

@@ -19,6 +19,7 @@ function onLoad()
 end
 
 function initializeControlPanelPage()
+    localizeUI(Global.call('getControlPanelState', {key = 'currentLanguage'}))
     self.UI.setAttribute("BaseGameExpansionLabel", "text", translate("LABEL_BASE_GAME"))
     self.UI.setAttribute("BaseTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("BaseFollowersLabel", "text", translate("Followers"))
@@ -124,6 +125,37 @@ function initializeControlPanelPage()
     self.createButton( button_parameters )
     btnIDs['btnTowersIncr'] = index
     index = index + 1
+end
+
+function localizeUI(language)
+    if language == 'nl-NL' then
+        --ControlPanelExpansionLabel
+        self.UI.setAttribute("BaseGameExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("InCExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("TnBExpansionLabel", "fontSize", 52)
+        self.UI.setAttribute("PnDExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("TowerExpansionLabel", "fontSize", 56)
+        --ControlPanelItemLabel
+        self.UI.setAttribute("BaseTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("BaseFollowersLabel", "fontSize", 40)
+        self.UI.setAttribute("InCTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("InCBigFollowerLabel", "fontSize", 40)
+        self.UI.setAttribute("InCInnsLabel", "fontSize", 40)
+        self.UI.setAttribute("InCCathedralsLabel", "fontSize", 40)
+        self.UI.setAttribute("TnBTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("TnBBuilderLabel", "fontSize", 40)
+        self.UI.setAttribute("TnBPigLabel", "fontSize", 40)
+        self.UI.setAttribute("TnBTradeGoodsLabel", "fontSize", 40)
+        self.UI.setAttribute("PnDTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("PnDDragonLabel", "fontSize", 40)
+        self.UI.setAttribute("PnDFairyLabel", "fontSize", 40)
+        self.UI.setAttribute("PnDPortalsLabel", "fontSize", 40)
+        self.UI.setAttribute("PnDPrincessLabel", "fontSize", 40)
+        self.UI.setAttribute("TowerTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("TowerTowersLabel", "fontSize", 40)
+        --ControlPanelPageLabel
+        self.UI.setAttribute("NextPageLabel", "width", 310)
+    end
 end
 
 function initializeAllCheckbox(x, z, key, description)

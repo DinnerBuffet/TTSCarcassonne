@@ -30,8 +30,9 @@
         showAnimation="SlideIn_Top"
         hideAnimation="SlideOut_Top"
         offsetXY="-6 -210">
-        <Button id="en-us" class="LanguageButton" tooltip="English (US)" tooltipPosition="Above" icon="UK/US Flag"></Button>
-        <Button id="zh-tw" class="LanguageButton" tooltip="Chinese (Traditional)" tooltipPosition="Above" icon="TW Flag"></Button>
+        <Button id="en-US" class="LanguageButton" tooltip="English (US)" tooltipPosition="Above" icon="UK/US Flag"></Button>
+        <Button id="nl-NL" class="LanguageButton" tooltip="Dutch (NL)" tooltipPosition="Above" icon="NL Flag"></Button>
+        <Button id="zh-TW" class="LanguageButton" tooltip="Chinese (Traditional)" tooltipPosition="Above" icon="TW Flag"></Button>
     </VerticalLayout>
     <!-- AI/Hotseats -->
     <Text id="AI/Hotseat" text="AI/Hotseat (H)" class="ControlPanelSubCategoryLabel"
@@ -102,6 +103,6 @@
         </Row>
     </TableLayout>
 
-    <Text class="ControlPanelPageLabel" id="Next Page" text="Next Page" rectAlignment="LowerRight"
-           width="200" height="100" offsetXY="-152 8"></Text>
+    <Text class="ControlPanelPageLabel" id="NextPageLabel" text="Next Page" rectAlignment="LowerRight"
+           width="200" height="100" offsetXY="-158 8"></Text>
 </Panel>

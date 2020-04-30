@@ -1,6 +1,6 @@
 #include !\TTSCarcassonne\scripts\control_panel_common
 
-LANGUAGE_ICONS = {['en-us'] = "UK/US Flag", ['zh-tw'] = "TW Flag"}
+LANGUAGE_ICONS = {['en-US'] = "UK/US Flag", ['nl-NL'] = "NL Flag", ['zh-TW'] = "TW Flag"}
 
 EASY_AI_COLOR = {r=0.5,g=1.0,b=0.5}
 HARD_AI_COLOR = {r=1,g=0.3,b=0.3}
@@ -53,9 +53,11 @@ function initializeControlPanelPage()
     --WORK-AROUND: icons are not displayed correctly for UIs on objects. Bug here: http://www.berserk-games.com/forums/showthread.php?5239-UI-Issues&p=22632#post22632
     --work-around is to set the icon again in onLoad()
     local currentLanguage = Global.call('getControlPanelState', {key = 'currentLanguage'})
+    localizeUI(currentLanguage)
     self.UI.setAttribute("currentLanguageButton", "icon", LANGUAGE_ICONS[currentLanguage])
-    self.UI.setAttribute("en-us", "icon", "UK/US Flag")
-    self.UI.setAttribute("zh-tw", "icon", "TW Flag")
+    self.UI.setAttribute("en-US", "icon", "UK/US Flag")
+    self.UI.setAttribute("zh-TW", "icon", "TW Flag")
+    self.UI.setAttribute("nl-NL", "icon", "NL Flag")
 
     self.UI.setAttribute("AI/Hotseat", "text", translate("AI/Hotseat (H)"))
     self.UI.setAttribute("Green", "text", translate("Green"))
@@ -73,7 +75,7 @@ function initializeControlPanelPage()
     self.UI.setAttribute("Wheel of Fortune", "text", translate("Wheel of Fortune"))
     self.UI.setAttribute("School", "text", translate("School"))
     self.UI.setAttribute("Wind Roses", "text", translate("Wind Roses"))
-    self.UI.setAttribute("Next Page", "text", translate("LABEL_NEXT_PAGE"))
+    self.UI.setAttribute("NextPageLabel", "text", translate("LABEL_NEXT_PAGE"))
     --Hot seats
     initializeHotseatButton(COLUMN_1, HOTSEAT_ROW, 'Green')
     initializeHotseatButton(COLUMN_2, HOTSEAT_ROW, 'Purple')
@@ -88,6 +90,13 @@ function initializeControlPanelPage()
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', translate("TOOLTIP_RIVER_BB5"))
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', translate("TOOLTIP_CITY_OF_CARCASSONNE"))
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_6, 'StartingTileWoF', translate("TOOLTIP_WHEEL_OF_FORTUNE"))
+end
+
+function localizeUI(language)
+    if language == 'nl-NL' then
+        self.UI.setAttribute("AI/Hotseat", "fontSize", 64)
+        self.UI.setAttribute("NextPageLabel", "width", 310)
+    end
 end
 
 function selectedLanguage(sPlayer, option, id)

@@ -909,8 +909,8 @@ function AIChooseTileLocation()
         debugMessage(1, "Calculation complete in: " .. os.clock() - calculationStart .. " seconds.")
         -- If the AI believes that it has made a game-changing move, it will taunt the player
         -- if highestScore > AI_TAUNT_THRESHOLD then
-        --     local tauntNum = math.random(#LOCALIZED_TAUNTS[controlPanelSettings['currentLanguage']])
-        --     allGameMessage({"{c1}: {s1}", {'{c1}', getPlayerOwner(activePlayers[currentPlayer])}, {'{s1}', RGBToBracketedHex(WHITE_COLOR) .. LOCALIZED_TAUNTS[controlPanelSettings['currentLanguage']][tauntNum]}}, player_color_tints[activePlayers[currentPlayer]])
+        --     local tauntNum = math.random(#LOCALIZED_AI_TAUNTS[controlPanelSettings['currentLanguage']])
+        --     allGameMessage({"{c1}: {s1}", {'{c1}', getPlayerOwner(activePlayers[currentPlayer])}, {'{s1}', RGBToBracketedHex(WHITE_COLOR) .. LOCALIZED_AI_TAUNTS[controlPanelSettings['currentLanguage']][tauntNum]}}, player_color_tints[activePlayers[currentPlayer]])
         -- end
         AIMoveTileToLocation(newTile, highestScoreX, highestScoreZ, highestScoreRot)
     else

@@ -19,8 +19,8 @@ function translate(params)
   return msg
 end
 
-LOCALIZED_TAUNTS = {
-    ['en-us'] = {
+LOCALIZED_AI_TAUNTS = {
+    ['en-US'] = {
         "Hehehehe...",
         ":)",
         "Let's see if you can handle this.",
@@ -32,8 +32,8 @@ LOCALIZED_TAUNTS = {
       ":)",
       "Eens zien of je dit zag aankomen.",
       "Laat me raden, nu ga je zeuren dat ik valsspeel."
-    }
-    ['zh-tw'] = {
+    },
+    ['zh-TW'] = {
         "嘿嘿嘿....",
         "接招!",
         ":)"
@@ -46,7 +46,7 @@ LOCALIZED_TAUNTS = {
 -- {n#} = Number
 -- {s#} = String
 LOCALIZED_STRINGS = {
-  ['en-us'] = {
+  ['en-US'] = {
 
     --Button Labels
 
@@ -669,11 +669,11 @@ LOCALIZED_STRINGS = {
 
     --Control Panel Global
 
-    ["LABEL_TILES"] = "Tegel(s)",
+    ["LABEL_TILES"] = "Tegels",
     ["LABEL_PREVIOUS_PAGE"] = "Vorige pagina",
     ["LABEL_NEXT_PAGE"] = "Volgende pagina",
     ["TOOLTIP_ENABLE_ALL"] = "Alle inschakelen",
-    ["TOOLTIP_NUM_TILES"] = "{n1} tegel(s)",
+    ["TOOLTIP_NUM_TILES"] = "{n1} tegels",
 
     --Control Panel pg. 1
 
@@ -709,7 +709,7 @@ LOCALIZED_STRINGS = {
     ["TOOLTIP_FOLLOWER"] = "Meeple - De meeple is het standaard speelstuk van de speler. Deze kan op steden, wegen, weides of kloosters gezet worden om deze te bezetten.",
     ["TOOLTIP_BIG_FOLLOWER"] = "Grote meeple - De grote meeple telt voor 2 normale meeples. Dat betekent dat er maar 1 grote meeple voor nodig is om een project over te nemen van een speler met maar 1 normale meeple. Zelfs als de speler 2 normale meeples had, zouden de punten gedeeld worden.",
     ["TOOLTIP_INN"] = "Wegen met herbergen leveren dubbele punten op, maar alleen wanneer ze worden afgebouwd. Niet afgebouwd = 0 punten.",
-    ["TOOLTIP_CATHEDRAL"] = "Afgebouwde steden met kathedralen krijgen 3 punten per tegen (i.p.v. 2), maar alleen als ze zijn afgebouwd. Niet afgebouwd = 0 punten."
+    ["TOOLTIP_CATHEDRAL"] = "Afgebouwde steden met kathedralen krijgen 3 punten per tegen (i.p.v. 2), maar alleen als ze zijn afgebouwd. Niet afgebouwd = 0 punten.",
     ["TOOLTIP_BUILDER"] = "Speciaal speelstuk - De bouwmeester kan op een weg of stad waar al een meeple staat gezet worden. Legt de eigenaar van de bouwmeester een tegel aan dit project aan, dan mag hij nog een tegel trekken.",
     ["TOOLTIP_PIG"] = "Speciaal speelstuk - Het varken kan op een weide waar tenminste 1 eigen boer ligt gezet worden. Aan het einde van het spel krijgt de speler met de meerderheid op de weide met een varken 4 punten per afgebouwde stad (i.p.v. 3).",
     ["TOOLTIP_TRADE_GOODS"] = "Op sommige stadstegels van Kooplieden & Bouwmeesters staan handelswarensymbolen. De speler die de stad afbouwt (ongeacht of die speler daar de macht had) krijgt voor elk symbool een handelswarenfiche. De speler die aan het einde van het spel de meeste fiches van een soort bezit krijgt 10 punten. Dit uitschakelen voorkomt niet dat de tegels met deze symbolen worden gebruikt, maar alleen dat de fiches worden uitgedeeld.",
@@ -871,8 +871,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_TOWER_EXCHANGE_FOLLOWER"] = "{p1} en {p2} geven elkaars meeples terug",
     ["MESSAGE_TOWER_EXCHANGE_PROMPT"] = "{p1} moet een gevangene kiezen van {p2} om uit te wisselen",
     ["MESSAGE_TOWER_EXCHANGE"] = "{f1} van is teruggegeven aan de eigenaar in ruil voor een gevangene.",
-    ["MESSAGE_DEPENDENT_FIGURE_REMOVED"] = "{p1} heeft geen meeple meer voor {f1} en moet verwijderd worden.
-    {p1} no longer has a follower for their {f1} and must be removed.",
+    ["MESSAGE_DEPENDENT_FIGURE_REMOVED"] = "{p1} heeft geen meeple meer voor {f1} en moet verwijderd worden.",
     ["MESSAGE_SHEPHERD_PROMPT"] = "{p1} heeft de weide met zijn Herder uitgebreid en mag de kudde uitbreiden.",
     ["MESSAGE_SHEPHERD_FIELD_FULL"] = "Er is geen ruimte meer op de weide! De schapen worden op de herder gelegd.",
     ["MESSAGE_SCORE_SHEPHERD"] = "De Herder van {p1} levert {n1} punten op voor {n1} scha(a)p(en).",
@@ -1052,7 +1051,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_DROP_GAME_NOT_STARTED"] = "Het spel is voorbij of nog niet gestart. Klik op de knop 'Spel starten' en leg de tegel opnieuw aan.",
     ["MESSAGE_TILE_REMOVED"] = "Tegel is verwijderd uit het raster.",
   },
-  ['zh-tw'] = {
+  ['zh-TW'] = {
     ["AI/Hotseat (H)"] = "機器人(AI)/熱座(H)",
     --Player Colors
     ["Green"] = "綠色",

@@ -24,6 +24,7 @@ function onLoad()
 end
 
 function initializeControlPanelPage()
+    localizeUI(Global.call('getControlPanelState', {key = 'currentLanguage'}))
     self.UI.setAttribute("WoFExpansionLabel", "text", translate("Wheel of Fortune"))
     self.UI.setAttribute("WoFTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("StartingTileWoFLabel", "text", translate("LABEL_WHEEL_SHORT_NAME"))
@@ -101,14 +102,54 @@ function initializeControlPanelPage()
 
 --Mage & Witch
     -- initializeAllCheckbox(COLUMN_2_1, ROW_5, 'MnWAll', "")
-    initializeCheckbox(COLUMN_2_2, ROW_5, 'MnWTiles', "")
+    initializeCheckbox(COLUMN_2_2, ROW_5, 'MnWTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 8}}))
     -- initializeCheckbox(COLUMN_2_3, ROW_5, 'MnWMage', "")
     -- initializeCheckbox(COLUMN_2_4, ROW_5, 'MnWWitch', "")
 
 --The Robbers
     -- initializeAllCheckbox(COLUMN_2_5, ROW_5, 'RobbersAll', "")
-    initializeCheckbox(COLUMN_2_6, ROW_5, 'RobbersTiles', "")
+    initializeCheckbox(COLUMN_2_6, ROW_5, 'RobbersTiles', translate({"TOOLTIP_NUM_TILES", {'{n1}', 8}}))
     -- initializeCheckbox(COLUMN_2_7, ROW_5, 'RobbersRobbers', "")
+end
+
+function localizeUI(language)
+    if language == 'nl-NL' then
+        --ControlPanelExpansionLabel
+        self.UI.setAttribute("WoFExpansionLabel", "fontSize", 48)
+        self.UI.setAttribute("FlierExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("MessagesExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("FerriesExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("GoldminesExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("MnWExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("RobbersExpansionLabel", "fontSize", 56)
+        --ControlPanelItemLabel
+        self.UI.setAttribute("WoFTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("StartingTileWoFLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFCrownsLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFFortuneLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFTaxesLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFWheelTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFFamineLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFStormLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFInquisitionLabel", "fontSize", 40)
+        self.UI.setAttribute("WoFPlagueLabel", "fontSize", 40)
+        self.UI.setAttribute("FlierTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("FlierFlierLabel", "fontSize", 40)
+        self.UI.setAttribute("MessagesMessagesLabel", "fontSize", 40)
+        self.UI.setAttribute("MessagesMessengerLabel", "fontSize", 40)
+        self.UI.setAttribute("FerriesTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("FerriesFerriesLabel", "fontSize", 40)
+        self.UI.setAttribute("GoldminesTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("GoldminesGoldLabel", "fontSize", 40)
+        self.UI.setAttribute("MnWTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("MnWMageLabel", "fontSize", 40)
+        self.UI.setAttribute("MnWWitchLabel", "fontSize", 40)
+        self.UI.setAttribute("RobbersTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("RobbersRobbersLabel", "fontSize", 40)
+        self.UI.setAttribute("HnSVineyardsLabel", "fontSize", 40)
+        --ControlPanelPageLabel
+        self.UI.setAttribute("NextPageLabel", "width", 310)
+    end
 end
 
 function initializeAllCheckbox(x, z, key, description)

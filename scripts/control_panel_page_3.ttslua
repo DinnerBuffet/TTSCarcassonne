@@ -19,6 +19,7 @@ function onLoad()
 end
 
 function initializeControlPanelPage()
+    localizeUI(Global.call('getControlPanelState', {key = 'currentLanguage'}))
     self.UI.setAttribute("AnMExpansionLabel", "text", "5. " .. translate("Abbey & Mayor"))
     self.UI.setAttribute("AnMTilesLabel", "text", translate("LABEL_TILES"))
     self.UI.setAttribute("AnMAbbeyLabel", "text", translate("Abbey"))
@@ -143,6 +144,43 @@ function initializeControlPanelPage()
     initializeCheckbox(COLUMN_3, ROW_5, 'HnSShepherd', translate("TOOLTIP_SHEPHERD"))
     initializeCheckbox(COLUMN_4, ROW_5, 'HnSHills', translate("TOOLTIP_HILL"))
     initializeCheckbox(COLUMN_5, ROW_5, 'HnSVineyards', translate("TOOLTIP_VINEYARD"))
+end
+
+function localizeUI(language)
+    if language == 'nl-NL' then
+        --ControlPanelExpansionLabel
+        self.UI.setAttribute("AnMExpansionLabel", "fontSize", 48)
+        self.UI.setAttribute("CKnRExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("CatapultExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("BCnBExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("HnSExpansionLabel", "fontSize", 56)
+        --ControlPanelItemLabel
+        self.UI.setAttribute("AnMTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("AnMAbbeyLabel", "fontSize", 40)
+        self.UI.setAttribute("AnMMayorLabel", "fontSize", 40)
+        self.UI.setAttribute("AnMWagonLabel", "fontSize", 40)
+        self.UI.setAttribute("AnMBarnLabel", "fontSize", 40)
+        self.UI.setAttribute("KnRBTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("StartingTileCoCLabel", "fontSize", 40)
+        self.UI.setAttribute("KnRBKingLabel", "fontSize", 40)
+        self.UI.setAttribute("KnRBRobberBaronLabel", "fontSize", 40)
+        self.UI.setAttribute("CultTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("CatapultTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("CatapultKnockOutLabel", "fontSize", 40)
+        self.UI.setAttribute("CatapultSeductionLabel", "fontSize", 40)
+        self.UI.setAttribute("CatapultTargetLabel", "fontSize", 40)
+        self.UI.setAttribute("CatapultCatchLabel", "fontSize", 40)
+        self.UI.setAttribute("BCnBTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("BCnBBridgesLabel", "fontSize", 40)
+        self.UI.setAttribute("BCnBCastlesLabel", "fontSize", 40)
+        self.UI.setAttribute("BCnBBazaarsLabel", "fontSize", 40)
+        self.UI.setAttribute("HnSTilesLabel", "fontSize", 40)
+        self.UI.setAttribute("HnSShepherdLabel", "fontSize", 40)
+        self.UI.setAttribute("HnSHillsLabel", "fontSize", 40)
+        self.UI.setAttribute("HnSVineyardsLabel", "fontSize", 40)
+        --ControlPanelPageLabel
+        self.UI.setAttribute("NextPageLabel", "width", 310)
+    end
 end
 
 function initializeAllCheckbox(x, z, key, description)

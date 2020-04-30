@@ -101,5 +101,5 @@
     <Text class="ControlPanelPageLabel" id="PreviousPageLabel" text="Previous Page" rectAlignment="LowerLeft"
            width="300" height="100" offsetXY="158 8"></Text>
     <Text class="ControlPanelPageLabel" id="NextPageLabel" text="Next Page" rectAlignment="LowerRight"
-           width="200" height="100" offsetXY="-152 8"></Text>
+           width="200" height="100" offsetXY="-158 8"></Text>
 </Panel>

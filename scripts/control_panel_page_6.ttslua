@@ -12,6 +12,7 @@ function onLoad()
 end
 
 function initializeControlPanelPage()
+    localizeUI(Global.call('getControlPanelState', {key = 'currentLanguage'}))
     self.UI.setAttribute("HouseRulesLabel", "text", translate("LABEL_HOUSE_RULES"))
 
     self.UI.setAttribute("BaseGameHouseRulesLabel", "text", translate("LABEL_BASE_GAME"))
@@ -53,6 +54,30 @@ function initializeControlPanelPage()
 
 --City of Carcassonne
     initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 3, 'CoCNoCount', translate("TOOLTIP_DISABLE_COUNT"))
+end
+
+function localizeUI(language)
+    if language == 'nl-NL' then
+        --ControlPanelExpansionLabel
+        self.UI.setAttribute("BaseGameHouseRulesLabel", "fontSize", 56)
+        self.UI.setAttribute("TowerExpansionLabel", "fontSize", 56)
+        self.UI.setAttribute("RiverHouseRulesLabel", "fontSize", 56)
+        self.UI.setAttribute("CoCHouseRulesLabel", "fontSize", 56)
+        --ControlPanelItemLabel
+        self.UI.setAttribute("BaseDisableRoadsLabel", "fontSize", 40)
+        self.UI.setAttribute("BaseDisableCitiesLabel", "fontSize", 40)
+        self.UI.setAttribute("BaseDisableCloistersLabel", "fontSize", 40)
+        self.UI.setAttribute("BaseDisableFarmsLabel", "fontSize", 40)
+        self.UI.setAttribute("BaseNerfSmallCityLabel", "fontSize", 40)
+        self.UI.setAttribute("TowerNerfTowersLabel", "fontSize", 40)
+        self.UI.setAttribute("RiverMixAllLabel", "fontSize", 40)
+        self.UI.setAttribute("RiverAllowUTurnsLabel", "fontSize", 40)
+        self.UI.setAttribute("RiverAllowUnconnectedLabel", "fontSize", 40)
+        self.UI.setAttribute("RIIDisablePigherdLabel", "fontSize", 40)
+        self.UI.setAttribute("CoCNoCountLabel", "fontSize", 40)
+        --ControlPanelPageLabel
+        self.UI.setAttribute("NextPageLabel", "width", 310)
+    end
 end
 
 function checkAllCheckboxes()

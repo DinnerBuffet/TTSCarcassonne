@@ -446,7 +446,7 @@ skipTurnButtonParam = {
 controlPanelSettings = {
 --pg 1
     --Language
-    ['currentLanguage'] = 'en-us',
+    ['currentLanguage'] = 'en-US',
     --Hotseat or AI control settings (nil means default color control)
     ['GreenControl'] = nil,
     ['PurpleControl'] = nil,
