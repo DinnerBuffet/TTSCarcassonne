@@ -27,6 +27,12 @@ LOCALIZED_TAUNTS = {
         "You've just been served, son.",
         "Let me guess, you're gonna whine about how I cheat now."
     },
+    ['nl-NL'] = {
+      "Hehehehe...",
+      ":)",
+      "Eens zien of je dit zag aankomen.",
+      "Laat me raden, nu ga je zeuren dat ik valsspeel."
+    }
     ['zh-tw'] = {
         "嘿嘿嘿....",
         "接招!",
@@ -456,6 +462,595 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_DROP_WRONG_PLAYER"] = "It is currently not your turn. Dropped pieces will not count.",
     ["MESSAGE_DROP_GAME_NOT_STARTED"] = "Game over or not yet started. Press the start game button and re-lay tile.",
     ["MESSAGE_TILE_REMOVED"] = "Tile removed from grid.",
+  },
+  ['nl-NL'] = {
+    ["AI/Hotseat (H)"] = "AI/Meespeler (H)",
+    --Player Colors
+    ["Green"] = "Groen",
+    ["Purple"] = "Paars",
+    ["White"] = "Wit",
+    ["Blue"] = "Blauw",
+    ["Red"] = "Rood",
+    ["Pink"] = "Roze",
+    ["Magenta"] = "Magenta",
+    ["Yellow"] = "Geel",
+    ["Orange"] = "Oranje",
+    ["Cyan"] = "Cyaan",
+    ["Teal"] = "Taup",
+    ["Grey"] = "Grijs",
+    ["Black"] = "Zwart",
+    ["Brown"] = "Bruin",
+    ["Amber"] = "Amber",
+    ["Rose"] = "Oud-roze",
+    ["Vermilion"] = "Vermiljoen",
+    ["Chartreuse"] = "Lichtgroen",
+    --AI Difficulties
+    ["Easy"] = "Makkelijk",
+    ["Hard (Beta)"] = "Moeilijk (beta)",
+    --Figure Names
+    ["Follower"] = "Meeple",
+    ["Followers"] = "Meeples",
+    ["Big Follower"] = "Grote Meeple",
+    ["Builder"] = "Bouwmeester",
+    ["Pig"] = "Varken",
+    ["Mayor"] = "Burgemeester",
+    ["Wagon"] = "Transportwagen",
+    ["Barn"] = "Herenboerderij",
+    ["Shepherd"] = "Herder",
+    ["Messenger"] = "Boodschapper",
+    ["Mage"] = "Tovenaar",
+    ["Mages"] = "Tovenaars", --TEMP: for model substitution
+    ["Witch"] = "Heks",
+    ["Witches"] = "Heksen", --TEMP: for model substitution
+    ["Robber"] = "Rover", -- From mini-expansion: The Robbers
+    ["Robbers"] = "Rovers", -- From mini-expansion: The Robbers
+    --Situational Figure Names
+    ["Meeple"] = "Meeple", --one of the 7 basic followers
+    ["Farmer"] = "Boer", --follower in a field
+    ["Knight"] = "Ridder", --follower in a city
+    --["Robber"] = "Struikrover", --follower on a road - Shared with Robber name from The Robber
+    ["Monk"] = "Monnik", --follower in a cloister
+    --Neutral Figure Names
+    ["Dragon"] = "Draak",
+    ["Fairy"] = "Fee",
+    ["Count"] = "Graaf",
+    ["Tower"] = "Toren",
+    ["Towers"] = "Torens",
+    ["Bridge"] = "Brug",
+    ["Bridges"] = "Bruggen",
+    ["Castle"] = "Kasteel",
+    ["Castles"] = "Kastelen",
+    ["Gold Bar"] = "Goudstaaf",
+    --Feature Names
+    ["Field"] = "Weide",
+    ["Fields"] = "Weides",
+    ["City"] = "Stad",
+    ["Cities"] = "Steden",
+    ["Road"] = "Weg",
+    ["Roads"] = "Wegen",
+    ["Cloister"] = "Klooster",
+    ["Cloisters"] = "Kloosters",
+    --Situational Feature Names
+    ["Farm"] = "Boerderij", --field with a follower on it
+    ["Farms"] = "Boerderijen", --field with a follower on it
+    --Special Feature Names
+    ["Cathedral"] = "Kathedraal",
+    ["Cathedrals"] = "Kathedralen",
+    ["Inn"] = "Herberg",
+    ["Inns"] = "Herbergen",
+    ["Princess"] = "Jonkvrouw",
+    ["Volcano"] = "Vulkaan",
+    ["Portal"] = "Poort",
+    ["Portals"] = "Poorten",
+    ["Tower Foundation"] = "Torenbouwplaats",
+    ["Abbey"] = "Abdij",
+    ["Shrine"] = "Cultusplaats",
+    ["Shrines"] = "Cultusplaatsen",
+    ["Hill"] = "Heuvel",
+    ["Hills"] = "Heuvels",
+    ["Vineyard"] = "Wijngaard",
+    ["Vineyards"] = "Wijngaarden",
+    ["Bazaar"] = "Bazaar",
+    ["Bazaars"] = "Bazaars",
+    ["Fliers"] = "Vliegtuigen",
+    ["Messages"] = "Nieuwsberichten",
+    ["Ferries"] = "Veerboten",
+    ["Gold"] = "Goud", --Should the special feature just be called gold bars?
+    --City of Carcassonne Quarters
+    ["Castle Quarter"] = "Kasteel",
+    ["Blacksmith Quarter"] = "Smederij",
+    ["Cathedral Quarter"] = "Kathedraal",
+    ["Market Quarter"] = "Markt",
+    --Wheel of Fortune Features
+    ["Crown"] = "Kroon",
+    ["Fortune"] = "Fortuin",
+    ["Taxes"] = "Belasting",
+    ["Famine"] = "Hongersnood",
+    ["Storm"] = "Storm",
+    ["Inquisition"] = "Inquisitie",
+    ["Plague"] = "Pest",
+    --Token Names
+    ["Trade Goods"] = "Handelswaren",
+    ["Wine Token"] = "Wijnfiche",
+    ["Cloth Token"] = "Lakenfiche",
+    ["Wheat Token"] = "Graanfiche",
+    --currently excluding the token name for display in the control panel
+    ["King"] = "Koning",
+    ["Robber Baron"] = "Rover", --currently shared with follower on a road. Consider renaming to Robber Baron later and possibly having a unique translation
+    ["Knock Out"] = "Taartgevecht",
+    ["Seduction"] = "Verliefd",
+    ["Target"] = "Schietwedstrijd",
+    ["Catch"] = "Vangen",
+    --Starting Tiles
+    ["Starting Tiles"] = "Starttegels",
+    ["Base Starting Tile"] = "Standaard starttegel",
+    ["The River"] = "De Rivier",
+    ["The River II"] = "De Rivier II",
+    ["The River (Big Box 5)"] = "De Rivier (Big Box 3)",
+    ["City of Carcassonne"] = "De stad Carcassonne",
+    ["School"] = "School",
+    ["Wind Roses"] = "Windvaan",
+    ["Wheel of Fortune"] = "Rad van Fortuin",
+    --Expansion Names
+    ["Inns & Cathedrals"] = "Kathedralen & Herbergen",
+    ["Traders & Builders"] = "Kooplieden & Bouwmeesters",
+    ["The Princess & The Dragon"] = "De Draak, de Fee & de Jonkvrouw",
+    ["The Tower"] = "De Toren",
+    ["Abbey & Mayor"] = "Burgemeesters & Abdijen",
+    ["The Catapult"] = "De Katapult",
+    ["Bridges, Castles, & Bazaars"] = "Bruggen, Burchten & Bazaars",
+    ["Hills & Sheep"] = "Schapen & Heuvels",
+    ["Count, King, & Robber"] = "Graaf, Koning & Consorten",
+    ["King & Robber Baron"] = "Koning & Roofridder", --aka King & Scout, both unused.
+    ["The Cathars"] = "De Katharen", --Never released in Dutch
+    ["The Count of Carcassonne"] = "De Graaf",
+    ["The Cult, The Siege"] = "Cultusplaatsen en Ketters", --??
+    ["The Phantom"] = "De Volgeling",
+    ["The Festival"] = "Het Feest",
+    ["The Flier"] = "De Vliegtuigen",
+    ["The Messages"] = "Nieuwsberichten",
+    ["The Ferries"] = "De Veerboten",
+    ["The Goldmines"] = "De Goudmijnen",
+    ["Mage & Witch"] = "Tovenaar & Heks",
+    ["The Robbers"] = "De Rovers",
+    ["Wheel of Fortune"] = "Rad van Fortuin", --Shared with starting tile name
+    ["Crop Circles I"] = "Graancirkels I",
+    ["Crop Circles II"] = "Graancirkels II",
+    ["The Plague"] = "De Pest",
+    ["The Tunnel"] = "De Tunnel",
+    ["Little Buildings"] = "Kleine Gebouwen", --Unknown in Dutch
+    ["We Go to Carcassonne"] = "We gaan naar Carcassonne",
+    ["The Besiegers"] = "De Belegeraars", --Not released in Dutch
+    ["The German Monasteries"] = "De Duitse Kloosters",
+    ["The Abbot"] = "De Abt",
+    ["Halflings I"] = "De Halflingen I",
+    ["Halflings II"] = "De Halflingen II",
+    ["Darmstadt"] = "Darmstadt",
+    ["Spiel Promo"] = "Spiel Promo",
+    ["Castles in Germany"] = "Kastelen",
+    ["City Gates"] = "De Stadspoort", --Die Stadttore in German. I believe this is a fan expansion.
+    --Marker Types
+    ["Both"] = "Beide",
+    ["None"] = "Geen",
+    ["Scoring"] = "Punten",
+    ["Hints"] = "Hints",
+
+    --Button Labels
+
+    ["BUTTON_LABEL_START_GAME"] = "Spel\nstarten",
+    ["BUTTON_LABEL_END_GAME"] = "Einde spel\n(punten\ntellen)",
+    ["BUTTON_LABEL_SCORE_SUMMARY"] = "Punten\nSamenvatting",
+    ["BUTTON_LABEL_SKIP_TURN"] = "Beurt\nOverslaan",
+    ["BUTTON_LABEL_MARKERS"] = "Tekens\ntonen:\n",
+    ["BUTTON_LABEL_PROMPT_PLACE_FIGURE"] = "Speelstuk zetten\nOF",
+    ["BUTTON_LABEL_SKIP_PLACING_FIGURE"] = "Geen speelstuk\nzetten",
+    ["BUTTON_LABEL_PLACE_GOLD"] = "Goud\nleggen",
+    ["BUTTON_LABEL_SEDUCE_KNIGHT"] = "Ridder\nverleiden",
+    ["BUTTON_LABEL_RETRIEVE_ABBOT"] = "Abt\nophalen",
+    ["BUTTON_LABEL_PROMPT_PLACE_PHANTOM"] = "Volgeling zetten\nOF",
+    ["BUTTON_LABEL_SKIP_PHANTOM"] = "Geen volgeling\nzetten",
+    ["BUTTON_LABEL_SKIP_TOWER_CAPTURE"] = "Meeple niet\ngevangen nemen",
+    ["BUTTON_LABEL_PROMPT_REPLACE_WAGON"] = "Transportwagen verzetten\nOF",
+    ["BUTTON_LABEL_SKIP_WAGON"] = "Transportwagen niet\nverzetten",
+    ["BUTTON_LABEL_PROMPT_COC"] = "Speelstuk in de stad\nCarcassonne zetten\nOF",
+    ["BUTTON_LABEL_PROMPT_MOVE_COUNT"] = "De graaf naar een\nandere stadswijk verzetten\nOF",
+    ["BUTTON_LABEL_SKIP_COUNT"] = "De graaf\nniet verzetten",
+    ["BUTTON_LABEL_RETURN_FOLLOWER"] = "Meeple\nretourneren",
+    ["BUTTON_LABEL_CAPTURE"] = "{f1}\ngevangen nemen",
+    ["BUTTON_LABEL_RANSOM"] = "{f1}\nvrijkopen",
+    ["BUTTON_LABEL_RETURN"] = "{f1}\nretourneren",
+    ["BUTTON_LABEL_EXPAND_FLOCK"] = "Kudde\nuitbreiden",
+    ["BUTTON_LABEL_HERD_FLOCK"] = "Kudde naar de\nstal drijven",
+    ["BUTTON_LABEL_TAKE_GOLD"] = "Goudstaaf\nnemen",
+
+    --UI Labels
+
+    ["UI_AI_CALCULATING"] = "AI berekent zet...",
+
+    --Control Panel Global
+
+    ["LABEL_TILES"] = "Tegel(s)",
+    ["LABEL_PREVIOUS_PAGE"] = "Vorige pagina",
+    ["LABEL_NEXT_PAGE"] = "Volgende pagina",
+    ["TOOLTIP_ENABLE_ALL"] = "Alle inschakelen",
+    ["TOOLTIP_NUM_TILES"] = "{n1} tegel(s)",
+
+    --Control Panel pg. 1
+
+      --tooltips
+
+    ["TOOLTIP_AI_HOTSEAT_TOGGLE"] = "Klik om te wisselen tussen:\nAI (makkelijk)\nAI (moeilijk)\nMedespeler (bij de speler die klikt)\nGeen",
+    ["TOOLTIP_BASE_STARTING_TILE"] = "Gewone starttegel.",
+    ["TOOLTIP_RIVER"] = "12 riviertegels waarmee een kronkelende rivieer gemaakt kan worden.",
+    ["TOOLTIP_RIVER_II"] = "12 riviertegels met een splitsing die de rivier in 3 delen verdeelt, en een kudde varkens voor extra punten voor boeren.",
+    ["TOOLTIP_RIVER_BB5"] = "12 riviertegels met extra permaente schapen voor herders.",
+    ["TOOLTIP_CITY_OF_CARCASSONNE"] = "De starttegels De Stad Carcassonne. Telkens als je een tegel legt waardoor alleen anderen punten krijgt, mag je hier een meeple zetten. Deze meeples kunnen op andere projecten gezet worden nadat die zijn afgebouwd, maar voordat de punten zijn geteld.",
+    ["TOOLTIP_WHEEL_OF_FORTUNE"] = "Trek tegels om het rad van fortuin te laten draaien als extra kanselement.",
+
+      --messages
+
+    ["MESSAGE_SEAT_OCCUPIED"] = "Hier zit al een speler. Kan hier geen medespeler maken.",
+    ["MESSAGE_SEAT_ASSIGNED_TO_AI"] = "{c1} is nu een AI-speler met moeilijkheidsgraad: {s1}",
+    ["MESSAGE_SEAT_ASSIGNED_TO_HOTSEAT"] = "{c1} is nu een medespeler van {p1}",
+    ["MESSAGE_BASE_STARTING_TILE_NOT_ALLOWED"] = "Je kunt de gewone starttegel niet gebruiken als andere starttegels geselecteerd zijn.",
+    ["MESSAGE_BASE_STARTING_TILE_REMOVED"] = "De gewone starttegel kan niet in combinatie met deze starttegelset gebruikt worden en wordt dus uitgeschakeld.",
+    ["MESSAGE_HOTSEAT_REMOVED"] = "{c1} is niet langer een medespeler",
+    ["MESSAGE_TOWER_COUNT_CHANGED"] = "Waarschuwing: aantal torendelen is nu {n1} door toevoegen/verwijderen mede- of AI-speler.",
+
+    --Control Panel pg. 2
+
+      --labels
+
+    ["LABEL_BASE_GAME"] = "Basisspel",
+    ["LABEL_MAJOR_EXPANSIONS"] = "Grote uitbreidingen",
+
+      --tooltips
+
+    ["TOOLTIP_FOLLOWER"] = "Meeple - De meeple is het standaard speelstuk van de speler. Deze kan op steden, wegen, weides of kloosters gezet worden om deze te bezetten.",
+    ["TOOLTIP_BIG_FOLLOWER"] = "Grote meeple - De grote meeple telt voor 2 normale meeples. Dat betekent dat er maar 1 grote meeple voor nodig is om een project over te nemen van een speler met maar 1 normale meeple. Zelfs als de speler 2 normale meeples had, zouden de punten gedeeld worden.",
+    ["TOOLTIP_INN"] = "Wegen met herbergen leveren dubbele punten op, maar alleen wanneer ze worden afgebouwd. Niet afgebouwd = 0 punten.",
+    ["TOOLTIP_CATHEDRAL"] = "Afgebouwde steden met kathedralen krijgen 3 punten per tegen (i.p.v. 2), maar alleen als ze zijn afgebouwd. Niet afgebouwd = 0 punten."
+    ["TOOLTIP_BUILDER"] = "Speciaal speelstuk - De bouwmeester kan op een weg of stad waar al een meeple staat gezet worden. Legt de eigenaar van de bouwmeester een tegel aan dit project aan, dan mag hij nog een tegel trekken.",
+    ["TOOLTIP_PIG"] = "Speciaal speelstuk - Het varken kan op een weide waar tenminste 1 eigen boer ligt gezet worden. Aan het einde van het spel krijgt de speler met de meerderheid op de weide met een varken 4 punten per afgebouwde stad (i.p.v. 3).",
+    ["TOOLTIP_TRADE_GOODS"] = "Op sommige stadstegels van Kooplieden & Bouwmeesters staan handelswarensymbolen. De speler die de stad afbouwt (ongeacht of die speler daar de macht had) krijgt voor elk symbool een handelswarenfiche. De speler die aan het einde van het spel de meeste fiches van een soort bezit krijgt 10 punten. Dit uitschakelen voorkomt niet dat de tegels met deze symbolen worden gebruikt, maar alleen dat de fiches worden uitgedeeld.",
+    ["TOOLTIP_DRAGON"] = "Neutraal speelstuk - De Draak in het spel gebracht wanneer een tegel met een vulkaan wordt getrokken. Telkens als hierna een tegel met een draak getrokken wordt, wordt de draak door de spelers 6 keer verzet. De draak vreet bijna alle speelstukken van de tegel waar hij naartoe wordt verzet. Zie de regels voor meer informatie.",
+    ["TOOLTIP_FAIRY"] = "Neutraal speelstuk - De fee kan verzet worden in plaats van het zetten van een meeple. De fee helpt op 3 manieren: geeft 1 punt aan de meeple waar ze naast staat bij het begin van de volgende beurt van die speler, geeft 3 punten extra wanneer het project met die meeple afgebouwd wordt en beschermd de tegel tegen de draak.",
+    ["TOOLTIP_MAGIC_PORTAL"] = "Als een tegel met een magische poort wordt getrokken, mag de speler een meeple naar keuze op die tegel of een andere reeds gelegde tegel zetten. De normale regels voor het zetten van meeples blijven gelden.",
+    ["TOOLTIP_PRINCESS"] = "Legt een speler een tegel met een stadsdeel met de jonkvrouw aan, dan mag hij in plaats van het zetten van een meeple 1 ridder (meeple) van stad af halen.",
+    ["TOOLTIP_TOWER"] = "Een torendeel kan op een torenbouwplaats of bestaande toren gebouwd worden om meeples gevangen te nemen. Hoe hoger de toren, hoe groter het bereik.",
+
+      --messages
+
+    ["MESSAGE_FOLLOWER_COUNT_WARNING"] = "Waarschuwing: het is aan te raden het aantal gewone meeples op 7 te laten staan",
+    ["MESSAGE_FOLLOWER_DISABLED_WARNING"] = "Waarschuwing: het is af te raden meeples uit te schakelen",
+    ["MESSAGE_TOWER_COUNT_WARNING"] = "Waarschuwing: het is aan te raden het aantal torendelen standaard te laten",
+
+    --Control Panel pg. 3
+
+        --labels
+
+    ["LABEL_ROBBER_BARON_SHORT_NAME"] = "Rover", -- This is the shortened form of "Robber Baron", since it doesn't fit on the control panel
+
+      --tooltips
+
+    ["TOOLTIP_ABBEY"] = "De Abdij is een speciale tegel die gebruikt kan worden in plaats van het trekken van een normale tegel van de stapel. De abdij kan alleen gelegd worden als deze aan alle 4 de zijden omgeven wordt door andere tegels. De abdij bouwt alle projecten (weg, stad, weide) af die ermee verbonden zijn. De abdij geldt als een klooster en er mag dus een meeple op gezet worden als monnik.",
+    ["TOOLTIP_MAYOR"] = "Meeple - De Burgemeester kan alleen in een stad gezet worden. Zijn kracht is gelijk aan het aantal schilden in de stad.",
+    ["TOOLTIP_WAGON"] = "Meeple - De Transportwagen kan alleen op een weg, stad, klooster of abdij worden gezet. De puntentelling is gelijk als bij een normale meeple, maar na de telling mag de transportwagen verzet worden naar een aangrenzend project. Een project is aangrenzend als het rechtstreeks verbonden is met een weg. Zie de regels voor meer informatie.",
+    ["TOOLTIP_BARN"] = "Speciaal speelstuk - De Herenboerderij kan alleen op het kruispunt van 4 tegels gezet worden als alle aangrenzende landschappen weiden zijn. Voor alle meeples in deze weide worden de punten geteld en de meeple teruggegeven. Meeples op weiden die achteraf verbonden worden, worden ook verwijderd, maar tegen minder punten. Aan het einde van het spel levert de herenboerderij 4 punten per afgebouwde stad op. Zie de regels voor meer informatie.",
+    ["TOOLTIP_KING"] = "De Koning gaat naar de speler die de grootste stad afbouwt (meeste tegels). Hij wordt verplaatst als iemand een grotere stad afbouwt. Aan het eind van het spel krijgt de speler met de Koning 1 punt per afgebouwde stad in het hele spel.",
+    ["TOOLTIP_ROBBER_BARON"] = "De Roofridder gaat naar de speler die de langste weg afbouwt (meeste tegels). Hij wordt verplaatst als iemand een langere weg afbouwt. Aan het einde van het spel krijft de speler met de Roofridder 1 punt per afgebouwde weg in het hele spel.",
+    ["TOOLTIP_SHRINE"] = "6 tegels met cultusplaatsen. Door een meeple op een cultusplaats te zetten naast een klooster, wordt het klooster uitgedaagd. Omgekeerd geldt hetzelfde. Het project wat het eerst wordt afgebouwd krijgt punten, het andere niet.",
+    ["TOOLTIP_SHEPHERD"] = "Speciaal speelstuk: De Herder kan in een weide worden gezet. Na het zetten trekt de speler een schapenfiche en legt die op de weide. Telkens als de eigenaar van de herder een tegel aan de weide toevoegt, mag hij nog een fiche nemen of per schaap 1 punt tellen en de herder terugnemen. Trekt de speler een wolf, dan gaan de schapen verloren en neemt hij de herder terug. Zie de regels voor meer informatie.",
+    ["TOOLTIP_HILL"] = "Trekt een speler een landtegel met een heuvel, dan wordt er een gedekte tegel onder geschoven. Zet de speler een meeple op een project op die tegel dan wordt een gelijke macht bij het punten tellen in zijn voordeel beslist. Zie de regels voor meer informatie. Uitschakelen voorkomt niet dat deze tegels meegenomen worden in de stapel of dat er gedekte tegels onder geschoven worden.",
+    ["TOOLTIP_VINEYARD"] = "Op sommige tegels van Schapen & Heuvels staat een Wijngaard. Als een klooster wordt afgebouwd met aangrenzend één of meer van deze tegels krijgt de speler 3 punten extra per wijngaard. Als het klooster niet wordt afgebouwd, geven wijngaarden geen extra punten. Uitschakelen voorkomt niet dat deze tegels meegenomen worden in de stapel.",
+
+      --messages
+
+    ["MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_COC"] = "De gewone starttegel kan niet worden gecombineerd met de Stad Carassonne en wordt verwijderd.",
+
+    --Control Panel pg. 4
+
+      --labels
+
+    ["LABEL_MINI_EXPANSIONS"] = "Mini-uitbreidingen",
+    ["LABEL_WHEEL_SHORT_NAME"] = "Rad", -- This is the shortened form of "Wheel of Fortune", since it doesn't fit on the control panel
+    ["LABEL_WHEEL_TILES"] = "Rad-tegels",
+
+      --tooltips
+
+    ["TOOLTIP_WHEEL_CROWN"] = "Spelers kunnen ervoor kiezen om een meeple op de kroon te zetten in plaats van op een tegel, dit levert punten op als er een varken op terecht komt.",
+    ["TOOLTIP_WHEEL_FORTUNE"] = "Als het varken op Fortuin terecht komt, krijgt de huidige speler 3 punten.",
+    ["TOOLTIP_WHEEL_TAX"] = "Als het varken op Belasting terecht komt, krijgt de speler 1 punt voor iedere ridder en ieder schild in die stad.",
+    ["TOOLTIP_WHEEL_TILES"] = "19 tegels met Rad van Fortuin-symbool, waarmee het rad gaat draaien.",
+    ["TOOLTIP_WHEEL_FAMINE"] = "Als het varken op Hongersnood terecht komt, krijgt elke boer 1 punt per afgebouwde stad in die weide.",
+    ["TOOLTIP_WHEEL_STORM"] = "Als het varken op Storm terecht komt, krijgt elke speler 1 punt voor elke ongebruikte meeple in zijn voorraad.",
+    ["TOOLTIP_WHEEL_INQUISITION"] = "Als het varken op Inquisitie terecht komt, krijgt elke speler 2 punten per monnik.",
+    ["TOOLTIP_WHEEL_PLAGUE"] = "Als het varken op Pest terecht komt, moet elke speler 1 meeple uit het spel terug nemen in zijn voorraad.",
+    ["TOOLTIP_FLIER"] = "Er mag een meeple op het Vliegtuig gezet worden. Als je dat doet, wordt er een dobbelsteen gegooid om te kijken hoe ver de meeple gaat vliegen. De speler moet de meeple dan, indien mogelijk, op die tegel zetten en kan die zelfs op een project zetten dat al bezet is (zelfs een klooster). Weides zijn niet toegestaan.",
+    ["TOOLTIP_GOLD"] = "Op een tegel met een goudsymbool moet een goudstaaf gelegd worden evenals op een aangrenzende tegel. Wordt een project afgebouwd dat tegels omvat waar goudstaven op liggen, dan krijgt de speler die het project afgebouwd heeft die. De goudstaven leveren aan het einde van het spel punten op.",
+    ["TOOLTIP_FERRY"] = "Op meren zijn veerboten actief die twee wegen met elkaar verbinden. De veerboten kunnen echter tijdens het spel wijzigen.",
+
+      --messages
+
+    ["MESSAGE_BASE_STARTING_TILE_NOT_COMPATIBLE_WITH_WOF"] = "De gewone starttegel kan niet gecombineerd worden met het Rad van Fortuin en wordt uitgeschakeld.",
+    ["MESSAGE_WHEEL_DISABLED"] = "Deze optie kan niet ingeschakeld worden als het rad uitgeschakeld is.",
+
+    --Control Panel pg. 5
+
+      --labels
+
+    ["LABEL_MICRO_EXPANSIONS"] = "Micro-uitbreidingen",
+
+      --tooltips
+
+    ["TOOLTIP_GAMES_QUARTERLY"] = "10 unieke tegels om aan de basisset toe te voegen plus een speciale brontegel voor rivier-sets die de weide scheidt met een weg.",
+    ["TOOLTIP_PHANTOMS"] = "Een volgeling kan als tweede stuk na je normale speelstuk gezet worden.",
+    ["TOOLTIP_SPIEL_PROMO"] = "Eén enkel stadsdeel. Verder niks.",
+    ["TOOLTIP_WE_GO_TO_CARCASSONNE"] = "2 unieke tegels. Baba Yaga's hut lijkt op een klooster, maar de puntenwaarde begint bij 10 en daalt met 1 punt voor elke aangrenzende tegel. Bogatyr's Keuze is een viersprong waarvan er 3 doorlopen een een 4e op de kruising eindigt.",
+
+    --Control Panel pg. 6
+
+      --labels
+
+    ["LABEL_HOUSE_RULES"] = "Huisregels",
+    ["LABEL_DISABLE_FEATURE"] = "{s1} uitschakelen",
+    ["LABEL_NERF_SMALL_CITIES"] = "Zwakke kleine steden",
+    ["LABEL_REDUCE_TOWER_RANGE"] = "Torenbereik\nverkleinen",
+    ["LABEL_RIVER_MIX_TILES"] = "Alle riviertegels\nmengen",
+    ["LABEL_RIVER_ALLOW_U_TURNS"] = "U-bocht\ntoestaan",
+    ["LABEL_RIVER_ALLOW_UNCONNECTED"] = "Onverbonden\ntoestaan",
+    ["LABEL_DISABLE_PIG_HERD"] = "Varkenskudde\nuitschakelen",
+    ["LABEL_DISABLE_COUNT"] = "De Graaf\nuitschakelen",
+
+      --tooltips
+
+    ["TOOLTIP_DISABLE_FEATURE"] = "Het is niet meer toegestaan een meeple op een {s1} te zetten",
+    ["TOOLTIP_NERF_SMALL_CITIES"] = "Puntentelling aanpassen zodat steden die uit maar twee tegels bestaan nog maar 2 punten waard zijn. Zoals in het oorspronkelijke spel.",
+    ["TOOLTIP_REDUCE_TOWER_RANGE"] = "Indien ingeschakeld begint het torenbereik met alleen de tegel waar hij op staat en wordt van daaruit uitgebreid.",
+    ["TOOLTIP_RIVER_MIX_TILES"] = "Indien ingeschakeld worden alle riviertegels inclusief de eindstukken door elkaar gehusseld.",
+    ["TOOLTIP_RIVER_ALLOW_U_TURNS"] = "Indien ingeschakeld kunnen riviertegels in een U-bocht gelegd worden. Dit kan tot problemen leiden. Gebruik op eigen risico.",
+    ["TOOLTIP_RIVER_ALLOW_UNCONNECTED"] = "Indien ingeschakeld hoeven riviertegels niet zodanig gelegd te worden dat de rivier verlengd wordt.",
+    ["TOOLTIP_DISABLE_PIG_HERD"] = "Indien ingeschakeld wordt de varkenskudde, die boeren een extra punt per stad geeft, uitgeschakeld.",
+    ["TOOLTIP_DISABLE_COUNT"] = "Indien ingeschakeld, doet de Graaf niet mee.",
+
+    --Game Messages
+
+      --AI
+
+    ["MESSAGE_AI_CALCULATING"] = "AI-speler berekent zijn zet...",
+    ["MESSAGE_AI_SKIPPING_FIGURE"] = "AI heeft besloten geen speelstuk te zetten.",
+    ["MESSAGE_AI_RECALCULATING_ODDS"] = "WAARSCHUWING: Het aantal tegels op de stapel wijkt af van het verwachtte aantal. Dit kan gebeuren als iemand buiten zijn beurt een tegel trekt. Kansen herberekenen...",
+    ["MESSAGE_AI_FINISHED_RECALCULATING_ODDS"] = "Klaar met herberekenen kansen. AI berekent nu een zet.",
+    ["MESSAGE_AI_GAME_OVER"] = "AI kan de tegelstapel niet vinden. Aangenomen wordt dat het spel voorbij is.",
+    ["MESSAGE_AI_NO_LOCATION"] = "AI kon geen locatie vinden voor de tegel. De tegels worden opnieuw geschud en een nieuwe tegel getrokken.",
+    ["MESSAGE_AI_ERROR_NO_TILESTACK"] = "FOUT: Kan deze tegel niet retourneren naar de tegelstapel. Als deze tegel onderdeel uitmaakt van een rivier, moet deze handmatig er terug in geschud worden en doorgeklikt worden naar deze AI-speler. Als dit de laatste tegel van het spel is, schuif hem dan terzijde en beëindig het spel. Anders is er mogelijk een probleem, probeer de tegel terzijde te schuiven en de beurt over te slaan. Of herstart het spel als alle andere oplossingen niet werken.",
+
+      --Feature Map Management
+
+    ["MESSAGE_PLAY_AREA_SHIFTING"] = "Speelgebied wordt verschoven om ruimte te maken voor meer tegels.",
+
+      --Global
+
+    ["MESSAGE_LAKE_TILE_BONUS_TURN"] = "{p1} krijgt een extra beurt vanwege het leggen van de tegel met het meer en de vulkaan.",
+    ["MESSAGE_WHEEL_FORTUNE"] = "Het varken landde op Fortuin. De huidige speler krijgt 3 punten.",
+    ["MESSAGE_WHEEL_FORTUNE_SCORED"] = "{p1} krijgt 3 punten vanwege terecht komen op Fortuin.",
+    ["MESSAGE_WHEEL_EVENT_DISABLED"] = "{s1} is momenteel uitgeschakeld. Er gebeurt niets.",
+    ["MESSAGE_WHEEL_TAXES"] = "Het varken landde op Belasting. Elke ridder krijgt 1 punt voor elke ridder (inclusief zichzelf) en elk schild in zijn stad.",
+    ["MESSAGE_WHEEL_EVENT_SCORED"] = "{p1} krijgt {n1} punten voor {s1}.",
+    ["MESSAGE_WHEEL_FAMINE"] = "Het varken landde op Hongersnood. Elke boer krijgt 1 punt per afgebouwde stad in zijn weide (+ bonussen).",
+    ["MESSAGE_WHEEL_STORM"] = "Het varken landde op Storm. Elke speler krijgt 1 punt voor elke ongebruikte meeple in zijn voorraad.",
+    ["MESSAGE_WHEEL_INQUISITION"] = "Het varken landde op Inquisitie. Elke speler krijgt 2 punten per monnik.",
+    ["MESSAGE_WHEEL_INQUISITION_SCORED"] = "De meeple van {p1} krijgt {n1} punten voor {s1}.",
+    ["MESSAGE_WHEEL_PLAGUE"] = "Het varken landde op Pest. Elke speler moet 1 meeple van een landtegel afhalen.",
+    ["MESSAGE_WHEEL_PLAGUE_PLAYER_SKIPPED"] = "{p1} had geen meeples in het spel voor de Pest en is overgeslagen.",
+    ["MESSAGE_WHEEL_PLAGUE_FOLLOWER_AUTOMATICALLY_REMOVED"] = "{p1} had slechts 1 meeple in het spel voor de Pest. Deze is verwijderd.",
+    ["MESSAGE_WHEEL_PLAGUE_PROMPT"] = "{p1} moet een meeple kiezen die door de Pest wordt verwijderd.",
+    ["MESSAGE_WHEEL_PLAGUE_REMOVAL"] = "{c1} kiest {f1} om verwijderd te worden door de pest.",
+    ["MESSAGE_WHEEL_CROWN_SCORED"] = "De meeple van {p1} krijgt {n1} punten op de {s1} Kroon.",
+    ["MESSAGE_DRAGON_AWAKENED"] = "De draak is ontwaakt!",
+    ["MESSAGE_DRAGON_MOVING"] = "De draag gaat op jacht!",
+    ["MESSAGE_DRAGON_TILE_DRAWN_BEFORE_AWAKENED"] = "Er is een draaktegel getrokken, maar de draag is nog niet ontwaakt. Volgens de regels moet de tegel teruggestopt worden in de stapel en opnieuw geschud worden om vervolgens een nieuwe tegel te trekken. Dit wordt echter niet door het script afgedwongen.",
+    ["MESSAGE_DRAGON_TILE_PLAYED_BEFORE_AWAKENED"] = "Er is een draaktegel gespeeld, maar de draak is nog niet ontwaakt.",
+    ["MESSAGE_DRAGON_MOVES_REMAINING"] = "Nog {n1} verplaatsingen van de draak over. Het is de beurt aan {p1} om de draak te verzetten.",
+    ["MESSAGE_DRAGON_STUCK"] = "Er zijn geen geldige tegels meer waar de draak naartoe kan. De draak kan niet verder verzet worden.",
+    --{n1} is the number of figures. {f1} is the name of the figure. ie. "5 sheep have been eaten..."
+    ["MESSAGE_DRAGON_SHEEP_EAT_MESSAGE"] = "{n1} {f1} is/zijn door de draak opgevreten! Om nom nom!",
+    --{c1} is the description of the figure (ie. Red). {f1} is the name of the figure. ie. "Red Follower has been eaten..."
+    ["MESSAGE_DRAGON_FIGURE_EAT_MESSAGE"] = "{f1} van {c1} is door de draak opgevreten! Om nom nom!",
+    ["MESSAGE_DRAGON_COC_PROTECTION"] = "{f1} van {c1} is in de Stad Carcassonne beschermd tegen de draak.",
+    ["MESSAGE_SKIP_FAIRY_CONFIRMATION"] = "Je mag nu de fee verzetten. Weet je zeker dat je dit wilt overlaan? Klik nogmaals om te bevestigen.",
+    ["MESSAGE_ROBBER_BARON_AWARD"] = "{p1} krijgt nu de Roofridder vanwege het afbouwen van de langste weg ({n1} tegels).",
+    ["MESSAGE_KING_AWARD"] = "{p1} krijgt nu de Koning vanwege het afbouwen van de grootste stad ({n1} tegels)",
+    ["MESSAGE_TRADE_TOKEN_AWARD"] = "{p1} heeft een {s1} gekregen voor het afbouwen van de stad.",
+    ["MESSAGE_PRINCESS_SEDUCTION_WAGON"] = "{f1} van {c1} is verleid door de jonkvrouw! Nou ja, niet de transportwagen, maar de bemanning ervan... allemaal... wow. Laten we dit maar gauw vergeten en doorgaan.",
+    ["MESSAGE_PRINCESS_SEDUCTION"] = "{f1} van {c1} is verleid door de jonkvrouw!",
+    ["MESSAGE_ABBOT_RETRIEVE"] = "{p1} haalt zijn abt terug voor {n1} punten op {s1}",
+    ["MESSAGE_TOWER_CAPTURE"] = "{f1} van {c1} is gevangen door {p1}",
+    ["MESSAGE_TOWER_SELF_CAPTURE"] = "{f1} van {c1} is gevangen door de eigenaar en geretourneerd naar de voorraad.",
+    ["MESSAGE_TOWER_RANSOM"] = "{f1} van {c1} is vrijgekocht van {c2} voor 3 punten en geretourneerd naar de voorraad.",
+    ["MESSAGE_TOWER_EXCHANGE_FOLLOWER"] = "{p1} en {p2} geven elkaars meeples terug",
+    ["MESSAGE_TOWER_EXCHANGE_PROMPT"] = "{p1} moet een gevangene kiezen van {p2} om uit te wisselen",
+    ["MESSAGE_TOWER_EXCHANGE"] = "{f1} van is teruggegeven aan de eigenaar in ruil voor een gevangene.",
+    ["MESSAGE_DEPENDENT_FIGURE_REMOVED"] = "{p1} heeft geen meeple meer voor {f1} en moet verwijderd worden.
+    {p1} no longer has a follower for their {f1} and must be removed.",
+    ["MESSAGE_SHEPHERD_PROMPT"] = "{p1} heeft de weide met zijn Herder uitgebreid en mag de kudde uitbreiden.",
+    ["MESSAGE_SHEPHERD_FIELD_FULL"] = "Er is geen ruimte meer op de weide! De schapen worden op de herder gelegd.",
+    ["MESSAGE_SCORE_SHEPHERD"] = "De Herder van {p1} levert {n1} punten op voor {n1} scha(a)p(en).",
+    ["MESSAGE_SHEPHERD_WOLF"] = "De Herder van {p1} raakt al zijn schapen kwijt aan een wolf. Geen punten.",
+    ["MESSAGE_FLIER_LANDED_ON_DRAGON"] = "De meeple vloog recht in de muil van de draak! De draak is dankbaar voor deze voedzame luchtpost.",
+    ["MESSAGE_FLIER_NO_DESTINATION"] = "De doeltegel heeft geen geldige onafgebouwde projecten waar deze meeple op kan landen. Meeple wordt geretourneerd.",
+    ["MESSAGE_FLIER_NO_TILE"] = "Er is geen tegel op de doellocatie. Meeple wordt geretourneerd.",
+    ["MESSAGE_COC_FROM_CITY_PROMPT"] = "{p1} heeft een meeple in de Stad Carcassonne die verzet kan worden naar een afgebouwd project.",
+    ["MESSAGE_COC_FROM_CITY_GAMEOVER_PROMPT"] = "{p1} heeft een meeple in de Stad Carcassonne die verzet kan worden naar een onafgebouwd project.",
+    ["MESSAGE_SHRINE_LOSE"] = "{f1} van {c1} heeft de Klooster/Cultusplaats uitdaging verloren.",
+    ["MESSAGE_SCORE"] = "{p1} krijgt {n1} punten voor {f1}.",
+    ["MESSAGE_SCORE_TRADE_TOKENS"] = "{p1} krijgt {n1} punten voor de meeste {f1}s.",
+    ["MESSAGE_SCORE_KING_OR_ROBBER_BARON"] = "{p1} krijgt {n1} punten voor de {f1}.",
+    ["MESSAGE_SCORE_MAYOR_NO_POINTS"] = "{p1} krijgt 0 punten voor {f1}. Een burgemeester kan alleen punten krijgen als de stad een schild heeft!",
+    ["MESSAGE_SCORE_FAIRY_IDLE"] = "{p1} krijgt 1 punt voor een {f1} naast de fee bij de volgende beurt.",
+    ["MESSAGE_SCORE_FAIRY_FINISH"] = "{p1} krijgt 3 punten voor een {f1} naast de fee bij de puntentelling van een project.",
+    ["MESSAGE_SCORE_GOLD_MINES"] = "{p1} krijgt {n1} punten voor {n2} goudsta(af)(ven) (elk {n3} punten).",
+    ["MESSAGE_GAME_OVER"] = "Einde spel.",
+    ["MESSAGE_GAME_OVER_PROMOTE"] = "Als je deze mod met plezier gespeeld hebt, geef die dan een 'like' in de 'Workshop'. Ben je tegen bugs aangelopen, upload dan een opgeslagen spel en beschrijf het probleem in het commentaar.",
+    ["MESSAGE_FAIRY_WARNING_NO_TILESTACK"] = "WAARSCHUWING: Kan tegelstapel niet vinden. Geen punten toegekend voor de fee. Als je zojuist de laatste tegel gelegd hebt, kun je deze melding negeren.",
+    ["MESSAGE_GOLD_MINES_GOLD_AWARDED"] = "{p1} krijgt een goudstaaf omdat hij de macht had over een afgebouwd project.",
+    ["MESSAGE_GOLD_MINES_TAKE_GOLD_PROMPT"] = "{p1} mag een goudstaaf kiezen omdat hij de macht heeft over een afgebouwd project.",
+    ["MESSAGE_WAGON_PROMPT"] = "De transportwagen van {p1} is klaar en mag nu op een aangrenzend project gezet worden.",
+    ["MESSAGE_WAGON_NO_FEATURES"] = "De transportwagen van {p1} is klaar, maar er zijn geen beschikbare aangrenzende projecten.",
+    ["MESSAGE_COC_TO_CITY_PROMPT"] = "De door {p1} gelegde tegel leverde alleen anderen punten op. {p1} mag nu, indien gewenst, een meeple in de Stad Carcassonne zetten",
+    ["MESSAGE_COC_COUNT_PROMPT"] = "{p1} mag nu, indien gewenst, de Graaf verzetten.",
+    ["MESSAGE_NO_STARTING_TILESET"] = "Kan spel niet starten zonder starttegel(s).",
+    ["MESSAGE_NO_TILES"] = "Het spel kan niet starten zonder tegels.",
+    ["MESSAGE_AI_INCOMPATIBLE_EXPANSIONS"] = "Kan geen AI-spel starten met incompatible uitbreidingen: {s1}.",
+    ["MESSAGE_HILL_WARNING_NO_TILESTACK"] = "Waarschuwing: Er is een heuvel getrokken, maar de tegelstapel kan niet worden gevonden. Dit kan gebeuren als de tegelstapel nog maar 1 tegel heeft of geen. Als er nog 1 tegel over is, moet die handmatig onder de heuvel gelegd worden.",
+    ["MESSAGE_SHEPHERD_ERROR_NO_SHEEP_BAG_RETURNING"] = "Fout: de zak met schapenfiches ontbreekt! De zak moet op tafel blijven om schapenfiches te kunnen retourneren.",
+    ["MESSAGE_SHEPHERD_ERROR_NO_SHEEP_BAG_DRAWING"] = "Fout: de zak met schapenfiches ontbreekt! De zak moet op tafel blijven om schapenfiches te kunnen trekken.",
+    ["MESSAGE_ROBBER_BARON_ERROR_MISSING"] = "Fout: de Roofridder ontbreekt! Het fiche moet op tafel blijven om toegekend te worden.",
+    ["MESSAGE_KING_ERROR_MISSING"] = "Fout: de Koning ontbreekt! Het fiche moet op tafel blijven om toegekend te worden.",
+    ["MESSAGE_TRADE_TOKENS_ERROR_MISSING"] = "Fout: {s1}s ontbreken! Deze moeten op tafel blijven om handelswaren te kunnen trekken.",
+    ["MESSAGE_TOWER_ERROR_MISSING_CAPTURE"] = "FOUT: Kan de gevangennemer van de gevangene niet vinden.",
+
+      --Hint Markers
+
+    ["MESSAGE_HINTS_NO_TILE_LOCATION"] = "Er is geen geldige locatie waar deze tegel gelegd kan worden. Als de tegel van de stapel getrokken is, plaats deze dan terug, schud en trek er nog één.",
+    ["MESSAGE_HINTS_STARTING_TILE"] = "Je mag deze starttegel overal neerzetten. Het is aan te raden dat ongeveer in het midden van de tafel te doen.",
+    ["MESSAGE_HINTS_MAGIC_PORTAL_CALCULATING"] = "Bezig met berekenen van alle mogelijke locaties voor de magische poort. Hints zijn mogelijk vertraagd...",
+    ["MESSAGE_HINTS_NO_FIGURE_LOCATION"] = "Er zijn geen geldige plekken om dit speelstuk neer te zetten. Als geen enkel ander speelstuk geldige locaties heeft, zul je het zetten van een speelstuk over moeten slaan.",
+    ["MESSAGE_HINTS_TOWER_CALCULATING"] = "Bezig met berekenen van alle mogelijke locaties voor torendelen. Hints zijn mogelijk vertraagd...",
+    ["MESSAGE_HINTS_NO_FAIRY_LOCATION"] = "Er is geen geldige locatie om de fee neer te zetten. De fee kan alleen naast een eigen meeple staan.",
+    ["MESSAGE_HINTS_COC_CALCULATING"] = "Bezig met berekenen van alle mogelijke locaties. Hints zijn mogelijk vertraagd...",
+
+      --Move Validation
+
+    ["MESSAGE_FLIER_PLACED"] = "{f1} van {c1} is op een vliegtuig gezet.",
+    ["MESSAGE_TOWER_PLACED"] = "Toren gestart op een torenbouwplaats.",
+    ["MESSAGE_TOWER_INCREASED"] = "De toren is met een torendeel verhoogd.",
+    ["MESSAGE_FIGURE_PLACED"] = "{f1} van {c1} is op {s2} gezet.",
+    ["MESSAGE_SHRINE_CHALLENGED"] = "De {f1} van {c1} op {s2} wordt uitgedaagd!",
+    ["MESSAGE_COUNT_PLACED"] = "{f1} is op {s2} gezet.",
+    ["MESSAGE_INVALID_LOCATION_FAIRY"] = "Ongeldige locatie: de fee moet op een tegel met een eigen meeple gezet worden.",
+    --This error is printed when you try to put a figure in the middle of a split feature, like the field on the left side of this tile: https://s20.postimg.cc/lusnmnm3x/Hills_Sheep_Weird_Cities3.png
+    ["MESSAGE_INVALID_LOCATION_MIDDLE"] = "Ongeldige locatie: het midden van deze tegel kan niet gebruikt worden. Het speelstuk moet aan een van de zijkanten gezet worden.",
+    ["MESSAGE_FIGURE_PLACED_BEFORE_TILE"] = "Er moet eerst een tegel gelegd worden voordat er een speelstuk kan worden gezet.",
+    --After dropping a figure there is a short delay. If someone changes their mind and picks up the figure again before the end of the delay, this message is printed.
+    ["MESSAGE_FIGURE_PICKED_UP"] = "Speelstuk weer opgepakt vóór controle. Plaats het speelstuk a.u.b. opnieuw.",
+    ["MESSAGE_WAGON_ILLEGAL_FIGURE"] = "Alleen de transportwagen kan op dit moment gezet worden.",
+    --This error is printed when you try to put a figure in the middle of a split feature, like the field on the left side of this tile: https://s20.postimg.cc/lusnmnm3x/Hills_Sheep_Weird_Cities3.png
+    ["MESSAGE_INVALID_LOCATION_FLIER_MIDDLE"] = "Ongeldige locatie: plaats de meeple waarmee je wilt vliegen aan de ene of aan de andere zijde van het project.",
+    --ie. if someone rolls a 3 they must put the flier on the tile 3 spaces in that direction. If they try to place on another this message is printed
+    ["MESSAGE_INVALID_LOCATION_FLIER_WRONG_TILE"] = "Ongeldige locatie: het speelstuk moet op de tegel gezet worden die overeenkomt de de worp van de vliegtuigdobbelsteen.",
+    ["MESSAGE_FLIER_WRONG_FIGURE"] = "Alleen de meeple die op de vliegtuigtegel gezet was kan verzet worden.",
+    ["MESSAGE_ERROR_NO_SCRIPT_DATA"] = "Fout: Deze tegel heeft geen scriptgegevens. Deze uitbreiding is waarschijnlijk nog niet geïmplementeerd.",
+    ["MESSAGE_INVALID_LOCATION_TILE_NOT_ALIGNED"] = "Ongeldige locatie: de tegel ligt niet goed op het raster.",
+    --After dropping a tile there is a short delay. If someone changes their mind and picks up the tile again before the end of the delay, this message is printed.
+    ["MESSAGE_TILE_PICKED_UP"] = "De tegel werd vóór controle weer opgeapakt. Leg de tegel opnieuw aan.",
+    ["MESSAGE_INVALID_LOCATION_ABBEY"] = "Ongeldige locatie: de Abdij moet aan alle 4 de zijden omgeven worden door tegels.",
+    ["MESSAGE_INVALID_LOCATION_SHRINE_CLOISTER"] = "Ongeldige locatie: er mag niet meer dan één klooster naast een cultusplaats liggen of omgekeerd.",
+    ["MESSAGE_INVALID_LOCATION_RIVER_U_TURN"] = "Ongeldige locatie: U-bochten zijn niet toegestaan in de rivier.",
+    ["MESSAGE_INVALID_LOCATION_RIVER_UNCONNECTED"] = "Ongeldige locatie: de tegel moet de bestaande rivier verlengen.",
+    ["MESSAGE_INVALID_LOCATION_TILE_FEATURES_DONT_MATCH"] = "Ongeldige locatie: de naastgelegen tegel komt niet overeen.",
+    ["MESSAGE_INVALID_LOCATION_TILE_OUT_OF_BOUNDS"] = "Ongeldige locatie: de tegel moet op het blauwe speelveld gelegd worden.",
+    ["MESSAGE_INVALID_LOCATION_TILE_NOT_ADJACENT"] = "Ongeldige locatie: de nieuwe tegel moet tegen tenminste één bestaande tegel gelegd worden.",
+    ["MESSAGE_INVALID_LOCATION_TILE_LOCATION_TAKEN"] = "Ongeldige locatie: er ligt hier al een tegel.",
+    ["MESSAGE_INVALID_LOCATION_FIGURE_WRONG_TILE"] = "Ongeldige locatie: de speelfiguur moet op de zojuist aangelegde tegel gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_MAGIC_PORTAL_USAGE_EXCEEDED"] = "Ongeldige locatie: per beurt kan maar één meeple gebruik maken van de magische poort.",
+    ["MESSAGE_INVALID_LOCATION_FIGURE_ON_DRAGON"] = "Ongeldige locatie: de speelfiguur kan niet op de tegel met de draak gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_FIGURE_ON_RIVER"] = "Ongeldige locatie: de rivier kan niet bezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_NOT_ALLOWED"] = "Ongeldige locatie: in dit stadium van het spel kan er geen speelfiguur in de Stad Carcassonne gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_FLIER_USAGE_EXCEEDED"] = "Ongeldige locatie: per beurt mag maar een meeple gebruik maken van een vliegtuig.",
+    ["MESSAGE_INVALID_LOCATION_FLIER_ILLEGAL_FIGURE"] = "Ongeldige locatie: alleen de volgende meeples kunnen op het vliegtuig gezet worden: gewone meeple, grote meeple, transportwagen, burgemeester, volgeling.",
+    ["MESSAGE_INVALID_LOCATION_FLIER_DISABLED"] = "Het vliegtuig is uitgeschakeld in het controlepaneel. Het is niet mogelijk een meeple op het vliegtuig te zetten.",
+    ["MESSAGE_INVALID_LOCATION_TOWER_ILLEGAL_FIGURE"] = "Ongeldige locatie: alleen torendelen kunnen op een torenbouwplaats gezet worden. Op een bestaande toren kan alleen een torendeel, een gewone meeple, een grote meeple of een volgeling gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_TOWER_ALREADY_OCCUPIED"] = "Ongeldige locatie: er staat al een meeple op deze toren.",
+    ["MESSAGE_INVALID_LOCATION_TOWER_FIGURE_BEFORE_TOWER"] = "Ongeldige locatie: meeples kunnen niet op torenbouwplaatsen gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_SHEPHERD"] = "Ongeldige locatie: de Herder kan alleen op een weide gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_ABBOT"] = "Ongeldige locatie: de Abt kan alleen op een klooster of tuin gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_GARDEN"] = "Ongeldige locatie: alleen de Abt kan op een tuin gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_BUILDER"] = "Ongeldige locatie: de Bouwmeester kan alleen op wegen of steden gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_PIG"] = "Ongeldige locatie: het Varken kan alleen op een weide gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_MAYOR"] = "Ongeldige locatie: de Burgemeester kan alleen op een stad gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_WAGON"] = "Ongeldige locatie: de Transportwagen kan niet op een weide staan.",
+    ["MESSAGE_INVALID_LOCATION_FEATURE_DISABLED"] = "Ongeldige locatie: via de huisregels zijn {s1} uitgeschakeld.",
+    ["MESSAGE_INVALID_LOCATION_BARN"] = "Ongeldige locatie: de Herenboerderij kan alleen op een kruispunt van weiden gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_MAGIC_PORTAL"] = "Ongeldige locatie: het is niet toegestaan om de magische poort te gebruiken om een meeple in een afgebouwd project te zetten.",
+    ["MESSAGE_INVALID_LOCATION_BUILDER_NO_PARENT"] = "Ongeldige locatie: de Bouwmeester kan alleen op een weg of stad gezet worden met tenminste één eigen meeple.",
+    ["MESSAGE_INVALID_LOCATION_PIG_NO_PARENT"] = "Ongeldige locatie: het Varken kan alleen op een weide met tenminste één eigen boer gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_FEATURE_ALREADY_OCCUPIED"] = "Ongeldige locatie: project is al bezet.",
+    ["MESSAGE_INVALID_LOCATION_WAGON_NOT_CONNECTED"] = "Ongeldige locatie: niet door een weg aan het vorige project verbonden.",
+    ["MESSAGE_INVALID_LOCATION_WAGON_ALREADY_COMPLETE"] = "Ongeldige locatie: dit project is al afgebouwd. De transportwagen moet op een niet afgebouwd project gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_FLIER"] = "Ongeldige locatie: een vliegtuigpassagier kan alleen op een stad, weg of klooster gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_FLIER_ALREADY_COMPLETE"] = "Ongeldige locatie: een vliegtuigpassagier mag alleen op een niet afgebouwd project gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_ILLEGAL_FIGURE"] = "Ongeldige locatie: in dit stadium van het spel kan alleen één van de volgende meeples gezet worden: gewone meeple, grote meeple, transportwagen, burgemeester, volgeling.",
+    ["MESSAGE_INVALID_LOCATION_COC_NOT_A_QUARTER"] = "Ongeldige locatie: de speelfiguur moet in één van de vier speciale stadswijken gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC"] = "Ongeldige locatie: in dit stadium van het spel kan een speelfiguur alleen in de Stad Carcassonne gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_WHEEL_CROWN"] = "Ongeldige locatie: alleen een gewone meeple, grote meeple of volgeling kan op een Kroon gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_WHEEL_CROWN_DISABLED"] = "De Kroon is uitgeschakeld in het regelpaneel. Er kan niets op gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_ABBOT"] = "Ongeldige locatie: de Abt kan alleen de stadswijk Kathedraal gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_MAYOR"] = "Ongeldige locatie: de Burgemeester kan alleen in de stadswijk Kasteel gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_WAGON"] = "Ongeldige locatie: de Transportwagen kan niet in de stadswijk Markt gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_ROADS_DISABLED"] = "Ongeldige locatie: wegen zijn momenteel uitgeschakeld in de huisregels, de stadwijk Smederij kan niet gebruikt worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_CITIES_DISABLED"] = "Ongeldige locatie: steden zijn momenteel uitgeschakeld in de huisregels, de stadswijk Kasteel kan niet gebruikt worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_FIELDS_DISABLED"] = "Ongeldige locatie: weiden zijn momenteel uitgeschakeld in de huisregels, de stadswijk Markt kan niet gebruikt worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_CLOISTERS_DISABLED"] = "Ongeldige locatie: kloosters zijn momenteel uitgeschakeld in de huisregels, de stadswijk Kathedraal kan niet gebruikt worden.",
+    ["MESSAGE_COC_FROM_CITY_ILLEGAL_FIGURE"] = "Er kunnen nu alleen meeples uit de Stad Carcassonne gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_FROM_WRONG_QUARTER"] = "Ongeldige locatie: deze speelfiguur stond in de stadswijk {f1} en kan alleen op een afgebouwde {s1} gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_COMPLETED_ONLY"] = "Ongeldige locatie: meeples uit de Stad Carcassonne kunnen alleen op afgebouwde projecten gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_END_GAME_INCOMPLETE_ONLY"] = "Ongeldige locatie: meeples uit de Stad Carcassone mogen alleen aan het einde van het spel op niet afgebouwde projecten gezet worden.",
+    ["MESSAGE_INVALID_LOCATION_COC_LAST_TILE_ONLY"] = "Ongeldige locatie: meeples uit de Stad Carcassonne mogen alleen op projecten gezet worden die door de laatst gelegde tegel afgebouwd werden.",
+
+      --Save Game
+
+    ["MESSAGE_GAME_LOADED"] = "Spel geladen. Het is nu de beurt aan {p1}. Status: {s1}.",
+    ["MESSAGE_GAME_LOADED_CONTROL"] = "{c1} wordt bestuurd door {p1}",
+    ["MESSAGE_GAME_LOADED_REWIND_NOTIFICATION"] = "Merk op dat terugdraaien maar deels wordt ondersteund. Het kan zijn dat het nodig is bepaalde dingen op te ruimen als de toestand opgeslagen werd terwijl het script nog bezig was.",
+
+      --Setup Game
+
+    ["MESSAGE_SETUP_GAME_ALREADY_STARTED"] = "Het spel is al gestart. Start een nieuw spel om instellingen te wijzigen.",
+    ["MESSAGE_SETUP_NO_CONTROL_PANEL_PERMISSIONS"] = "Alleen gepromoveerde spelers kunnen het regelpaneel gebruiken.",
+    ["MESSAGE_SETUP_COLOR_SUBSTITUTION"] = "{c1} is van kleur/team gewisseld naar {c2}",
+    ["MESSAGE_SETUP_MODEL_SUBSTITUTION"] = "{c1} heeft de figuur {f1} vervangen door een eigen model",
+    ["MESSAGE_SETUP_RIVER_II_NOTIFICATION"] = "Er wordt gespeeld met de rivier. Leg een riviertegel en breid die uit. Volgens de regels moet de splitsing de eerste tegel zijn, gevolgd door de gedekte riviertegels totdat die op zijn, dan de bron en tot slot de tegel met het meer.",
+    ["MESSAGE_SETUP_RIVER_NOTIFICATION"] = "Er wordt gespeeld met de rivier. Leg een riviertegel en breid die uit. Volgens de regels moet de bron de eerste tegel zijn, gevolgd door de gedekte riviertegels totdat die op zijn en tot slot de tegel met het meer.",
+    ["MESSAGE_SETUP_START"] = "Het spel is gestart. Succes!",
+    ["MESSAGE_SETUP_FIRST_PLAYER"] = "{p1} is willekeurig gekozen als eerste speler.",
+
+      --State Machine
+
+    ["MESSAGE_STATE_NEW_TURN"] = "----- Het is nu de beurt aan {p1} -----",
+    ["MESSAGE_STATE_NEW_TURN_CONTROL"] = "----- {c1} wordt bestuurd door {p1} -----",
+    ["MESSAGE_STATE_NEW_TURN_PLAYER_MISSING"] = "{c1} heeft geen besturende speler meer. Een andere speler kan deze plaats overnemen, de besturing kan aan een andere speler gegeven worden als medespeler of AI. Anders zal deze speler overgeslagen moeten worden.",
+    ["MESSAGE_NO_GAME_BUTTON_PERMISSIONS"] = "Alleen gepromoveerde spelers kunnen deze knop gebruiken",
+    ["MESSAGE_NO_BUTTON_PERMISSIONS"] = "Alleen de huidige speler of gepromoveerde spelers kunnen deze knop gebruiken",
+    ["MESSAGE_GOLD_MINES_PLACE_GOLD_PROMPT"] = "Kies een plek om de goudstaaf te leggen",
+    ["MESSAGE_LAKE_PLACE_FERRY_PROMPT"] = "Kies een route voor de veerboot",
+    ["MESSAGE_BUILDER_PROMPT"] = "De Bouwmeester van {p1} geeft het recht om nog een tegel te trekken. Doe dit, samen met de gebruikelijke handelingen alvorens de beurt te eindigen.",
+    ["MESSAGE_GAME_LOADED_DURING_SCORING"] = "Het geladen spel zat midden in de puntentelling. Speelstukken moeten mogelijk handmatig verwijderd worden. Het spel gaat verder alsof de puntentelling heeft plaatsgevonden. Het kan zijn dat er speelstukken zijn waarvan de punten niet zijn geteld.",
+    ["MESSAGE_FIGURE_PROMPT"] = "Zet, indien gewenst, een speelfiguur.",
+    ["MESSAGE_PHANTOM_PROMPT"] = "Zet, indien gewenst, de volgeling.",
+    ["MESSAGE_FLIER_DIE_PROMPT"] = "Werp de vliegtuigdobbelsteen om de vliegafstand te bepalen.",
+    ["MESSAGE_FLIER_PROMPT"] = "Zet de vliegtuigpassagier op de doeltegel.",
+    ["MESSAGE_ERROR_NO_ACTION_FOR_STATE"] = "Fout: actie - {s1} bestaat niet in de huidige toestand - {s2}",
+    ["MESSAGE_ERROR_NO_STATE"] = "Fout: huidige toestand bestaat niet - {s1}",
+
+      --TTS Events
+
+    ["MESSAGE_HOTSEAT_TAKEN"] = "De meespeelplek van {p1}, {c1}, is bezet.",
+    ["MESSAGE_HOTSEAT_OWNER_MOVED"] = "De beheerder van meespeelplek {c1}, {c2}, heeft de tafel verlaten of is verplaatst.",
+    ["MESSAGE_FLIER_DIE_ROLL"] = "{p1} heeft {n1} geworpen",
+    ["MESSAGE_FLIER_WRONG_PLAYER_ROLLED"] = "FOUT: Het is momenteel niet jouw beurt OF je hebt de dobbelsteen geworpen zonder hem op te tillen.",
+    ["MESSAGE_TILE_NOT_ALLOWED"] = "Het is momenteel niet toegestaan een tegel te leggen. Je mag alleen een tegel leggen aan het begin van je beurt. Huidige status: {s1}",
+    ["MESSAGE_PHANTOM_NOT_ALLOWED"] = "Het is momenteel niet toegestaan om een volgeling te zetten. Je mag alleen een volgeling zetten na het zetten van een andere meeple. Huidige status: {s1}",
+    ["MESSAGE_TOWER_NOT_ALLOWED"] = "Het is momenteel niet toegestaan om een torendeel te zetten. Dit mag gewoonlijk alleen na het leggen van een tegel. Huidige status: {s1}",
+    ["MESSAGE_FIGURE_NOT_ALLOWED"] = "Het is momenteel niet toegestaan een speelfiguur te zetten. Dit mag gewoonlijk alleen na het leggen van een tegel. Huidige status: {s1}",
+    ["MESSAGE_TOWER_WRONG_OWNER"] = "Deze toren is niet van jou. Controleer de kleur in de omschrijving.",
+    ["MESSAGE_FIGURE_WRONG_OWNER"] = "Speelfiguur van de verkeerde kleur. Weet je zeker dat die van jou is?",
+    ["MESSAGE_FAIRY_NOT_ALLOWED"] = "Het is momenteel niet toegestaan de fee te zetten. De fee mag alleen gezet worden na het leggen van een tegel. Huidige status: {s1}",
+    ["MESSAGE_COUNT_NOT_ALLOWED"] = "Het is momenteel niet toegestaan de Graaf te verzetten. Je mag de Graaf alleen verzetten nadat je een meeple in de Stad Carcassonne gezet hebt. Huidige status: {s1}",
+    ["MESSAGE_DROP_SPAM"] = "Meerdere speelstukken te snel gezet, even wachten.",
+    ["MESSAGE_DROP_WRONG_PLAYER"] = "Het is momenteel niet jouw beurt. Gezette speelstukken tellen niet mee.",
+    ["MESSAGE_DROP_GAME_NOT_STARTED"] = "Het spel is voorbij of nog niet gestart. Klik op de knop 'Spel starten' en leg de tegel opnieuw aan.",
+    ["MESSAGE_TILE_REMOVED"] = "Tegel is verwijderd uit het raster.",
   },
   ['zh-tw'] = {
     ["AI/Hotseat (H)"] = "機器人(AI)/熱座(H)",
