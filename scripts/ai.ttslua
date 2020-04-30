@@ -19,14 +19,19 @@ AI_TAUNT_THRESHOLD = 20 -- a move that nets a gain of more than this many points
 END_GAME_TRANSITION = 20 --when there are less than this number of tiles (per player), the AI will begin abandoning difficult to complete roads with inns and cities with cathedrals.
 SCORE_THREAT_THRESHOLD = 50 --players that are more than this many points behind are no longer considered a threat and won't be factored into the decisions
 FOLLOWER_SCORE_THRESHOLD = 0.75 --player won't use a figure to take a feature unless it is worth at least this much
-USED_FOLLOWER_PENALTY_HARD = 0.50 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
 USED_LAST_FOLLOWER_PENALTY = 20.0 --penalty instead of the above. Using the last follower should be strictly discouraged unless there is a large enough benefit
 UNFINISHED_TRADE_TOKEN_VALUE = 1.0 --Extra value provided by having a trade token in your city (although it isn't actually worth anything, encouraging yourself and/or your opponents to finish the city could be seen as a benefit)
 SHEPHERD_EXTEND_VALUE = 1.5 --Extra value provided by adding to a feature with a shepherd
 SHEPHERD_DRAW_TOKEN_THRESHOLD = 0.0 --An extra token will be drawn if the calculated value is worth more than this. Otherwise, the flock will be scored.
 BUILDER_EXTRA_TURN_VALUE = 1.0 --Extra value provided by adding to a feature with a builder
 
+--EASY MODE CONSTS
+OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
+FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being used too early in the game
+USED_FOLLOWER_PENALTY_EASY = 0.45 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
+
 --HARD MODE CONSTS
+USED_FOLLOWER_PENALTY_HARD = 0.50 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
 NUMBER_OF_DRAWN_TILES_FOR_BLOCK_PERCENTAGE = 10 --calculate the odds that this tile position will be blocked for this many drawn tiles
 BLOCK_PERCENTAGE_POWER_MODIFIER = 2 --take the block percentage to the power of this number, and multiply it by the score to get the adjusted score
 STUCK_FOLLOWER_PENALTY = 0.3 --this penalty will be applied to each follower that is 100% stuck until the end of the game (including farmers). The penalty is multiplied by the number of tiles left. This penalty is also partially applied to followers that have a chance ot get stuck.
@@ -37,10 +42,11 @@ STUCK_PIG_PENALTY = 0.1 --this penalty will be applied to a pig multiplied by th
 BUILDER_PLACEMENT_BONUS_VALUE = 0.5 --Extra value for having a feature with a builder (this is needed to give incentive for the AI to place it, since the stuck penalty will make it highly unfavored)
 MAX_JOIN_PERCENTAGE = 0.8 --connections with very high join percentages tend to screw up the AI's decisions since it will already get 99% of the score benefit from a connection that hasn't even been made. Therefore, use this limit so that there is incentive to finish the connection.
 
---EASY MODE CONSTS
-OPEN_FEATURE_PENALTY = 0.30 --score penalty to apply for each open end of this feature, to provide incentive for easier features to complete
-FIELD_PENALTY = 2.5 --score penalty to apply to the field, to prevent it being used too early in the game
-USED_FOLLOWER_PENALTY_EASY = 0.45 --each follower that a player doesn't have in their supply will make it more picky of when to use a follower by this many points
+validTileLocations = {}
+tileConnectionOdds = {}
+unusedTiles = {}
+buriedTiles = {}
+buriedTileCount = 0
 
 function AIStateHandler()
     --debugMessage(1, "AIStateHandler - " .. turnState)
@@ -125,10 +131,6 @@ function AIStateHandler()
     end
 end
 
-unusedTiles = {}
-buriedTiles = {}
-buriedTileCount = 0
-
 function AIMemorizeCards(tileStack)
     --allGameMessage("Please wait while the AI memorizes the tiles...", NEUTRAL_COLOR)
     unusedTiles = {}
@@ -138,7 +140,6 @@ function AIMemorizeCards(tileStack)
         anchor.setLuaScript(tile.lua_script)
         coroutine.yield(0)
         unusedTiles[tile.guid] = {}
-        -- unusedTiles[tile.guid].isStartingPiece = anchor.getVar('isStartingPiece')
         unusedTiles[tile.guid].symmetry = anchor.getVar("symmetry")
         unusedTiles[tile.guid].sides = anchor.getTable("sides")
         unusedTiles[tile.guid].linkedQuadrants = anchor.getTable("linkedQuadrants")
@@ -149,7 +150,6 @@ function AIMemorizeCards(tileStack)
     --also include tiles that were buried under hills, since the AI should not be aware of this
     for guid, tile in pairs(buriedTiles) do
         unusedTiles[guid] = {}
-        -- unusedTiles[tile.guid].isStartingPiece = anchor.getVar('isStartingPiece')
         unusedTiles[guid].symmetry = tile.symmetry
         unusedTiles[guid].sides = tile.sides
         unusedTiles[guid].linkedQuadrants = tile.linkedQuadrants
@@ -159,7 +159,6 @@ function AIMemorizeCards(tileStack)
     --     local forkTile = getObjectFromGUID(forkTile_GUID)
     --     if forkTile ~= nil then
     --         unusedTiles[forkTile_GUID] = {}
-    --         unusedTiles[forkTile_GUID].isStartingPiece = anchor.getVar('isStartingPiece')
     --         unusedTiles[forkTile_GUID].sides = forkTile.getTable("sides")
     --         unusedTiles[forkTile_GUID].linkedQuadrants = forkTile.getTable("linkedQuadrants")
     --         unusedTiles[forkTile_GUID].linkedOctants = forkTile.getTable("linkedOctants")
@@ -174,7 +173,6 @@ function AIMemorizeCards(tileStack)
     --             anchor.setLuaScript(tile.lua_script)
     --             coroutine.yield(0)
     --             unusedTiles[tile.guid] = {}
-    --             unusedTiles[tile.guid].isStartingPiece = anchor.getVar('isStartingPiece')
     --             unusedTiles[tile.guid].sides = anchor.getTable("sides")
     --             unusedTiles[tile.guid].linkedQuadrants = anchor.getTable("linkedQuadrants")
     --             unusedTiles[tile.guid].linkedOctants = anchor.getTable("linkedOctants")
@@ -186,7 +184,6 @@ function AIMemorizeCards(tileStack)
     --     local finalRiverTile = getObjectFromGUID(finalRiverTile_GUID)
     --     if finalRiverTile ~= nil then
     --         unusedTiles[finalRiverTile_GUID] = {}
-    --         unusedTiles[finalRiverTile_GUID].isStartingPiece = finalRiverTile.getVar('isStartingPiece')
     --         unusedTiles[finalRiverTile_GUID].sides = finalRiverTile.getTable("sides")
     --         unusedTiles[finalRiverTile_GUID].linkedQuadrants = finalRiverTile.getTable("linkedQuadrants")
     --         unusedTiles[finalRiverTile_GUID].linkedOctants = finalRiverTile.getTable("linkedOctants")
@@ -197,7 +194,6 @@ function AIMemorizeCards(tileStack)
     --     local springTile = getObjectFromGUID(springTile_GUID)
     --     if springTile ~= nil then
     --         unusedTiles[springTile_GUID] = {}
-    --         unusedTiles[springTile_GUID].isStartingPiece = springTile.getVar('isStartingPiece')
     --         unusedTiles[springTile_GUID].sides = springTile.getTable("sides")
     --         unusedTiles[springTile_GUID].linkedQuadrants = springTile.getTable("linkedQuadrants")
     --         unusedTiles[springTile_GUID].linkedOctants = springTile.getTable("linkedOctants")
@@ -208,7 +204,6 @@ function AIMemorizeCards(tileStack)
     --     local lakeTile = getObjectFromGUID(lakeTile_GUID)
     --     if lakeTile ~= nil then
     --         unusedTiles[lakeTile_GUID] = {}
-    --         unusedTiles[lakeTile_GUID].isStartingPiece = lakeTile.getVar('isStartingPiece')
     --         unusedTiles[lakeTile_GUID].sides = lakeTile.getTable("sides")
     --         unusedTiles[lakeTile_GUID].linkedQuadrants = lakeTile.getTable("linkedQuadrants")
     --         unusedTiles[lakeTile_GUID].linkedOctants = lakeTile.getTable("linkedOctants")
@@ -334,7 +329,6 @@ end
 
 function AITileBuried(buriedTile)
     buriedTiles[buriedTile.getGUID()] = {}
-    -- unusedTiles[tile.guid].isStartingPiece = anchor.getVar('isStartingPiece')
     buriedTiles[buriedTile.getGUID()].symmetry = buriedTile.getVar("symmetry")
     buriedTiles[buriedTile.getGUID()].sides = buriedTile.getTable("sides")
     buriedTiles[buriedTile.getGUID()].linkedQuadrants = buriedTile.getTable("linkedQuadrants")
@@ -543,7 +537,6 @@ end
 function AITileRemoved(xIndex, zIndex, removedTile)
     unusedTiles[removedTile.guid] = {}
     local symmetry = removedTile.getVar("symmetry")
-    -- unusedTiles[tile.guid].isStartingPiece = anchor.getVar('isStartingPiece')
     unusedTiles[removedTile.guid].symmetry = symmetry
     unusedTiles[removedTile.guid].sides = removedTile.getTable("sides")
     unusedTiles[removedTile.guid].linkedQuadrants = removedTile.getTable("linkedQuadrants")
@@ -849,7 +842,7 @@ function AIChooseTileLocation()
     local validRotations = newTile.getVar("symmetry")
     if validRotations == nil then validRotations = 4 end
 
-    if startingTile_GUID ~= nil then
+    if isTileInPlay() then
         if isRiverPiece then
             local tileConfigurations = {}
             for xIndex, tileColumn in pairs(tileGrid) do
@@ -1385,12 +1378,6 @@ function AICalculateActiveScoresEasy(newXIndex, newZIndex)
         --         allGameMessage({"MESSAGE_SCORE_FAIRY_FINISH", {'{c1}', eligibleFollower.getDescription()}, {'{f1}', eligibleFollower.getName()}}, player_color_tints[eligibleFollower.getVar('owner')])
         --         scorePoints(eligibleFollower.owner, 'Fairy', 3)
         --     end
-        -- end
-        -- if follower.figureName == "Wagon" then
-        --     wagonLocations[follower.owner] = {}
-        --     wagonLocations[follower.owner].x = follower.getPosition().x
-        --     wagonLocations[follower.owner].z = follower.getPosition().z
-        --     hasAvailableWagonFeature[follower.owner] = hasIncompleteSecondaryFeature
         -- end
         -- local winner = false
         for player, value in pairs(followerCounts) do
@@ -2564,12 +2551,6 @@ function AICalculateFeatureScore(blockPercentage, featureNums, nameOfFeature, sp
     --         scorePoints(eligibleFollower.owner, 'Fairy', 3)
     --     end
     -- end
-    -- if follower.figureName == "Wagon" then
-    --     wagonLocations[follower.owner] = {}
-    --     wagonLocations[follower.owner].x = follower.getPosition().x
-    --     wagonLocations[follower.owner].z = follower.getPosition().z
-    --     hasAvailableWagonFeature[follower.owner] = hasIncompleteSecondaryFeature
-    -- end
     -- local winner = false
 
     local score = 0
@@ -2907,8 +2888,8 @@ function AIChooseShepherdAction()
 
     local shepherd = getObjectFromGUID(shepherdAwaitingAction)
     local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(shepherd)
-    local closestPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
-    local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
+    local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+    local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
     if featureList[featureNum].numOpenings <= 1 then
         local params = {}
         params.shepherd = shepherd

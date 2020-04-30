@@ -45,10 +45,6 @@ function initializeControlPanelPage()
 --The Tower
     initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, 'TowerNerfTowers', translate("TOOLTIP_REDUCE_TOWER_RANGE"))
 
---Hills & Sheep
-    -- createExpansionLabel(ROW_1 - ROW_SPACING, 'Hills & Sheep')
-    -- initializeLabeledCheckbox(COLUMN_1, ROW_1 - ROW_SPACING, 'HnSDoNotBuryHills', "Don't bury\nhills", "If checked, this will not 'bury' a tile underneath a hill.")
-
 --Rivers/River II
     initializeCheckbox(COLUMN_1, ROW_1 - ROW_SPACING * 2, 'RiverMixAll', translate("TOOLTIP_RIVER_MIX_TILES"))
     initializeCheckbox(COLUMN_1 - COLUMN_SPACING, ROW_1 - ROW_SPACING * 2, 'RiverAllowUTurns', translate("TOOLTIP_RIVER_ALLOW_U_TURNS"))
@@ -84,10 +80,6 @@ end
 
 function onTowerNerfTowersToggle(Object, sPlayer)
     onCheckboxToggle(sPlayer, 'TowerNerfTowers', 'btnTowerNerfTowersToggle')
-end
-
-function onHnSDoNotBuryHillsToggle(Object, sPlayer)
-    onCheckboxToggle(sPlayer, 'HnSDoNotBuryHills', 'btnHnSDoNotBuryHillsToggle')
 end
 
 function onRiverMixAllToggle(Object, sPlayer)

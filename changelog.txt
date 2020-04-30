@@ -1,3 +1,10 @@
+v1.22.7 - 20200426
+[*]Added custom JSON encoder, which should more than double the speed save files are made. This should reduce the stuttering that happens with lots of tiles.
+[*]Removing an abbey tile now works correctly.
+[*]Starting tiles no longer have special status for initial placement. You can now put any tile anywhere you want, as long as there's no other tile already on the table.
+[*]Fixed some control panel "all" expansion buttons from going haywire.
+UPDATE DATE
+
 v1.22.6.2 - 20200420
 [*]Fixed a bug in the last update that broke the mod when 2 or more different features are connected by a tile when playing without AI.
 [*]Turned off AI taunts, which more often highlight a bug than show off how smart they are.

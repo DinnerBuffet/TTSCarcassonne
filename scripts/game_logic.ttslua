@@ -183,10 +183,6 @@ function startGameButton(object, sPlayer)
                 hasStartingTiles = true
             end
         end
-        if not hasStartingTiles then
-            allErrorMessage({"MESSAGE_NO_STARTING_TILESET"}, sPlayer)
-            return
-        end
         local hasTileStack = false
         for controlPanelSetting, settingOn in pairs(controlPanelSettings) do
             if settingOn and table.contains({'BaseTiles','InCTiles','TnBTiles','PnDTiles','TowerTiles','AnMTiles','KnRBTiles','CultTiles','CatapultTiles','BCnBTiles','HnSTiles','WoFTiles','WoFWheelTiles','FlierTiles','FerriesTiles','GoldminesTiles'}, controlPanelSetting) then
@@ -391,8 +387,8 @@ function getActiveFigures()
         if baselineFigures[obj.getVar('owner')] ~= nil and table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or table.contains(SPECIAL_FIGURE_TYPES, obj.getVar('figureName')) then
             local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
             if tileGridOccupied(xIndex, zIndex) then
-                local closestPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
-                local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
+                local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+                local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
                 --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
                 if activeFigures[featureNum] == nil then
                     activeFigures[featureNum] = {}
@@ -421,8 +417,8 @@ function getActiveNeutralFigures()
             if table.contains(SHEEP_TOKEN_TYPES, obj.getVar('tokenName')) then
                 local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
                 if tileGridOccupied(xIndex, zIndex) then
-                    local closestPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
-                    local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
+                    local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+                    local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
                     --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
                     if activeNeutralFigures[featureNum] == nil then
                         activeNeutralFigures[featureNum] = {}
@@ -2401,14 +2397,14 @@ function promptMovingFromCoC()
                 barnFeatureNumbers = {}
             end
 
-            local countnameOfFeature = nil
+            local countNameOfFeature = nil
             if not controlPanelSettings['CoCNoCount'] then
                 local count = getObjectFromGUID(EXPANSION_BAGS['CoC'].contents['CoCCount'].guid)
                 local countXIndex, countZIndex, countXPosition, countZPosition = getFigureTileLocation(count)
                 if tileGridOccupied(countXIndex, countZIndex) then
-                    local countclosestPosition = findClosestPosition(countXIndex, countZIndex, countXPosition, countZPosition)
-                    local countfeatureNum = tileGrid[countXIndex][countZIndex].featureMap[countclosestPosition]
-                    countnameOfFeature = featureList[countfeatureNum].nameOfFeature
+                    local countClosestPosition = findClosestPosition(countXIndex, countZIndex, countXPosition, countZPosition)
+                    local countFeatureNum = tileGrid[countXIndex][countZIndex].featureMap[countClosestPosition]
+                    countNameOfFeature = featureList[countFeatureNum].nameOfFeature
                 end
             end
 
@@ -2417,15 +2413,15 @@ function promptMovingFromCoC()
                 if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) or obj.getVar('figureName') == 'Barn' then
                     local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
                     if tileGridOccupied(xIndex, zIndex) then
-                        local closestPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
-                        local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
+                        local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+                        local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
 
                         if featureNum ~= nil and featureList[featureNum] ~= nil then
                             if obj.getVar('figureName') == 'Barn' then
                                 table.insert(barnFeatureNumbers, featureNum)
                             else
                                 local nameOfFeature = featureList[featureNum].nameOfFeature
-                                if string.sub(nameOfFeature,1,8) == 'Quarter-' and nameOfFeature ~= countnameOfFeature then
+                                if string.sub(nameOfFeature,1,8) == 'Quarter-' and nameOfFeature ~= countNameOfFeature then
                                     local quarter = string.sub(nameOfFeature,9)
                                     if carcassonneFigures[obj.getVar('owner')] == nil then
                                         carcassonneFigures[obj.getVar('owner')] = {}
@@ -2445,8 +2441,8 @@ function promptMovingFromCoC()
                 if obj.getVar('figureName') == 'Barn' then
                     local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
                     if tileGridOccupied(xIndex, zIndex) then
-                        local closestPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
-                        local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
+                        local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+                        local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
 
                         if featureNum ~= nil and featureList[featureNum] ~= nil then
                             if obj.getVar('figureName') == 'Barn' then
@@ -3431,8 +3427,8 @@ function hasAvailableWagonFeature(wagonFeatureNum)
         if table.contains(FOLLOWER_TYPES, obj.getVar('figureName')) then
             local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(obj)
             if tileGridOccupied(xIndex, zIndex) then
-                local closestPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
-                local featureNum = getFeatureNumAt(xIndex, zIndex, closestPosition)
+                local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+                local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
                 if featureNum ~= nil then
                     for linkedFeatureNum, _ in pairs(linkedRoadFeatures) do
                         if linkedFeatureNum == featureNum then

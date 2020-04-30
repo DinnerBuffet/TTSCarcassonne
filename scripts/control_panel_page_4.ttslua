@@ -159,10 +159,13 @@ function checkAllCheckboxes()
             end
         end
 
-        if allChecked then
-            self.editButton({index = btnIDs[button_key], label = 'X'})
-        else
-            self.editButton({index = btnIDs[button_key], label = ''})
+        -- Don't do anything if the "All" button doesn't exist
+        if btnIDs[button_key] ~= nil then
+            if allChecked then
+                self.editButton({index = btnIDs[button_key], label = 'X'})
+            else
+                self.editButton({index = btnIDs[button_key], label = ''})
+            end
         end
     end
 end

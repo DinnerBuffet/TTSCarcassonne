@@ -88,11 +88,6 @@ function initializeControlPanelPage()
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', translate("TOOLTIP_RIVER_BB5"))
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', translate("TOOLTIP_CITY_OF_CARCASSONNE"))
     initializeCheckbox(STARTING_TILE_COLUMN, ROW_6, 'StartingTileWoF', translate("TOOLTIP_WHEEL_OF_FORTUNE"))
-    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_1, 'StartingTileBase', 'Base Starting Tile', {x=-LABEL_SEPARATION, z=0}, 2)
-    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_2, 'StartingTileRiver', 'The River', {x=-LABEL_SEPARATION, z=0}, 2)
-    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_3, 'StartingTileRiverII', 'The River II', {x=-LABEL_SEPARATION, z=0}, 2)
-    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_4, 'StartingTileRiverBB5', 'The River (Big Box 5)', {x=-LABEL_SEPARATION, z=0}, 2)
-    -- initializeLabeledCheckbox(STARTING_TILE_COLUMN, ROW_5, 'StartingTileCoC', 'City of Carcassonne', {x=-LABEL_SEPARATION, z=0}, 2)
 end
 
 function selectedLanguage(sPlayer, option, id)
