@@ -1,0 +1,674 @@
+--Tile Script Info
+-- Each tile should have a script including variables needed to represent the information on the tile. The data format is as follows:
+-- *In all examples, the "starting piece" is used*
+-- *It should be noted that the "top" and "topleft" is from the perspective of the white player. All of the tiles are, in actuality, rotated by 180 degrees, which is taken into account in code with TILE_STANDARD_ROTATION
+-- Data Format:
+--  sides - table of strings ( ie. {'City', 'Road', 'Field', 'Road'} ) Specifies the feature on each side of the tile, starting from the "top" clockwise (top is arbitrary, but must be consistent amoung pieces)
+--             features: 'City', 'Road', 'Field', 'River', 'Abbey'
+--  (optional) linkedQuadrants - table of tables of ints ( ie. {{2, 4}} ) Each table specifies which features are linked together, starting from the "top" at 1 and increasing clockwise.
+--             This only applies for features that take the middle of the side (ie. roads, rivers)
+--             In the example, the right side is linked to the left side (the road)
+--  (optional) linkedOctants - table of tables of ints ( ie. {{5, 6}, {7, 12}, {8, 9, 10, 11}} ) Each table specifies which half of each quadrant is linked to others, starting from the "topleft" at 5 and increasing clockwise.
+--             This is necessary for fields and cities, in particular, since both halves of a quadrant aren't always linked to each other.
+--             Also, this specifies how the fields on each half of a road feature are linked to other fields. Therefore, each road quadrant may also have 2 corresponding octants specified for that same side.
+--             In the example, the topleft and topright octants are linked
+--                             the righttop and lefttop octants are linked (This is the field on the top half of the road)
+--                             the rightbottom, bottomright, bottomleft, and leftbottom octants are linked (this is the field on the bottom half of the road)
+--  (optional) specialFeatures - table of tables containing a string (which specifies the feature), (optional) table of ints, and (optional) table of exactly 2 floats ( ie. {{'City-Field', {5, 6, 7, 12}, nil}} )
+--             The table of ints specifies what quadrants or octants this feature is linked to (if any).
+--             The table of floats specifies the relative x and z coordinates of the feature on this piece (if a figure can be placed on the feature).
+--             features:
+--                  Base features ('City', 'Road', 'Field', 'Abbey') - this allows for additional locations for specifying the base features.
+--                       this is useful for defining additional snap points, as well as allowing features which aren't connected to any quadrant or octant (there are a few fields like this).
+--                  'Cloister' = cloister - specifies the location of a cloister. Links are not used for this feature.
+--                  'City-Field' = city-field link - if the cities specified are completed, they score points to the specified fields. Multiple different cities and fields specified
+--                             are NOT linked to each other, only fields are linked to cities (and vice versa, in the case of using old rules (TODO: implement later?). Coordinates are not used for this feature.
+--                  'Road Intersection' = links roads to each other or other features. This is used for wagons.
+--                  Linked Features with no coordinates: 'Pennant', 'Inn', 'Cathedral', 'Princess'
+--                  Unlinked Features of the tile: 'Volcano', 'Dragon', 'Hill'
+--                  'Garden' - specifies the location of a garden. Links are not used for this feature.
+--  (optional) symmetry - # of ways this tile can be rotated and yield a unique result. Default is 4.
+--             For example, symmetry = 1 would imply that the tile has the same data no matter which way it is rotated. symmetry = 2 implies that the tile is bilaterally symmetric.
+--             This value is purely used as a short-cut to trim the number of different rotations that need to be calculated with AI.
+
+-- This tables is indexed by a tileDataId. This is usually the GUID of the tile object, but could be different if a tile is cloned.
+-- For this reason, tileDataId can be expected to be shared with other tiles.
+globalTileData = {
+--StartingTileBase
+#include !\TTSCarcassonne\tile_data\base\Card.c107f0.ttslua
+--StartingTileRiver
+#include !\TTSCarcassonne\tile_data\river\Card.0c3827.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.3f655a.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.41d0a7.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.91dfa6.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.94df72.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.974005.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.b5a5d4.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.bec44f.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.c483e2.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.e625f8.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.f55151.ttslua
+#include !\TTSCarcassonne\tile_data\river\Card.f85830.ttslua
+--StartingTileRiverII
+#include !\TTSCarcassonne\tile_data\river 2\Card.04aa4f.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.0e6627.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.12fcd3.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.1d11db.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.1dd42f.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.4b84d4.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.595e38.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.5a8213.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.656947.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.8ade7d.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.96c001.ttslua
+#include !\TTSCarcassonne\tile_data\river 2\Card.a423e8.ttslua
+--StartingTileRiverBB5
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.098874.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.47f4e5.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.553392.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.71ed1c.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.921856.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.989022.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.b9de5a.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.c831a5.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.d4f83e.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.d542ed.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.f788a3.ttslua
+#include !\TTSCarcassonne\tile_data\river (big box 5)\Card.fbefb9.ttslua
+--StartingTileCoC
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.233a1a.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.31cbd2.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.49a323.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.5cc6c2.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.78a086.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.78d5ee.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.8a1ed2.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.9c4fe7.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.9fd64f.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.a0ef6a.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.a6ff3c.ttslua
+#include !\TTSCarcassonne\tile_data\count of carcassonne\Card.b0410c.ttslua
+--StartingTileWoF
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.01f705.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.1d5025.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.21cc72.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.2c3d25.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.2faa15.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.466a78.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.744e80.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.79956d.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.7e508f.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.8e2c6f.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.983022.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.9dc2d2.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.a39cb0.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.c391bc.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.c7bc6d.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune - wheel\Card.f28f77.ttslua
+--StartingTileSchool
+#include !\TTSCarcassonne\tile_data\school\Card.343948.ttslua
+#include !\TTSCarcassonne\tile_data\school\Card.b083ca.ttslua
+--StartingTileWindRoses
+--BaseTiles
+#include !\TTSCarcassonne\tile_data\base\Card.063f86.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.07a858.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.07b7dc.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.0edf2e.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.13d3e6.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.160dbf.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.1618d1.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.1d1768.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.23f264.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.260cca.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.262d85.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.26c02e.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.282e61.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.28b7f4.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.2eccda.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.352469.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.3954fa.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.39f399.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.3a9731.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.448c25.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.45d85c.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.46b85f.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.489667.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.4bb425.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.4d6452.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.51a82b.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.5266e3.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.5b98fa.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.613188.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.627647.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.71cdcd.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.74074b.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.770995.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.81b6df.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.8ab3b8.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.8deedf.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.8ec8c1.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.921048.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.96aef6.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.982577.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.985cb7.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.99fc94.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.9e1969.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.a4b6de.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.a4fc14.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.a7e880.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.a8721b.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.a8c228.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.ab000b.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.b34d70.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.b460ae.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.b76e2a.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.bf6c84.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.c1460f.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.c7ccc7.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.cd09b9.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.ce0132.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.d21088.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.d762a6.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.d7e88c.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.db4061.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.de096e.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.dfbf5f.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.dfd601.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.e0ee9b.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.e66ce5.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.e6b112.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.e819ed.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.eaae93.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.f13303.ttslua
+#include !\TTSCarcassonne\tile_data\base\Card.f4c6fd.ttslua
+--InCTiles
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.0d6626.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.0ecd50.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.0f963e.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.1a1530.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.1cce87.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.2d90de.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.3007eb.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.3f7040.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.50c7ba.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.549207.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.6a7647.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.6da152.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.7ee11d.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.a8bd4a.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.ad61ab.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.ca9fa1.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.ccefa5.ttslua
+#include !\TTSCarcassonne\tile_data\inns and cathedrals\Card.df0b1c.ttslua
+--TnBTiles
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.04fdd7.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.094980.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.0dfcd3.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.0e8e6a.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.17b451.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.20b078.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.2184f7.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.356d76.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.39fc75.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.4989b7.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.4dfb5e.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.526fcd.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.5656b3.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.5d5348.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.73640c.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.913564.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.9615f0.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.9fe70c.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.a09081.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.a39ff5.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.ae1b62.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.b479f1.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.ee1e62.ttslua
+#include !\TTSCarcassonne\tile_data\traders and builders\Card.f565ed.ttslua
+--PnDTiles
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.022ee1.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.025ab1.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.031912.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.1f10d9.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.2826de.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.2cd192.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.2d24d8.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.3547e1.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.429581.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.43f0f5.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.501988.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.53cbf2.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.581a69.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.5b5f90.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.60c09d.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.6213f8.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.6d0abd.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.6e735a.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.712e24.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.7912f4.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.8d2262.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.8fb616.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.929619.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.b13b05.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.b96980.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.c376fc.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.c9b064.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.e1e162.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.ee94b6.ttslua
+#include !\TTSCarcassonne\tile_data\the princess and the dragon\Card.fbe423.ttslua
+--TowerTiles
+#include !\TTSCarcassonne\tile_data\the tower\Card.08cbc8.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.09f137.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.11214d.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.2a82b0.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.342039.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.4ecbf0.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.615817.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.61830e.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.6cfc99.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.7447b1.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.7b1df5.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.98a194.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.b9e329.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.bd396d.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.d0d70b.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.ec80b3.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.fc4e85.ttslua
+#include !\TTSCarcassonne\tile_data\the tower\Card.fe5047.ttslua
+--AnMTiles
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.10551f.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.15b01d.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.2aa6e3.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.2bed56.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.2e9360.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.303f24.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.4ef104.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.56ff1f.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.641eff.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.676a91.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.6c12f4.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.86e639.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.936521.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.bcbd8e.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.c21d03.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.c393f4.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.d567f2.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.e52b57.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.ef2aba.ttslua
+#include !\TTSCarcassonne\tile_data\abbey and mayor\Card.fa0f20.ttslua
+--KnRBTiles
+#include !\TTSCarcassonne\tile_data\king and robber baron\Card.1a2697.ttslua
+#include !\TTSCarcassonne\tile_data\king and robber baron\Card.3b0ca6.ttslua
+#include !\TTSCarcassonne\tile_data\king and robber baron\Card.4b185d.ttslua
+#include !\TTSCarcassonne\tile_data\king and robber baron\Card.6cee2f.ttslua
+#include !\TTSCarcassonne\tile_data\king and robber baron\Card.aa44df.ttslua
+--CultTiles
+#include !\TTSCarcassonne\tile_data\cult\Card.169fe4.ttslua
+#include !\TTSCarcassonne\tile_data\cult\Card.2202d9.ttslua
+#include !\TTSCarcassonne\tile_data\cult\Card.754953.ttslua
+#include !\TTSCarcassonne\tile_data\cult\Card.dcbb1f.ttslua
+#include !\TTSCarcassonne\tile_data\cult\Card.e2c8c0.ttslua
+#include !\TTSCarcassonne\tile_data\cult\Card.f85539.ttslua
+--CatapultTiles
+#include !\TTSCarcassonne\tile_data\catapult\Card.37b647.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.3d8637.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.468e8a.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.5ed318.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.606473.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.61a9eb.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.7b0af1.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.839f3a.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.aa6d0f.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.bc56bb.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.cc2ea6.ttslua
+#include !\TTSCarcassonne\tile_data\catapult\Card.ccbd30.ttslua
+--BCnBTiles
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.2f97ee.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.67671d.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.6c7e2e.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.89c6b8.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.8a11f8.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.94fdaa.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.97764c.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.9bf590.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.9ecc62.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.ba35c2.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.cb9bdd.ttslua
+#include !\TTSCarcassonne\tile_data\bridges castles and bazaars\Card.d82f93.ttslua
+--HnSTiles
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.060a8b.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.11ca9c.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.2ea57c.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.2fdf14.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.3f21be.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.539029.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.711bb7.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.757016.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.82f373.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.8b9e02.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.94d7c4.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.a65bb3.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.ad917d.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.bdec40.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.c803ab.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.e647f6.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.ee8777.ttslua
+#include !\TTSCarcassonne\tile_data\hills and sheep\Card.f54c00.ttslua
+--WoFTiles
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.02c828.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.0319a6.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.05d173.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.0a5719.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.0ad0de.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.0c0255.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.0d563b.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.0d7a9e.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.123185.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.1b39ab.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.1b7546.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.203242.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.207bf7.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.213e95.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.22e37c.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.27f6ff.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.293e0c.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.2ff247.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.351973.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.3890fd.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.3f9962.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.43bb11.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.493860.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.4dbafc.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.541c16.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.5ab50a.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.5bd7b1.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.5db1e5.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.672a26.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.685b6d.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.691b67.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.6a3dc7.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.6ac901.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.6c00a9.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.72aeb5.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.797c2a.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.7a3e81.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.7cf97c.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.7fe2c5.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.83101d.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.847b04.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.856379.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.8586d6.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.8855dc.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.88dec5.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.8b2a4b.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.97d91b.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.982e51.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.997f52.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.9e9b94.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.a157fc.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.ab1e08.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.ac5e87.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.ad8cff.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.b0bdb8.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.b732ca.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.c32add.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.c4a89c.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.cbd416.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.cdb2b3.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.cdc047.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.cfc4a1.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.d75871.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.d9b687.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.dbcd2f.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.e22782.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.e68984.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.ed23b6.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.f24ef6.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.f63500.ttslua
+#include !\TTSCarcassonne\tile_data\wheel of fortune\Card.f6d7a0.ttslua
+--FlierTiles
+#include !\TTSCarcassonne\tile_data\flier\Card.27eda9.ttslua
+#include !\TTSCarcassonne\tile_data\flier\Card.4b66f5.ttslua
+#include !\TTSCarcassonne\tile_data\flier\Card.55f522.ttslua
+#include !\TTSCarcassonne\tile_data\flier\Card.ac8908.ttslua
+#include !\TTSCarcassonne\tile_data\flier\Card.af6b34.ttslua
+#include !\TTSCarcassonne\tile_data\flier\Card.c77f3e.ttslua
+#include !\TTSCarcassonne\tile_data\flier\Card.cdd266.ttslua
+#include !\TTSCarcassonne\tile_data\flier\Card.f7a234.ttslua
+--FerriesTiles
+#include !\TTSCarcassonne\tile_data\ferries\Card.1c293e.ttslua
+#include !\TTSCarcassonne\tile_data\ferries\Card.22e565.ttslua
+#include !\TTSCarcassonne\tile_data\ferries\Card.2bcfb0.ttslua
+#include !\TTSCarcassonne\tile_data\ferries\Card.47b713.ttslua
+#include !\TTSCarcassonne\tile_data\ferries\Card.4e57b6.ttslua
+#include !\TTSCarcassonne\tile_data\ferries\Card.58c62c.ttslua
+#include !\TTSCarcassonne\tile_data\ferries\Card.cfb26b.ttslua
+#include !\TTSCarcassonne\tile_data\ferries\Card.e7db87.ttslua
+--GoldminesTiles
+#include !\TTSCarcassonne\tile_data\gold mines\Card.094d23.ttslua
+#include !\TTSCarcassonne\tile_data\gold mines\Card.39b84c.ttslua
+#include !\TTSCarcassonne\tile_data\gold mines\Card.4b4c66.ttslua
+#include !\TTSCarcassonne\tile_data\gold mines\Card.6ca962.ttslua
+#include !\TTSCarcassonne\tile_data\gold mines\Card.8fd5a9.ttslua
+#include !\TTSCarcassonne\tile_data\gold mines\Card.c0b685.ttslua
+#include !\TTSCarcassonne\tile_data\gold mines\Card.d4eaad.ttslua
+#include !\TTSCarcassonne\tile_data\gold mines\Card.dbc9c7.ttslua
+--MnWTiles
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.0ae607.ttslua
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.0ecb87.ttslua
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.20a1c9.ttslua
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.237a78.ttslua
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.7714b8.ttslua
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.8599b0.ttslua
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.ef1892.ttslua
+#include !\TTSCarcassonne\tile_data\mage and witch\Card.f844da.ttslua
+--RobbersTiles
+#include !\TTSCarcassonne\tile_data\robbers\Card.0a3bdc.ttslua
+#include !\TTSCarcassonne\tile_data\robbers\Card.5a0add.ttslua
+#include !\TTSCarcassonne\tile_data\robbers\Card.779f76.ttslua
+#include !\TTSCarcassonne\tile_data\robbers\Card.7bef71.ttslua
+#include !\TTSCarcassonne\tile_data\robbers\Card.ac0913.ttslua
+#include !\TTSCarcassonne\tile_data\robbers\Card.b9380a.ttslua
+#include !\TTSCarcassonne\tile_data\robbers\Card.d5f79a.ttslua
+#include !\TTSCarcassonne\tile_data\robbers\Card.fea824.ttslua
+--BesiegersTiles
+#include !\TTSCarcassonne\tile_data\besiegers\Card.460e06.ttslua
+#include !\TTSCarcassonne\tile_data\besiegers\Card.9a31d9.ttslua
+#include !\TTSCarcassonne\tile_data\besiegers\Card.afce90.ttslua
+#include !\TTSCarcassonne\tile_data\besiegers\Card.c5019f.ttslua
+#include !\TTSCarcassonne\tile_data\besiegers\Card.d6964f.ttslua
+#include !\TTSCarcassonne\tile_data\besiegers\Card.fcbfb1.ttslua
+--CiGTiles
+--CatharsTiles
+#include !\TTSCarcassonne\tile_data\cathars\Card.03ed22.ttslua
+#include !\TTSCarcassonne\tile_data\cathars\Card.1ac962.ttslua
+#include !\TTSCarcassonne\tile_data\cathars\Card.580480.ttslua
+#include !\TTSCarcassonne\tile_data\cathars\Card.ce6ae4.ttslua
+--CropCirclesITiles
+#include !\TTSCarcassonne\tile_data\crop circles\Card.01e28a.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles\Card.1c4927.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles\Card.522023.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles\Card.659b6e.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles\Card.6ffd63.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles\Card.a1496f.ttslua
+--CropCirclesIITiles
+#include !\TTSCarcassonne\tile_data\crop circles 2\Card.619e62.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles 2\Card.c1e330.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles 2\Card.c266e9.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles 2\Card.cc2751.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles 2\Card.d279a0.ttslua
+#include !\TTSCarcassonne\tile_data\crop circles 2\Card.dde346.ttslua
+--DarmstadtTiles
+#include !\TTSCarcassonne\tile_data\darmstadt\Card.5bdf22.ttslua
+#include !\TTSCarcassonne\tile_data\darmstadt\Card.97ab7b.ttslua
+#include !\TTSCarcassonne\tile_data\darmstadt\Card.b6191b.ttslua
+--FestivalTiles
+#include !\TTSCarcassonne\tile_data\festival\Card.1af5aa.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.2208b2.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.5425e6.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.8c79bd.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.90ae84.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.9594e7.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.df3267.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.e2a7eb.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.e8639e.ttslua
+#include !\TTSCarcassonne\tile_data\festival\Card.eeeda9.ttslua
+--GamesQuarterlyTiles
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.2c7da1.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.2d5d36.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.39f902.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.56d535.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.5868fb.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.873113.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.897550.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.b1bc9f.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.b5ab8f.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.c50ee2.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.eb3e59.ttslua
+#include !\TTSCarcassonne\tile_data\games quarterly expansion\Card.f391d6.ttslua
+--HalflingsITiles
+--HalflingsIITiles
+--LaPorxadaTiles
+#include !\TTSCarcassonne\tile_data\la porxada\Card.597932.ttslua
+--MiGTiles
+#include !\TTSCarcassonne\tile_data\monasteries in germany\Card.4c8a0e.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in germany\Card.8b9db7.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in germany\Card.9b4df8.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in germany\Card.9bc048.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in germany\Card.e802af.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in germany\Card.ecbbea.ttslua
+--MiNBTiles
+#include !\TTSCarcassonne\tile_data\monasteries in netherlands and belgium\Card.52a775.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in netherlands and belgium\Card.76afdc.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in netherlands and belgium\Card.7b40fc.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in netherlands and belgium\Card.bfaca8.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in netherlands and belgium\Card.d766bf.ttslua
+#include !\TTSCarcassonne\tile_data\monasteries in netherlands and belgium\Card.f393b3.ttslua
+--PlagueTiles
+#include !\TTSCarcassonne\tile_data\plague\Card.06b508.ttslua
+#include !\TTSCarcassonne\tile_data\plague\Card.5b4f70.ttslua
+#include !\TTSCarcassonne\tile_data\plague\Card.80b1d9.ttslua
+#include !\TTSCarcassonne\tile_data\plague\Card.91f73f.ttslua
+#include !\TTSCarcassonne\tile_data\plague\Card.b20c4f.ttslua
+#include !\TTSCarcassonne\tile_data\plague\Card.e737fa.ttslua
+--SiegeTiles
+#include !\TTSCarcassonne\tile_data\siege\Card.5a9af3.ttslua
+#include !\TTSCarcassonne\tile_data\siege\Card.861d9c.ttslua
+#include !\TTSCarcassonne\tile_data\siege\Card.a6c0fb.ttslua
+#include !\TTSCarcassonne\tile_data\siege\Card.fed472.ttslua
+--SpielPromoTiles
+#include !\TTSCarcassonne\tile_data\spiel promo\Card.9129b0.ttslua
+--RussianPromoTiles
+#include !\TTSCarcassonne\tile_data\russian promos\Card.4abd7d.ttslua
+#include !\TTSCarcassonne\tile_data\russian promos\Card.6a6e49.ttslua
+--TunnelTiles
+#include !\TTSCarcassonne\tile_data\tunnel\Card.6828f8.ttslua
+#include !\TTSCarcassonne\tile_data\tunnel\Card.86cb98.ttslua
+#include !\TTSCarcassonne\tile_data\tunnel\Card.c834f0.ttslua
+#include !\TTSCarcassonne\tile_data\tunnel\Card.e8646e.ttslua
+
+--Carcassonne II
+
+--CIIBaseTiles
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.00e628.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.016464.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.03810e.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.03c7f4.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.1fb2de.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.243eb6.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.249632.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.2515e7.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.271f4f.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.287e6a.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.2cdf4c.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.2e9778.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.31e98d.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.31fe13.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.3218e6.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.39c706.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.3aa65d.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.3e3817.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.3eccc9.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.42396b.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.428980.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.4e2892.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.4fc0da.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.527ae8.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.550413.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.565a4d.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.599f76.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.5e2179.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.6957d7.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.6afa97.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.6c4486.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.71957c.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.721dc8.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.73f73c.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.76d206.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.7cbfe7.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.7f845e.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.7f90ad.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.83b7c1.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.88e8df.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.8cf9a9.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.8d0219.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.92bc9d.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.991851.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.999074.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.9d84c8.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.a15795.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.a55cf4.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.a56fda.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.a70959.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.b99311.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.badf4b.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.bb3b9d.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.bbc35a.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.bca647.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.bcbb5d.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.bd202a.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.bd64b6.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.bd973d.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.c4312f.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.cc44b3.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.ce439c.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.e6a1e9.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.e6c8c5.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.e8cf5b.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.e8d540.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.ea6f1f.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.eaec1b.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.ed6975.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.efe038.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.f20f4b.ttslua
+#include !\TTSCarcassonne\tile_data\base (v2)\Card.fe3258.ttslua
+--CIIRiver
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.286d75.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.2b4b8c.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.39f3c3.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.4421d2.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.4bbc51.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.4d6ece.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.78ef4b.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.9998b2.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.b302cc.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.b9ba33.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.e9511b.ttslua
+#include !\TTSCarcassonne\tile_data\river (v2)\Card.fa109f.ttslua
+}
+
+function getTileDataForTile(tile)
+    if tile.getVar("tileDataId") ~= nil then
+        return globalTileData[tile.getVar("tileDataId")]
+    else
+        return {
+            symmetry = tile.getVar("symmetry"),
+            ignoredFeatures = tile.getTable("ignoredFeatures"),
+            isStartingTile = tile.getVar("isStartingTile"),
+            sides = tile.getTable("sides"),
+            linkedQuadrants = tile.getTable("linkedQuadrants"),
+            linkedOctants = tile.getTable("linkedOctants"),
+            specialFeatures = tile.getTable("specialFeatures")
+        }
+    end
+end

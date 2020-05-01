@@ -1,6 +1,6 @@
 <Defaults>
     <Panel class="ControlPanelPage" width="1820" height="2600" position="0.0 0.0 -11.0" rectAlignment="MiddleCenter"/>
-    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="BoldAndItalic" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
     <Text class="ControlPanelExpansionLabel" fontSize="72" fontStyle="Bold" width="1200" height="100" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
     <Text class="ControlPanelPageLabel" fontSize="34" color="#000000"/>
     <Text class="ControlPanelItemLabel" fontSize="60" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>

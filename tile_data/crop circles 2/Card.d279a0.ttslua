@@ -1,4 +1,6 @@
-sides = {'Road', 'Road', 'Road', 'Road'}
-linkedQuadrants = {{3, 4}}
-linkedOctants = {{5, 8, 9, 12}, {6, 7}, {10, 11}}
-specialFeatures = {{'Crop-Club', nil, nil}}
+['d279a0'] = {
+	sides = {'Road', 'Road', 'Road', 'Road'},
+	linkedQuadrants = {{3, 4}},
+	linkedOctants = {{5, 8, 9, 12}, {6, 7}, {10, 11}},
+	specialFeatures = {{'Crop-Club', nil, nil}}
+},

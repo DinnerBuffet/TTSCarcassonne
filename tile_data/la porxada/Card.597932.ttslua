@@ -1,4 +1,6 @@
-symmetry = 1
-sides = {'City', 'City', 'City', 'City'}
-linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}}
-specialFeatures = {{'Porxada', nil, nil}, {'Pennant', {5, 6, 7, 8, 9, 10, 11, 12}, nil}}
+['597932'] = {
+	symmetry = 1,
+	sides = {'City', 'City', 'City', 'City'},
+	linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}},
+	specialFeatures = {{'Porxada', nil, nil}, {'Pennant', {5, 6, 7, 8, 9, 10, 11, 12}, nil}}
+},

@@ -1,5 +1,7 @@
-isStartingPiece = true
-ignoredFeatures = {4, 5, 10, 11, 12}
-sides = {'Carcassonne/Field', 'Field', 'Field/Carcassonne', 'Carcassonne'}
-linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}}
-specialFeatures = {{'Quarter-Market', nil, {-0.4, 0.0}}, {'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}}
+['31cbd2'] = {
+	isStartingPiece = true,
+	ignoredFeatures = {4, 5, 10, 11, 12},
+	sides = {'Carcassonne/Field', 'Field', 'Field/Carcassonne', 'Carcassonne'},
+	linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}},
+	specialFeatures = {{'Quarter-Market', nil, {-0.4, 0.0}}, {'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}}
+},

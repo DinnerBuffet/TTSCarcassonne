@@ -1,5 +1,7 @@
-isStartingPiece = true
-sides = {'River', 'Road', 'River', 'Road'}
-linkedQuadrants = {{1, 3}, {2, 4}}
-linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}}
-specialFeatures = {{'Inn', {2, 4}, nil}}
+['12fcd3'] = {
+	isStartingPiece = true,
+	sides = {'River', 'Road', 'River', 'Road'},
+	linkedQuadrants = {{1, 3}, {2, 4}},
+	linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}},
+	specialFeatures = {{'Inn', {2, 4}, nil}}
+},

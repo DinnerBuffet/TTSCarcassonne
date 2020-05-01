@@ -1,4 +1,6 @@
-symmetry = 2
-sides = {'Road', 'Field', 'Road', 'Field'}
-linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}}
-specialFeatures = {{'Road Intersection', {1, 3}, nil}, {'Hill', nil, nil}}
+['e647f6'] = {
+	symmetry = 2,
+	sides = {'Road', 'Field', 'Road', 'Field'},
+	linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}},
+	specialFeatures = {{'Road Intersection', {1, 3}, nil}, {'Hill', nil, nil}}
+},

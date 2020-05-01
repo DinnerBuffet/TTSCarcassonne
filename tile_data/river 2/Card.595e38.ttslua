@@ -1,4 +1,6 @@
-isStartingPiece = true
-sides = {'River', 'Field', 'City', 'Field'}
-linkedOctants = {{5, 11, 12}, {6, 7, 8}, {9, 10}}
-specialFeatures = {{'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}}
+['595e38'] = {
+	isStartingPiece = true,
+	sides = {'River', 'Field', 'City', 'Field'},
+	linkedOctants = {{5, 11, 12}, {6, 7, 8}, {9, 10}},
+	specialFeatures = {{'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}}
+},

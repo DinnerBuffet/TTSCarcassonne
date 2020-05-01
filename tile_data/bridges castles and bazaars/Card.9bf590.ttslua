@@ -1,4 +1,6 @@
-symmetry = 2
-sides = {'Field', 'City', 'Field', 'City'}
-linkedOctants = {{5, 6}, {7, 8, 11, 12}, {9, 10}}
-specialFeatures = {{'Cloister', nil, {0.0,-0.1}}, {'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Road Intersection', {7, 8, 11, 12, 13}, nil}}
+['9bf590'] = {
+	symmetry = 2,
+	sides = {'Field', 'City', 'Field', 'City'},
+	linkedOctants = {{5, 6}, {7, 8, 11, 12}, {9, 10}},
+	specialFeatures = {{'Cloister', nil, {0.0,-0.1}}, {'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Road Intersection', {7, 8, 11, 12, 13}, nil}}
+},

@@ -1,5 +1,7 @@
-symmetry = 2
-sides = {'Road', 'Road', 'Road', 'Road'}
-linkedQuadrants = {{1, 4}, {2, 3}}
-linkedOctants = {{5, 12}, {6, 7, 10, 11}, {8, 9}}
-specialFeatures = {{'Field', {6, 7, 10, 11}, {0.0,0.0}}}
+['6a7647'] = {
+	symmetry = 2,
+	sides = {'Road', 'Road', 'Road', 'Road'},
+	linkedQuadrants = {{1, 4}, {2, 3}},
+	linkedOctants = {{5, 12}, {6, 7, 10, 11}, {8, 9}},
+	specialFeatures = {{'Field', {6, 7, 10, 11}, {0.0,0.0}}}
+},

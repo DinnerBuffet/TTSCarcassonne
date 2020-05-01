@@ -1,4 +1,6 @@
-symmetry = 2
-sides = {'City', 'City', 'City', 'City'}
-linkedOctants = {{5, 6, 11, 12}, {7, 8, 9, 10}}
-specialFeatures = {{'Crop-Shield', nil, nil}}
+['c266e9'] = {
+	symmetry = 2,
+	sides = {'City', 'City', 'City', 'City'},
+	linkedOctants = {{5, 6, 11, 12}, {7, 8, 9, 10}},
+	specialFeatures = {{'Crop-Shield', nil, nil}}
+},

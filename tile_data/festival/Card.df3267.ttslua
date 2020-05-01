@@ -1,4 +1,6 @@
-sides = {'Road', 'City', 'Field', 'Road'}
-linkedOctants = {{5, 12}, {6, 9, 10, 11}, {7, 8}}
-linkedQuadrants = {{1, 4}}
-specialFeatures = {{'Field', {6, 9, 10, 11}, {0.0,0.0}}, {'Festival', nil, nil}, {'City-Field', {6, 7, 8, 9, 10, 11}, nil}}
+['df3267'] = {
+	sides = {'Road', 'City', 'Field', 'Road'},
+	linkedOctants = {{5, 12}, {6, 9, 10, 11}, {7, 8}},
+	linkedQuadrants = {{1, 4}},
+	specialFeatures = {{'Field', {6, 9, 10, 11}, {0.0,0.0}}, {'Festival', nil, nil}, {'City-Field', {6, 7, 8, 9, 10, 11}, nil}}
+},

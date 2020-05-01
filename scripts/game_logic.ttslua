@@ -389,7 +389,7 @@ function getActiveFigures()
             if tileGridOccupied(xIndex, zIndex) then
                 local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
                 local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
-                --print(obj.getGUID() .. ": pos - " .. closestPosition .. " featureNum - " .. featureNum)
+                -- print(obj.getGUID() .. ": pos - " .. closestFeatureMapPosition .. " featureNum - " .. featureNum)
                 if activeFigures[featureNum] == nil then
                     activeFigures[featureNum] = {}
                     activeFigures[featureNum].specialFigures = {}
@@ -441,8 +441,10 @@ end
 -- returns:
 --  bool: true if they match
 function tileConnectsToSide(t1, r1, n1, t2, r2)
-    s1 = t1.getTable('sides')[(3 + n1 - r1) % 4 + 1]
-    s2 = t2.getTable('sides')[(3 + n1 - r2 + TILE_180_ROTATION) % 4 + 1]
+    local t1Data = getTileDataForTile(t1)
+    local t2Data = getTileDataForTile(t2)
+    s1 = t1Data.sides[(3 + n1 - r1) % 4 + 1]
+    s2 = t2Data.sides[(3 + n1 - r2 + TILE_180_ROTATION) % 4 + 1]
     --debugMessage(2, "s1(" .. (3 + n1 - r1) % 4 + 1 .. "): " .. s1 .. " s2(" .. (3 + n1 - r2 + TILE_180_ROTATION) % 4 + 1 .. "): " .. s2)
     if s1 == 'Abbey' or s2 == 'Abbey' then return true end
 
@@ -503,8 +505,9 @@ function checkTileForHill()
     end
 
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+    local newTileData = getTileDataForTile(newTile)
     --put another tile underneath it
-    local specialFeatures = newTile.getTable('specialFeatures')
+    local specialFeatures = newTileData.specialFeatures
     if specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
             if specialFeature[1] == "Hill" then
@@ -587,8 +590,8 @@ ANIMATION_PIG_TIME_PER_SPACE = 60 / ANIMATION_PIG_MAX_VELOCITY
 
 function checkTileForWheel()
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
-    --put another tile underneath it
-    local specialFeatures = newTile.getTable('specialFeatures')
+    local newTileData = getTileDataForTile(newTile)
+    local specialFeatures = newTileData.specialFeatures
     if specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
             if pigIsEnabled() and string.sub(specialFeature[1],1,6) == 'Wheel-' then
@@ -800,8 +803,8 @@ end
 
 function checkTileForVolcano()
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
-    --put another tile underneath it
-    local specialFeatures = newTile.getTable('specialFeatures')
+    local newTileData = getTileDataForTile(newTile)
+    local specialFeatures = newTileData.specialFeatures
     if specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
             if controlPanelSettings['PnDDragon'] and specialFeature[1] == "Volcano" then
@@ -819,8 +822,8 @@ end
 
 function checkTileForDragon()
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
-    --put another tile underneath it
-    local specialFeatures = newTile.getTable('specialFeatures')
+    local newTileData = getTileDataForTile(newTile)
+    local specialFeatures = newTileData.specialFeatures
     if specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
             if controlPanelSettings['PnDDragon'] and specialFeature[1] == "Dragon" then
@@ -996,8 +999,9 @@ end
 
 function checkTileForPrincess()
     local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+    local newTileData = getTileDataForTile(newTile)
     local tileRotation = tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation
-    local specialFeatures = newTile.getTable('specialFeatures') --Note: though I strive to not use tile data after it has been added to the feature map, an exception needs to be made here
+    local specialFeatures = newTileData.specialFeatures --Note: though I strive to not use tile data after it has been added to the feature map, an exception needs to be made here
     if controlPanelSettings['PnDPrincess'] and specialFeatures ~= nil then
         for _, specialFeature in ipairs(specialFeatures) do
             if specialFeature[1] == "Princess" then
@@ -1018,11 +1022,14 @@ function checkTileForPrincess()
 end
 
 function checkTileForMagicPortal()
-    local tileFeatures = tileGrid[lastPlacedTileX][lastPlacedTileZ].tileFeatures
-    if controlPanelSettings['PnDMagicPortal'] and tileFeatures ~= nil then
-        for _, tileFeature in ipairs(tileFeatures) do
-            if tileFeature == 'Magic Portal' then
-                tileHasMagicPortal = true
+    if controlPanelSettings['PnDMagicPortal'] then
+        local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid))
+        local specialFeatures = tileData.specialFeatures
+        if specialFeatures ~= nil then
+            for _, specialFeature in ipairs(specialFeatures) do
+                if specialFeature[1] == 'Magic Portal' then
+                    tileHasMagicPortal = true
+                end
             end
         end
     end
@@ -1031,10 +1038,11 @@ end
 
 function checkTileForLake(tile)
     if controlPanelSettings['FerriesTiles'] and controlPanelSettings['FerriesFerries'] then
-        local tileFeatures = tile.tileFeatures
-        if tileFeatures ~= nil then
-            for _, tileFeature in ipairs(tileFeatures) do
-                if tileFeature == 'Lake' then
+        local tileData = getTileDataForTile(getObjectFromGUID(tile.tile_guid))
+        local specialFeatures = tileData.specialFeatures
+        if specialFeatures ~= nil then
+            for _, specialFeature in ipairs(specialFeatures) do
+                if specialFeature[1] == 'Lake' then
                     return true
                 end
             end
@@ -1075,8 +1083,9 @@ end
 
 function searchFerrySide(i)
     -- define some needed variables
-    local lastPlacedTile = tileGrid[lastPlacedTileX][lastPlacedTileZ]
-    local sides = getObjectFromGUID(lastPlacedTile.tile_guid).getTable('sides')
+    local lastPlacedTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+    local lastPlacedTileData = getTileDataForTile(lastPlacedTile)
+    local sides = lastPlacedTileData.sides
 
     -- from the rules:
     -- If the tile placed extends more than one road,
@@ -1094,7 +1103,7 @@ function searchFerrySide(i)
         }
         local connectedTiles = { {} }
         local lakeTiles = {}
-        local s, x, z = getConnectingFeatureMapPosition(lastPlacedTileX, lastPlacedTileZ, i, lastPlacedTile.rotation)
+        local s, x, z = getConnectingFeatureMapPosition(lastPlacedTileX, lastPlacedTileZ, i, tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation)
         if tileGridOccupied(x, z) then
             s = (s + 5 - tileGrid[x][z].rotation) % 4 + 1
             local tileInfo = {x = x, z = z, side = s}
@@ -1164,11 +1173,14 @@ function searchFerrySide(i)
 end
 
 function checkTileForGold()
-    local tileFeatures = tileGrid[lastPlacedTileX][lastPlacedTileZ].tileFeatures
-    if controlPanelSettings['GoldminesGold'] and tileFeatures ~= nil then
-        for _, tileFeature in ipairs(tileFeatures) do
-            if tileFeature == 'Gold' then
-                return nextState('has gold')
+    if controlPanelSettings['GoldminesGold'] then
+        local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid))
+        local specialFeatures = tileData.specialFeatures
+        if specialFeatures ~= nil then
+            for _, specialFeature in ipairs(specialFeatures) do
+                if specialFeature[1] == 'Gold' then
+                    return nextState('has gold')
+                end
             end
         end
     end
@@ -1236,16 +1248,17 @@ function displayFerryButtons(tileX, tileZ)
     if tileGridOccupied(tileX, tileZ) then
         local ferryTile = tileGrid[tileX][tileZ]
         ferryTilePosition = {x=tileX, z=tileZ}
-        local tileObj = getObjectFromGUID(ferryTile.tile_guid)
+        local ferryTileObj = getObjectFromGUID(ferryTile.tile_guid)
+        local ferryTileData = getTileDataForTile(ferryTileObj)
         local offset =
         {
             {nil, {x = 0.75, z = -0.75}, {x = 0, z = -0.25}, {x = -0.75, z = -0.75}},
             {nil, nil, {x = 0.75, z = 0.75}, {x = 0, z = 0.25}},
             {nil, nil, nil, {x = -0.75, z = 0.75}}
         }
-        local sides = tileObj.getTable('sides')
+        local sides = ferryTileData.sides
         if sides ~= nil then
-            labelTileSides(tileX, tileZ, ferryTile, tileObj, sides)
+            labelTileSides(tileX, tileZ, ferryTile, ferryTileObj, sides)
             local i = 1
             for a = 1, 3 do
                 for b = a+1, 4 do
@@ -1292,7 +1305,7 @@ function displayFerryButtons(tileX, tileZ)
     end
 end
 
-function labelTileSides(tileX, tileZ, ferryTile, tileObj, sides)
+function labelTileSides(tileX, tileZ, ferryTile, ferryTileObj, sides)
     local offset = {{x = 0, z = -0.625}, {x = 0.625, z = 0}, {x = 0, z = 0.625}, {x = -0.625, z = 0}}
     for side, sideType in ipairs(sides) do
         if sideType == 'Road' then
@@ -1301,7 +1314,7 @@ function labelTileSides(tileX, tileZ, ferryTile, tileObj, sides)
                position = {x=0, y=0, z=0}, width = 270, height=270, font_size = 180, color = {r = 1, g = 1, b = 0}, function_owner = nil
             }
             local normalized_x, normalized_z = rotateCoordinates(offset[side].x, offset[side].z, ferryTile.rotation)
-            createNormalizedArbitraryButton({x=-tileX * TILE_SPACING + MIDDLE_OFFSET.x + normalized_x, y=tileObj.getPosition().y + TILE_SURFACE_BUTTON_HEIGHT, z=tileZ * TILE_SPACING - MIDDLE_OFFSET.z + normalized_z}, ferryLabelParam, true)
+            createNormalizedArbitraryButton({x=-tileX * TILE_SPACING + MIDDLE_OFFSET.x + normalized_x, y=ferryTileObj.getPosition().y + TILE_SURFACE_BUTTON_HEIGHT, z=tileZ * TILE_SPACING - MIDDLE_OFFSET.z + normalized_z}, ferryLabelParam, true)
         end
     end
 end
@@ -1438,11 +1451,13 @@ function checkAddedTileFeatureExtensions()
     --check if the new tile has completed the biggest city/longest road and award token
     local longestNewRoad = 0
     local largestNewCity = 0
-    local tileFeatures = tileGrid[lastPlacedTileX][lastPlacedTileZ].tileFeatures
+
+    local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid))
+    local specialFeatures = tileData.specialFeatures
     local isAbbey = false
-    if tileFeatures ~= nil then
-        for _, tileFeature in ipairs(tileFeatures) do
-            if tileFeature == 'Abbey' then
+    if specialFeatures ~= nil then
+        for _, specialFeature in ipairs(specialFeatures) do
+            if specialFeature[1] == 'Abbey' then
                 isAbbey = true
             end
         end
@@ -2113,9 +2128,10 @@ function addSheepToTileCoroutine()
     --no error checking for the shepherd. Assume that it is still in a legal position
     local shepherdTileXIndex, shepherdTileZIndex, shepherdXPosition, shepherdZPosition = getFigureTileLocation(shepherd)
     local tile = getObjectFromGUID(tileGrid[shepherdTileXIndex][shepherdTileZIndex].tile_guid)
+    local tileData = getTileDataForTile(tile)
     local rotation = tileGrid[shepherdTileXIndex][shepherdTileZIndex].rotation
     local shepherdClosestTilePosition = findClosestTilePosition(shepherdTileXIndex, shepherdTileZIndex, shepherdXPosition, shepherdZPosition)
-    for _, linkedOctants in pairs(tile.getTable('linkedOctants')) do
+    for _, linkedOctants in pairs(tileData.linkedOctants) do
         if table.contains(linkedOctants, shepherdClosestTilePosition) then
             for _, location in pairs(linkedOctants) do
                 local x, z = getTileFeatureLocation(location, tile, rotation)
@@ -2149,11 +2165,11 @@ function addSheepToTileCoroutine()
 
                         sheepTileBag.shuffle()
                         drawingSheepLock = true
-                        local newTile = sheepTileBag.takeObject(params)
+                        local newToken = sheepTileBag.takeObject(params)
                         while drawingSheepLock do
                             coroutine.yield(0)
                         end
-                        if newTile.getVar('tokenName') == "Wolf" then
+                        if newToken.getVar('tokenName') == "Wolf" then
                             Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='scoreFlock', function_owner=nil, parameters={shepherd=shepherd}, delay=1.0})
                         else
                             Timer.create({identifier=shepherd.getGUID() .. os.clock(), function_name='progressState', function_owner=nil, parameters=nil, delay=1.0})
@@ -2345,6 +2361,7 @@ function checkFlierDestination()
         end
         resetTraversal()
         local destinationTile = getObjectFromGUID(tileGrid[lastPlacedTileX + flierOffset.x][lastPlacedTileZ + flierOffset.z].tile_guid)
+        local destinationTileData = getTileDataForTile(destinationTile)
         local hasIncompleteFeature = false
         for i=1, 12 do
             if getTileFeatureName(destinationTile, i) == 'City' or getTileFeatureName(destinationTile, i) == 'Road' then --fields are not valid destinations
@@ -2355,7 +2372,7 @@ function checkFlierDestination()
                 end
             end
         end
-        local specialFeatures = destinationTile.getTable('specialFeatures')
+        local specialFeatures = destinationTileData.specialFeatures
         for j, feature in pairs(specialFeatures) do
             if (feature[1] == 'Cloister' or feature[1] == 'Abbey') and getObjectFromGUID(flier).getVar('figureName') ~= 'Mayor' then
                 if getFeatureComponents(lastPlacedTileX + flierOffset.x, lastPlacedTileZ + flierOffset.z, j + 12, 1, false) > 0 then
@@ -2464,9 +2481,10 @@ function promptMovingFromCoC()
             local hasField = false
             if gameIsActive() then
                 local newTile = getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)
+                local newTileData = getTileDataForTile(newTile)
                 local tileRotation = tileGrid[lastPlacedTileX][lastPlacedTileZ].rotation
-                if newTile.getTable('sides')[1] ~= 'Abbey' then
-                    local specialFeatures = newTile.getTable('specialFeatures')
+                if newTileData.sides[1] ~= 'Abbey' then
+                    local specialFeatures = newTileData.specialFeatures
                     for tilePosition=1, 12 do --roads and cities
                         local featureMapPosition = tilePositionToFeatureMapPosition(tilePosition, tileRotation)
                         local featureNum = getFeatureNumAt(lastPlacedTileX, lastPlacedTileZ, featureMapPosition)
@@ -2675,7 +2693,7 @@ function scoreFeatures()
                             end
                             if weight > 0 then
                                 local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
-                                local specialFeatures = getObjectFromGUID(tileGrid[followerXIndex][followerZIndex].tile_guid).getTable('specialFeatures')
+                                local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[followerXIndex][followerZIndex].tile_guid)).specialFeatures
                                 if controlPanelSettings['HnSHills'] and specialFeatures ~= nil then
                                     for _, specialFeature in ipairs(specialFeatures) do
                                         if specialFeature[1] == "Hill" then
@@ -2748,7 +2766,7 @@ function scoreFeatures()
                                 end
                             end
                             --do not nerf cities that were completed by an abbey, or incomplete cities
-                            if lastPlacedTileX ~= nil and getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid).getTable('sides')[1] ~= 'Abbey' and
+                            if lastPlacedTileX ~= nil and getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid)).sides[1] ~= 'Abbey' and
                                featureComplete and controlPanelSettings['BaseNerfSmallCity'] and score == 4 then score = 2 end
                         elseif nameOfFeature == 'Field' then
                             if linkedFeatures['City-Field'][featureNum] ~= nil then
@@ -2800,7 +2818,7 @@ function scoreFeatures()
                                 for x=-1, 1 do
                                     for z=-1, 1 do
                                         if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
-                                            local specialFeatures = getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid).getTable('specialFeatures')
+                                            local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid)).specialFeatures
                                             if specialFeatures ~= nil then
                                                 for i, feature in ipairs(specialFeatures) do
                                                     local adjacentFeature = feature[1]
@@ -3537,9 +3555,11 @@ function praiseFiguresCoroutine()
         for _, traversedTileCoord in ipairs(traversedTileCoords) do
             if traversedFeaturePositions[traversedTileCoord.x] ~= nil and traversedFeaturePositions[traversedTileCoord.x][traversedTileCoord.z] ~= nil then
                 local tile = getObjectFromGUID(tileGrid[traversedTileCoord.x][traversedTileCoord.z].tile_guid)
+                local tileData = getTileDataForTile(tile)
+
                 local rotation = tileGrid[traversedTileCoord.x][traversedTileCoord.z].rotation
                 local tileHeight = TILE_THICKNESS
-                local specialFeatures = tile.getTable('specialFeatures')
+                local specialFeatures = tileData.specialFeatures
                 if specialFeatures ~= nil then
                     for _, specialFeature in ipairs(specialFeatures) do
                         if specialFeature[1] == "Hill" then
@@ -3548,7 +3568,7 @@ function praiseFiguresCoroutine()
                     end
                 end
                 for position, traversedFeaturePosition in pairs(traversedFeaturePositions[traversedTileCoord.x][traversedTileCoord.z]) do
-                    if position < 13 or tile.getTable('specialFeatures')[position - 12][3] ~= nil then
+                    if position < 13 or specialFeatures[position - 12][3] ~= nil then
                         local x, z = getTileFeatureLocation(position, tile, rotation)
                         local params = {}
                         if traversedFeaturePosition == 1 then
@@ -3751,11 +3771,11 @@ function findClosestTilePosition(xIndex, zIndex, xPosition, zPosition)
     local closestPosition = 1
     local closestDistance = 999 --presumably every position should be closer than this
 
-    local ignoredFeatures = tileGrid[xIndex][zIndex].ignoredFeatures
+    local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
     for a = 0, 1 do -- a==0 is for quadrants, a==1 is for octants
         for side = 1, 4 do
             for j = 0, a do -- should do 1 loop for quadrants, 2 loops for octants
-                if ignoredFeatures == nil or not table.contains(ignoredFeatures, position) then
+                if tileData.ignoredFeatures == nil or not table.contains(tileData.ignoredFeatures, position) then
                     local x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, 5 - side)
                     local distance = (rotatedXPosition - x) * (rotatedXPosition - x) + (rotatedZPosition - z) * (rotatedZPosition - z)
                     --debugMessage(3, "compare to position " .. position .. ": x: " .. x .. " z: " .. z .. " distance: " .. distance)
@@ -3768,13 +3788,16 @@ function findClosestTilePosition(xIndex, zIndex, xPosition, zPosition)
             end
         end
     end
-    local specialFeatureLocations = tileGrid[xIndex][zIndex].specialFeatureLocations
-    if specialFeatureLocations ~= nil then
-        for specialFeatureNum, specialFeatureCoords in pairs(specialFeatureLocations) do
-            local distance = (xPosition - specialFeatureCoords.x) * (xPosition - specialFeatureCoords.x) + (zPosition - specialFeatureCoords.z) * (zPosition - specialFeatureCoords.z)
-            if distance < closestDistance then
-                closestPosition = specialFeatureNum+12
-                closestDistance = distance
+    local specialFeatures = tileData.specialFeatures
+    if specialFeatures ~= nil then
+        for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+            if specialFeature[3] ~= nil then
+                local specialFeatureLocationX, specialFeatureLocationZ = rotateCoordinates(specialFeature[3][1], specialFeature[3][2], (TILE_STANDARD_ROTATION - 1 - tileGrid[xIndex][zIndex].rotation) % 4 + 1)
+                local distance = (xPosition - specialFeatureLocationX) * (xPosition - specialFeatureLocationX) + (zPosition - specialFeatureLocationZ) * (zPosition - specialFeatureLocationZ)
+                if distance < closestDistance then
+                    closestPosition = specialFeatureNum+12
+                    closestDistance = distance
+                end
             end
         end
     end
@@ -3796,11 +3819,11 @@ function findClosestPosition(xIndex, zIndex, xPosition, zPosition)
     local closestPosition = 1
     local closestDistance = 999 --presumably every position should be closer than this
 
-    local ignoredFeatures = tileGrid[xIndex][zIndex].ignoredFeatures
+    local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
     for a = 0, 1 do -- a==0 is for quadrants, a==1 is for octants
         for side = 1, 4 do
             for j = 0, a do -- should do 1 loop for quadrants, 2 loops for octants
-                if ignoredFeatures == nil or not table.contains(ignoredFeatures, position) then
+                if tileData.ignoredFeatures == nil or not table.contains(tileData.ignoredFeatures, position) then
                     local x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, 5 - side)
                     local distance = (xPosition - x) * (xPosition - x) + (zPosition - z) * (zPosition - z)
                     --debugMessage(3, "compare to position " .. position .. ": x: " .. x .. " z: " .. z .. " distance: " .. distance)
@@ -3813,13 +3836,16 @@ function findClosestPosition(xIndex, zIndex, xPosition, zPosition)
             end
         end
     end
-    local specialFeatureLocations = tileGrid[xIndex][zIndex].specialFeatureLocations
-    if specialFeatureLocations ~= nil then
-        for specialFeatureNum, specialFeatureCoords in pairs(specialFeatureLocations) do
-            local distance = (xPosition - specialFeatureCoords.x) * (xPosition - specialFeatureCoords.x) + (zPosition - specialFeatureCoords.z) * (zPosition - specialFeatureCoords.z)
-            if distance < closestDistance then
-                closestPosition = specialFeatureNum+12
-                closestDistance = distance
+    local specialFeatures = tileData.specialFeatures
+    if specialFeatures ~= nil then
+        for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+            if specialFeature[3] ~= nil then
+                local specialFeatureLocationX, specialFeatureLocationZ = rotateCoordinates(specialFeature[3][1], specialFeature[3][2], (TILE_STANDARD_ROTATION - 1 - tileGrid[xIndex][zIndex].rotation) % 4 + 1)
+                local distance = (xPosition - specialFeatureLocationX) * (xPosition - specialFeatureLocationX) + (zPosition - specialFeatureLocationZ) * (zPosition - specialFeatureLocationZ)
+                if distance < closestDistance then
+                    closestPosition = specialFeatureNum+12
+                    closestDistance = distance
+                end
             end
         end
     end
@@ -3841,7 +3867,8 @@ function getTileFeatureLocation(feature, tile, rotation)
         end
         x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, ((8 + TILE_STANDARD_ROTATION - side - rotation) % 4) + 1)
     else
-        local specialFeatures = tile.getTable('specialFeatures')
+        local tileData = getTileDataForTile(tile)
+        local specialFeatures = tileData.specialFeatures
         x, z = rotateCoordinates(specialFeatures[feature - 12][3][1], specialFeatures[feature - 12][3][2], (TILE_STANDARD_ROTATION - 1 - rotation) % 4 + 1)
     end
     return x, z
@@ -3862,8 +3889,12 @@ function getFeatureLocation(xIndex, zIndex, feature)
         end
         x, z = rotateCoordinates((-0.25 + (j * 0.5)) * a, 0.5 - FIGURE_DISTANCE_FROM_EDGE, ((8 - side) % 4) + 1)
     else
-        local specialFeatureLocation = tileGrid[xIndex][zIndex].specialFeatureLocations[feature - 12]
-        return specialFeatureLocation.x, specialFeatureLocation.z
+        local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
+        local specialFeatures = tileData.specialFeatures
+        if specialFeatures ~= nil and specialFeatures[feature - 12][3] ~= nil then
+            specialFeature = specialFeatures[feature - 12]
+            x, z = rotateCoordinates(specialFeature[3][1], specialFeature[3][2], (TILE_STANDARD_ROTATION - 1 - tileGrid[xIndex][zIndex].rotation) % 4 + 1)
+        end
     end
     return x, z
 end
@@ -3878,11 +3909,12 @@ end
 -- returns:
 --  string: name
 function getTileFeatureName(tile, position)
+    local tileData = getTileDataForTile(tile)
     local nameOfFeature
     if position < 5 then
-        nameOfFeature = tile.getTable('sides')[position]
+        nameOfFeature = tileData.sides[position]
     elseif position < 13 then
-        local splitSides = string.split(tile.getTable('sides')[math.floor((position - 3) / 2)], "/")
+        local splitSides = string.split(tileData.sides[math.floor((position - 3) / 2)], "/")
         if #splitSides == 1 then
             nameOfFeature = splitSides[1]
             if nameOfFeature == 'Road' or nameOfFeature == 'River' then nameOfFeature = 'Field' end
@@ -3894,7 +3926,7 @@ function getTileFeatureName(tile, position)
             end
         end
     else
-        local specialFeatures = tile.getTable('specialFeatures')
+        local specialFeatures = tileData.specialFeatures
         if specialFeatures[position - 12] ~= nil then
             nameOfFeature = specialFeatures[position - 12][1]
         else

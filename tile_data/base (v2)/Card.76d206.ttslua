@@ -1,4 +1,6 @@
-sides = {'Road', 'City', 'City', 'Road'}
-linkedQuadrants = {{1, 4}}
-linkedOctants = {{5, 12}, {6, 11}, {7, 8, 9, 10}}
-specialFeatures = {{'City-Field', {7, 8, 9, 10, 11, 12}, nil}}
+['76d206'] = {
+	sides = {'Road', 'City', 'City', 'Road'},
+	linkedQuadrants = {{1, 4}},
+	linkedOctants = {{5, 12}, {6, 11}, {7, 8, 9, 10}},
+	specialFeatures = {{'City-Field', {7, 8, 9, 10, 11, 12}, nil}}
+},

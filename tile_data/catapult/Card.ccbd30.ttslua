@@ -1,4 +1,6 @@
-symmetry = 2
-sides = {'Field', 'Field', 'Field', 'Field'}
-linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}}
-specialFeatures = {{'Catapult', nil, nil}, {'Cloister', nil, {-0.10,0.05}}}
+['ccbd30'] = {
+	symmetry = 2,
+	sides = {'Field', 'Field', 'Field', 'Field'},
+	linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}},
+	specialFeatures = {{'Catapult', nil, nil}, {'Cloister', nil, {-0.10,0.05}}}
+},

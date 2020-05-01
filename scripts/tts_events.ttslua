@@ -14,10 +14,10 @@ function onload(save_state)
         featureList = saved_data.featureList
         linkedFeatures = saved_data.linkedFeatures
         featureIndex = saved_data.featureIndex
-        unusedTiles = saved_data.unusedTiles
+        aiCurrentTile_GUID = saved_data.aiCurrentTile_GUID
+        aiChosenFigure_GUID = saved_data.aiChosenFigure_GUID
+        aiHighestScorePos = saved_data.aiHighestScorePos
         buriedTiles = saved_data.buriedTiles
-        validTileLocations = saved_data.validTileLocations
-        tileConnectionOdds = saved_data.tileConnectionOdds
         tilesRemaining = saved_data.tilesRemaining
         buriedTileCount = saved_data.buriedTileCount
         controlPanelSettings = saved_data.controlPanelSettings
@@ -163,6 +163,9 @@ function onSave()
     end
     local toSave = {
         activePlayers = activePlayers,
+        aiCurrentTile_GUID = aiCurrentTile_GUID,
+        aiChosenFigure_GUID = aiChosenFigure_GUID,
+        aiHighestScorePos = aiHighestScorePos,
         buriedTile = buriedTile,
         buriedTileCount = buriedTileCount,
         buriedTiles = buriedTiles,
@@ -217,7 +220,6 @@ function onSave()
         shepherdAwaitingAction = shepherdAwaitingAction,
         showMarkers = showMarkers,
         springTile_GUID = springTile_GUID,
-        tileConnectionOdds = tileConnectionOdds,
         tileGrid = tileGrid,
         tileHasMagicPortal = tileHasMagicPortal,
         tileHasVolcano = tileHasVolcano,
@@ -225,8 +227,6 @@ function onSave()
         towerX = towerX,
         towerZ = towerZ,
         turnState = turnState,
-        unusedTiles = unusedTiles,
-        validTileLocations = validTileLocations,
         wagonFeatures = wagonFeatures,
         wofPigPosition = wofPigPosition
     }
@@ -294,7 +294,7 @@ end
 function onObjectSpawn(spawned_object)
     --This is intended to be called when a tile is drawn from the stack.
     if tostring(spawned_object) == 'Card(Clone) (LuaGameObjectScript)' then
-        local specialFeatures = spawned_object.getTable('specialFeatures')
+        local specialFeatures = getTileDataForTile(spawned_object).specialFeatures
         if specialFeatures ~= nil then
             for _, specialFeature in ipairs(specialFeatures) do
                 if controlPanelSettings['PnDDragon'] and specialFeature[1] == "Dragon" then
@@ -500,7 +500,7 @@ function onObjectPickUp(player, pickedUpObject)
         lastDroppedTime = 0
     end
 
-    if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' and pickedUpObject.getTable('sides') ~= nil then
+    if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' and getTileDataForTile(pickedUpObject).sides ~= nil then
         pickedUpObject.clearButtons()
         local xPosition = (pickedUpObject.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
         local zPosition = (pickedUpObject.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING

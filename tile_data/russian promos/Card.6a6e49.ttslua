@@ -1,4 +1,6 @@
-sides = {'Road', 'Road', 'Road', 'Road'}
-linkedQuadrants = {{2, 3, 4}}
-linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}}
-specialFeatures = {{'Road Intersection', {1, 2, 3, 4}, nil}}
+['6a6e49'] = {
+	sides = {'Road', 'Road', 'Road', 'Road'},
+	linkedQuadrants = {{2, 3, 4}},
+	linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}},
+	specialFeatures = {{'Road Intersection', {1, 2, 3, 4}, nil}}
+},

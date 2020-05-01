@@ -1,7 +1,7 @@
 # Tile Data
 
 Each tile should have a script including variables needed to represent the information on the tile. The data format is as follows:
-  *In all examples, the "starting piece" is used*
+  *In all examples, the "base starting tile" is used*
   *It should be noted that the "top" and "topleft" is from the perspective of the white player. All of the tiles are, in actuality, rotated by 180 degrees, which is taken into account in code with TILE_STANDARD_ROTATION
 
 ## Sample
@@ -13,12 +13,12 @@ linkedQuadrants = {{2, 4}}
 linkedOctants = {{5, 6}, {7, 12}, {8, 9, 10, 11}}
 specialFeatures = {{'City-Field', {5, 6, 7, 12}, nil}, {'Road', {2, 4}, {0.0,0.0}}}
 ```
-  
+
 ## Data Format
 
 ### sides
 
-table of strings ( ie. {'City', 'Road', 'Field', 'Road'} ) Specifies the feature on each side of the tile, starting from the "top" clockwise (top is arbitrary, but must be consistent amoung pieces)
+table of strings ( ie. {'City', 'Road', 'Field', 'Road'} ) Specifies the feature on each side of the tile, starting from the "top" clockwise (top is arbitrary, but must be consistent among pieces)
 features: 'City', 'Road', 'Field', 'River', 'Abbey'
 
 ### (optional) linkedQuadrants
@@ -40,14 +40,18 @@ In the example:
 *the topleft and topright octants are linked
 *the righttop and lefttop octants are linked (This is the field on the top half of the road)
 *the rightbottom, bottomright, bottomleft, and leftbottom octants are linked (this is the field on the bottom half of the road)
-				
+
 ### (optional)specialFeatures
 
-table of tables containing a string (which specifies the feature), (optional) table of ints, and (optional) table of exactly 2 floats ( ie. {{'City-Field', {5, 6, 7, 12}, nil}} )
+table of an array of 3 elements: [2]: (optional) table of ints, [3]: (optional) array of exactly 2 floats ( ie. {{'City-Field', {5, 6, 7, 12}, nil}} )
 
-The table of ints specifies what quadrants or octants this feature is linked to (if any).
+[1]: a string (which specifies the feature name)
 
-The table of floats specifies the relative x and z coordinates of the feature on this piece (if a figure can be placed on the feature).
+[2]: (optional) table of ints representing which quadrants or octants this feature is linked to (if any).
+
+[3]: (optional) array of exactly 2 floats representing the relative x and z coordinates of the feature on this tile (if a figure can be placed on the feature). [1]: relative x coordinate. [2]: relative z coordinate.
+
+Note: I realize that the above should have been a hash table instead of an array to make accessing the elements less confusing, but for now I'm keeping it as is for backwards compatibility with custom tiles.
 
 **Base features** (**'City'**, **'Road'**, **'Field'**, **'Abbey'**) - this allows for additional locations for specifying the base features.
   this is useful for defining additional snap points, as well as allowing features which aren't connected to any quadrant or octant (there are a few fields like this).

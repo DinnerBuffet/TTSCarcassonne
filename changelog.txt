@@ -1,3 +1,11 @@
+v1.23 20200525
+[*]Greatly optimized the metadata that is stored when saving. The result is a massive reduction in stuttering that occurs during autosaves (especially with playing with lots of tiles). Instead, this metadata will be regenerated from scratch when the game is loaded.
+[*]Moved all tile data from being stored in the tiles to being stored in the global script. This eliminates the need to store the tile data in unusedTiles
+[*]AI will now remember which tile it had drawn if the game was saved and then loaded while it was calculating a decision. Will also remember which figure it had decided to use if the game was saved and loaded while the AI was moving the figure.
+[*]AI no longer breaks when the game is re-wound
+[*]Added tablet to help with rules
+[*]The latest TTS update changed the collision boxes of the tiles. I have made some code changes to accommodate.
+
 v1.22.8 20200429
 [*]Added Dutch translation (Translation by kiap1969)
 [*]Added functionality to change the size of control panel labels based on the language.

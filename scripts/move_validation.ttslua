@@ -115,7 +115,7 @@ function checkFigurePlacement(params)
             for x=-1, 1 do
                 for z=-1, 1 do
                     if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
-                        local specialFeatures = getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid).getTable('specialFeatures')
+                        local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid)).specialFeatures
                         if specialFeatures ~= nil then
                             for specialFeatureNum, feature in ipairs(specialFeatures) do
                                 local adjacentFeature = feature[1]
@@ -173,7 +173,7 @@ function checkFigurePlacement(params)
             for x=-1, 1 do
                 for z=-1, 1 do
                     if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
-                        local specialFeatures = getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid).getTable('specialFeatures')
+                        local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid)).specialFeatures
                         if specialFeatures ~= nil then
                             for specialFeatureNum, feature in ipairs(specialFeatures) do
                                 local adjacentFeature = feature[1]
@@ -267,7 +267,8 @@ function checkTile(params)
         allErrorMessage({"MESSAGE_TILE_PICKED_UP"}, activePlayers[currentPlayer])
         return
     end
-    if newTile.getTable('sides') == nil then
+    local newTileData = getTileDataForTile(newTile)
+    if newTileData.sides == nil then
         allErrorMessage({"MESSAGE_ERROR_NO_SCRIPT_DATA"})
         return
     end
@@ -306,7 +307,7 @@ end
 function isTileInPlay()
     if tileInPlay == nil then
         for nestedX, featureColumn in pairs(tileGrid) do
-            for nestedZ, tileData in pairs(featureColumn) do
+            for nestedZ, _ in pairs(featureColumn) do
                 tileInPlay = true
                 break
             end
@@ -316,6 +317,7 @@ function isTileInPlay()
 end
 
 function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
+    local tileData = getTileDataForTile(tile)
     if tileGridOccupied(xIndex, zIndex) then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_LOCATION_TAKEN"}, activePlayers[currentPlayer]) end
         return false
@@ -337,7 +339,8 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_FEATURES_DONT_MATCH"}, activePlayers[currentPlayer]) end
         return false
     end
-    if tile.getTable('sides')[1] == 'Abbey' and
+    local tileData = getTileDataForTile(tile)
+    if tileData.sides[1] == 'Abbey' and
     ((not tileGridOccupied(xIndex + 1, zIndex)) or (not tileGridOccupied(xIndex - 1, zIndex)) or (not tileGridOccupied(xIndex, zIndex + 1)) or (not tileGridOccupied(xIndex, zIndex - 1))) then
         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_ABBEY"}, activePlayers[currentPlayer]) end
         return false
@@ -345,7 +348,7 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
     if controlPanelSettings['CultTiles'] then
         local challengerTile = nil
         local challengedTile = nil
-        local specialFeatures = tile.getTable('specialFeatures')
+        local specialFeatures = tileData.specialFeatures
         if specialFeatures ~= nil then
             for _, feature in ipairs(specialFeatures) do
                 if feature[1] == 'Cloister' or feature[1] == 'Shrine' then challengerTile = feature[1] end
@@ -363,7 +366,7 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
             for x=-1, 1 do
                 for z=-1, 1 do
                     if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
-                        local specialFeatures = getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid).getTable('specialFeatures')
+                        local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid)).specialFeatures
                         if specialFeatures ~= nil then
                             for _, feature in ipairs(specialFeatures) do
                                 local adjacentFeature = feature[1]
@@ -373,7 +376,7 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
                                     for nested_x=-1, 1 do
                                         for nested_z=-1, 1 do
                                             if not (nested_x == 0 and nested_z == 0) and tileGridOccupied(xIndex + x + nested_x, zIndex + z + nested_z) then
-                                                local nestedSpecialFeatures = getObjectFromGUID(tileGrid[xIndex + x + nested_x][zIndex + z + nested_z].tile_guid).getTable('specialFeatures')
+                                                local nestedSpecialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x + nested_x][zIndex + z + nested_z].tile_guid)).specialFeatures
                                                 if nestedSpecialFeatures ~= nil then
                                                     for _, nestedFeature in ipairs(nestedSpecialFeatures) do
                                                         local nestedAdjacentFeature = nestedFeature[1]
@@ -399,12 +402,12 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
         end
     end
     --validate river piece
-    local isStartingPiece = tile.getVar('isStartingPiece')
+    local isStartingPiece = tileData.isStartingPiece
     if isStartingPiece then
         local hasRiver = false
         local riverHasConnection = false
         for i=1, 4 do
-            if tile.getTable('sides')[(3 + i - tileRotation) % 4 + 1] == 'River' then
+            if tileData.sides[(3 + i - tileRotation) % 4 + 1] == 'River' then
                 hasRiver = true
                 local diff = 0
                 local x = xIndex
@@ -417,8 +420,8 @@ function isValidTileLocation(tile, tileRotation, xIndex, zIndex, verbose)
                     --the following checks to see if this tile would create a "U-turn" such that the river folds back on itself
                     --this is illegal and can easily lead to issues
                     --Though technically illegal, it is possible to still make a river that folds back on itself.
-                    if not controlPanelSettings["RiverAllowUTurns"] and ((tile.getTable('sides')[(3 + i + 1 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 1 - tileGrid[x][z].rotation) % 4 + 1] == 'River') or
-                    (tile.getTable('sides')[(3 + i + 3 - tileRotation) % 4 + 1] == 'River' and getObjectFromGUID(tileGrid[x][z].tile_guid).getTable('sides')[(3 + i + 3 - tileGrid[x][z].rotation) % 4 + 1] == 'River')) then
+                    if not controlPanelSettings["RiverAllowUTurns"] and ((tileData.sides[(3 + i + 1 - tileRotation) % 4 + 1] == 'River' and getTileDataForTile(getObjectFromGUID(tileGrid[x][z].tile_guid)).sides[(3 + i + 1 - tileGrid[x][z].rotation) % 4 + 1] == 'River') or
+                    (tileData.sides[(3 + i + 3 - tileRotation) % 4 + 1] == 'River' and getTileDataForTile(getObjectFromGUID(tileGrid[x][z].tile_guid)).sides[(3 + i + 3 - tileGrid[x][z].rotation) % 4 + 1] == 'River')) then
                         if verbose then allErrorMessage({"MESSAGE_INVALID_LOCATION_RIVER_U_TURN"}, activePlayers[currentPlayer]) end
                         return false
                     end
@@ -628,12 +631,13 @@ function isValidBarnLocation(closestFeatureMapPosition, xIndex, zIndex)
     --NOTE: the following equation gives the other feature location on the same corner: ((closestTilePosition % 2) * -2) + 1 - 5) % 8 + 5
     if closestFeatureMapPosition > 12 or closestFeatureMapPosition < 5 then return false end
     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+    local tileData = getTileDataForTile(tile)
     local tileRotation = tileGrid[xIndex][zIndex].rotation
     local closestTilePosition = featureMapPositionToTilePosition(closestFeatureMapPosition, tileRotation)
     local valid = false
     local includesLastTile = false
     if xIndex == lastPlacedTileX and zIndex == lastPlacedTileZ then includesLastTile = true end
-    local links = tile.getTable('linkedOctants')
+    local links = tileData.linkedOctants
     if links == nil then return false end
     for _, link in ipairs(links) do
         --check if both sides of the corner are linked together
@@ -646,10 +650,11 @@ function isValidBarnLocation(closestFeatureMapPosition, xIndex, zIndex)
                 if newX == lastPlacedTileX and newZ == lastPlacedTileZ then includesLastTile = true end
                 if not tileGridOccupied(newX, newZ) then return false end
                 local newTile = getObjectFromGUID(tileGrid[newX][newZ].tile_guid)
+                local newTileData = getTileDataForTile(newTile)
                 local newTileRotation = tileGrid[newX][newZ].rotation
                 local newTilePosition = (((newTileDirection % 2) * 2) + TILE_180_ROTATION + newTileDirection - (newTileRotation * 2) - 4) % 8 + 5
                 if getTileFeatureName(newTile, newTilePosition) ~= 'Field' then return false end
-                links = newTile.getTable('linkedOctants')
+                links = newTileData.linkedOctants
                 if links == nil then return false end
                 for _, link in ipairs(links) do
                     if table.contains(link, newTilePosition) and table.contains(link, (newTilePosition + ((newTilePosition % 2) * -2) + 1 - 5) % 8 + 5) then
@@ -659,13 +664,14 @@ function isValidBarnLocation(closestFeatureMapPosition, xIndex, zIndex)
                         if lastX == lastPlacedTileX and lastZ == lastPlacedTileZ then includesLastTile = true end
                         if not tileGridOccupied(lastX, lastZ) then return false end
                         local lastTile = getObjectFromGUID(tileGrid[lastX][lastZ].tile_guid)
+                        local lastTileData = getTileDataForTile(lastTile)
                         local lastTileRotation = tileGrid[lastX][lastZ].rotation
                         local lastTilePosition = (((lastTileDirection % 2) * 2) + TILE_180_ROTATION + lastTileDirection - (lastTileRotation * 2) - 4) % 8 + 5
                         if getTileFeatureName(lastTile, lastTilePosition) ~= 'Field' then return false end
                         --only need to check the links once
                         if i == 2 then
                             --check if both sides of the corner are linked together
-                            links = lastTile.getTable('linkedOctants')
+                            links = lastTileData.linkedOctants
                             if links == nil then return false end
                             for _, link in ipairs(links) do
                                 if table.contains(link, lastTilePosition) and table.contains(link, (lastTilePosition + ((lastTilePosition % 2) * -2) + 1 - 5) % 8 + 5) then
@@ -855,22 +861,24 @@ function isValidLocationFromCoC(newFigure, featureNum, verbose)
 
     if not gameIsActive() then return true end
 
-    local tileFeatures = tileGrid[lastPlacedTileX][lastPlacedTileZ].tileFeatures
+    local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid))
+    local specialFeatures = tileData.specialFeatures
+
     local isAbbey = false
-    if tileFeatures ~= nil then
-        for _, tileFeature in ipairs(tileFeatures) do
-            if tileFeature == 'Abbey' then
+    if specialFeatures ~= nil then
+        for _, specialFeature in ipairs(specialFeatures) do
+            if specialFeature[1] == 'Abbey' then
                 isAbbey = true
             end
         end
     end
 
     local positionsToVisit = {}
-
-    local specialFeatureLocations = tileGrid[lastPlacedTileX][lastPlacedTileZ].specialFeatureLocations
-    if specialFeatureLocations ~= nil then
-        for specialFeatureNum, _ in pairs(specialFeatureLocations) do
-            table.insert(positionsToVisit, specialFeatureNum+12)
+    if specialFeatures ~= nil then
+        for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+            if specialFeature[3] ~= nil then
+                table.insert(positionsToVisit, specialFeatureNum+12)
+            end
         end
     end
     for featureMapPosition=1, 12 do

@@ -1,4 +1,6 @@
-sides = {'Road', 'Road', 'Field', 'Road'}
-linkedQuadrants = {{1, 2}}
-linkedOctants = {{5, 8, 9, 10, 11, 12}, {6, 7}}
-specialFeatures = {{'Catapult', nil, nil}, {'Road', {1, 2}, {0.10,0.10}}}
+['3d8637'] = {
+	sides = {'Road', 'Road', 'Field', 'Road'},
+	linkedQuadrants = {{1, 2}},
+	linkedOctants = {{5, 8, 9, 10, 11, 12}, {6, 7}},
+	specialFeatures = {{'Catapult', nil, nil}, {'Road', {1, 2}, {0.10,0.10}}}
+},

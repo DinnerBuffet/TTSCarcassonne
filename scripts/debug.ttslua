@@ -12,7 +12,7 @@ function debugShowTraversal()
     for xIndex, gridColumn in pairs(traversedFeaturePositions) do
         for zIndex, tileLocation in pairs(gridColumn) do
             for position, traversedFeaturePosition in pairs(tileLocation) do
-                if position < 13 or getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')[position - 12][3] ~= nil then
+                if position < 13 or getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)).specialFeatures[position - 12][3] ~= nil then
                     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                     local rotation = tileGrid[xIndex][zIndex].rotation
                     local x, z = getTileFeatureLocation(position, tile, rotation)
@@ -37,7 +37,7 @@ function debugShowTraversal()
     for xIndex, gridColumn in pairs(traversedGrid) do
         for zIndex, tileLocation in pairs(gridColumn) do
             for position, traversedPosition in pairs(tileLocation) do
-                if position < 13 or getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')[position - 12][3] ~= nil then
+                if position < 13 or getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)).specialFeatures[position - 12][3] ~= nil then
                     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
                     local rotation = tileGrid[xIndex][zIndex].rotation
                     local x, z = getTileFeatureLocation(position, tile, rotation)
@@ -196,10 +196,13 @@ function debugIdentifyFeature(object, player_color, input, stillTyping)
     for xIndex, gridColumn in pairs(tileGrid) do
         for zIndex, tileLocation in pairs(gridColumn) do
             local positionsToVisit = {}
-            local specialFeatureLocations = tileLocation.specialFeatureLocations
-            if specialFeatureLocations ~= nil then
-                for specialFeatureNum, _ in pairs(specialFeatureLocations) do
-                    table.insert(positionsToVisit, specialFeatureNum+12)
+            local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
+            local specialFeatures = tileData.specialFeatures
+            if specialFeatures ~= nil then
+                for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                    if specialFeature[3] ~= nil then
+                        table.insert(positionsToVisit, specialFeatureNum+12)
+                    end
                 end
             end
             for featureMapPosition=1, 12 do
@@ -213,7 +216,7 @@ function debugIdentifyFeature(object, player_color, input, stillTyping)
                     local x, z = getFeatureLocation(xIndex, zIndex, featureMapPosition)
                     if x ~= nil and z ~= nil then
                         local tileHeight = TILE_THICKNESS
-                        local specialFeatures = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')
+                        local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)).specialFeatures
                         if specialFeatures ~= nil then
                             for _, specialFeature in ipairs(specialFeatures) do
                                 if specialFeature[1] == "Hill" then

@@ -1,5 +1,7 @@
-symmetry = 2
-sides = {'Field', 'Road', 'Field', 'Road'}
-linkedQuadrants = {{2, 4}}
-linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}}
-specialFeatures = {{'Cloister', nil, {0.0, 0.0}}}
+['cb9bdd'] = {
+	symmetry = 2,
+	sides = {'Field', 'Road', 'Field', 'Road'},
+	linkedQuadrants = {{2, 4}},
+	linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}},
+	specialFeatures = {{'Cloister', nil, {0.0, 0.0}}}
+},

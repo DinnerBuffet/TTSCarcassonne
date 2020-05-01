@@ -1,5 +1,7 @@
-isStartingPiece = true
-ignoredFeatures = {2, 6, 7, 8, 9}
-sides = {'Carcassonne', 'Carcassonne', 'Carcassonne', 'Carcassonne'}
-linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}}
-specialFeatures = {{'Quarter-Market', nil, {0.4, 0.0}}}
+['a0ef6a'] = {
+	isStartingPiece = true,
+	ignoredFeatures = {2, 6, 7, 8, 9},
+	sides = {'Carcassonne', 'Carcassonne', 'Carcassonne', 'Carcassonne'},
+	linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}},
+	specialFeatures = {{'Quarter-Market', nil, {0.4, 0.0}}}
+},

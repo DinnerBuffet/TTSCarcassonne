@@ -1,5 +1,7 @@
-isStartingPiece = true
-sides = {'Field', 'River', 'Field', 'River'}
-linkedQuadrants = {{2, 4}}
-linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}}
-specialFeatures = {{'Sheep', {5, 6, 7, 12}, nil}}
+['921856'] = {
+	isStartingPiece = true,
+	sides = {'Field', 'River', 'Field', 'River'},
+	linkedQuadrants = {{2, 4}},
+	linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}},
+	specialFeatures = {{'Sheep', {5, 6, 7, 12}, nil}}
+},

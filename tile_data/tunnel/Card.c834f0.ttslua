@@ -1,4 +1,6 @@
-sides = {'Field', 'Road', 'Road', 'Field'}
-linkedOctants = {{5, 6, 7, 10, 11, 12}, {8, 9}}
---TODO: special logic must be added to make Tunnels work with the featureMap
---specialFeatures = {{'Tunnel', {2}, {0.25,0.1}}, {'Tunnel', {3}, {-0.05,-0.05}}}
+['c834f0'] = {
+	sides = {'Field', 'Road', 'Road', 'Field'},
+	linkedOctants = {{5, 6, 7, 10, 11, 12}, {8, 9}},
+	--TODO: special logic must be added to make Tunnels work with the featureMap,
+	--specialFeatures = {{'Tunnel', {2}, {0.25,0.1}}, {'Tunnel', {3}, {-0.05,-0.05}}}
+},

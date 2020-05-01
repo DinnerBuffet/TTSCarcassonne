@@ -465,7 +465,6 @@ function startGame()
         buriedTiles = {}
         buriedTileCount = 0
     end
-    AIMemorizeCards(tileStack)
     if controlPanelSettings['StartingTileBase'] then
         addTile(MIDDLE_X_OFFSET, MIDDLE_Z_OFFSET, getObjectFromGUID(BASE_STARTING_TILE_GUID), 2, false)
     end

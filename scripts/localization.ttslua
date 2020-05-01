@@ -230,6 +230,7 @@ LOCALIZED_STRINGS = {
 
       --AI
 
+    ["MESSAGE_AI_INITIALIZING"] = "AI is being run for the first time since the game was loaded. This will only occur once unless the game is loaded again.",
     ["MESSAGE_AI_CALCULATING"] = "AI player is calculating their move...",
     ["MESSAGE_AI_SKIPPING_FIGURE"] = "AI decided not to place a figure.",
     ["MESSAGE_AI_RECALCULATING_ODDS"] = "WARNING: The number of tiles in the stack is different than expected. This can happen if someone draws a tiles out of turn. Re-calculating odds...",
@@ -303,7 +304,7 @@ LOCALIZED_STRINGS = {
     ["MESSAGE_SCORE_FAIRY_FINISH"] = "{p1} scores 3 points for having a {f1} next to the fairy when scoring a feature.",
     ["MESSAGE_SCORE_GOLD_MINES"] = "{p1} scores {n1} points on {n2} gold bars ({n3} points each).",
     ["MESSAGE_GAME_OVER"] = "Game over.",
-    ["MESSAGE_GAME_OVER_PROMOTE"] = "If you enjoyed the mod, please give it a like on the workshop. If you encountered any bugs, please upload a save file and describe it in the workshop comments.",
+    ["MESSAGE_GAME_OVER_PROMOTE"] = "Credits: Scripting by Sancho with additional scripting for The Ferries by Sigma88, TheLimeyDragon for adding tile data for dozens of expansions and being an all-star bug reporter, MrStump for putting together the original mod that this was based on, The T for tile scans, Ax448 for figure models, I liek Potatoez for adding rules into the notebook, PSDgraphics for the table artwork, Demian for the table extension, MsFairyViolet for color-correcting many of the original scans, RiceKun for redoing the meeple + mayor models and improving the collision meshes of the dragon and tower pieces, my wife Jenny for the Traditional Chinese translation, kiap1969 for the Dutch translation, the creators of the Carcassonne Annotated Rules (v7.4) that this mod is based on, and all those that have reported bugs!",
     ["MESSAGE_FAIRY_WARNING_NO_TILESTACK"] = "WARNING: No tile stack found. No points awarded for fairy. If you just placed the last tile, you can ignore this message.",
     ["MESSAGE_GOLD_MINES_GOLD_AWARDED"] = "{p1} was awarded a gold bar for having control over a finished feature.",
     ["MESSAGE_GOLD_MINES_TAKE_GOLD_PROMPT"] = "{p1} may choose a gold bar for having control over a finished feature.",
@@ -817,6 +818,7 @@ LOCALIZED_STRINGS = {
 
       --AI
 
+    ["MESSAGE_AI_INITIALIZING"] = "AI is being run for the first time since the game was loaded. This will only occur once unless the game is loaded again.",
     ["MESSAGE_AI_CALCULATING"] = "AI-speler berekent zijn zet...",
     ["MESSAGE_AI_SKIPPING_FIGURE"] = "AI heeft besloten geen speelstuk te zetten.",
     ["MESSAGE_AI_RECALCULATING_ODDS"] = "WAARSCHUWING: Het aantal tegels op de stapel wijkt af van het verwachtte aantal. Dit kan gebeuren als iemand buiten zijn beurt een tegel trekt. Kansen herberekenen...",
@@ -1408,6 +1410,7 @@ LOCALIZED_STRINGS = {
 
         --AI
 
+    ["MESSAGE_AI_INITIALIZING"] = "AI is being run for the first time since the game was loaded. This will only occur once unless the game is loaded again.",
     ["MESSAGE_AI_CALCULATING"] = "AI玩家正在計畫他們的下一步...",
     ["MESSAGE_AI_SKIPPING_FIGURE"] = "AI玩家決定不放任何東西。",
     ["MESSAGE_AI_RECALCULATING_ODDS"] = "錯誤：所剩的卡牌數量與預期不同。若有人沒有依照順序或規定抽取卡牌，就會發生這種情況。正在重新計算...",

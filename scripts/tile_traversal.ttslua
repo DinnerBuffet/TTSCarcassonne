@@ -122,6 +122,7 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
     if traversalNum > traversalLevels then return 0 end
     --debugMessage(2, "checking tile at x: " .. xIndex .. " z: " .. zIndex .. " position: " .. position .. " trans num: " .. traversalNum)
     local tile = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)
+    local tileData = getTileDataForTile(tile)
     local rotation = tileGrid[xIndex][zIndex].rotation
     if traversedGrid[xIndex] == nil then
         traversedGrid[xIndex] = {}
@@ -141,7 +142,7 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
     end
     if traversedGrid[xIndex][zIndex][position] ~= nil and traversedGrid[xIndex][zIndex][position] <= traversalNum then return 0 end
     local finished = 0
-    local specialFeatures = tile.getTable('specialFeatures')
+    local specialFeatures = tileData.specialFeatures
     if position < 5 then
         local links = getLinkedQuadrants(tile)
         while traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum do
@@ -191,7 +192,7 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
             end
         end
     elseif position < 13 then
-        local links = tile.getTable('linkedOctants')
+        local links = tileData.linkedOctants
         while traversedGrid[xIndex][zIndex][position] == nil or traversedGrid[xIndex][zIndex][position] > traversalNum do
             if links ~= nil then
                 for _, link in ipairs(links) do
@@ -258,7 +259,7 @@ function getTileComponents(xIndex, zIndex, position, traversalLevels, traversalN
                                 tileNum = tileNum + 1
                                 if traversalNum == 1 then
                                     table.insert(traversedTileCoords, {x=xIndex + i, z=zIndex + j})
-                                    local nestedSpecialFeatures = getObjectFromGUID(tileGrid[xIndex + i][zIndex + j].tile_guid).getTable('specialFeatures')
+                                    local nestedSpecialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + i][zIndex + j].tile_guid)).specialFeatures
                                     if nestedSpecialFeatures ~= nil then
                                         for _, specialFeature in ipairs(nestedSpecialFeatures) do
                                             if specialFeature[1] == "Vineyard" then

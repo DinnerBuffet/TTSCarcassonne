@@ -1,4 +1,6 @@
-symmetry = 1
-sides = {'Field', 'Field', 'Field', 'Field'}
-linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}}
-specialFeatures = {{'Volcano', nil, nil}}
+['2d24d8'] = {
+	symmetry = 1,
+	sides = {'Field', 'Field', 'Field', 'Field'},
+	linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}},
+	specialFeatures = {{'Volcano', nil, nil}}
+},

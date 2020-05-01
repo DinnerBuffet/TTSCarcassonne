@@ -1,5 +1,7 @@
-isStartingPiece = true
-sides = {'River', 'City', 'River', 'City'}
-linkedQuadrants = {{1, 3}}
-linkedOctants = {{5, 10}, {6, 9}, {7, 8}, {11, 12}}
-specialFeatures = {{'City-Field', {5, 10, 11, 12}, nil}, {'City-Field', {6, 7, 8, 9}, nil}}
+['78ef4b'] = {
+	isStartingPiece = true,
+	sides = {'River', 'City', 'River', 'City'},
+	linkedQuadrants = {{1, 3}},
+	linkedOctants = {{5, 10}, {6, 9}, {7, 8}, {11, 12}},
+	specialFeatures = {{'City-Field', {5, 10, 11, 12}, nil}, {'City-Field', {6, 7, 8, 9}, nil}}
+},

@@ -1,4 +1,6 @@
-symmetry = 1
-sides = {'Road', 'Road', 'Road', 'Road'}
-linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}}
-specialFeatures = {{'StLouis', nil, {0.0,0.0}}, {'Road Intersection', {1, 13}, nil}, {'Road Intersection', {2, 13}, nil}, {'Road Intersection', {3, 13}, nil}, {'Road Intersection', {4, 13}, nil}}
+['b6191b'] = {
+	symmetry = 1,
+	sides = {'Road', 'Road', 'Road', 'Road'},
+	linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}},
+	specialFeatures = {{'StLouis', nil, {0.0,0.0}}, {'Road Intersection', {1, 13}, nil}, {'Road Intersection', {2, 13}, nil}, {'Road Intersection', {3, 13}, nil}, {'Road Intersection', {4, 13}, nil}}
+},

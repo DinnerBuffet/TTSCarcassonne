@@ -1,4 +1,6 @@
-sides = {'Field', 'Road', 'Road', 'City'}
-linkedQuadrants = {{2, 3}}
-linkedOctants = {{5, 6, 7, 10}, {8, 9}, {11, 12}}
-specialFeatures = {{'Besiege', nil, nil}, {'City-Field', {5, 6, 7, 10, 11, 12}, nil}}
+['afce90'] = {
+	sides = {'Field', 'Road', 'Road', 'City'},
+	linkedQuadrants = {{2, 3}},
+	linkedOctants = {{5, 6, 7, 10}, {8, 9}, {11, 12}},
+	specialFeatures = {{'Besiege', nil, nil}, {'City-Field', {5, 6, 7, 10, 11, 12}, nil}}
+},

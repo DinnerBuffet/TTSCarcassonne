@@ -1,2 +1,4 @@
-isStartingPiece = true
-sides = {'Wheel', 'Wheel', 'Wheel', 'Wheel'}
+['f28f77'] = {
+	isStartingPiece = true,
+	sides = {'Wheel', 'Wheel', 'Wheel', 'Wheel'}
+},

@@ -1,3 +1,5 @@
-sides = {'Road', 'Road', 'Road', 'Field'}
-linkedOctants = {{5, 10, 11, 12}, {6, 7}, {8, 9}}
-specialFeatures = {{'Tower Foundation', nil, {0.0,0.0}}, {'Road Intersection', {1, 13}, nil}, {'Road Intersection', {2, 13}, nil}, {'Road Intersection', {3, 13}, nil}}
+['6cfc99'] = {
+	sides = {'Road', 'Road', 'Road', 'Field'},
+	linkedOctants = {{5, 10, 11, 12}, {6, 7}, {8, 9}},
+	specialFeatures = {{'Tower Foundation', nil, {0.0,0.0}}, {'Road Intersection', {1, 13}, nil}, {'Road Intersection', {2, 13}, nil}, {'Road Intersection', {3, 13}, nil}}
+},

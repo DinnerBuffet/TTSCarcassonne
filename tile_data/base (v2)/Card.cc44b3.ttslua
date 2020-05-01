@@ -1,3 +1,5 @@
-sides = {'Road', 'Road', 'Road', 'Road'}
-linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}}
-specialFeatures = {{'Road Intersection', {1, 2, 3, 4}, nil}}
+['cc44b3'] = {
+	sides = {'Road', 'Road', 'Road', 'Road'},
+	linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}},
+	specialFeatures = {{'Road Intersection', {1, 2, 3, 4}, nil}}
+},

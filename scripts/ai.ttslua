@@ -42,14 +42,21 @@ STUCK_PIG_PENALTY = 0.1 --this penalty will be applied to a pig multiplied by th
 BUILDER_PLACEMENT_BONUS_VALUE = 0.5 --Extra value for having a feature with a builder (this is needed to give incentive for the AI to place it, since the stuck penalty will make it highly unfavored)
 MAX_JOIN_PERCENTAGE = 0.8 --connections with very high join percentages tend to screw up the AI's decisions since it will already get 99% of the score benefit from a connection that hasn't even been made. Therefore, use this limit so that there is incentive to finish the connection.
 
-validTileLocations = {}
-tileConnectionOdds = {}
-unusedTiles = {}
+--leave unitialized until an AI player's first turn
+validTileLocations = nil
+tileConnectionOdds = nil
+unusedTiles = nil
 buriedTiles = {}
 buriedTileCount = 0
+aiCurrentTile = nil
 
 function AIStateHandler()
     --debugMessage(1, "AIStateHandler - " .. turnState)
+    if unusedTiles == nil or validTileLocations == nil or tileConnectionOdds == nil then
+        allGameMessage({"MESSAGE_AI_INITIALIZING"}, ERROR_COLOR, nil)
+        startLuaCoroutine(self, 'AIInitializeMetadata')
+        return
+    end
     if turnState == 'awaiting tile placement' then
         if (controlPanelSettings['StartingTileRiverII'] or controlPanelSettings['StartingTileRiver'] or controlPanelSettings['StartingTileRiverBB5']) and hasFinishedRiver() then
             -- local itemRemoved = false
@@ -77,7 +84,7 @@ function AIStateHandler()
             -- end
         end
         gameNotification({"MESSAGE_AI_CALCULATING"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
-        startLuaCoroutine(self, 'AIChooseTileLocation')
+        startLuaCoroutine(self, 'AIDrawTileAndChooseTileLocation')
     elseif turnState == 'place gold on tile' then
         gameNotification("AI not implemented for expansion: The Goldmines", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return addGoldToTile(lastPlacedTileX, lastPlacedTileZ)
@@ -85,7 +92,7 @@ function AIStateHandler()
         gameNotification("AI not implemented for expansion: The Goldmines", NEUTRAL_COLOR, activePlayers[currentPlayer])
         return displayGoldButtons()
     elseif turnState == 'awaiting figure decision' then
-        if highestScorePos == nil then
+        if aiHighestScorePos == nil then
             gameNotification({"MESSAGE_AI_SKIPPING_FIGURE"}, NEUTRAL_COLOR, activePlayers[currentPlayer])
             return nextState('skip figure')
         else
@@ -131,86 +138,88 @@ function AIStateHandler()
     end
 end
 
+function AIInitializeMetadata()
+    local tileStack = getObjectFromGUID(tileStack_GUID)
+    tilesRemaining = 0
+    if tileStack ~= nil then
+        tilesRemaining = tileStack.getQuantity()
+    elseif finalTile_GUID ~= nil then
+        tilesRemaining = 1
+    end
+    if aiCurrentTile_GUID ~= nil and finalTile_GUID ~= aiCurrentTile_GUID then --tile had already been drawn from the stack. Add one to it.
+        tilesRemaining = tilesRemaining + 1
+    end
+    validTileLocations = {}
+    tileConnectionOdds = {}
+    for x, tileColumn in pairs(tileGrid) do
+        for z, tileLocation in pairs(tileColumn) do
+            for side, sideDelta in ipairs(SIDE_DELTA) do
+                local nestedX = x + sideDelta.x
+                local nestedZ = z + sideDelta.z
+                if not tileGridOccupied(nestedX, nestedZ) then
+                    local openingCoord = nestedX .. "-" .. nestedZ
+                    validTileLocations[openingCoord] = {}
+                    tileConnectionOdds[openingCoord] = {}
+                end
+            end
+        end
+    end
+    if tileStack ~= nil then
+        AIMemorizeCards(tileStack)
+        AIRecalculateOdds()
+        AIStateHandler()
+    end
+    return 1
+end
+
 function AIMemorizeCards(tileStack)
     --allGameMessage("Please wait while the AI memorizes the tiles...", NEUTRAL_COLOR)
     unusedTiles = {}
-    local anchor = getObjectFromGUID(BUTTON_ANCHOR_GUID) --I use the anchor as a temporary placeholder for the script because it is a spare object that players shouldn't interact with. There's no other real reason.
+    local tempDataHolder = getObjectFromGUID(BUTTON_ANCHOR_GUID) --I use the anchor as a temporary placeholder for the script because it is a spare object that players shouldn't interact with. There's no other real reason.
     for i, tile in ipairs(tileStack.getObjects()) do
-        anchor = anchor.reload()
-        anchor.setLuaScript(tile.lua_script)
+        tempDataHolder = tempDataHolder.reload()
+        tempDataHolder.setLuaScript(tile.lua_script)
         coroutine.yield(0)
-        unusedTiles[tile.guid] = {}
-        unusedTiles[tile.guid].symmetry = anchor.getVar("symmetry")
-        unusedTiles[tile.guid].sides = anchor.getTable("sides")
-        unusedTiles[tile.guid].linkedQuadrants = anchor.getTable("linkedQuadrants")
-        unusedTiles[tile.guid].linkedOctants = anchor.getTable("linkedOctants")
-        --unusedTiles[tile.guid].specialFeatures = anchor.getTable("specialFeatures")
+        if tempDataHolder.getVar("tileDataId") ~= nil then
+            unusedTiles[tile.guid] = tempDataHolder.getVar("tileDataId")
+        else
+            unusedTiles[tile.guid] = {}
+            unusedTiles[tile.guid].symmetry = tempDataHolder.getVar("symmetry")
+            unusedTiles[tile.guid].sides = tempDataHolder.getTable("sides")
+            unusedTiles[tile.guid].linkedQuadrants = tempDataHolder.getTable("linkedQuadrants")
+            unusedTiles[tile.guid].linkedOctants = tempDataHolder.getTable("linkedOctants")
+            --unusedTiles[tile.guid].specialFeatures = tempDataHolder.getTable("specialFeatures")
+        end
+    end
+
+    --also include the tile currently in play if the game was loaded mid-turn
+    if aiCurrentTile_GUID ~= nil then
+        local aiCurrentTile = getObjectFromGUID(aiCurrentTile_GUID)
+
+        if aiCurrentTile.getVar("tileDataId") ~= nil then
+            unusedTiles[aiCurrentTile_GUID] = aiCurrentTile.getVar("tileDataId")
+        else
+            unusedTiles[aiCurrentTile_GUID] = {}
+            unusedTiles[aiCurrentTile_GUID].symmetry = aiCurrentTile.getVar("symmetry")
+            unusedTiles[aiCurrentTile_GUID].sides = aiCurrentTile.getTable("sides")
+            unusedTiles[aiCurrentTile_GUID].linkedQuadrants = aiCurrentTile.getTable("linkedQuadrants")
+            unusedTiles[aiCurrentTile_GUID].linkedOctants = aiCurrentTile.getTable("linkedOctants")
+        end
     end
 
     --also include tiles that were buried under hills, since the AI should not be aware of this
-    for guid, tile in pairs(buriedTiles) do
-        unusedTiles[guid] = {}
-        unusedTiles[guid].symmetry = tile.symmetry
-        unusedTiles[guid].sides = tile.sides
-        unusedTiles[guid].linkedQuadrants = tile.linkedQuadrants
-        unusedTiles[guid].linkedOctants = tile.linkedOctants
+    for guid, buriedTileData in pairs(buriedTiles) do
+        unusedTiles[guid] = buriedTileData
     end
-    -- if forkTile_GUID ~= nil then
-    --     local forkTile = getObjectFromGUID(forkTile_GUID)
-    --     if forkTile ~= nil then
-    --         unusedTiles[forkTile_GUID] = {}
-    --         unusedTiles[forkTile_GUID].sides = forkTile.getTable("sides")
-    --         unusedTiles[forkTile_GUID].linkedQuadrants = forkTile.getTable("linkedQuadrants")
-    --         unusedTiles[forkTile_GUID].linkedOctants = forkTile.getTable("linkedOctants")
-    --         --unusedTiles[forkTile_GUID].specialFeatures = forkTile.getTable("specialFeatures")
-    --     end
-    -- end
-    -- if riverBodyTiles_GUID ~= nil then
-    --     local riverStack = getObjectFromGUID(riverBodyTiles_GUID)
-    --     if riverStack ~= nil then
-    --         for i, tile in ipairs(riverStack.getObjects()) do
-    --             anchor = anchor.reload()
-    --             anchor.setLuaScript(tile.lua_script)
-    --             coroutine.yield(0)
-    --             unusedTiles[tile.guid] = {}
-    --             unusedTiles[tile.guid].sides = anchor.getTable("sides")
-    --             unusedTiles[tile.guid].linkedQuadrants = anchor.getTable("linkedQuadrants")
-    --             unusedTiles[tile.guid].linkedOctants = anchor.getTable("linkedOctants")
-    --             --unusedTiles[tile.guid].specialFeatures = anchor.getTable("specialFeatures")
-    --         end
-    --     end
-    -- end
-    -- if finalRiverTile_GUID ~= nil then
-    --     local finalRiverTile = getObjectFromGUID(finalRiverTile_GUID)
-    --     if finalRiverTile ~= nil then
-    --         unusedTiles[finalRiverTile_GUID] = {}
-    --         unusedTiles[finalRiverTile_GUID].sides = finalRiverTile.getTable("sides")
-    --         unusedTiles[finalRiverTile_GUID].linkedQuadrants = finalRiverTile.getTable("linkedQuadrants")
-    --         unusedTiles[finalRiverTile_GUID].linkedOctants = finalRiverTile.getTable("linkedOctants")
-    --         --unusedTiles[finalRiverTile_GUID].specialFeatures = finalRiverTile.getTable("specialFeatures")
-    --     end
-    -- end
-    -- if springTile_GUID ~= nil then
-    --     local springTile = getObjectFromGUID(springTile_GUID)
-    --     if springTile ~= nil then
-    --         unusedTiles[springTile_GUID] = {}
-    --         unusedTiles[springTile_GUID].sides = springTile.getTable("sides")
-    --         unusedTiles[springTile_GUID].linkedQuadrants = springTile.getTable("linkedQuadrants")
-    --         unusedTiles[springTile_GUID].linkedOctants = springTile.getTable("linkedOctants")
-    --         --unusedTiles[springTile_GUID].specialFeatures = springTile.getTable("specialFeatures")
-    --     end
-    -- end
-    -- if lakeTile_GUID ~= nil then
-    --     local lakeTile = getObjectFromGUID(lakeTile_GUID)
-    --     if lakeTile ~= nil then
-    --         unusedTiles[lakeTile_GUID] = {}
-    --         unusedTiles[lakeTile_GUID].sides = lakeTile.getTable("sides")
-    --         unusedTiles[lakeTile_GUID].linkedQuadrants = lakeTile.getTable("linkedQuadrants")
-    --         unusedTiles[lakeTile_GUID].linkedOctants = lakeTile.getTable("linkedOctants")
-    --         --unusedTiles[tile.guid].specialFeatures = lakeTile.getTable("specialFeatures")
-    --     end
-    -- end
-    anchor.setLuaScript("")
+    tempDataHolder.setLuaScript("")
+end
+
+function AIGetUnusedTileData(tile_GUID)
+    if type(unusedTiles[tile_GUID]) == "string" then
+        return globalTileData[unusedTiles[tile_GUID]]
+    else
+        return unusedTiles[tile_GUID]
+    end
 end
 
 --validTileLocations keeps a list of valid tiles in each open position adjacent to at least one tile
@@ -223,6 +232,7 @@ end
 --locations by removing the connections of that single tile
 function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
     --debugMessage(1, "AITileAdded x:" .. xIndex .. " z:" .. zIndex)
+    local addedTileData = getTileDataForTile(addedTile)
     local targetValidTileLocations
     local targetTileConnectionOdds
     if temp then
@@ -239,7 +249,7 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
             tileConnectionOdds[addedTileCoord] = nil
         end
     end
-    if not temp and not addedTile.getVar('isStartingPiece') then --since we don't include starting pieces in the tilesRemaining count, don't subtract them or we'll be forced to recalculate
+    if not temp and not addedTileData.isStartingPiece then --since we don't include starting pieces in the tilesRemaining count, don't subtract them or we'll be forced to recalculate
         tilesRemaining = tilesRemaining - 1
     end
     if not temp then
@@ -262,13 +272,14 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
                 local openingCoord = nestedX .. '-' .. nestedZ
                 if validTileLocations[openingCoord] == nil then --this is a new tile location
                     targetValidTileLocations[openingCoord] = {}
-                    for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
+                    for unusedTile_GUID, _ in pairs(unusedTiles) do
                         if unusedTile_GUID ~= addedTile.getGUID() then
-                            local validRotations = unusedTile.symmetry
+                            local unusedTileData = AIGetUnusedTileData(unusedTile_GUID)
+                            local validRotations = unusedTileData.symmetry
                             if validRotations == nil then validRotations = 4 end
                             for unusedTileRotation=1, validRotations do
                                 local isValid = true
-                                if addedTile.getTable('sides')[(3 + side - rotation) % 4 + 1] == unusedTile.sides[(3 + side - unusedTileRotation + TILE_180_ROTATION) % 4 + 1] then
+                                if addedTileData.sides[(3 + side - rotation) % 4 + 1] == unusedTileData.sides[(3 + side - unusedTileRotation + TILE_180_ROTATION) % 4 + 1] then
                                     if validTileLocations[openingCoord] == nil or validTileLocations[openingCoord][unusedTile_GUID] == nil then
                                         targetValidTileLocations[openingCoord][unusedTile_GUID] = {}
                                     end
@@ -285,7 +296,8 @@ function AITileAdded(xIndex, zIndex, addedTile, rotation, temp)
                         if validTile_GUID ~= addedTile.getGUID() then
                             local keptOne = false
                             for validTileRotation, _ in pairs(validTileRotations) do
-                                if addedTile.getTable('sides')[(3 + side - rotation) % 4 + 1] == unusedTiles[validTile_GUID].sides[(3 + side - validTileRotation + TILE_180_ROTATION) % 4 + 1] then
+                                local unusedTileData = AIGetUnusedTileData(validTile_GUID)
+                                if addedTileData.sides[(3 + side - rotation) % 4 + 1] == unusedTileData.sides[(3 + side - validTileRotation + TILE_180_ROTATION) % 4 + 1] then
                                     keptOne = true
                                     if temp then
                                         if tempValidTileLocations[openingCoord][validTile_GUID] == nil then tempValidTileLocations[openingCoord][validTile_GUID] = {} end
@@ -328,12 +340,15 @@ function AIMakeTileUnavailable(drawnTile)
 end
 
 function AITileBuried(buriedTile)
-    buriedTiles[buriedTile.getGUID()] = {}
-    buriedTiles[buriedTile.getGUID()].symmetry = buriedTile.getVar("symmetry")
-    buriedTiles[buriedTile.getGUID()].sides = buriedTile.getTable("sides")
-    buriedTiles[buriedTile.getGUID()].linkedQuadrants = buriedTile.getTable("linkedQuadrants")
-    buriedTiles[buriedTile.getGUID()].linkedOctants = buriedTile.getTable("linkedOctants")
-    buriedTiles[buriedTile.getGUID()] = true
+    if buriedTile.getVar("tileDataId") ~= nil then
+        buriedTiles[buriedTile.getGUID()] = buriedTile.getVar("tileDataId")
+    else
+        buriedTiles[buriedTile.getGUID()] = {}
+        buriedTiles[buriedTile.getGUID()].symmetry = buriedTile.getVar("symmetry")
+        buriedTiles[buriedTile.getGUID()].sides = buriedTile.getTable("sides")
+        buriedTiles[buriedTile.getGUID()].linkedQuadrants = buriedTile.getTable("linkedQuadrants")
+        buriedTiles[buriedTile.getGUID()].linkedOctants = buriedTile.getTable("linkedOctants")
+    end
     buriedTileCount = buriedTileCount + 1
     tilesRemaining = tilesRemaining - 1
 end
@@ -354,15 +369,16 @@ function AICalculateLocationOdds(openingCoord, xIndex, zIndex, addedTileXIndex, 
         validTiles = validTileLocations[openingCoord]
     end
     for validTile_GUID, validTileRotations in pairs(validTiles) do
+        local validTileData = AIGetUnusedTileData(validTile_GUID)
         for validTileRotation, _ in pairs(validTileRotations) do
             connectionOdds["totalValid"] = connectionOdds["totalValid"] + 1
             local visitedFeatures = {}
             for position=1, 12 do
                 local nameOfFeature
                 if position < 5 then
-                    nameOfFeature = unusedTiles[validTile_GUID].sides[position]
+                    nameOfFeature = validTileData.sides[position]
                 else--if position < 13 then
-                    nameOfFeature = unusedTiles[validTile_GUID].sides[math.floor((position - 3) / 2)]
+                    nameOfFeature = validTileData.sides[math.floor((position - 3) / 2)]
                 end
                 if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' or nameOfFeature == 'Abbey') and not visitedFeatures[position] then
                     local connectedFeatures = {}
@@ -370,9 +386,9 @@ function AICalculateLocationOdds(openingCoord, xIndex, zIndex, addedTileXIndex, 
                     local links = nil
 
                     if position < 5 then
-                        links = unusedTiles[validTile_GUID].linkedQuadrants
+                        links = validTileData.linkedQuadrants
                     else--if position < 13 then
-                        links = unusedTiles[validTile_GUID].linkedOctants
+                        links = validTileData.linkedOctants
                     end
                     local visitedPosition = false
                     while not visitedPosition do
@@ -443,15 +459,16 @@ end
 --of the removed tile
 function AIRemoveTileOdds(openingCoord, xIndex, zIndex, removedTile_GUID, connectionOdds)
     if validTileLocations[openingCoord][removedTile_GUID] ~= nil then
+        local removedTileData = AIGetUnusedTileData(removedTile_GUID)
         for validTileRotation, _ in pairs(validTileLocations[openingCoord][removedTile_GUID]) do
             connectionOdds["totalValid"] = connectionOdds["totalValid"] - 1
             local visitedFeatures = {}
             for position=1, 12 do
                 local nameOfFeature
                 if position < 5 then
-                    nameOfFeature = unusedTiles[removedTile_GUID].sides[position]
+                    nameOfFeature = removedTileData.sides[position]
                 else--if position < 13 then
-                    nameOfFeature = unusedTiles[removedTile_GUID].sides[math.floor((position - 3) / 2)]
+                    nameOfFeature = removedTileData.sides[math.floor((position - 3) / 2)]
                 end
                 if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' or nameOfFeature == 'Abbey') and not visitedFeatures[position] then
                     local connectedFeatures = {}
@@ -459,9 +476,9 @@ function AIRemoveTileOdds(openingCoord, xIndex, zIndex, removedTile_GUID, connec
                     local links = nil
 
                     if position < 5 then
-                        links = unusedTiles[removedTile_GUID].linkedQuadrants
+                        links = removedTileData.linkedQuadrants
                     else--if position < 13 then
-                        links = unusedTiles[removedTile_GUID].linkedOctants
+                        links = removedTileData.linkedOctants
                     end
                     local visitedPosition = false
                     while not visitedPosition do
@@ -535,13 +552,16 @@ end
 --For non-adjacent open locations, it will call AIAddTileOdds to more quickly recalculate the odds of those
 --locations by removing the connections of that single tile
 function AITileRemoved(xIndex, zIndex, removedTile)
-    unusedTiles[removedTile.guid] = {}
-    local symmetry = removedTile.getVar("symmetry")
-    unusedTiles[removedTile.guid].symmetry = symmetry
-    unusedTiles[removedTile.guid].sides = removedTile.getTable("sides")
-    unusedTiles[removedTile.guid].linkedQuadrants = removedTile.getTable("linkedQuadrants")
-    unusedTiles[removedTile.guid].linkedOctants = removedTile.getTable("linkedOctants")
-    --unusedTiles[removedTile.guid].specialFeatures = removedTile.getTable("specialFeatures")
+    if removedTile.getVar("tileDataId") ~= nil then
+        unusedTiles[removedTile.getGUID()] = removedTile.getVar("tileDataId")
+    else
+        unusedTiles[removedTile.getGUID()] = {}
+        unusedTiles[removedTile.getGUID()].symmetry = removedTile.getVar("symmetry")
+        unusedTiles[removedTile.getGUID()].sides = removedTile.getTable("sides")
+        unusedTiles[removedTile.getGUID()].linkedQuadrants = removedTile.getTable("linkedQuadrants")
+        unusedTiles[removedTile.getGUID()].linkedOctants = removedTile.getTable("linkedOctants")
+        --unusedTiles[removedTile.getGUID()].specialFeatures = removedTile.getTable("specialFeatures")
+    end
 
     tilesRemaining = tilesRemaining + 1
 
@@ -564,14 +584,15 @@ function AITileRemoved(xIndex, zIndex, removedTile)
 
     local removedTileCoord = xIndex .. "-" .. zIndex
     validTileLocations[removedTileCoord] = {}
-    for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
-        local validRotations = unusedTile.symmetry
+    for unusedTile_GUID, _ in pairs(unusedTiles) do
+        local unusedTileData = AIGetUnusedTileData(unusedTile_GUID)
+        local validRotations = unusedTileData.symmetry
         if validRotations == nil then validRotations = 4 end
         for tileRotation=1, validRotations do --rebuild validTileLocations at the location the tile was removed
-            if ((not tileGridOccupied(xIndex + 1, zIndex) or unusedTile.sides[(3 + 4 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid).getTable('sides')[(3 + 4 - tileGrid[xIndex + 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                (not tileGridOccupied(xIndex - 1, zIndex) or unusedTile.sides[(3 + 2 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid).getTable('sides')[(3 + 2 - tileGrid[xIndex - 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                (not tileGridOccupied(xIndex, zIndex + 1) or unusedTile.sides[(3 + 3 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[xIndex][zIndex + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                (not tileGridOccupied(xIndex, zIndex - 1) or unusedTile.sides[(3 + 1 - tileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[xIndex][zIndex - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
+            if ((not tileGridOccupied(xIndex + 1, zIndex) or unusedTileData.sides[(3 + 4 - tileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid)).sides[(3 + 4 - tileGrid[xIndex + 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex - 1, zIndex) or unusedTileData.sides[(3 + 2 - tileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid)).sides[(3 + 2 - tileGrid[xIndex - 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex, zIndex + 1) or unusedTileData.sides[(3 + 3 - tileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid)).sides[(3 + 3 - tileGrid[xIndex][zIndex + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                (not tileGridOccupied(xIndex, zIndex - 1) or unusedTileData.sides[(3 + 1 - tileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid)).sides[(3 + 1 - tileGrid[xIndex][zIndex - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
                 if validTileLocations[removedTileCoord][unusedTile_GUID] == nil then
                     validTileLocations[removedTileCoord][unusedTile_GUID] = {}
                 end
@@ -594,16 +615,17 @@ function AITileRemoved(xIndex, zIndex, removedTile)
                 end
             end
             if hasNeighbor then
-                for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
+                for unusedTile_GUID, _ in pairs(unusedTiles) do
+                    local unusedTileData = AIGetUnusedTileData(unusedTile_GUID)
                     if validTileLocations[openingCoord][unusedTile_GUID] == nil then
                         validTileLocations[openingCoord][unusedTile_GUID] = {}
-                        local validRotations = unusedTile.symmetry
+                        local validRotations = unusedTileData.symmetry
                         if validRotations == nil then validRotations = 4 end
                         for unusedTileRotation=1, validRotations do
-                            if ((not tileGridOccupied(nestedX + 1, nestedZ) or unusedTile.sides[(3 + 4 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[nestedX + 1][nestedZ].tile_guid).getTable('sides')[(3 + 4 - tileGrid[nestedX + 1][nestedZ].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                                (not tileGridOccupied(nestedX - 1, nestedZ) or unusedTile.sides[(3 + 2 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[nestedX - 1][nestedZ].tile_guid).getTable('sides')[(3 + 2 - tileGrid[nestedX - 1][nestedZ].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                                (not tileGridOccupied(nestedX, nestedZ + 1) or unusedTile.sides[(3 + 3 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[nestedX][nestedZ + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[nestedX][nestedZ + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                                (not tileGridOccupied(nestedX, nestedZ - 1) or unusedTile.sides[(3 + 1 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[nestedX][nestedZ - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[nestedX][nestedZ - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
+                            if ((not tileGridOccupied(nestedX + 1, nestedZ) or unusedTileData.sides[(3 + 4 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[nestedX + 1][nestedZ].tile_guid)).sides[(3 + 4 - tileGrid[nestedX + 1][nestedZ].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                                (not tileGridOccupied(nestedX - 1, nestedZ) or unusedTileData.sides[(3 + 2 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[nestedX - 1][nestedZ].tile_guid)).sides[(3 + 2 - tileGrid[nestedX - 1][nestedZ].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                                (not tileGridOccupied(nestedX, nestedZ + 1) or unusedTileData.sides[(3 + 3 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[nestedX][nestedZ + 1].tile_guid)).sides[(3 + 3 - tileGrid[nestedX][nestedZ + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                                (not tileGridOccupied(nestedX, nestedZ - 1) or unusedTileData.sides[(3 + 1 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[nestedX][nestedZ - 1].tile_guid)).sides[(3 + 1 - tileGrid[nestedX][nestedZ - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
                                 validTileLocations[openingCoord][unusedTile_GUID][unusedTileRotation] = true
                             end
                         end
@@ -620,15 +642,16 @@ end
 
 function AIAddTileOdds(openingCoord, xIndex, zIndex, addedTile_GUID, connectionOdds)
     if validTileLocations[openingCoord][addedTile_GUID] ~= nil then
+        local addedTileData = AIGetUnusedTileData(addedTile_GUID)
         for validTileRotation, _ in pairs(validTileLocations[openingCoord][addedTile_GUID]) do
             connectionOdds["totalValid"] = connectionOdds["totalValid"] + 1
             local visitedFeatures = {}
             for position=1, 12 do
                 local nameOfFeature
                 if position < 5 then
-                    nameOfFeature = unusedTiles[addedTile_GUID].sides[position]
+                    nameOfFeature = addedTileData.sides[position]
                 else--if position < 13 then
-                    nameOfFeature = unusedTiles[addedTile_GUID].sides[math.floor((position - 3) / 2)]
+                    nameOfFeature = addedTileData.sides[math.floor((position - 3) / 2)]
                 end
                 if (position > 4 or nameOfFeature == 'Road' or nameOfFeature == 'River' or nameOfFeature == 'Abbey') and not visitedFeatures[position] then
                     local connectedFeatures = {}
@@ -636,9 +659,9 @@ function AIAddTileOdds(openingCoord, xIndex, zIndex, addedTile_GUID, connectionO
                     local links = nil
 
                     if position < 5 then
-                        links = unusedTiles[addedTile_GUID].linkedQuadrants
+                        links = addedTileData.linkedQuadrants
                     else--if position < 13 then
-                        links = unusedTiles[addedTile_GUID].linkedOctants
+                        links = addedTileData.linkedOctants
                     end
                     local visitedPosition = false
                     while not visitedPosition do
@@ -705,15 +728,16 @@ function AIRecalculateOdds()
         local coord = string.split(openingCoord, "-")
         local xIndex = tonumber(coord[1])
         local zIndex = tonumber(coord[2])
-        for unusedTile_GUID, unusedTile in pairs(unusedTiles) do
+        for unusedTile_GUID, _ in pairs(unusedTiles) do
+            local unusedTileData = AIGetUnusedTileData(unusedTile_GUID)
             validTileLocations[openingCoord][unusedTile_GUID] = {}
-            local validRotations = unusedTile.symmetry
+            local validRotations = unusedTileData.symmetry
             if validRotations == nil then validRotations = 4 end
             for unusedTileRotation=1, validRotations do
-                if ((not tileGridOccupied(xIndex + 1, zIndex) or unusedTile.sides[(3 + 4 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid).getTable('sides')[(3 + 4 - tileGrid[xIndex + 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                    (not tileGridOccupied(xIndex - 1, zIndex) or unusedTile.sides[(3 + 2 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid).getTable('sides')[(3 + 2 - tileGrid[xIndex - 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                    (not tileGridOccupied(xIndex, zIndex + 1) or unusedTile.sides[(3 + 3 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid).getTable('sides')[(3 + 3 - tileGrid[xIndex][zIndex + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
-                    (not tileGridOccupied(xIndex, zIndex - 1) or unusedTile.sides[(3 + 1 - unusedTileRotation) % 4 + 1] == getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid).getTable('sides')[(3 + 1 - tileGrid[xIndex][zIndex - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
+                if ((not tileGridOccupied(xIndex + 1, zIndex) or unusedTileData.sides[(3 + 4 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + 1][zIndex].tile_guid)).sides[(3 + 4 - tileGrid[xIndex + 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                    (not tileGridOccupied(xIndex - 1, zIndex) or unusedTileData.sides[(3 + 2 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex - 1][zIndex].tile_guid)).sides[(3 + 2 - tileGrid[xIndex - 1][zIndex].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                    (not tileGridOccupied(xIndex, zIndex + 1) or unusedTileData.sides[(3 + 3 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex + 1].tile_guid)).sides[(3 + 3 - tileGrid[xIndex][zIndex + 1].rotation + TILE_180_ROTATION) % 4 + 1]) and
+                    (not tileGridOccupied(xIndex, zIndex - 1) or unusedTileData.sides[(3 + 1 - unusedTileRotation) % 4 + 1] == getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex - 1].tile_guid)).sides[(3 + 1 - tileGrid[xIndex][zIndex - 1].rotation + TILE_180_ROTATION) % 4 + 1])) then
                     validTileLocations[openingCoord][unusedTile_GUID][unusedTileRotation] = true
                 end
             end
@@ -722,8 +746,7 @@ function AIRecalculateOdds()
     end
 end
 
-function AIChooseTileLocation()
-    --debugMessage(2, "AI choosing tile location...")
+function AIDrawTileAndChooseTileLocation()
     local tileStack = getObjectFromGUID(tileStack_GUID)
     actualTilesRemaining = 0
     if tileStack ~= nil then
@@ -731,8 +754,9 @@ function AIChooseTileLocation()
     elseif finalTile_GUID ~= nil then
         actualTilesRemaining = 1
     end
-    numRemainingMoves = math.floor(actualTilesRemaining / #activePlayers) --since the currently drawn tile isn't included, we'll need to add one on some calculations
-
+    if aiCurrentTile_GUID ~= nil and finalTile_GUID ~= aiCurrentTile_GUID then --tile had already been drawn from the stack. Add one to it.
+        actualTilesRemaining = actualTilesRemaining + 1
+    end
     if tileStack ~= nil and actualTilesRemaining ~= tilesRemaining then
         allGameMessage({"MESSAGE_AI_RECALCULATING_ODDS"}, ERROR_COLOR, nil)
         tilesRemaining = actualTilesRemaining
@@ -741,6 +765,20 @@ function AIChooseTileLocation()
         allGameMessage({"MESSAGE_AI_FINISHED_RECALCULATING_ODDS"}, ERROR_COLOR, nil)
     end
 
+    local newTile
+    if aiCurrentTile_GUID == nil then
+        newTile = AIDrawTile(tileStack)
+    else
+        newTile = getObjectFromGUID(aiCurrentTile_GUID)
+    end
+    numRemainingMoves = math.floor(actualTilesRemaining / #activePlayers) --since the currently drawn tile isn't included, we'll need to add one on some calculations
+    if newTile ~= nil then
+        AIChooseTileLocation(newTile)
+    end
+    return 1
+end
+
+function AIDrawTile(tileStack)
     local newTile = nil
     local isRiverPiece = false
     local handPosition = {Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_x, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_y, Player[handColor[activePlayers[currentPlayer]]].getPlayerHand().pos_z}
@@ -810,11 +848,16 @@ function AIChooseTileLocation()
             end
         else
             allGameMessage({"MESSAGE_AI_GAME_OVER"}, NEUTRAL_COLOR, nil)
-            return 1
+            return nil
         end
     else
         tileStack = nil --so that it won't try to return the tile to the tileStack if there is no valid place for it, since it didn't come from the tileStack
     end
+    return newTile
+end
+
+function AIChooseTileLocation(newTile)
+    --debugMessage(2, "AI choosing tile location...")
 
     coroutine.yield(0) -- this yield is needed if the tile drawn destroyed the deck, in which case we need to wait for finalTile_GUID to be set
 
@@ -835,6 +878,7 @@ function AIChooseTileLocation()
     end
 
     lastDrawnTile_GUID = newTile.getGUID()
+    aiCurrentTile_GUID = newTile.getGUID()
     coroutine.yield(0)
 
     alreadyPrintedErrorMessage = false -- to prevent excessive spam
@@ -859,6 +903,10 @@ function AIChooseTileLocation()
                                 AIMakeTileUnavailable(newTile)
                                 for tileRotation=1, validRotations do
                                     if isValidTileLocation(newTile, tileRotation, nestedX, nestedZ, false) then
+                                        if os.clock() - lastFrameTime > FRAME_TIME then
+                                            lastFrameTime = lastFrameTime + FRAME_TIME
+                                            coroutine.yield(0)
+                                        end
                                         CalculateLocationScoreFunction(newTile, tileRotation, nestedX, nestedZ)
                                     end
                                 end
@@ -884,6 +932,10 @@ function AIChooseTileLocation()
                     local zIndex = tonumber(coord[2])
                     AIMakeTileUnavailable(newTile)
                     for tileRotation, _ in pairs(tileTiles[newTile.getGUID()]) do
+                        if os.clock() - lastFrameTime > FRAME_TIME then
+                            lastFrameTime = lastFrameTime + FRAME_TIME
+                            coroutine.yield(0)
+                        end
                         CalculateLocationScoreFunction(newTile, tileRotation, xIndex, zIndex)
                         completedMoves = completedMoves + 1
                         UI.setAttribute("AIProgressBar", "percentage", 100 * completedMoves / totalValidMoves)
@@ -900,10 +952,10 @@ function AIChooseTileLocation()
     UI.setAttribute("AIProgressPanel", "active", "false")
     UI.hide("AIProgressPanel")
 
-    local posText = highestScorePos
-    local figureText = highestScoreFigure
-    if highestScorePos == nil then posText = "N/A" end
-    if highestScoreFigure == nil then figureText = "None" end
+    local posText = aiHighestScorePos
+    local figureText = aiHighestScoreFigureName
+    if aiHighestScorePos == nil then posText = "N/A" end
+    if aiHighestScoreFigureName == nil then figureText = "None" end
     if highestScoreX ~= nil then
         debugMessage(1, "highest score: " .. highestScore .. " at x:" .. highestScoreX .. " z:" .. highestScoreZ .. " rot:" .. highestScoreRot .. " pos:" .. posText .. " figure: " .. figureText)
         debugMessage(1, "Calculation complete in: " .. os.clock() - calculationStart .. " seconds.")
@@ -920,7 +972,7 @@ function AIChooseTileLocation()
             wait(2.0)
             tileStack.shuffle()
             wait(0.1)
-            AIChooseTileLocation()
+            AIDrawTileAndChooseTileLocation()
         else
             allErrorMessage({"MESSAGE_AI_ERROR_NO_TILESTACK"}, activePlayers[currentPlayer])
         end
@@ -934,8 +986,8 @@ function AICalculateBaselineScoresEasy()
     highestScoreX = nil
     highestScoreZ = nil
     highestScoreRot = nil
-    highestScorePos = nil
-    highestScoreFigure = nil
+    aiHighestScorePos = nil
+    aiHighestScoreFigureName = nil
     numIdenticalScore = 1
 
     getActiveFigures()
@@ -1008,6 +1060,7 @@ end
 function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
     --debugMessage(1, "AICalculateLocationScore at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
     --temporarily insert this tile into the grid
+    local newTileData = getTileDataForTile(newTile)
     addTile(xIndex, zIndex, newTile, tileRotation, true)
     joinedActiveFigures = {}
     for featureNum, figureList in pairs(activeFigures) do
@@ -1056,7 +1109,7 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
     local featureVisited = { }
     local positionsToVisit = { }
 
-    local specialFeatures = newTile.getTable('specialFeatures')
+    local specialFeatures = newTileData.specialFeatures
     if specialFeatures ~= nil then
         for specialFeatureNum, feature in ipairs(specialFeatures) do
             if feature[3] ~= nil then
@@ -1131,11 +1184,11 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = featureMapPosition
+                        aiHighestScorePos = featureMapPosition
                         if baselineFigures[activePlayers[currentPlayer]]['Big Follower'] and (baselineFollowerCounts[activePlayers[currentPlayer]] == 0 or nameOfFeature == 'City') then
-                            highestScoreFigure = 'Big Follower'
+                            aiHighestScoreFigureName = 'Big Follower'
                         else
-                            highestScoreFigure = 'Follower'
+                            aiHighestScoreFigureName = 'Follower'
                         end
                         usedFeature = true
                     end
@@ -1158,8 +1211,8 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = featureMapPosition
-                    highestScoreFigure = 'Pig'
+                    aiHighestScorePos = featureMapPosition
+                    aiHighestScoreFigureName = 'Pig'
                     usedFeature = true
                 end
             elseif playerHasFollower and numOpenings > 0 and (nameOfFeature == 'City' or nameOfFeature == 'Road') and baselineFigures[activePlayers[currentPlayer]]['Builder'] then
@@ -1177,8 +1230,8 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = featureMapPosition
-                    highestScoreFigure = 'Builder'
+                    aiHighestScorePos = featureMapPosition
+                    aiHighestScoreFigureName = 'Builder'
                     usedFeature = true
                 end
             end
@@ -1205,8 +1258,8 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = featureMapPosition
-                        highestScoreFigure = 'Shepherd'
+                        aiHighestScorePos = featureMapPosition
+                        aiHighestScoreFigureName = 'Shepherd'
                         usedFeature = true
                     end
                 end
@@ -1228,8 +1281,8 @@ function AICalculateLocationScoreEasy(newTile, tileRotation, xIndex, zIndex)
         highestScoreX = xIndex
         highestScoreZ = zIndex
         highestScoreRot = tileRotation
-        highestScorePos = nil
-        highestScoreFigure = nil
+        aiHighestScorePos = nil
+        aiHighestScoreFigureName = nil
     end
 
     tileGrid[xIndex][zIndex] = nil
@@ -1237,10 +1290,6 @@ end
 
 function AICalculateActiveScoresEasy(newXIndex, newZIndex)
     --debugMessage(2, "AI checking current active scores..")
-    if os.clock() - lastFrameTime > FRAME_TIME then
-        lastFrameTime = lastFrameTime + FRAME_TIME
-        coroutine.yield(0)
-    end
     activeScores = {}
     followerCountChange = {}
     for _, player in ipairs(activePlayers) do
@@ -1348,7 +1397,7 @@ function AICalculateActiveScoresEasy(newXIndex, newZIndex)
                 hasMayor[follower.owner] = true
             end
             if weight > 0 then
-                local specialFeatures = getObjectFromGUID(follower.tile_guid).getTable('specialFeatures')
+                local specialFeatures = getTileDataForTile(getObjectFromGUID(follower.tile_guid)).specialFeatures
                 if controlPanelSettings['HnSHills'] and specialFeatures ~= nil then
                     for _, specialFeature in ipairs(specialFeatures) do
                         if specialFeature[1] == "Hill" then
@@ -1487,11 +1536,12 @@ function AICalculateFeatureScoreEasy(featureNum, figures)
         end
 
         if lastPlacedTileX ~= nil then --TODO: This broke something when lastPlacedTileX was null. Is lastPlacedTileX even used when checking possible moves? Wrapping in this if statement for now as a temporary fix
-            local tileFeatures = tileGrid[lastPlacedTileX][lastPlacedTileZ].tileFeatures
+            local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid))
+            local specialFeatures = tileData.specialFeatures
             local isAbbey = false
-            if tileFeatures ~= nil then
-                for _, tileFeature in ipairs(tileFeatures) do
-                    if tileFeature == 'Abbey' then
+            if controlPanelSettings['AnMAbbey'] and specialFeatures ~= nil then
+                for _, specialFeature in ipairs(specialFeatures) do
+                    if specialFeature[1] == 'Abbey' then
                         isAbbey = true
                     end
                 end
@@ -1583,7 +1633,7 @@ function AICalculateFeatureScoreEasy(featureNum, figures)
                 if not (x == 0 and z == 0) and tileGridOccupied(feature.featureLocation.x + x, feature.featureLocation.z + z) then
                     score = score + 1
                     if controlPanelSettings['HnSVineyards'] then
-                        local specialFeatures = getObjectFromGUID(tileGrid[feature.featureLocation.x + x][feature.featureLocation.z + z].tile_guid).getTable('specialFeatures')
+                        local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[feature.featureLocation.x + x][feature.featureLocation.z + z].tile_guid)).specialFeatures
                         if specialFeatures ~= nil then
                             for _, feature in ipairs(specialFeatures) do
                                 if feature == 'Vineyard' then
@@ -1619,8 +1669,8 @@ function AICalculateBaselineScores()
     highestScoreX = nil
     highestScoreZ = nil
     highestScoreRot = nil
-    highestScorePos = nil
-    highestScoreFigure = nil
+    aiHighestScorePos = nil
+    aiHighestScoreFigureName = nil
     numIdenticalScore = 1
 
     tempLinkedFeatures = {['City-Field'] = {}, ['Road Intersection'] = {}}
@@ -1756,6 +1806,8 @@ end
 function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
     debugMessage(1, "AICalculateTileLocationScore at x:" .. xIndex .. " z:" .. zIndex .. " rot:" .. tileRotation)
 
+    local newTileData = getTileDataForTile(newTile)
+
     --temporarily insert this tile into the grid
     addTile(xIndex, zIndex, newTile, tileRotation, true)
 
@@ -1813,7 +1865,7 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
     local featureVisited = { }
     local positionsToVisit = { }
 
-    local specialFeatures = newTile.getTable('specialFeatures')
+    local specialFeatures = newTileData.specialFeatures
     if specialFeatures ~= nil then
         for i, feature in ipairs(specialFeatures) do
             if feature[3] ~= nil then
@@ -1925,8 +1977,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                             highestScoreX = xIndex
                             highestScoreZ = zIndex
                             highestScoreRot = tileRotation
-                            highestScorePos = featureMapPosition
-                            highestScoreFigure = 'Follower'
+                            aiHighestScorePos = featureMapPosition
+                            aiHighestScoreFigureName = 'Follower'
                             usedFeature = true
                         end
                         table.remove(joinedActiveFigures[featureNum].followers)
@@ -1953,8 +2005,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                             highestScoreX = xIndex
                             highestScoreZ = zIndex
                             highestScoreRot = tileRotation
-                            highestScorePos = featureMapPosition
-                            highestScoreFigure = 'Big Follower'
+                            aiHighestScorePos = featureMapPosition
+                            aiHighestScoreFigureName = 'Big Follower'
                             usedFeature = true
                         end
                         table.remove(joinedActiveFigures[featureNum].followers)
@@ -2019,8 +2071,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = featureMapPosition
-                    highestScoreFigure = 'Pig'
+                    aiHighestScorePos = featureMapPosition
+                    aiHighestScoreFigureName = 'Pig'
                 end
                 table.remove(joinedActiveFigures[featureNum].specialFigures)
             elseif playerHasFollower and numOpenings > 0 and (nameOfFeature == 'City' or nameOfFeature == 'Road') and baselineFigures[activePlayers[currentPlayer]]['Builder'] then
@@ -2047,8 +2099,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                     highestScoreX = xIndex
                     highestScoreZ = zIndex
                     highestScoreRot = tileRotation
-                    highestScorePos = featureMapPosition
-                    highestScoreFigure = 'Builder'
+                    aiHighestScorePos = featureMapPosition
+                    aiHighestScoreFigureName = 'Builder'
                 end
                 --table.remove(joinedActiveFigures[featureNum].specialFigures)
             end
@@ -2075,8 +2127,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
                         highestScoreX = xIndex
                         highestScoreZ = zIndex
                         highestScoreRot = tileRotation
-                        highestScorePos = featureMapPosition
-                        highestScoreFigure = 'Shepherd'
+                        aiHighestScorePos = featureMapPosition
+                        aiHighestScoreFigureName = 'Shepherd'
                     end
                     table.remove(joinedActiveFigures[featureNum].specialFigures)
                 end
@@ -2101,8 +2153,8 @@ function AICalculateTileLocationScore(newTile, tileRotation, xIndex, zIndex)
         highestScoreX = xIndex
         highestScoreZ = zIndex
         highestScoreRot = tileRotation
-        highestScorePos = nil
-        highestScoreFigure = nil
+        aiHighestScorePos = nil
+        aiHighestScoreFigureName = nil
     end
     tileGrid[xIndex][zIndex] = nil
 end
@@ -2132,10 +2184,6 @@ end
 --if xIndex and zIndex are included, it will also include bonuses for having placed the tile at this position
 function AICalculateActiveScores(newXIndex, newZIndex, tileRotation, featureNum)
     --debugMessage(2, "AI checking current active scores..")
-    if os.clock() - lastFrameTime > FRAME_TIME then
-        lastFrameTime = lastFrameTime + FRAME_TIME
-        coroutine.yield(0)
-    end
 
     activeScores = {}
     currentPlayerFollowerCountChange = 0
@@ -2278,10 +2326,6 @@ function AICalculateFeatureJoinPercentages()
     featureBlockPercentages = {}
 
     for featureNum, featureFigures in pairs(joinedActiveFigures) do
-        -- if os.clock() - lastFrameTime > FRAME_TIME then
-        --     lastFrameTime = lastFrameTime + FRAME_TIME
-        --     coroutine.yield(0)
-        -- end
         local traversedOpenings = {}
         local featureKey = "" .. featureNum
         local feature = tempFeatureList[featureNum]
@@ -2458,7 +2502,7 @@ function AICalculateFeatureScore(blockPercentage, featureNums, nameOfFeature, sp
             hasMayor[follower.owner] = true
         end
         if weight > 0 then
-            local specialFeatures = getObjectFromGUID(follower.tile_guid).getTable('specialFeatures')
+            local specialFeatures = getTileDataForTile(getObjectFromGUID(follower.tile_guid)).specialFeatures
             if controlPanelSettings['HnSHills'] and specialFeatures ~= nil then
                 for _, specialFeature in ipairs(specialFeatures) do
                     if specialFeature[1] == "Hill" then
@@ -2597,11 +2641,12 @@ function AICalculateFeatureScore(blockPercentage, featureNums, nameOfFeature, sp
         end
 
         if lastPlacedTileX ~= nil then --TODO: This broke something when lastPlacedTileX was null. Is lastPlacedTileX even used when checking possible moves? Wrapping in this if statement for now as a temporary fix
-            local tileFeatures = tileGrid[lastPlacedTileX][lastPlacedTileZ].tileFeatures
+            local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid))
+            local specialFeatures = tileData.specialFeatures
             local isAbbey = false
-            if tileFeatures ~= nil then
-                for _, tileFeature in ipairs(tileFeatures) do
-                    if tileFeature == 'Abbey' then
+            if controlPanelSettings['AnMAbbey'] and specialFeatures ~= nil then
+                for _, specialFeature in ipairs(specialFeatures) do
+                    if specialFeature[1] == 'Abbey' then
                         isAbbey = true
                     end
                 end
@@ -2700,7 +2745,7 @@ function AICalculateFeatureScore(blockPercentage, featureNums, nameOfFeature, sp
                     if tileGridOccupied(nestedX, featureLocation.z + z) then
                         score = score + 1
                         if controlPanelSettings['HnSVineyards'] then
-                            local specialFeatures = getObjectFromGUID(tileGrid[nestedX][featureLocation.z + z].tile_guid).getTable('specialFeatures')
+                            local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[nestedX][featureLocation.z + z].tile_guid)).specialFeatures
                             if specialFeatures ~= nil then
                                 for _, feature in ipairs(specialFeatures) do
                                     if feature == 'Vineyard' then
@@ -2797,8 +2842,6 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
         wait(AI_DRAW_TILE_TIME - (os.clock() - calculationStart))
     end
 
-    addTile(xIndex, zIndex, newTile, tileRotation, false)
-
     if AI_ANIMATIONS_ENABLED then
         setPositionFromHandSmooth(newTile, activePlayers[currentPlayer], {xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
         newTile.setRotationSmooth({0, tileRotation * 90, 0})
@@ -2811,57 +2854,62 @@ function AIMoveTileToLocation(newTile, xIndex, zIndex, tileRotation)
     newTile.interactable = false
 
     if AI_ANIMATIONS_ENABLED then
-        Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={tile=newTile}, delay=2.0})
+        Timer.create({identifier=newTile.getGUID() .. os.clock(), function_name='AILockTile', function_owner=nil, parameters={newTile=newTile, xIndex=xIndex, zIndex=zIndex, tileRotation=tileRotation}, delay=2.0})
     else
-        AILockTile({tile=newTile})
+        AILockTile({newTile=newTile, xIndex=xIndex, zIndex=zIndex, tileRotation=tileRotation})
     end
 end
 
 function AILockTile(params)
-    local tile = params.tile
-    tile.interactable = true
+    addTile(params.xIndex, params.zIndex, params.newTile, params.tileRotation, false)
+    aiCurrentTile_GUID = nil
+
+    params.newTile.interactable = true
     if AUTOLOCK then
-        tile.setLock(true)
+        params.newTile.setLock(true)
+    end
+
+    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
+        if aiHighestScoreFigureName == obj.getVar('figureName') and obj.getVar('owner') == activePlayers[currentPlayer] then
+            local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
+            if not tileGridOccupied(xIndex, zIndex) then
+                aiChosenFigure_GUID = obj.getGUID()
+                break
+            end
+        end
     end
     return nextState('tile placed')
 end
 
 function AIMoveFigureToLocation()
-    local featureNum = getFeatureNumAt(lastPlacedTileX, lastPlacedTileZ, highestScorePos)
+    local featureNum = getFeatureNumAt(lastPlacedTileX, lastPlacedTileZ, aiHighestScorePos)
     local nameOfFeature = featureList[featureNum].nameOfFeature
-    local x, z = getFeatureLocation(lastPlacedTileX, lastPlacedTileZ, highestScorePos)
-    for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
-        if highestScoreFigure == obj.getVar('figureName') and obj.getVar('owner') == activePlayers[currentPlayer] then
-            local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
-            if not tileGridOccupied(xIndex, zIndex) then
-                --NOTE: if pos > 12, rotation is always the same. This could be considered a flaw in the case of positions where there are rotating snap points since setPositionSmooth will ignore them. However, I don't think there's an easy way to solve it.
-                local pieceRotation = getPositionYawRotation(highestScorePos, 180)
-                if table.contains(MEEPLE_TYPES, obj.getVar('figureName')) and nameOfFeature == 'Field' then
-                    --lay the Follower down
-                    if AI_ANIMATIONS_ENABLED then
-                        obj.setRotationSmooth({90, pieceRotation, 0})
-                    else
-                        obj.setRotation({90, pieceRotation, 0})
-                    end
-                else
-                    --align with the tile
-                    if AI_ANIMATIONS_ENABLED then
-                        obj.setRotationSmooth({0, pieceRotation, 0})
-                    else
-                        obj.setRotation({0, pieceRotation, 0})
-                    end
-                end
-                obj.interactable = false
-                if AI_ANIMATIONS_ENABLED then
-                    obj.setPositionSmooth({(x * TILE_SPACING) + (lastPlacedTileX * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (lastPlacedTileZ * TILE_SPACING) - MIDDLE_OFFSET.z})
-                    Timer.create({identifier=obj.getGUID() .. os.clock(), function_name='AILockFigure', function_owner=nil, parameters={figure=obj}, delay=2.0})
-                else
-                    obj.setPosition({(x * TILE_SPACING) + (lastPlacedTileX * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (lastPlacedTileZ * TILE_SPACING) - MIDDLE_OFFSET.z})
-                    Timer.create({identifier=obj.getGUID() .. os.clock(), function_name='AILockFigure', function_owner=nil, parameters={figure=obj}, delay=0.5})
-                end
-                break
-            end
+    local x, z = getFeatureLocation(lastPlacedTileX, lastPlacedTileZ, aiHighestScorePos)
+    aiChosenFigure = getObjectFromGUID(aiChosenFigure_GUID)
+    --NOTE: if pos > 12, rotation is always the same. This could be considered a flaw in the case of positions where there are rotating snap points since setPositionSmooth will ignore them. However, I don't think there's an easy way to solve it.
+    local pieceRotation = getPositionYawRotation(aiHighestScorePos, 180)
+    if table.contains(MEEPLE_TYPES, aiChosenFigure.getVar('figureName')) and nameOfFeature == 'Field' then
+        --lay the Follower down
+        if AI_ANIMATIONS_ENABLED then
+            aiChosenFigure.setRotationSmooth({90, pieceRotation, 0})
+        else
+            aiChosenFigure.setRotation({90, pieceRotation, 0})
         end
+    else
+        --align with the tile
+        if AI_ANIMATIONS_ENABLED then
+            aiChosenFigure.setRotationSmooth({0, pieceRotation, 0})
+        else
+            aiChosenFigure.setRotation({0, pieceRotation, 0})
+        end
+    end
+    aiChosenFigure.interactable = false
+    if AI_ANIMATIONS_ENABLED then
+        aiChosenFigure.setPositionSmooth({(x * TILE_SPACING) + (lastPlacedTileX * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (lastPlacedTileZ * TILE_SPACING) - MIDDLE_OFFSET.z})
+        Timer.create({identifier=aiChosenFigure.getGUID() .. os.clock(), function_name='AILockFigure', function_owner=nil, parameters={figure=aiChosenFigure}, delay=2.0})
+    else
+        aiChosenFigure.setPosition({(x * TILE_SPACING) + (lastPlacedTileX * TILE_SPACING) - MIDDLE_OFFSET.x, 1.5, (z * TILE_SPACING) + (lastPlacedTileZ * TILE_SPACING) - MIDDLE_OFFSET.z})
+        Timer.create({identifier=aiChosenFigure.getGUID() .. os.clock(), function_name='AILockFigure', function_owner=nil, parameters={figure=aiChosenFigure}, delay=0.5})
     end
 end
 

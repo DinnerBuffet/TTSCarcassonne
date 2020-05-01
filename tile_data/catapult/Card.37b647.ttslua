@@ -1,4 +1,6 @@
-symmetry = 2
-sides = {'Road', 'Field', 'Road', 'Field'}
-linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}}
-specialFeatures = {{'Catapult', nil, nil}}
+['37b647'] = {
+	symmetry = 2,
+	sides = {'Road', 'Field', 'Road', 'Field'},
+	linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}},
+	specialFeatures = {{'Catapult', nil, nil}}
+},

@@ -1,10 +1,10 @@
 <Defaults>
     <Panel class="ControlPanelPage" width="1820" height="2600" position="0.0 0.0 -11.0" rectAlignment="MiddleCenter"/>
-    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="Bold" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
+    <Text class="ControlPanelCategoryLabel" fontSize="88" fontStyle="BoldAndItalic" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
     <Text class="ControlPanelSubCategoryLabel" fontSize="72" fontStyle="Bold" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
     <Text class="ControlPanelPageLabel" fontSize="34" color="#000000"/>
     <Panel class="ControlPanelStartingTileItemPanel" width="1400" height="100" rectAlignment="UpperLeft"/>
-    <Toggle class="StandardToggle" rectAlignment="UpperLeft" color="#eeeeee"/>
+    <Toggle class="StandardToggle" rectAlignment="UpperLeft" toggleWidth="64" toggleHeight="64" color="#eeeeee"/>
     <Text class="ControlPanelStartingTileText" fontSize="64" rectAlignment="UpperLeft" alignment="UpperLeft" color="#000000"/>
     <Text class="ControlPanelPlayerText" fontSize="64" rectAlignment="UpperCenter" alignment="UpperCenter" color="#000000"/>
     <Button class="HotseatButton" height="64" width="64" rectAlignment="MiddleCenter"/>

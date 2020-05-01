@@ -1,5 +1,7 @@
-symmetry = 1
-sides = {'Road', 'Road', 'Road', 'Road'}
-linkedQuadrants = {{1, 2, 3, 4}}
-linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}}
-specialFeatures = {{'Catapult', nil, nil}}
+['5ed318'] = {
+	symmetry = 1,
+	sides = {'Road', 'Road', 'Road', 'Road'},
+	linkedQuadrants = {{1, 2, 3, 4}},
+	linkedOctants = {{5, 12}, {6, 7}, {8, 9}, {10, 11}},
+	specialFeatures = {{'Catapult', nil, nil}}
+},

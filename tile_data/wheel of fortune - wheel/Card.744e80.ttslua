@@ -1,5 +1,7 @@
-isStartingPiece = true
-ignoredFeatures = {5, 12}
-sides = {'Wheel/Field', 'Field', 'Field/Wheel', 'Wheel'}
-linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}}
-specialFeatures = {{'Crown-Taxes', nil, {0.0, -0.1}}, {'Crown-Taxes', nil, {-0.32, 0.40}}}
+['744e80'] = {
+	isStartingPiece = true,
+	ignoredFeatures = {5, 12},
+	sides = {'Wheel/Field', 'Field', 'Field/Wheel', 'Wheel'},
+	linkedOctants = {{5, 10, 11, 12}, {6, 7, 8, 9}},
+	specialFeatures = {{'Crown-Taxes', nil, {0.0, -0.1}}, {'Crown-Taxes', nil, {-0.32, 0.40}}}
+},

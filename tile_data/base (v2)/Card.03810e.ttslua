@@ -1,3 +1,5 @@
-sides = {'Field', 'Field', 'City', 'Field'}
-linkedOctants = {{5, 6, 7, 8, 11, 12}, {9, 10}}
-specialFeatures = {{'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Field', {5, 6, 7, 8, 11, 12}, {0.0,0.0}}}
+['03810e'] = {
+	sides = {'Field', 'Field', 'City', 'Field'},
+	linkedOctants = {{5, 6, 7, 8, 11, 12}, {9, 10}},
+	specialFeatures = {{'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Field', {5, 6, 7, 8, 11, 12}, {0.0,0.0}}}
+},

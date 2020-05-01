@@ -1,5 +1,7 @@
-isStartingPiece = true
-sides = {'Field', 'River', 'Road', 'River'}
-linkedQuadrants = {{2, 4}}
-linkedOctants = {{5, 6, 7, 12}, {8, 9}, {10, 11}}
-specialFeatures = {{'Cloister', nil, {0.0, 0.25}}, {'Road Intersection', {3, 13}, nil}}
+['71ed1c'] = {
+	isStartingPiece = true,
+	sides = {'Field', 'River', 'Road', 'River'},
+	linkedQuadrants = {{2, 4}},
+	linkedOctants = {{5, 6, 7, 12}, {8, 9}, {10, 11}},
+	specialFeatures = {{'Cloister', nil, {0.0, 0.25}}, {'Road Intersection', {3, 13}, nil}}
+},

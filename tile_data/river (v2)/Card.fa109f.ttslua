@@ -1,3 +1,5 @@
-isStartingPiece = true
-sides = {'River', 'Field', 'Field', 'Field'}
-linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}}
+['fa109f'] = {
+	isStartingPiece = true,
+	sides = {'River', 'Field', 'Field', 'Field'},
+	linkedOctants = {{5, 6, 7, 8, 9, 10, 11, 12}}
+},

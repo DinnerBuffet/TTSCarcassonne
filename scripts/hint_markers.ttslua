@@ -7,7 +7,7 @@ TILE_MARKER_COLOR = {r=49/255, g=179/255, b=43/255, a=75/255}
 function showHintMarkers()
     local pickedUpObject = gPickedUpObject
     deleteMarkers()
-    if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' and pickedUpObject.getTable('sides') ~= nil then
+    if tostring(pickedUpObject) == 'Card(Clone) (LuaGameObjectScript)' and getTileDataForTile(pickedUpObject).sides ~= nil then
         if turnState == 'awaiting tile placement' then
             showTileMarkers(pickedUpObject)
         end
@@ -98,10 +98,11 @@ function showFigureMarkers(newFigure)
     local featuresToMark = table.shallow_copy(featureList)
     local positionsToVisit = {}
 
-    local specialFeatureLocations = tileGrid[lastPlacedTileX][lastPlacedTileZ].specialFeatureLocations
-    if specialFeatureLocations ~= nil then
-        for specialFeatureNum, specialFeature in pairs(specialFeatureLocations) do
-            if specialFeature.nameOfFeature ~= 'Tower Foundation' then
+    local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[lastPlacedTileX][lastPlacedTileZ].tile_guid))
+    local specialFeatures = tileData.specialFeatures
+    if specialFeatures ~= nil then
+        for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+            if specialFeature[1] ~= 'Tower Foundation' then
                 table.insert(positionsToVisit, specialFeatureNum+12)
             end
         end
@@ -147,10 +148,9 @@ function showFigureMarkers(newFigure)
             local xIndex, zIndex, _, _ = getFigureTileLocation(obj)
             if tileGridOccupied(xIndex, zIndex) then
                 local positionsToVisit = {}
-                local specialFeatureLocations = tileGrid[xIndex][zIndex].specialFeatureLocations
-                if specialFeatureLocations ~= nil then
-                    for specialFeatureNum, specialFeature in pairs(specialFeatureLocations) do
-                        if string.sub(specialFeature.nameOfFeature,1,6) == 'Crown-' then
+                if specialFeatures ~= nil then
+                    for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                        if string.sub(specialFeature[1],1,6) == 'Crown-' then
                             table.insert(positionsToVisit, specialFeatureNum+12)
                         end
                     end
@@ -184,10 +184,11 @@ function showFigureMarkers(newFigure)
         for x, tileColumn in pairs(tileGrid) do
             for z, tileLocation in pairs(tileColumn) do
                 local positionsToVisit = {}
-                local specialFeatureLocations = tileLocation.specialFeatureLocations
-                if specialFeatureLocations ~= nil then
-                    for specialFeatureNum, _ in pairs(specialFeatureLocations) do
-                        table.insert(positionsToVisit, specialFeatureNum+12)
+                if specialFeatures ~= nil then
+                    for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                        if specialFeature[3] ~= nil then
+                            table.insert(positionsToVisit, specialFeatureNum+12)
+                        end
                     end
                 end
                 for featureMapPosition=1, 12 do
@@ -233,10 +234,11 @@ function showTowerMarkers(newFigure)
     for x, tileColumn in pairs(tileGrid) do
         for z, tileLocation in pairs(tileColumn) do
             local positionsToVisit = {}
-            local specialFeatureLocations = tileLocation.specialFeatureLocations
-            if specialFeatureLocations ~= nil then
-                for specialFeatureNum, specialFeature in pairs(specialFeatureLocations) do
-                    if specialFeature.nameOfFeature == 'Tower Foundation' then
+            local tileData = getTileDataForTile(getObjectFromGUID(tileLocation.tile_guid))
+            local specialFeatures = tileData.specialFeatures
+            if specialFeatures ~= nil then
+                for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                    if specialFeature[1] == 'Tower Foundation' then
                         table.insert(positionsToVisit, specialFeatureNum+12)
                     end
                 end
@@ -338,10 +340,13 @@ function showWagonFeatureMarkers(newFigure)
     for x, tileColumn in pairs(tileGrid) do
         for z, tileLocation in pairs(tileColumn) do
             local positionsToVisit = {}
-            local specialFeatureLocations = tileLocation.specialFeatureLocations
-            if specialFeatureLocations ~= nil then
-                for specialFeatureNum, _ in pairs(specialFeatureLocations) do
-                    table.insert(positionsToVisit, specialFeatureNum+12)
+            local tileData = getTileDataForTile(getObjectFromGUID(tileLocation.tile_guid))
+            local specialFeatures = tileData.specialFeatures
+            if specialFeatures ~= nil then
+                for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                    if specialFeature[3] ~= nil then
+                        table.insert(positionsToVisit, specialFeatureNum+12)
+                    end
                 end
             end
             for featureMapPosition=1, 12 do
@@ -375,10 +380,13 @@ function showFlierFeatureMarkers(newFigure)
 
     local positionsToVisit = { }
 
-    local specialFeatureLocations = tileGrid[xIndex][zIndex].specialFeatureLocations
-    if specialFeatureLocations ~= nil then
-        for specialFeatureNum, _ in pairs(specialFeatureLocations) do
-            table.insert(positionsToVisit, specialFeatureNum+12)
+    local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
+    local specialFeatures = tileData.specialFeatures
+    if specialFeatures ~= nil then
+        for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+            if specialFeature[3] ~= nil then
+                table.insert(positionsToVisit, specialFeatureNum+12)
+            end
         end
     end
     for featureMapPosition=1, 12 do
@@ -406,10 +414,13 @@ function showToCoCFeatureMarkers(newFigure)
         local xIndex, zIndex, _, _ = getFigureTileLocation(cocTile)
 
         local positionsToVisit = {}
-        local specialFeatureLocations = tileGrid[xIndex][zIndex].specialFeatureLocations
-        if specialFeatureLocations ~= nil then
-            for specialFeatureNum, _ in pairs(specialFeatureLocations) do
-                table.insert(positionsToVisit, specialFeatureNum+12)
+        local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
+        local specialFeatures = tileData.specialFeatures
+        if specialFeatures ~= nil then
+            for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                if specialFeature[3] ~= nil then
+                    table.insert(positionsToVisit, specialFeatureNum+12)
+                end
             end
         end
         for featureMapPosition=1, 12 do
@@ -443,10 +454,11 @@ function showFromCoCFeatureMarkers(newFigure)
         locationMarkers[xIndex] = {}
         locationMarkers[xIndex][zIndex] = {}
 
-        local specialFeatureLocations = tileGrid[xIndex][zIndex].specialFeatureLocations
-        if specialFeatureLocations ~= nil then
-            for specialFeatureNum, specialFeature in pairs(specialFeatureLocations) do
-                if specialFeature.nameOfFeature ~= 'Tower Foundation' then
+        local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
+        local specialFeatures = tileData.specialFeatures
+        if specialFeatures ~= nil then
+            for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                if specialFeature[1] ~= 'Tower Foundation' and specialFeature[3] ~= nil then
                     table.insert(positionsToVisit, specialFeatureNum+12)
                 end
             end
@@ -468,10 +480,11 @@ function showFromCoCFeatureMarkers(newFigure)
             local neighborX = lastPlacedTileX + offset.x
             local neighborZ = lastPlacedTileZ + offset.z
             if tileGridOccupied(neighborX, neighborZ) then
-                local specialFeatureLocations = tileGrid[neighborX][neighborZ].specialFeatureLocations
-                if specialFeatureLocations ~= nil then
-                    for specialFeatureNum, specialFeature in pairs(specialFeatureLocations) do
-                        if specialFeature.nameOfFeature ~= 'Tower Foundation' then
+                local neighborTileData = getTileDataForTile(getObjectFromGUID(tileGrid[neighborX][neighborZ].tile_guid))
+                local neighborSpecialFeatures = neighborTileData.specialFeatures
+                if neighborSpecialFeatures ~= nil then
+                    for specialFeatureNum, specialFeature in pairs(neighborSpecialFeatures) do
+                        if specialFeature[1] ~= 'Tower Foundation' and specialFeature[3] ~= nil then
                             local featureMapPosition = specialFeatureNum+12
                             local featureNum = getFeatureNumAt(neighborX, neighborZ, featureMapPosition)
                             if featureNum ~= nil and featuresToMark[featureNum] ~= nil then
@@ -492,10 +505,13 @@ function showFromCoCFeatureMarkers(newFigure)
         for xIndex, tileColumn in pairs(tileGrid) do
             for zIndex, tileLocation in pairs(tileColumn) do
                 local positionsToVisit = {}
-                local specialFeatureLocations = tileLocation.specialFeatureLocations
-                if specialFeatureLocations ~= nil then
-                    for specialFeatureNum, _ in pairs(specialFeatureLocations) do
-                        table.insert(positionsToVisit, specialFeatureNum+12)
+                local tileData = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid))
+                local specialFeatures = tileData.specialFeatures
+                if specialFeatures ~= nil then
+                    for specialFeatureNum, specialFeature in pairs(specialFeatures) do
+                        if specialFeature[3] ~= nil then
+                            table.insert(positionsToVisit, specialFeatureNum+12)
+                        end
                     end
                 end
                 for featureMapPosition=1, 12 do
@@ -544,7 +560,8 @@ function showLocationMarkers(newFigure, locationMarkers)
                 end
                 if x ~= nil and z ~= nil then
                     local tileHeight = TILE_THICKNESS
-                    local specialFeatures = getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid).getTable('specialFeatures')
+
+                    local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex][zIndex].tile_guid)).specialFeatures
                     if specialFeatures ~= nil then
                         for _, specialFeature in ipairs(specialFeatures) do
                             if specialFeature[1] == "Hill" then

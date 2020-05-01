@@ -1,3 +1,5 @@
-sides = {'City', 'City', 'Road', 'Road'}
-linkedOctants = {{5, 6}, {7, 8}, {10, 11}}
-specialFeatures = {{'City-Field', {5, 6, 12}, nil}, {'City-Field', {5, 6, 7, 8, 10, 11}, nil}, {'City-Field', {7, 8, 9}, nil}, {'Road Intersection', {3, 7, 8}, nil}, {'Road Intersection', {4, 5, 6}, nil}, {'Field', {10, 11}, {0.0,0.2}}}
+['2bed56'] = {
+	sides = {'City', 'City', 'Road', 'Road'},
+	linkedOctants = {{5, 6}, {7, 8}, {10, 11}},
+	specialFeatures = {{'City-Field', {5, 6, 12}, nil}, {'City-Field', {5, 6, 7, 8, 10, 11}, nil}, {'City-Field', {7, 8, 9}, nil}, {'Road Intersection', {3, 7, 8}, nil}, {'Road Intersection', {4, 5, 6}, nil}, {'Field', {10, 11}, {0.0,0.2}}}
+},

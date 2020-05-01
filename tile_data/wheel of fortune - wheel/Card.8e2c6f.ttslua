@@ -1,4 +1,6 @@
-isStartingPiece = true
-sides = {'Wheel', 'Wheel/Field', 'Field', 'Field/Wheel'}
-linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}}
-specialFeatures = {{'Crown-Storm', nil, {0.17, 0.0}}}
+['8e2c6f'] = {
+	isStartingPiece = true,
+	sides = {'Wheel', 'Wheel/Field', 'Field', 'Field/Wheel'},
+	linkedOctants = {{5, 6, 7, 12}, {8, 9, 10, 11}},
+	specialFeatures = {{'Crown-Storm', nil, {0.17, 0.0}}}
+},

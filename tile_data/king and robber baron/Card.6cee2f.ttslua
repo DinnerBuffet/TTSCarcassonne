@@ -1,3 +1,5 @@
-sides = {'City', 'Road', 'Road', 'City'}
-linkedOctants = {{5, 6, 11, 12}}
-specialFeatures = {{'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Road Intersection', {2, 5, 6, 11, 12}, nil}, {'Road Intersection', {3, 5, 6, 11, 12}, nil}, {'City', {5, 6, 11, 12}, {0.0,0.0}}}
+['6cee2f'] = {
+	sides = {'City', 'Road', 'Road', 'City'},
+	linkedOctants = {{5, 6, 11, 12}},
+	specialFeatures = {{'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Road Intersection', {2, 5, 6, 11, 12}, nil}, {'Road Intersection', {3, 5, 6, 11, 12}, nil}, {'City', {5, 6, 11, 12}, {0.0,0.0}}}
+},

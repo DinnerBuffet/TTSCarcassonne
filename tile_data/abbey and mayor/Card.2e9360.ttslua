@@ -1,3 +1,5 @@
-sides = {'City', 'City', 'Field', 'City'}
-linkedOctants = {{5, 6}, {7, 8, 11, 12}, {9, 10}}
-specialFeatures = {{'Field', nil, {0.2, 0.3}}, {'City-Field', {5, 6, 13}, nil}, {'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Pennant', {5, 6}, nil}}
+['2e9360'] = {
+	sides = {'City', 'City', 'Field', 'City'},
+	linkedOctants = {{5, 6}, {7, 8, 11, 12}, {9, 10}},
+	specialFeatures = {{'Field', nil, {0.2, 0.3}}, {'City-Field', {5, 6, 13}, nil}, {'City-Field', {5, 6, 7, 8, 9, 10, 11, 12}, nil}, {'Pennant', {5, 6}, nil}}
+},
