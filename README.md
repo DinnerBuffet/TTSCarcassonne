@@ -1,17 +1,19 @@
 # Carcassonne
 ![Carcassonne](https://github.com/DinnerBuffet/TTSCarcassonne/blob/master/workshop%20splash.jpg)
 
-Scripts, tile data, and files for the Tabletop Simulator mod:
-
-http://steamcommunity.com/sharedfiles/filedetails/?id=779900330
-
 The game Tabletop Simulator is required to play the mod:
 
 http://store.steampowered.com/app/286160/Tabletop_Simulator/
 
-You can see a rough outline of my road map at my Trello:
+~~Workshop item for the Tabletop Simulator mod:
 
-https://trello.com/b/3YNFvv9C/tts-carcassonne-road-map
+~~http://steamcommunity.com/sharedfiles/filedetails/?id=779900330
+
+The workshop item has been taken down. You will now have the download the save file yourself. The current version is available here:
+
+https://drive.google.com/uc?export=download&id=1_Iy4qVsc3zcO7gnr21cXuizv1ixgfgeN
+
+On Windows, move the file to your Windows user's Documents\My Games\Tabletop Simulator\Saves folder
 
 ## Instructions
 
