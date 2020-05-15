@@ -14,8 +14,8 @@ TILE_STANDARD_ROTATION = 2 --every tile is rotated this much so that the perceiv
 TILE_180_ROTATION = 2
 
 SPAM_DELAY = 2 --amount of time after an error message before another will be printed
-TILE_PLACEMENT_DELAY = 1 --amount of time after a tile is dropped before it is validated
-FIGURE_PLACEMENT_DELAY = 2 --amount of time after a figure is dropped before it is validated
+TILE_PLACEMENT_DELAY = 0.5 --amount of time after a tile is dropped before it is validated
+FIGURE_PLACEMENT_DELAY = 0.5 --amount of time after a figure is dropped before it is validated
 
 MAX_X = 33
 MIN_X = 1

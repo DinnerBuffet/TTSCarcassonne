@@ -506,6 +506,10 @@ function onObjectPickUp(player, pickedUpObject)
         local zPosition = (pickedUpObject.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
         local xIndex = math.floor(xPosition + TILE_PLACEMENT_MARGIN * TILE_SPACING)
         local zIndex = math.floor(zPosition + TILE_PLACEMENT_MARGIN * TILE_SPACING)
+        if turnState == 'awaiting tile placement' and newlyPlacedTile == pickedUpObject then
+            newlyPlacedTile = nil
+            clearArbitraryButtons()
+        end
         if tileGridOccupied(xIndex, zIndex) and tileGrid[xIndex][zIndex].tile_guid == pickedUpObject.getGUID() then
             if lastPlacedTileX ~= nil then
                 clearFigureOptions()
@@ -519,6 +523,12 @@ function onObjectPickUp(player, pickedUpObject)
             turnState = 'awaiting tile placement'
             return stateHandler()
         end
+    end
+
+    if newlyPlacedFigure == pickedUpObject then
+        newlyPlacedFigure = nil
+        clearArbitraryButtons()
+        displayFigureButtons()
     end
 
     if showMarkers == 'Hints' or showMarkers == 'Both' and

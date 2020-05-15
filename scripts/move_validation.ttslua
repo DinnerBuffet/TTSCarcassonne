@@ -1,6 +1,11 @@
 --these functions check if the move being made is valid. They are also used by hint_markers to show legal moves
 
 function checkFigurePlacement(params)
+    local confirmFigureButtonParam = {
+       index = 1, label = translate("BUTTON_LABEL_CONFIRM"), click_function = 'confirmFigureButton',
+       position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.5}, width = 1400, height=600, font_size = 200, function_owner = nil
+    }
+
     if params.time ~= lastDroppedTime then return end
     dropLock = false
 
@@ -8,22 +13,46 @@ function checkFigurePlacement(params)
     --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
     --if lastDroppedObject.resting then
     local newFigure = getObjectFromGUID(lastDroppedObject_GUID)
-    if newFigure == nil then return end --makes sure object still exists
+
+    if validateFigurePlacement(newFigure) then
+        local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(newFigure)
+
+        local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+
+        local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
+        if featureNum == nil then
+            allErrorMessage({"MESSAGE_INVALID_LOCATION_MIDDLE"}, activePlayers[currentPlayer])
+            return
+        end
+        local nameOfFeature = featureList[featureNum].nameOfFeature
+
+        newlyPlacedFigure = newFigure
+        newlyPlacedFeatureName = nameOfFeature
+        newlyPlacedFigureX = xIndex
+        newlyPlacedFigureZ = zIndex
+
+        clearArbitraryButtons()
+        createNormalizedArbitraryButton({x=-xIndex * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=zIndex * TILE_SPACING - MIDDLE_OFFSET.z}, confirmFigureButtonParam, true)
+    end
+end
+
+function validateFigurePlacement(newFigure)
+    if newFigure == nil then return false end --makes sure object still exists
 
     if newFigure.held_by_color ~= nil then
         allErrorMessage({"MESSAGE_FIGURE_PICKED_UP"}, activePlayers[currentMiniTurn])
-        return
+        return false
     end
 
     if turnState == 'awaiting phantom decision' and newFigure.getVar('figureName') ~= 'Phantom' then
         allErrorMessage({"Error: You are only allowed to place the phantom at this time."}, activePlayers[currentPlayer])
-        return
+        return false
     end
 
     local xIndex, zIndex, xPosition, zPosition = getFigureTileLocation(newFigure)
     if not tileGridOccupied(xIndex, zIndex) then
         --allErrorMessage("Invalid Location: Figure was not placed on a tile", activePlayers[currentPlayer])
-        return
+        return false
     end
 
     local closestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
@@ -31,14 +60,14 @@ function checkFigurePlacement(params)
     local featureNum = getFeatureNumAt(xIndex, zIndex, closestFeatureMapPosition)
     if featureNum == nil then
         allErrorMessage({"MESSAGE_INVALID_LOCATION_MIDDLE"}, activePlayers[currentPlayer])
-        return
+        return false
     end
     local nameOfFeature = featureList[featureNum].nameOfFeature
 
     if turnState == 'awaiting figure decision' or turnState == 'awaiting phantom decision' then
         if lastPlacedTileX == nil or lastPlacedTileZ == nil then
             allErrorMessage({"MESSAGE_FIGURE_PLACED_BEFORE_TILE"}, activePlayers[currentPlayer])
-            return
+            return false
         end
         if newFigure.getVar('figureName') == 'Fairy' then
             local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
@@ -47,98 +76,28 @@ function checkFigurePlacement(params)
                     local followerXIndex, followerZIndex, _, _ = getFigureTileLocation(follower)
                     if xIndex == followerXIndex and
                      zIndex == followerZIndex then
-                        if AUTOLOCK then
-                           newFigure.setLock(true)
-                        end
-                        return nextState('placed fairy')
+                        return true
                     end
                 end
             end
             allErrorMessage({"MESSAGE_INVALID_LOCATION_FAIRY"}, activePlayers[currentPlayer])
-            return
+            return false
         end
 
         getActiveFigures()
 
-        if not isValidFigureLocation(newFigure, xIndex, zIndex, closestFeatureMapPosition, featureNum, true) then return end
+        if not isValidFigureLocation(newFigure, xIndex, zIndex, closestFeatureMapPosition, featureNum, true) then return false end
 
         if string.sub(nameOfFeature,1,6) == 'Flier-' then
-            flier = newFigure.getGUID()
-            local tileRotation = tileGrid[xIndex][zIndex].rotation
-            if string.sub(nameOfFeature,7,7) == 'W' then flierDirection = 8 else flierDirection = 1 end --assumed to be Flier-NW if it is not Flier-W
-            flierDirection = flierDirection + ((tileRotation - TILE_STANDARD_ROTATION) * 2)
-            if flierDirection > 8 then flierDirection = flierDirection - 8 end
-            if flierDirection < 1 then flierDirection = flierDirection + 8 end
-            allGameMessage({"MESSAGE_FLIER_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}}, player_color_tints[newFigure.getVar('owner')])
-            hasAlreadyUsedFlier = true
-            return nextState('placed flier')
+            return true
         end
         if newFigure.getVar('figureName') == 'Tower' then
-            numberActiveTowers = 0
-            towerX = xIndex
-            towerZ = zIndex
-            for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
-                if obj.getVar('figureName') == 'Tower' then
-                    local nestedXIndex, nestedZIndex, xPosition, zPosition = getFigureTileLocation(obj)
-                    if xIndex == nestedXIndex and zIndex == nestedZIndex then
-                        local nestedClosestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
-                        if closestFeatureMapPosition == nestedClosestFeatureMapPosition then
-                            numberActiveTowers = numberActiveTowers + 1
-                        end
-                    end
-                end
-            end
-            if numberActiveTowers == 1 then
-                allGameMessage(({"MESSAGE_TOWER_PLACED"}), player_color_tints[activePlayers[currentPlayer]])
-            else
-                allGameMessage(({"MESSAGE_TOWER_INCREASED"}), player_color_tints[activePlayers[currentPlayer]])
-            end
-            if AUTOLOCK then
-                newFigure.setLock(true)
-            end
             local yawRotation = getPositionYawRotation(closestFeatureMapPosition, 180)
             newFigure.setRotation({0, yawRotation, 0})
-            return nextState('placed tower')
+            return true
         end
         if nameOfFeature == 'Tower Foundation' then
             nameOfFeature = 'a tower'
-        end
-        if table.contains(CLOISTER_FEATURES, nameOfFeature) then
-            local challengerTile, challengedTile
-            if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
-                challengerTile = 'Cloister'
-                challengedTile = 'Shrine'
-            else
-                challengerTile = 'Shrine'
-                challengedTile = 'Cloister'
-            end
-            for x=-1, 1 do
-                for z=-1, 1 do
-                    if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
-                        local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid)).specialFeatures
-                        if specialFeatures ~= nil then
-                            for specialFeatureNum, feature in ipairs(specialFeatures) do
-                                local adjacentFeature = feature[1]
-                                if adjacentFeature == 'Abbey' then adjacentFeature = 'Cloister' end
-                                if adjacentFeature == challengedTile then
-                                    local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
-                                    for _, object in ipairs(objs) do
-                                        if table.contains(FOLLOWER_TYPES, object.getVar('figureName')) then
-                                            local objectXIndex, objectZIndex, xPosition, zPosition = getFigureTileLocation(object)
-                                            if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
-                                                local nestedClosestFeatureMapPosition = findClosestPosition(xIndex + x, zIndex + z, xPosition, zPosition)
-                                                if nestedClosestFeatureMapPosition == specialFeatureNum + 12 then
-                                                    allGameMessage({"MESSAGE_SHRINE_CHALLENGED", {'{c1}', object.getDescription()}, {'{f1}', object.getName()}, {'{s2}', translate({feature[1]})}}, player_color_tints[object.getVar('owner')])
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
         end
         if newFigure.getVar('figureName') == 'Barn' then
             newBarn = newFigure.getGUID()
@@ -146,81 +105,24 @@ function checkFigurePlacement(params)
     elseif turnState == 'replace finished wagons' then
         if newFigure.getVar('figureName') ~= 'Wagon' then
             allErrorMessage({"MESSAGE_WAGON_ILLEGAL_FIGURE"}, activePlayers[currentMiniTurn])
-            return
+            return false
         end
-        if currentMiniTurn == nil then return end
-        if not isValidWagonLocation(newFigure, featureNum, true) then return end
-        wagonFeatures[activePlayers[currentMiniTurn]] = nil
+        if currentMiniTurn == nil then return false end
+        if not isValidWagonLocation(newFigure, featureNum, true) then return false end
     elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
         if flier ~= lastDroppedObject_GUID then
             allErrorMessage({"MESSAGE_FLIER_WRONG_FIGURE"}, activePlayers[currentPlayer])
-            return
+            return false
         end
         if not (xIndex == lastPlacedTileX + flierOffset.x and zIndex == lastPlacedTileZ + flierOffset.z) then
             allErrorMessage({"MESSAGE_INVALID_LOCATION_FLIER_WRONG_TILE"}, activePlayers[currentPlayer])
-            return
+            return false
         end
-        if not isValidFlierLocation(newFigure, featureNum, true) then return end
-        if table.contains(CLOISTER_FEATURES, nameOfFeature) then
-            local challengerTile, challengedTile
-            if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
-                challengerTile = 'Cloister'
-                challengedTile = 'Shrine'
-            else
-                challengerTile = 'Shrine'
-                challengedTile = 'Cloister'
-            end
-            for x=-1, 1 do
-                for z=-1, 1 do
-                    if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
-                        local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid)).specialFeatures
-                        if specialFeatures ~= nil then
-                            for specialFeatureNum, feature in ipairs(specialFeatures) do
-                                local adjacentFeature = feature[1]
-                                if adjacentFeature == 'Abbey' then adjacentFeature = 'Cloister' end
-                                if adjacentFeature == challengedTile then
-                                    local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
-                                    for _, object in ipairs(objs) do
-                                        if table.contains(FOLLOWER_TYPES, object.getVar('figureName')) then
-                                            local objectXIndex, objectZIndex, xPosition, zPosition = getFigureTileLocation(object)
-                                            if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
-                                                local nestedClosestTilePosition = findClosestTilePosition(xIndex + x, zIndex + z, xPosition, zPosition)
-                                                if nestedClosestTilePosition == specialFeatureNum + 12 then
-                                                    allGameMessage({"MESSAGE_SHRINE_CHALLENGED", {'{c1}', object.getDescription()}, {'{f1}', object.getName()}, {'{s2}', translate({feature[1]})}}, player_color_tints[object.getVar('owner')])
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
+        if not isValidFlierLocation(newFigure, featureNum, true) then return false end
     elseif turnState == 'prompt moving to carcassonne' then
-        if not isValidCoCLocation(newFigure, featureNum, true) then return end
+        if not isValidCoCLocation(newFigure, featureNum, true) then return false end
     elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then
-        if not isValidLocationFromCoC(newFigure, featureNum, true) then return end
-        carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] = nil
-        newFigure.highlightOff()
-        for follower_guid, quarter in pairs(carcassonneFigures[activePlayers[currentMiniTurn]]) do
-            getObjectFromGUID(follower_guid).highlightOff()
-            getObjectFromGUID(follower_guid).setLock(true)
-        end
-        if turnState == 'prompt moving from carcassonne' then
-            currentMiniTurn = currentMiniTurn + 1
-        end
-    end
-
-    if AUTOLOCK then
-        newFigure.setLock(true)
-    end
-
-    if newFigure.getVar('figureName') == 'Count' then
-        allGameMessage({"MESSAGE_COUNT_PLACED", {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, newFigure.getColorTint())
-    else
-        allGameMessage({"MESSAGE_FIGURE_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, player_color_tints[newFigure.getVar('owner')])
+        if not isValidLocationFromCoC(newFigure, featureNum, true) then return false end
     end
 
     local yawRotation, pitchRotation
@@ -241,17 +143,146 @@ function checkFigurePlacement(params)
 
     newFigure.setRotation({pitchRotation, yawRotation, 0})
 
-    clearArbitraryButtons() --TODO: is this needed? I took this from the wagon portion
-    if newFigure.getVar('figureName') == 'Shepherd' then
-        shepherdAwaitingAction = newFigure.getGUID()
-        return nextState('placed shepherd')
-    elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
-        return nextState('placed flier')
-    else
-        if turnState == 'awaiting figure decision' and (xIndex ~= lastPlacedTileX or zIndex ~= lastPlacedTileZ) then
-            hasAlreadyUsedMagicPortal = true
+    return true
+end
+
+function confirmFigureButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        if not validateFigurePlacement(newlyPlacedFigure) then
+            newlyPlacedFigure = nil
+            clearArbitraryButtons()
+            displayFigureButtons()
+            return
         end
-        return nextState('placed figure')
+        local xIndex = newlyPlacedFigureX
+        local zIndex = newlyPlacedFigureZ
+        local newFigure = newlyPlacedFigure
+        local nameOfFeature = newlyPlacedFeatureName
+        if AUTOLOCK then
+            newFigure.setLock(true)
+        end
+
+        clearArbitraryButtons()
+
+        if turnState == 'awaiting figure decision' or turnState == 'awaiting phantom decision' then
+            if newFigure.getVar('figureName') == 'Fairy' then
+                newlyPlacedFigure = nil
+                return nextState('placed fairy')
+            end
+            if string.sub(nameOfFeature,1,6) == 'Flier-' then
+                flier = newFigure.getGUID()
+                local tileRotation = tileGrid[xIndex][zIndex].rotation
+                if string.sub(nameOfFeature,7,7) == 'W' then flierDirection = 8 else flierDirection = 1 end --assumed to be Flier-NW if it is not Flier-W
+                flierDirection = flierDirection + ((tileRotation - TILE_STANDARD_ROTATION) * 2)
+                if flierDirection > 8 then flierDirection = flierDirection - 8 end
+                if flierDirection < 1 then flierDirection = flierDirection + 8 end
+                allGameMessage({"MESSAGE_FLIER_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}}, player_color_tints[newFigure.getVar('owner')])
+                hasAlreadyUsedFlier = true
+                newlyPlacedFigure = nil
+                return nextState('placed flier')
+            end
+            if newFigure.getVar('figureName') == 'Tower' then
+                numberActiveTowers = 0
+                towerX = xIndex
+                towerZ = zIndex
+                for _, obj in ipairs(getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()) do
+                    if obj.getVar('figureName') == 'Tower' then
+                        local nestedXIndex, nestedZIndex, xPosition, zPosition = getFigureTileLocation(obj)
+                        if xIndex == nestedXIndex and zIndex == nestedZIndex then
+                            local nestedClosestFeatureMapPosition = findClosestPosition(xIndex, zIndex, xPosition, zPosition)
+                            if closestFeatureMapPosition == nestedClosestFeatureMapPosition then
+                                numberActiveTowers = numberActiveTowers + 1
+                            end
+                        end
+                    end
+                end
+                if numberActiveTowers == 1 then
+                    allGameMessage(({"MESSAGE_TOWER_PLACED"}), player_color_tints[activePlayers[currentPlayer]])
+                else
+                    allGameMessage(({"MESSAGE_TOWER_INCREASED"}), player_color_tints[activePlayers[currentPlayer]])
+                end
+                newlyPlacedFigure = nil
+                return nextState('placed tower')
+            end
+            if nameOfFeature == 'Tower Foundation' then
+                nameOfFeature = 'a tower'
+            end
+            evaluateShrineChallengeAndPrintMessage(nameOfFeature, xIndex, zIndex)
+        elseif turnState == 'replace finished wagons' then
+            wagonFeatures[activePlayers[currentMiniTurn]] = nil
+        elseif turnState == 'prompt moving from carcassonne' or turnState == 'game over - prompt moving from carcassonne' then
+            carcassonneFigures[newFigure.getVar('owner')][newFigure.getGUID()] = nil
+            newFigure.highlightOff()
+            for follower_guid, quarter in pairs(carcassonneFigures[activePlayers[currentMiniTurn]]) do
+                getObjectFromGUID(follower_guid).highlightOff()
+                getObjectFromGUID(follower_guid).setLock(true)
+            end
+            if turnState == 'prompt moving from carcassonne' then
+                currentMiniTurn = currentMiniTurn + 1
+            end
+        end
+
+        if newFigure.getVar('figureName') == 'Count' then
+            allGameMessage({"MESSAGE_COUNT_PLACED", {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, newFigure.getColorTint())
+        else
+            allGameMessage({"MESSAGE_FIGURE_PLACED", {'{c1}', newFigure.getDescription()}, {'{f1}', newFigure.getName()}, {'{s2}', translate({nameOfFeature})}}, player_color_tints[newFigure.getVar('owner')])
+        end
+
+        if newFigure.getVar('figureName') == 'Shepherd' then
+            shepherdAwaitingAction = newFigure.getGUID()
+            newlyPlacedFigure = nil
+            return nextState('placed shepherd')
+        elseif turnState == 'awaiting flier decision' or turnState == 'awaiting flier decision - phantom' then
+            evaluateShrineChallengeAndPrintMessage(nameOfFeature, xIndex, zIndex)
+            newlyPlacedFigure = nil
+            return nextState('placed flier')
+        else
+            if turnState == 'awaiting figure decision' and (xIndex ~= lastPlacedTileX or zIndex ~= lastPlacedTileZ) then
+                hasAlreadyUsedMagicPortal = true
+            end
+            newlyPlacedFigure = nil
+            return nextState('placed figure')
+        end
+    end
+end
+
+function evaluateShrineChallengeAndPrintMessage(nameOfFeature, xIndex, zIndex)
+    if table.contains(CLOISTER_FEATURES, nameOfFeature) then
+        local challengerTile, challengedTile
+        if nameOfFeature == 'Cloister' or nameOfFeature == 'Abbey' then
+            challengerTile = 'Cloister'
+            challengedTile = 'Shrine'
+        else
+            challengerTile = 'Shrine'
+            challengedTile = 'Cloister'
+        end
+        for x=-1, 1 do
+            for z=-1, 1 do
+                if not (x == 0 and z == 0) and tileGridOccupied(xIndex + x, zIndex + z) then
+                    local specialFeatures = getTileDataForTile(getObjectFromGUID(tileGrid[xIndex + x][zIndex + z].tile_guid)).specialFeatures
+                    if specialFeatures ~= nil then
+                        for specialFeatureNum, feature in ipairs(specialFeatures) do
+                            local adjacentFeature = feature[1]
+                            if adjacentFeature == 'Abbey' then adjacentFeature = 'Cloister' end
+                            if adjacentFeature == challengedTile then
+                                local objs = getObjectFromGUID(PLAY_AREA_SCRIPTING_ZONE_GUID).getObjects()
+                                for _, object in ipairs(objs) do
+                                    if table.contains(FOLLOWER_TYPES, object.getVar('figureName')) then
+                                        local objectXIndex, objectZIndex, xPosition, zPosition = getFigureTileLocation(object)
+                                        if objectXIndex == xIndex + x and objectZIndex == zIndex + z then
+                                            local nestedClosestFeatureMapPosition = findClosestPosition(xIndex + x, zIndex + z, xPosition, zPosition)
+                                            if nestedClosestFeatureMapPosition == specialFeatureNum + 12 then
+                                                allGameMessage({"MESSAGE_SHRINE_CHALLENGED", {'{c1}', object.getDescription()}, {'{f1}', object.getName()}, {'{s2}', translate({feature[1]})}}, player_color_tints[object.getVar('owner')])
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -263,14 +294,40 @@ function checkTile(params)
         --for some reason it is possible to get into a state where the lastDroppedObject is never resting. it therefore will go into an infinite loop waiting for this state
         --if lastDroppedObject.resting then
     local newTile = getObjectFromGUID(lastDroppedObject_GUID)
-    if newTile == nil or newTile.held_by_color ~= nil then
+
+    if validateTilePlacement(newTile) then
+        local xPosition = (newTile.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
+        local zPosition = (newTile.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
+        local yRotation = newTile.getRotation().y / 90
+        local xIndex = math.floor(xPosition + TILE_PLACEMENT_MARGIN * TILE_SPACING)
+        local zIndex = math.floor(zPosition + TILE_PLACEMENT_MARGIN * TILE_SPACING)
+        --by adding 0.5, getting the floor will round to the nearest whole number
+        local tileRotation = math.floor(yRotation + 0.5)
+        if tileRotation == 0 then tileRotation = 4 end
+
+        newlyPlacedTile = newTile
+        newlyPlacedTileX = xIndex
+        newlyPlacedTileZ = zIndex
+        newlyPlacedTileRotation = tileRotation
+
+        local confirmTileButtonParam = {
+           index = 1, label = translate("BUTTON_LABEL_CONFIRM"), click_function = 'confirmTileButton',
+           position = {x=0, y=FLOATING_BUTTON_HEIGHT, z=2.5}, width = 1400, height=600, font_size = 200, function_owner = nil
+        }
+        createNormalizedArbitraryButton({x=-xIndex * TILE_SPACING + MIDDLE_OFFSET.x, y=TABLE_SURFACE_Y, z=zIndex * TILE_SPACING - MIDDLE_OFFSET.z}, confirmTileButtonParam, true)
+    end
+end
+
+function validateTilePlacement(newTile)
+    if newTile == nil then return false end --makes sure object still exists
+    if newTile.held_by_color ~= nil then
         allErrorMessage({"MESSAGE_TILE_PICKED_UP"}, activePlayers[currentPlayer])
-        return
+        return false
     end
     local newTileData = getTileDataForTile(newTile)
     if newTileData.sides == nil then
         allErrorMessage({"MESSAGE_ERROR_NO_SCRIPT_DATA"})
-        return
+        return false
     end
     local xPosition = (newTile.getPosition().x + MIDDLE_OFFSET.x) / TILE_SPACING
     local zPosition = (newTile.getPosition().z + MIDDLE_OFFSET.z) / TILE_SPACING
@@ -288,19 +345,28 @@ function checkTile(params)
         --by adding 0.5, getting the floor will round to the nearest whole number
         local tileRotation = math.floor(yRotation + 0.5)
         if tileRotation == 0 then tileRotation = 4 end
+        newTile.setPosition({xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
+        newTile.setRotation({0, tileRotation * 90, 0})
         --debugMessage(2, "piece rotation: " .. tileRotation .. " piece indexes: x: " .. xIndex .. " z: " .. zIndex)
         if isValidTileLocation(newTile, tileRotation, xIndex, zIndex, true) then
-            newTile.setPosition({xIndex * TILE_SPACING - MIDDLE_OFFSET.x, TABLE_SURFACE_Y, zIndex * TILE_SPACING - MIDDLE_OFFSET.z})
-            newTile.setRotation({0, tileRotation * 90, 0})
-
-            if AUTOLOCK then
-                newTile.setLock(true)
-            end
-            addTile(xIndex, zIndex, newTile, tileRotation, false)
-            return nextState('tile placed')
+            return true
         end
     else
         allErrorMessage({"MESSAGE_INVALID_LOCATION_TILE_NOT_ALIGNED"}, activePlayers[currentPlayer])
+    end
+    return false
+end
+
+function confirmTileButton(object, sPlayer)
+    if checkGameButtonPrivileges(sPlayer) then
+        if not validateTilePlacement(newlyPlacedTile) then return end
+        clearArbitraryButtons()
+        if AUTOLOCK then
+            newlyPlacedTile.setLock(true)
+        end
+        addTile(newlyPlacedTileX, newlyPlacedTileZ, newlyPlacedTile, newlyPlacedTileRotation, false)
+        newlyPlacedTile = nil
+        return nextState('tile placed')
     end
 end
 

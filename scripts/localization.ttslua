@@ -8,7 +8,11 @@ function translate(params)
   else
       msg = params
   end
-  if LOCALIZED_STRINGS[currentLanguage] ~= nil and LOCALIZED_STRINGS[currentLanguage][msg] ~= nil then
+  if LOCALIZED_STRINGS[currentLanguage] == nil or LOCALIZED_STRINGS[currentLanguage][msg] == nil then
+      if LOCALIZED_STRINGS['en-US'][msg] ~= nil then
+          msg = LOCALIZED_STRINGS['en-US'][msg]
+      end
+  else
       msg = LOCALIZED_STRINGS[currentLanguage][msg]
   end
   if type(params) == 'table' then
@@ -55,6 +59,7 @@ LOCALIZED_STRINGS = {
     ["BUTTON_LABEL_SCORE_SUMMARY"] = "Score\nSummary",
     ["BUTTON_LABEL_SKIP_TURN"] = "Skip\nTurn",
     ["BUTTON_LABEL_MARKERS"] = "Show\nMarkers:\n",
+    ["BUTTON_LABEL_CONFIRM"] = "Confirm",
     ["BUTTON_LABEL_PROMPT_PLACE_FIGURE"] = "Place a figure\nOR",
     ["BUTTON_LABEL_SKIP_PLACING_FIGURE"] = "Skip placing\nfigure",
     ["BUTTON_LABEL_PLACE_GOLD"] = "Place\nGold",
