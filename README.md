@@ -11,7 +11,7 @@ http://store.steampowered.com/app/286160/Tabletop_Simulator/
 
 The workshop item has been taken down. You will now have the download the save file yourself. The current version is available here:
 
-https://drive.google.com/uc?export=download&id=1_Iy4qVsc3zcO7gnr21cXuizv1ixgfgeN
+https://drive.google.com/uc?export=download&id=1wGsemzGAnhkjniPFhM9rOHjYS9nDWhwb
 
 On Windows, move the file to your Windows user's Documents\My Games\Tabletop Simulator\Saves folder
 
