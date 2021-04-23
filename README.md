@@ -55,7 +55,7 @@ Contains functions that are not specific to Carcassonne, but are useful for all 
 
 ### tts_events.ttslua
 
-Contains (almost) all of the TTS entry points for the mod. All code begins execution here, with the exception of some code that is run on objects (ie. control panels + a couple other objects).
+Contains all global TTS entry points for the mod. All code begins execution here, with the exception of some events that run on objects (ie. control panels + a couple other objects).
 
 Note that buttons created by this code can provide for additional entry points (which are stored in other files).
 
@@ -129,6 +129,4 @@ Contains XML UIs, mainly for the control panel.
 
 ### tile_data
 
-tile data is backed up here only. Changes made to this data will not be automatically included in the mod tile data. Instead, it is recommended to right-click the tile in-game and select Scripting->Scripting Editor. This will load the card into Atom and you can edit it there. Once done editing the card, use ctrl+shift+s. When ready to commit the changes, copy all of the cards scripts from the Tabletop Simulator Lua project folder to their respective git folder.
-
-How tile data is managed should hopefully be improved in the future.
+raw metadata used to represent the characteristics of the tile. For details see: https://github.com/DinnerBuffet/TTSCarcassonne/blob/master/tile_data/README.md
