@@ -1,7 +1,7 @@
 # Carcassonne
 ![Carcassonne](https://github.com/DinnerBuffet/TTSCarcassonne/blob/master/workshop%20splash.jpg)
 
-NOTE: I am no longer actively updating this mod. Others are welcome to branch the code and continue updating it, but as far as I know no one has. Issue reports will likely not be investigated.
+NOTE: I am no longer actively updating this mod. Others are welcome to branch the code and continue updating it. mmann78 has started a promising branch with lots of new changes. I recommend following that branch for future updates: https://github.com/mmann78/TTSCarcassonne
 
 The game Tabletop Simulator is required to play the mod:
 
